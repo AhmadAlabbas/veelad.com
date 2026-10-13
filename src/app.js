@@ -28,7 +28,9 @@ export function createApp(c,db) {
    res.json({ok:true,version:'3.0.0',environment:c.mode,revision:c.revision,marketplace_enabled:true});
   } catch(e) {
    console.error('Veelad readiness failed:',e.code||e.name);
-   res.status(503).json({ok:false,error:e instanceof ApiError ? e.message : 'Database readiness check failed.'});
+   const knownCodes=['ETIMEDOUT','ECONNREFUSED','ENOTFOUND','EHOSTUNREACH','ER_ACCESS_DENIED_ERROR','ER_DBACCESS_DENIED_ERROR','ER_BAD_DB_ERROR','ER_NO_SUCH_TABLE'];
+   const databaseError=knownCodes.includes(e.code) ? e.code : e instanceof ApiError ? 'STORE_NOT_PROVISIONED' : 'DATABASE_UNAVAILABLE';
+   res.status(503).json({ok:false,version:'3.0.0',environment:c.mode,revision:c.revision,database_error:databaseError,error:e instanceof ApiError ? e.message : 'Database readiness check failed.'});
   }
  });
  api.use(session({name:c.cookieName,secret:c.secret,store,resave:false,saveUninitialized:false,

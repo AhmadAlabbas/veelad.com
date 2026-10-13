@@ -26,7 +26,7 @@ test('HTTP listens within the hosting deadline while MySQL is unresponsive; read
   assert.ok(performance.now()-started<3000);
   const response=await fetch(`http://127.0.0.1:${port}/api.php?route=health`,{signal:AbortSignal.timeout(8000)});
   assert.equal(response.status,503);
-  const body=await response.json();assert.equal(body.ok,false);assert.equal(body.error,'Database readiness check failed.');
+  const body=await response.json();assert.equal(body.ok,false);assert.equal(body.error,'Database readiness check failed.');assert.equal(body.database_error,'ETIMEDOUT');assert.equal(body.environment,'test');
   assert.equal(response.headers.get('set-cookie'),null,'Readiness must not create a session');
   assert.equal(child.exitCode,null,'Database outage must not crash the HTTP service');
  }finally {
