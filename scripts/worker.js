@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import {fileURLToPath} from 'node:url';
 import {config} from '../src/config.js';
 import {database} from '../src/db.js';
 import {email} from '../src/security.js';
@@ -19,4 +20,12 @@ export async function work(c,db,transport) {
   return {sent};
  } finally {await db.q("SELECT RELEASE_LOCK('veelad_mail_worker')",[],conn);conn.release();}
 }
-if(process.argv[1]?.endsWith('/scripts/worker.js')) {const c=config(),db=database(c);try{console.log(await work(c,db));}finally{await db.pool.end();}}
+// Keep the server's import graph synchronous for hosts that require() the entry file.
+async function main() {
+ const c=config(),db=database(c);
+ try {console.log(await work(c,db));}finally {await db.pool.end();}
+}
+if(process.argv[1]===fileURLToPath(import.meta.url)) main().catch(error=>{
+ console.error('Mail worker failed:',error.code||error.name);
+ process.exitCode=1;
+});
