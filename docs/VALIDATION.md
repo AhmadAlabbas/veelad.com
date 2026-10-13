@@ -2,7 +2,7 @@
 
 Current machine: Node.js 24.19.0, MySQL 8.4 in a localhost-bound Docker database, Express 5. Original seed data is fictional; no production export was imported.
 
-17 integration/configuration checks passed. Four desktop/mobile browser scenarios passed on the current machine.
+18 integration/configuration/startup checks passed. Four desktop/mobile browser scenarios passed on the current machine.
 
 The existing integration suite exercises actual MySQL queries, transactions and HTTP sessions: CSRF/origin protections; safe registration and session rotation; customer state/profile/messages; role restrictions; image content/dimension/ownership validation; artist submission and admin approval; server-calculated SAR totals/coupons; concurrent idempotency and final-unit stock contention; transaction rollback; manual test fulfillment; concurrent one-time cancellation restocking; checkout pause; suspension; PHP bcrypt verification/rehash; cross-session password invalidation; recovery expiry/single-use; email queue locks with a simulated transport; production landing-page preservation; and concurrent rate limiting. Mock email delivery does not validate a real provider.
 
@@ -15,3 +15,7 @@ Hostinger runtime: the user confirmed Node.js 24 is available on their Cloud pla
 Not verified: GitHub/native hosting connection, live staging DNS/TLS/proxy behavior, persistent private hosting storage, hPanel environment/secrets, SMTP delivery, real imported account/order/artwork consistency, production cutover, deployment in a new cloud task or a production release. The user reports a Cloud plan and a Node deployment option; authenticated account/deployment verification remains pending. Hostinger support pages returned 403 from this execution environment.
 
 Neither OAuth, online payments, real refunds, monthly artist payouts nor delivery-provider automation is enabled. The preserved royalty estimate is not a payable balance. Production remains a deliberate release and defaults to the existing coming-soon page.
+
+## Hostinger startup regression
+
+Uploaded staging runtime logs report that the app did not call listen() within three seconds. The original entrypoint awaited a MySQL query before listening. A regression test with a TCP server that accepts connections but never completes the MySQL handshake reproduced the failure before the correction. The server now opens HTTP without waiting for the database; an explicit package entrypoint points to src/server.js. Database connect timeout is five seconds. Health checks run before session creation and return HTTP 503 for database/provisioning failures, keeping readiness honest. The stalled-database test passes after the correction. The staging domain is reachable over HTTPS, but returned a hosting 503 before redeployment; live application readiness remains unverified.

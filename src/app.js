@@ -18,6 +18,19 @@ export function createApp(c,db) {
  app.locals.sessionStore=store;
  const api=express.Router();
  api.use((req,res,next)=>{res.set('Cache-Control','no-store');next();});
+ api.get('/',async(req,res,next)=>{
+  if(req.query.route!=='health') return next();
+  try {
+   const row=await db.one('SELECT data FROM settings WHERE id=?',['store']);
+   if(!row) throw new ApiError(503,'Store provisioning is required.');
+   JSON.parse(row.data);
+   await db.q('SELECT session_id FROM sessions LIMIT 1');
+   res.json({ok:true,version:'3.0.0',environment:c.mode,revision:c.revision,marketplace_enabled:true});
+  } catch(e) {
+   console.error('Veelad readiness failed:',e.code||e.name);
+   res.status(503).json({ok:false,error:e instanceof ApiError ? e.message : 'Database readiness check failed.'});
+  }
+ });
  api.use(session({name:c.cookieName,secret:c.secret,store,resave:false,saveUninitialized:false,
    cookie:{httpOnly:true,secure:c.secure,sameSite:'lax',path:'/',maxAge:12*3600*1000}}));
  api.use((req,res,next)=>{
@@ -74,7 +87,6 @@ export function createApp(c,db) {
  function payload(req) {const v=req.body??{};if(!v||Array.isArray(v)||typeof v!=='object') fail(400,'Invalid request.');return v;}
  api.all('/',async (req,res)=>{
   const route=String(req.query.route||'bootstrap'),method=req.method,v=payload(req);
-  if(method==='GET' && route==='health') {await settings();await q('SELECT session_id FROM sessions LIMIT 1');return res.json({ok:true,version:'3.0.0',environment:c.mode,revision:c.revision,marketplace_enabled:true});}
   if(method==='GET' && route==='bootstrap') {const u=await me(req);return res.json({mode:'server',csrf:req.session.csrf,user:u ? safeUser(u) : null,products:await products(),artists:(await q('SELECT * FROM artists')).map(a=>json(a.data)),settings:await settings()});}
   if(route==='state' && ['GET','POST'].includes(method)) {
    const u=await me(req,true);if(method==='GET') return res.json(await state(u.id));

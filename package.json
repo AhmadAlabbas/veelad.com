@@ -32,5 +32,6 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.64.0"
-  }
+  },
+  "main": "src/server.js"
 }

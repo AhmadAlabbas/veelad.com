@@ -19,7 +19,7 @@ export function config(env = process.env) {
     port:Number(env.PORT || 3000), uploadDir:path.resolve(env.UPLOAD_DIR || 'var/uploads'),
     cookieName:secure ? '__Host-veelad_session' : 'veelad_session',
     db:{host:env.DB_HOST || '127.0.0.1', port:Number(env.DB_PORT || 3306), database:env.DB_NAME,
-      user:env.DB_USER, password:env.DB_PASSWORD || '', charset:'utf8mb4', connectionLimit:10,
+      user:env.DB_USER, password:env.DB_PASSWORD || '', charset:'utf8mb4', connectionLimit:10, connectTimeout:5000,
       ...(env.DB_TLS === 'true' ? {ssl:{rejectUnauthorized:true}} : {})},
     workerInterval:Number(env.MAIL_WORKER_INTERVAL_SECONDS || 0), mailEnabled:env.MAIL_ENABLED === 'true', mailFrom:env.MAIL_FROM,
     smtp:{host:env.SMTP_HOST,port:Number(env.SMTP_PORT || 587),secure:env.SMTP_PORT === '465',
