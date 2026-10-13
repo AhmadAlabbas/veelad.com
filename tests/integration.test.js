@@ -105,6 +105,7 @@ test('manual test payment and processing/shipped/delivered transitions enforce s
  assert.equal((await admin.call('admin-order',{id:orderId,status:'shipped'})).status,409);
  await success(admin,'admin-record-payment',{id:orderId,reference:'TEST-NO-MONEY'});
  assert.equal((await admin.call('admin-record-payment',{id:orderId,reference:'duplicate'})).status,409);
+ assert.ok(await db.one('SELECT id FROM mail_queue WHERE subject=?',['Veelad test payment recorded: '+orderId]));
  await success(admin,'admin-order',{id:orderId,status:'shipped',tracking:'TEST-SHIP'});await success(admin,'admin-order',{id:orderId,status:'delivered',tracking:'TEST-SHIP'});
  assert.equal((await success(buyer,'order',undefined,{id:orderId})).order.status,'delivered');assert.equal((await admin.call('admin-order',{id:orderId,status:'cancelled'})).status,409);
 });

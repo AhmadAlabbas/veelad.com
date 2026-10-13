@@ -222,6 +222,7 @@ export function createApp(c,db) {
       if(!['awaiting_payment','new'].includes(o.status)) fail(409,'Only an unpaid open order can be confirmed.');
       Object.assign(d,{payment_status:'paid',payment_method:'manual_external',payment_reference:text(v,'reference',150),paid_at:now(),test_payment:true});
       await q('UPDATE orders SET status=?,data=? WHERE id=?',['processing',JSON.stringify(d),o.id],conn);await audit(u,'payment.test_recorded',o.id,conn);
+      await queue(o.email,'Veelad test payment recorded: '+o.id,'A simulated external payment was recorded for this staging order. No charge or transfer was made. Reference: '+d.payment_reference,conn);
      }else {
       const next=text(v,'status',30),allowed={awaiting_payment:['cancelled'],new:['cancelled'],processing:['shipped','cancelled'],shipped:['delivered'],delivered:[],cancelled:[]};
       if(next!==o.status && !allowed[o.status]?.includes(next)) fail(409,'This order status transition is not allowed.');
@@ -257,7 +258,7 @@ export function createApp(c,db) {
   if(res.headersSent) return next(e);
   const status=e.status || (e instanceof multer.MulterError ? 422 : 500);
   if(status>=500 && !(e instanceof ApiError)) console.error('Veelad request failed:',e.code||e.name);
-  res.status(status).json({error:status>=500 && !(e instanceof ApiError) ? 'The server could not complete this request.' : e.message});
+  res.status(status).json({error:e.type==='entity.parse.failed' ? 'Invalid JSON.' : e.type==='entity.too.large' ? 'Request too large.' : status>=500 && !(e instanceof ApiError) ? 'The server could not complete this request.' : e.message});
  });
  return app;
 }
