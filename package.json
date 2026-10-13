@@ -1,0 +1,36 @@
+{
+  "name": "veelad",
+  "version": "3.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env src/server.js",
+    "dev": "node --env-file-if-exists=.env --watch src/server.js",
+    "migrate": "node --env-file-if-exists=.env scripts/migrate.js",
+    "provision": "node --env-file-if-exists=.env scripts/provision.js",
+    "worker": "node --env-file-if-exists=.env scripts/worker.js",
+    "test": "node --env-file-if-exists=.env --test --test-concurrency=1 tests/*.test.js",
+    "test:ui": "playwright test",
+    "check": "node scripts/check.js",
+    "build": "node scripts/build.js",
+    "local:init": "node scripts/local-init.js",
+    "local:provision": "node --env-file-if-exists=.env scripts/local-provision.js"
+  },
+  "dependencies": {
+    "argon2": "^0.45.1",
+    "bcryptjs": "^3.0.3",
+    "express": "^5.3.0",
+    "express-session": "^1.19.0",
+    "helmet": "^8.3.0",
+    "multer": "^2.4.0",
+    "mysql2": "^3.24.6",
+    "nodemailer": "^10.1.0",
+    "sharp": "^0.35.5"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.0"
+  }
+}

@@ -1,0 +1,50 @@
+name: Deliberate production release
+on:
+  workflow_dispatch:
+    inputs:
+      commit:
+        description: 'Full SHA currently verified on staging'
+        required: true
+      backup_confirmed:
+        type: boolean
+        description: 'Verified database and upload backups are stored privately'
+        default: false
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: production-release
+  cancel-in-progress: false
+jobs:
+  release:
+    if: inputs.backup_confirmed && vars.HOSTINGER_PRODUCTION_DEPLOY_READY == 'true'
+    environment: production
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Require the tested staging revision
+        env:
+          RELEASE_COMMIT: ${{ inputs.commit }}
+        run: |
+          [[ "$RELEASE_COMMIT" =~ ^[a-f0-9]{40}$ ]]
+          test "$(git rev-parse origin/staging)" = "$RELEASE_COMMIT"
+          git merge-base --is-ancestor "$RELEASE_COMMIT" origin/main
+      - name: Verify staging before release
+        env:
+          EXPECTED_COMMIT: ${{ inputs.commit }}
+        run: node scripts/verify-deployment.js staging
+      - name: Advance production branch
+        env:
+          RELEASE_COMMIT: ${{ inputs.commit }}
+        run: git push origin "$RELEASE_COMMIT:refs/heads/production"
+      - name: Verify production revision
+        env:
+          EXPECTED_COMMIT: ${{ inputs.commit }}
+        run: node scripts/verify-deployment.js production

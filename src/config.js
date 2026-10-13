@@ -1,0 +1,28 @@
+import path from 'node:path';
+import fs from 'node:fs';
+export function config(env = process.env) {
+  const mode = env.APP_ENV || 'local';
+  if (!['local','test','staging','production'].includes(mode)) throw Error('Invalid APP_ENV');
+  const origin = env.APP_ORIGIN || 'http://127.0.0.1:3000';
+  const expected = {staging:'https://staging.veelad.com', production:'https://veelad.com'};
+  if (expected[mode] && origin !== expected[mode]) throw Error('APP_ORIGIN must match the deployment environment');
+  const secret = env.SESSION_SECRET;
+  if (!secret || secret.length < 32 || secret.startsWith('REPLACE')) throw Error('Set a unique SESSION_SECRET of at least 32 characters');
+  if (!env.DB_NAME || !env.DB_USER) throw Error('DB_NAME and DB_USER are required');
+  if (['staging','production'].includes(mode) && !env.DB_PASSWORD) throw Error('Deployment database password is required');
+  const secure = origin.startsWith('https://');
+  const trustProxy = Number(env.TRUST_PROXY || 0);
+  if (![0,1].includes(trustProxy)) throw Error('TRUST_PROXY must be 0 or 1');
+  let revision=env.DEPLOY_COMMIT||null;
+  try {revision ||= JSON.parse(fs.readFileSync(new URL('../.release.json',import.meta.url),'utf8')).revision;} catch {}
+  return {mode, origin, secret, secure, trustProxy, revision, marketplaceEnabled:mode!=='production'||env.PRODUCTION_MARKETPLACE_ENABLED==='true',
+    port:Number(env.PORT || 3000), uploadDir:path.resolve(env.UPLOAD_DIR || 'var/uploads'),
+    cookieName:secure ? '__Host-veelad_session' : 'veelad_session',
+    db:{host:env.DB_HOST || '127.0.0.1', port:Number(env.DB_PORT || 3306), database:env.DB_NAME,
+      user:env.DB_USER, password:env.DB_PASSWORD || '', charset:'utf8mb4', connectionLimit:10,
+      ...(env.DB_TLS === 'true' ? {ssl:{rejectUnauthorized:true}} : {})},
+    workerInterval:Number(env.MAIL_WORKER_INTERVAL_SECONDS || 0), mailEnabled:env.MAIL_ENABLED === 'true', mailFrom:env.MAIL_FROM,
+    smtp:{host:env.SMTP_HOST,port:Number(env.SMTP_PORT || 587),secure:env.SMTP_PORT === '465',
+      auth:env.SMTP_USER ? {user:env.SMTP_USER, pass:env.SMTP_PASSWORD} : undefined},
+    manualPayments:env.MANUAL_TEST_PAYMENTS === 'true' && mode !== 'production'};
+}

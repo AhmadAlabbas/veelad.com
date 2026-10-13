@@ -1,0 +1,110 @@
+[
+  {
+    "path": "public_html/veelad_logo.png",
+    "sha256": "d2293952cedbd4bb77e886ecfe57acb11a7e279dc9657f086a42123e71ee16be"
+  },
+  {
+    "path": "public_html/script.js",
+    "sha256": "58d58210732a39b8f1a6b7dd937299502df9c3b5a0742cb4b4f4aa1aa704744e"
+  },
+  {
+    "path": "public_html/staging/api.php",
+    "sha256": "aab2acb996d239a10cff2cfd4907198d91954069fe5844f7c0c8b8758e7b5ec4"
+  },
+  {
+    "path": "public_html/staging/assets/campaign.jpg",
+    "sha256": "0568eca5f7491076820ec3a76a8c2b4af32cc5bcd5851b18cae845a77d7ff312"
+  },
+  {
+    "path": "public_html/staging/assets/styles.css",
+    "sha256": "e434d9526c21d6f0d404c5c0ec1292d97e8b00f4a9d98a27222de804f6b3a26f"
+  },
+  {
+    "path": "public_html/staging/assets/favicon.svg",
+    "sha256": "067b86be23267b6adc546e3bdff13cf283a08fd24d5e3b3a4debd9bad92d7956"
+  },
+  {
+    "path": "public_html/staging/assets/catalog.jpg",
+    "sha256": "1cb5b23212bd5c9c1dcc6e4c32bba8cf9a9f3af65e8e23a4fa632ae70e4dff90"
+  },
+  {
+    "path": "public_html/staging/assets/data.js",
+    "sha256": "84a913baaf8600c46dce52fe9db0c4d687417e2bf0637bb7781de6b59813eb30"
+  },
+  {
+    "path": "public_html/staging/assets/app.js",
+    "sha256": "ea93e6ac4527a081d9f1552d5cca2fef00c360f1fabac7f2bfaad56223dd318c"
+  },
+  {
+    "path": "public_html/staging/assets/catalog-2.jpg",
+    "sha256": "0fc21e26a87bb9ba20e1902050d5468393c97ec784b13eedf13510464a9584b2"
+  },
+  {
+    "path": "public_html/staging/index.html",
+    "sha256": "59678bc3791977abd8fa44d7cf18cbab92aad27d4c11d66c91bd1ab23a04bce8"
+  },
+  {
+    "path": "public_html/staging/default.php",
+    "sha256": "aba5b5856471c610e4dd52c322c7a72a895fc9bf98ac1d027528d0e7de1f7e45"
+  },
+  {
+    "path": "public_html/staging/.htaccess",
+    "sha256": "6e12aee29566f345eac61fd291d12e1ebb2e18a265efc08725c8e6ad896a1a4e"
+  },
+  {
+    "path": "public_html/README.txt",
+    "sha256": "65b7882ca4b8f4d19482a0da84d3a51853167ec0e901cb78e536541dece9aafa"
+  },
+  {
+    "path": "public_html/styles.css",
+    "sha256": "c33e7729ad8d54ebf858b11659ae0842a09e76db4ab156c3704b652234e07b66"
+  },
+  {
+    "path": "public_html/favicon.svg",
+    "sha256": "f417820edd40dd80c6afae1a0fb9b27f338046533c9ff2344e166e31a9bff34d"
+  },
+  {
+    "path": "public_html/products.webp",
+    "sha256": "79dd3a414d168a47bc5f352a3d0ae1b40e61d193980a7d1430a51b7f1fda0fd3"
+  },
+  {
+    "path": "public_html/art-at-home.webp",
+    "sha256": "f7f721cba42ca1340e7b8a0c6464175281a97351a46a1fea65f240915dc1ef5a"
+  },
+  {
+    "path": "public_html/index.html",
+    "sha256": "c9013d6a7f4ab30e484b23884247f1ff0bf11018a1a85c5cbc81eb857a864049"
+  },
+  {
+    "path": "public_html/default.php",
+    "sha256": "aba5b5856471c610e4dd52c322c7a72a895fc9bf98ac1d027528d0e7de1f7e45"
+  },
+  {
+    "path": "public_html/everyday-art.webp",
+    "sha256": "dd3464ab0d66418ea8363941c8648eddfd339a04fc41cc6767c3016916493270"
+  },
+  {
+    "path": "veelad-app/uploads/art-4a77c36de8f56a6948f27b25.jpg",
+    "sha256": "5b2b66df7ead673b744796f2033fd50dac812e5c98de2c89f996e9adc6dd37c8"
+  },
+  {
+    "path": "veelad-app/uploads/art-f3c77ee91bce83470aecca91.jpg",
+    "sha256": "ddfb81b22edd0431d34f738aed78d1580dd6220c4320fd8d6cf968705bb866d3"
+  },
+  {
+    "path": "veelad-app/core.php",
+    "sha256": "c98af84bcd0828bf0ed5e9a4060b797f72bab35dbe6f424c9297eedac04c619f"
+  },
+  {
+    "path": "veelad-app/migrate.php",
+    "sha256": "3d799581b16a23eddcd281b2ccd3aa3b191cde0751ee63da7e494e2342545481"
+  },
+  {
+    "path": "veelad-app/seed.json",
+    "sha256": "c7f8c94c830bbcc2ef5bcbf246393bb7c13bc02de716cd91945bb8636d4b7e46"
+  },
+  {
+    "path": "veelad-app/worker.php",
+    "sha256": "1187cb545439f4b10dac0b5724f81bccebe55278f3fff3673f5c59d093d74d60"
+  }
+]
