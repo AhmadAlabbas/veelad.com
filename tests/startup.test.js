@@ -35,3 +35,20 @@ test('HTTP listens within the hosting deadline while MySQL is unresponsive; read
   await new Promise(resolve=>stalledDatabase.close(resolve));
  }
 });
+
+test('direct entry environment loader reads its private .env and preserves injected values',async()=>{
+ const {mkdtemp,mkdir,writeFile,copyFile,rm}=await import('node:fs/promises');
+ const {tmpdir}=await import('node:os');
+ const path=await import('node:path');
+ const folder=await mkdtemp(path.join(tmpdir(),'veelad-env-loader-'));
+ try {
+  await mkdir(path.join(folder,'src'));
+  await copyFile('src/startup-env.js',path.join(folder,'src/startup-env.mjs'));
+  await writeFile(path.join(folder,'.env'),'SESSION_SECRET=env-loader-test-secret-not-for-real-use\nDB_NAME=file_database\n',{mode:0o600});
+  const env={...process.env,DB_NAME:'injected_database'};delete env.SESSION_SECRET;
+  const source=`await import(${JSON.stringify(new URL('file://'+path.join(folder,'src/startup-env.mjs')).href)}); if(process.env.SESSION_SECRET!=='env-loader-test-secret-not-for-real-use'||process.env.DB_NAME!=='injected_database') process.exit(1);`;
+  const child=spawn(process.execPath,['--input-type=module','-e',source],{env,stdio:['ignore','pipe','pipe']});
+  let output='';child.stdout.on('data',data=>output+=data);child.stderr.resume();
+  const [code]=await once(child,'exit');assert.equal(code,0);assert.ok(output.includes('SESSION_SECRET [set]'));assert.equal(output.includes('env-loader-test-secret-not-for-real-use'),false);
+ }finally{await rm(folder,{recursive:true,force:true});}
+});

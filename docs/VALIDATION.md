@@ -2,7 +2,7 @@
 
 Current machine: Node.js 24.19.0, MySQL 8.4 in a localhost-bound Docker database, Express 5. Original seed data is fictional; no production export was imported.
 
-18 integration/configuration/startup checks passed. Four desktop/mobile browser scenarios passed on the current machine.
+19 integration/configuration/startup checks passed. Four desktop/mobile browser scenarios passed on the current machine.
 
 The existing integration suite exercises actual MySQL queries, transactions and HTTP sessions: CSRF/origin protections; safe registration and session rotation; customer state/profile/messages; role restrictions; image content/dimension/ownership validation; artist submission and admin approval; server-calculated SAR totals/coupons; concurrent idempotency and final-unit stock contention; transaction rollback; manual test fulfillment; concurrent one-time cancellation restocking; checkout pause; suspension; PHP bcrypt verification/rehash; cross-session password invalidation; recovery expiry/single-use; email queue locks with a simulated transport; production landing-page preservation; and concurrent rate limiting. Mock email delivery does not validate a real provider.
 
@@ -19,3 +19,5 @@ Neither OAuth, online payments, real refunds, monthly artist payouts nor deliver
 ## Hostinger startup regression
 
 Uploaded staging runtime logs report that the app did not call listen() within three seconds. The original entrypoint awaited a MySQL query before listening. A regression test with a TCP server that accepts connections but never completes the MySQL handshake reproduced the failure before the correction. The server now opens HTTP without waiting for the database; an explicit package entrypoint points to src/server.js. Database connect timeout is five seconds. Health checks run before session creation and return HTTP 503 for database/provisioning failures, keeping readiness honest. The stalled-database test passes after the correction. The staging domain is reachable over HTTPS, but returned a hosting 503 before redeployment; live application readiness remains unverified.
+
+A later account confirmation identified src/app.js as the hosting entry file; that module is an application factory and cannot register the listener. Hostinger must select src/server.js. After the user confirmed that change but still saw a hosting HTML 503, safe startup markers and direct-entry .env loading were added. The loader preserves injected environment values, and its integration test checks that it does not print the secret. The remaining live startup failure requires the latest marked runtime log; no database or native-package cause has yet been established.
