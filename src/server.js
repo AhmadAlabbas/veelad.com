@@ -4,6 +4,7 @@ import {database} from './db.js';
 import {createApp} from './app.js';
 import {work} from '../scripts/worker.js';
 import {migrate} from '../scripts/migrate.js';
+import {mailStatus} from './mail.js';
 console.log('Veelad startup: dependencies loaded; validating settings.');
 let c;
 try {c=config();} catch(error) {console.error('Veelad startup settings validation failed:',error.message);throw error;}
@@ -24,7 +25,7 @@ if(c.mode==='staging') {
  });
 }
 let worker;
-if(c.mailEnabled && c.workerInterval>=60) worker=setInterval(()=>{
+if(mailStatus(c).ready) worker=setInterval(()=>{
  if(schema.status==='ready') work(c,db).catch(()=>console.error('Email worker failed; inspect provider configuration'));
 },c.workerInterval*1000);
 async function stop() {clearInterval(worker);server.close(async()=>{await app.locals.sessionStore.close();await db.pool.end();process.exit(0);});setTimeout(()=>process.exit(1),10000).unref();}

@@ -8,13 +8,14 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {ApiError,fail,uid,token,trackingToken,hash,equal,text,email,integer,password,passwordHash,verifyPassword,safeUser,json,product,order,now} from './security.js';
+import {queueMail,mailStatus,recipientAllowed,checkMail,safeMailError} from './mail.js';
 const publicDir=fileURLToPath(new URL('../public',import.meta.url));
 const categories=['T-shirts','Tote bags','Phone cases','Art prints','Mugs','Stickers','Notebooks'];
 function readinessCode(error,fallback='DATABASE_UNAVAILABLE') {
  const knownCodes=['ETIMEDOUT','ECONNREFUSED','ENOTFOUND','EHOSTUNREACH','ER_ACCESS_DENIED_ERROR','ER_DBACCESS_DENIED_ERROR','ER_BAD_DB_ERROR','ER_NO_SUCH_TABLE'];
  return knownCodes.includes(error?.code) ? error.code : error instanceof ApiError ? 'STORE_NOT_PROVISIONED' : fallback;
 }
-export function createApp(c,db,schema={status:'ready'}) {
+export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail) {
  const app=express();
  app.disable('x-powered-by');app.set('trust proxy',c.trustProxy);
  app.use(helmet({contentSecurityPolicy:{directives:{defaultSrc:["'self'"],scriptSrc:["'self'"],styleSrc:["'self'","'unsafe-inline'","https://fonts.googleapis.com"],imgSrc:["'self'",'data:','blob:'],fontSrc:["'self'","https://fonts.gstatic.com"],connectSrc:["'self'"],upgradeInsecureRequests:c.secure ? [] : null}},crossOriginEmbedderPolicy:false}));
@@ -61,7 +62,7 @@ export function createApp(c,db,schema={status:'ready'}) {
  const q=db.q, one=db.one;
  const settings=async conn=> {const r=await one('SELECT data FROM settings WHERE id=?',['store'],conn);if(!r) fail(503,'Store provisioning is required.');return json(r.data);};
  const products=async (all=false,artist=null,conn)=> (await q('SELECT * FROM products'+(!all ? " WHERE status='active'" : artist ? ' WHERE artist_id=?' : '')+' ORDER BY created_at DESC,id', all&&artist ? [artist] : [],conn)).map(product);
- const queue=async (address,subject,body,conn)=>q('INSERT INTO mail_queue VALUES (?,?,?,?,?,?,?)',[uid('mail-'),address,subject,body,'queued',0,now()],conn);
+ const queue=(address,subject,body,conn,options)=>queueMail(c,db,address,subject,body,conn,options);
  const audit=async (u,action,target,conn)=>q('INSERT INTO audit_log VALUES (?,?,?,?,?)',[uid(),u.id,action,String(target),now()],conn);
  const state=async (id,conn)=> {const r=await one('SELECT data FROM customer_state WHERE id=?',[id],conn);return r ? json(r.data) : {cart:[],saved:[],address:[]};};
  const putState=async (id,value,conn)=>q('INSERT INTO customer_state VALUES (?,?) ON DUPLICATE KEY UPDATE data=?',[id,JSON.stringify(value),JSON.stringify(value)],conn);
@@ -127,7 +128,7 @@ export function createApp(c,db,schema={status:'ready'}) {
  function payload(req) {const v=req.body??{};if(!v||Array.isArray(v)||typeof v!=='object') fail(400,'Invalid request.');return v;}
  api.all('/',async (req,res)=>{
   const route=String(req.query.route||'bootstrap'),method=req.method,v=payload(req);
-  if(method==='GET' && route==='bootstrap') {const u=await me(req);return res.json({mode:'server',csrf:req.session.csrf,user:u ? safeUser(u) : null,products:await products(),artists:(await q('SELECT * FROM artists')).map(a=>json(a.data)),settings:await settings()});}
+  if(method==='GET' && route==='bootstrap') {const u=await me(req);return res.json({mode:'server',csrf:req.session.csrf,user:u ? safeUser(u) : null,products:await products(),artists:(await q('SELECT * FROM artists')).map(a=>json(a.data)),settings:await settings(),email_delivery:{available:mailStatus(c).ready,staging_restricted:c.mode==='staging'}});}
   if(route==='state' && ['GET','POST'].includes(method)) {
    const u=await me(req,true);if(method==='GET') return res.json(await state(u.id));
    await db.tx(async conn=>{
@@ -167,13 +168,13 @@ export function createApp(c,db,schema={status:'ready'}) {
   }
   if(method==='POST' && route==='forgot-password') {
    await throttle(req,'recovery',5);const address=email(v);
-   if(!c.mailEnabled) fail(503,'Password recovery is unavailable until email delivery is configured.');
-   const u=await one('SELECT * FROM users WHERE email=? AND status=?',[address,'active']);
+   if(!mailStatus(c).ready) fail(503,'Password recovery is unavailable until email delivery is configured.');
+   const u=recipientAllowed(c,address) ? await one('SELECT * FROM users WHERE email=? AND status=?',[address,'active']) : null;
    if(u) {const t=token();await db.tx(async conn=>{
     await one('SELECT id FROM users WHERE id=? FOR UPDATE',[u.id],conn);
     await q('DELETE FROM password_resets WHERE user_id=?',[u.id],conn);
     await q('INSERT INTO password_resets VALUES (?,?,?)',[hash(t),u.id,Math.floor(Date.now()/1000)+3600],conn);
-    await queue(address,'Reset your Veelad password',`Use this link within one hour: ${c.origin}/#/reset?token=${t}\nIf you did not request this, ignore this message.`,conn);
+    await queue(address,'Reset your Veelad password',`Use this link within one hour: ${c.origin}/#/reset?token=${t}\nIf you did not request this, ignore this message.`,conn,{kind:'recovery',expires:Math.floor(Date.now()/1000)+3600,resetHash:hash(t)});
    });}return res.json({ok:true,message:'If that account exists, a recovery email has been queued.'});
   }
   if(method==='POST' && route==='reset-password') {
@@ -210,7 +211,7 @@ export function createApp(c,db,schema={status:'ready'}) {
     const shipping=subtotal-discount>=s.free_shipping?0:Number(s.shipping),total=subtotal-discount+shipping;
     const data={customer:details,items,subtotal,shipping,discount,payment_status:'awaiting_payment',tracking:'',note:'Order received. Awaiting payment; no charge has been made.'};
     await q('UPDATE orders SET total=?,data=? WHERE id=?',[total,JSON.stringify(data),id],conn);
-    await queue(address,'Veelad order received: '+id,`No charge has been made. Total SAR ${(total/100).toFixed(2)}. Private tracking: ${c.origin}/#/track?id=${id}&token=${guest}`,conn);
+    await queue(address,'Veelad order received: '+id,`Hello ${name},\n\nYour order ${id} has been received and is awaiting payment. No charge has been made.\n\n${items.map(item=>`${item.title} — ${item.variant} × ${item.qty}: SAR ${(item.price*item.qty/100).toFixed(2)}`).join('\n')}\n\nSubtotal: SAR ${(subtotal/100).toFixed(2)}\nDiscount: SAR ${(discount/100).toFixed(2)}\nDelivery: SAR ${(shipping/100).toFixed(2)}\nTotal: SAR ${(total/100).toFixed(2)}\n\nPrivate tracking: ${c.origin}/#/track?id=${id}&token=${guest}`,conn);
     if(u) {const st=await state(u.id,conn);st.cart=[];st.address=details;await putState(u.id,st,conn);}
     return {order:order(await one('SELECT * FROM orders WHERE id=?',[id],conn)),guest_token:guest};
    });}catch(e) {
@@ -258,18 +259,37 @@ export function createApp(c,db,schema={status:'ready'}) {
    await db.tx(async conn=>{const old=await one('SELECT * FROM products WHERE id=? FOR UPDATE',[id],conn);if(old&&old.artist_id!==u.id) fail(403,'You can only edit your own products.');
     preserveDetails(p,old);
     if(old) await q('UPDATE products SET data=?,stock=?,status=? WHERE id=?',[JSON.stringify(p),p.stock,'pending',id],conn);else await q('INSERT INTO products VALUES (?,?,?,?,?,?)',[id,u.id,'pending',p.stock,JSON.stringify(p),now()],conn);
+    await queue(u.email,'Veelad submission received: '+p.title,`Hello ${u.name},\n\nWe received your product submission: ${p.title}. It is pending administrator review and is not yet available in the store.\n\nView your products: ${c.origin}/#/studio?tab=products`,conn);
    });return res.json({id,status:'pending'});
   }
   if(route.startsWith('admin')) {
    const u=await role(req,'admin');
    if(method==='GET' && route==='admin') return res.json({products:await products(true),users:(await q('SELECT * FROM users ORDER BY created_at DESC')).map(safeUser),orders:(await q('SELECT * FROM orders ORDER BY created_at DESC')).map(order),messages:(await q('SELECT * FROM messages ORDER BY created_at DESC')).map(({data,...r})=>({...json(data),...r})),settings:await settings(),audit:await q('SELECT * FROM audit_log ORDER BY created_at DESC LIMIT 30')});
-   if(method==='GET' && route==='admin-system') return res.json({version:'3.0.0',database:'mysql',mail_enabled:c.mailEnabled,queued_emails:Number((await one('SELECT COUNT(*) AS n FROM mail_queue WHERE status=?',['queued'])).n),failed_emails:Number((await one('SELECT COUNT(*) AS n FROM mail_queue WHERE status=?',['failed'])).n),paid_orders:(await q('SELECT data FROM orders')).filter(o=>json(o.data).payment_status==='paid').length});
+   if(method==='GET' && route==='admin-system') {
+    const counts=Object.fromEntries((await q("SELECT CASE WHEN m.status='queued' AND d.id IS NULL THEN 'held' ELSE m.status END AS delivery_status,COUNT(*) AS n FROM mail_queue m LEFT JOIN mail_delivery d ON d.id=m.id GROUP BY delivery_status")).map(r=>[r.delivery_status,Number(r.n)]));
+    return res.json({version:'3.0.0',database:'mysql',mail_enabled:c.mailEnabled,email:mailStatus(c),queued_emails:counts.queued||0,failed_emails:counts.failed||0,held_emails:counts.held||0,sending_emails:counts.sending||0,expired_emails:counts.expired||0,paid_orders:(await q('SELECT data FROM orders')).filter(o=>json(o.data).payment_status==='paid').length});
+   }
+   if(method==='POST' && route==='admin-email') {
+    await throttle(req,'admin-email',5);
+    if(!['verify','test'].includes(v.action)) fail(422,'Choose a connection check or test email.');
+    if(!mailStatus(c).ready) fail(409,'Complete the email environment settings and enable the worker before testing.');
+    const address=v.action==='test' ? email(v) : null;
+    if(address && (!recipientAllowed(c,address) || v.confirm!==true)) fail(422,'Confirm the recipient is an inbox you control. In staging it must match MAIL_TEST_RECIPIENT.');
+    await audit(u,'email.'+v.action,'smtp');
+    try {return res.json(await mailCheck(c,v.action,address));}
+    catch(error) {return res.status(502).json({error:'Email check failed: '+safeMailError(error)+'. Check private SMTP settings and provider status.'});}
+   }
    if(method==='POST' && route==='admin-product') {
     const p=await validProduct(v,req),id=v.id?text(v,'id',64):uid('p-'),artist=text(v,'artist_id',64),status=v.status??'active';
     if(!await one('SELECT id FROM artists WHERE id=?',[artist])) fail(422,'Choose a valid artist.');if(!['active','pending','archived'].includes(status)) fail(422,'Invalid product status.');
     await db.tx(async conn=>{
-     preserveDetails(p,await one('SELECT data FROM products WHERE id=? FOR UPDATE',[id],conn));
+     const old=await one('SELECT * FROM products WHERE id=? FOR UPDATE',[id],conn);
+     preserveDetails(p,old);
      await q('INSERT INTO products VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE artist_id=?,status=?,stock=?,data=?',[id,artist,status,p.stock,JSON.stringify(p),now(),artist,status,p.stock,JSON.stringify(p)],conn);await audit(u,'product.save',id,conn);
+     if(old && (old.status!==status || old.artist_id!==artist)) {
+      const recipient=await one("SELECT name,email FROM users WHERE id=? AND role='artist' AND status='active'",[artist],conn);
+      if(recipient) await queue(recipient.email,'Veelad product update: '+p.title,`Hello ${recipient.name},\n\nYour product ${p.title} is now ${status==='active'?'approved and available in the store':status==='archived'?'archived and unavailable in the store':'pending review'}.\n\nView your products: ${c.origin}/#/studio?tab=products`,conn);
+     }
     });return res.json({ok:true});
    }
    if(method==='POST' && ['admin-order','admin-record-payment'].includes(route)) {
@@ -288,6 +308,7 @@ export function createApp(c,db,schema={status:'ready'}) {
       await q('UPDATE orders SET status=?,data=? WHERE id=?',[next,JSON.stringify(d),o.id],conn);
       if(next==='cancelled'&&o.status!=='cancelled') for(const l of [...d.items].sort((a,b)=>a.id.localeCompare(b.id))) await q('UPDATE products SET stock=stock+? WHERE id=?',[l.qty,l.id],conn);
       await audit(u,'order.'+next,o.id,conn);
+      if(next!==o.status) await queue(o.email,'Veelad order update: '+o.id,`Order ${o.id} is now ${next}.\n${d.tracking?'Tracking reference: '+d.tracking+'\n':''}${next==='cancelled'&&d.payment_status==='refund_required'?'A refund requires the store team’s review; no automatic refund has been issued.\n':''}Private tracking: ${c.origin}/#/track?id=${o.id}&token=${trackingToken(o.request_key,c.secret)}`,conn);
      }
     });return res.json({ok:true});
    }

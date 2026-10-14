@@ -10,12 +10,14 @@ import {database} from '../src/db.js';
 import {createApp} from '../src/app.js';
 import {migrate} from '../scripts/migrate.js';
 import {work} from '../scripts/worker.js';
+import {queueMail,checkMail} from '../src/mail.js';
 import {passwordHash,hash,now,token} from '../src/security.js';
 const testName=process.env.DB_TEST_NAME||'veelad_test';
 if(!testName.endsWith('_test')) throw Error('DB_TEST_NAME must end in _test; tests delete its data');
 const c=config({...process.env,APP_ENV:'test',APP_ORIGIN:'http://127.0.0.1:3000',DB_NAME:testName,SESSION_SECRET:'test-only-secret-that-is-long-enough-12345',MANUAL_TEST_PAYMENTS:'true',TRUST_PROXY:'0'});
 let db,app,server,base,admin,buyer,artist,other,artId,productId,orderId,guestToken;
 const pw='a strong test password 123';
+const enabledMail={mailEnabled:true,mailFrom:'orders@example.test',workerInterval:60,smtp:{host:'smtp.example.test',port:465,auth:{user:'orders@example.test',pass:'fake-test-password'}}};
 function client() {
  let cookie='',csrf='';
  return {get cookie(){return cookie;},async call(route,data,query={},raw=false) {
@@ -32,13 +34,13 @@ const checkout=(key,qty=1,id='p1')=>({customer,consent:true,cart:[{id,variant:id
 before(async()=>{
  db=database(c);c.uploadDir=await fs.mkdtemp(path.join(os.tmpdir(),'veelad-test-'));
  await migrate(db);await migrate(db);
- for(const table of ['users','artists','products','orders','settings','messages','rate_limits','uploads','customer_state','password_resets','mail_queue','audit_log','sessions']) await db.q(`DELETE FROM ${table}`);
+ for(const table of ['users','artists','products','orders','settings','messages','rate_limits','uploads','customer_state','password_resets','mail_delivery','mail_queue','audit_log','sessions']) await db.q(`DELETE FROM ${table}`);
  const seed=JSON.parse(await fs.readFile(new URL('../data/seed.json',import.meta.url),'utf8'));
  await db.q('INSERT INTO users VALUES (?,?,?,?,?,?,?)',['admin-test','Admin','admin@example.test',await passwordHash(pw),'admin','active',now()]);
  for(const a of seed.artists) await db.q('INSERT INTO artists VALUES (?,?)',[a.id,JSON.stringify(a)]);
  for(const p of seed.products) await db.q('INSERT INTO products VALUES (?,?,?,?,?,?)',[p.id,p.artist_id,'active',p.stock,JSON.stringify(p),now()]);
  await db.q('INSERT INTO settings VALUES (?,?)',['store',JSON.stringify({...seed.settings,coupon_code:'HELLOVEELAD',coupon_percent:10})]);
- app=createApp(c,db);server=app.listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));base='http://127.0.0.1:'+server.address().port;
+ app=createApp(c,db,{status:'ready'},(config,action,address)=>checkMail(config,action,address,{async verify(){},async sendMail(message){return {accepted:[message.to],rejected:[]};}}));server=app.listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));base='http://127.0.0.1:'+server.address().port;
  admin=client();buyer=client();artist=client();other=client();for(const client of [admin,buyer,artist,other]) await success(client,'bootstrap');
 });
 after(async()=>{if(server) await new Promise(r=>server.close(r));if(app) await app.locals.sessionStore.close();if(db) await db.pool.end();if(c.uploadDir) await fs.rm(c.uploadDir,{recursive:true,force:true});});
@@ -160,6 +162,21 @@ test('settings pause checkout and suspension revokes existing sessions',async()=
  const id=(await success(artist,'bootstrap')).user.id;await success(admin,'admin-user',{id,status:'suspended'});assert.equal((await artist.call('studio')).status,401);await success(admin,'admin-user',{id,status:'active'});
  assert.equal((await admin.call('admin-user',{id:'admin-test',status:'suspended'})).status,422);
 });
+test('order and artist emails are transactional, held while disabled, and repeated approval/status saves do not duplicate updates',async()=>{
+ const messages=await db.q('SELECT * FROM mail_queue');
+ assert.ok(messages.some(m=>m.email==='artist@example.test' && m.subject==='Veelad submission received: Test Artwork'));
+ assert.ok(messages.some(m=>m.email==='artist@example.test' && m.subject==='Veelad product update: Test Artwork' && m.body.includes('approved')));
+ const receipt=messages.find(m=>m.subject==='Veelad order received: '+orderId);assert.ok(receipt.body.includes('Sun & Sea'));assert.ok(receipt.body.includes('Total: SAR 123.50'));assert.ok(receipt.body.includes('No charge has been made'));
+ assert.equal(messages.filter(m=>m.subject==='Veelad order received: '+orderId).length,1);
+ assert.ok(messages.some(m=>m.subject==='Veelad order update: '+orderId && m.body.includes('shipped')));
+ assert.ok(messages.every(m=>m.status==='held'));
+ const before=messages.length,p=(await success(admin,'admin')).products.find(p=>p.id===productId);
+ await success(admin,'admin-product',{...p,status:'active'});await success(admin,'admin-order',{id:orderId,status:'delivered',tracking:'TEST-SHIP'});
+ assert.equal((await db.one('SELECT COUNT(*) AS n FROM mail_queue')).n,before);
+ assert.equal((await db.one('SELECT COUNT(*) AS n FROM mail_delivery')).n,before);
+ const sys=await success(admin,'admin-system');assert.equal(sys.held_emails,before);assert.equal(sys.email.ready,false);assert.ok(sys.email.missing.includes('SMTP_PASSWORD'));
+ assert.equal((await buyer.call('admin-system')).status,403);assert.equal((await buyer.call('admin-email',{action:'verify'})).status,403);
+});
 test('PHP bcrypt passwords verify and rehash, password change invalidates other sessions',async()=>{
  const encoded=(await bcrypt.hash(pw,10)).replace('$2b$','$2y$');await db.q('INSERT INTO users VALUES (?,?,?,?,?,?,?)',['php-user','PHP User','php@example.test',encoded,'buyer','active',now()]);
  const a=client(),b=client();await success(a,'bootstrap');await success(b,'bootstrap');await success(a,'login',{email:'php@example.test',password:pw});assert.match((await db.one('SELECT password FROM users WHERE id=?',['php-user'])).password,/^\$argon2id\$/);
@@ -172,16 +189,71 @@ test('recovery is honest when disabled; expiry/single-use enforced when token ex
  const expired=token();await db.q('INSERT INTO password_resets VALUES (?,?,?)',[hash(expired),u.id,1]);assert.equal((await a.call('reset-password',{token:expired,password:pw})).status,422);
 });
 test('mail worker disabled by default and concurrent workers do not duplicate a queue entry',async()=>{
- assert.equal((await work(c,db)).disabled,true);await db.q('DELETE FROM mail_queue');await db.q('INSERT INTO mail_queue VALUES (?,?,?,?,?,?,?)',['mail-test',customer.email,'Test','No real delivery','queued',0,now()]);let sent=0;
- const transport={async sendMail(){sent++;await new Promise(r=>setTimeout(r,20));}};
- await Promise.all([work({...c,mailEnabled:true,mailFrom:'test@example.test'},db,transport),work({...c,mailEnabled:true,mailFrom:'test@example.test'},db,transport)]);assert.equal(sent,1);assert.equal((await db.one('SELECT status FROM mail_queue WHERE id=?',['mail-test'])).status,'sent');
+ assert.equal((await work(c,db)).disabled,true);await db.q('DELETE FROM mail_queue');await db.q('DELETE FROM mail_delivery');const enabled={...c,...enabledMail};
+ const id=await db.tx(conn=>queueMail(enabled,db,customer.email,'Test','No real delivery',conn));let sent=0;
+ const transport={async sendMail(message){sent++;await new Promise(r=>setTimeout(r,20));return {accepted:[message.to],rejected:[]};}};
+ await Promise.all([work(enabled,db,transport),work(enabled,db,transport)]);assert.equal(sent,1);assert.equal((await db.one('SELECT status FROM mail_queue WHERE id=?',[id])).status,'sent');
  assert.ok((await success(admin,'admin')).audit.length>0);
 });
 test('mail-enabled recovery queues a private token and concurrent reset consumes it once',async()=>{
- c.mailEnabled=true;
+ const original={...c};Object.assign(c,enabledMail);
  const a=client();await success(a,'bootstrap');await success(a,'forgot-password',{email:'php@example.test'});
  const message=await db.one('SELECT body FROM mail_queue WHERE email=? ORDER BY created_at DESC LIMIT 1',['php@example.test']);const t=message.body.match(/token=([a-f0-9]{64})/)[1];
- const results=await Promise.all([a.call('reset-password',{token:t,password:'concurrent reset password 123'}),a.call('reset-password',{token:t,password:'concurrent reset password 456'})]);assert.deepEqual(results.map(r=>r.status).sort(),[200,422]);c.mailEnabled=false;
+ const results=await Promise.all([a.call('reset-password',{token:t,password:'concurrent reset password 123'}),a.call('reset-password',{token:t,password:'concurrent reset password 456'})]);assert.deepEqual(results.map(r=>r.status).sort(),[200,422]);Object.assign(c,original);
+});
+test('staging worker holds legacy and other recipients, expires replaced links, and never redirects private mail',async()=>{
+ await db.q('DELETE FROM mail_queue');await db.q('DELETE FROM mail_delivery');
+ const enabled={...c,...enabledMail,mode:'staging',mailTestRecipient:customer.email};
+ const queue=(address,subject,options)=>db.tx(conn=>queueMail(enabled,db,address,subject,'Private body for '+address,conn,options));
+ const allowed=await queue(customer.email,'Allowed');
+ const blocked=await queue('other@example.test','Blocked');await db.q("UPDATE mail_queue SET status='queued' WHERE id=?",[blocked]);
+ const disabled=await db.tx(conn=>queueMail({...enabled,mailEnabled:false},db,customer.email,'Disabled','Held forever',conn));
+ const expired=await queue(customer.email,'Expired',{kind:'recovery',expires:Math.floor(Date.now()/1000)-1,resetHash:hash('expired')});
+ const replaced=await queue(customer.email,'Replaced',{kind:'recovery',expires:Math.floor(Date.now()/1000)+3600,resetHash:hash('replaced')});
+ await db.q('INSERT INTO mail_queue VALUES (?,?,?,?,?,?,?)',['legacy-mail',customer.email,'Historical private link','Never release automatically','queued',0,now()]);
+ const delivered=[];const transport={async sendMail(message){delivered.push(message);return {accepted:[message.to],rejected:[]};}};
+ const result=await work(enabled,db,transport);assert.equal(result.sent,1);assert.equal(result.expired,2);
+ assert.equal(delivered[0].to,customer.email);assert.match(delivered[0].subject,/^\[STAGING\]/);
+ for(const id of [blocked,disabled,'legacy-mail']) assert.equal((await db.one('SELECT status FROM mail_queue WHERE id=?',[id])).status,'held');
+ for(const id of [expired,replaced]) assert.equal((await db.one('SELECT status,body FROM mail_queue WHERE id=?',[id])).status,'expired');
+ assert.equal((await db.one('SELECT status FROM mail_queue WHERE id=?',[allowed])).status,'sent');
+});
+test('SMTP retries back off, fail after five attempts, and ambiguous delivery stays sending',async()=>{
+ await db.q('DELETE FROM mail_queue');await db.q('DELETE FROM mail_delivery');const enabled={...c,...enabledMail};
+ const id=await db.tx(conn=>queueMail(enabled,db,customer.email,'Retry','Private body',conn));let attempts=0;
+ const failing={async sendMail(){attempts++;throw Object.assign(Error('Private provider error'),{code:'EAUTH'});}};
+ await work(enabled,db,failing);await work(enabled,db,failing);assert.equal(attempts,1);assert.ok((await db.one('SELECT next_attempt_at FROM mail_delivery WHERE id=?',[id])).next_attempt_at>Math.floor(Date.now()/1000));
+ for(let i=0;i<4;i++) {await db.q('UPDATE mail_delivery SET next_attempt_at=0 WHERE id=?',[id]);await work(enabled,db,failing);}
+ assert.equal(attempts,5);assert.equal((await db.one('SELECT status,attempts FROM mail_queue WHERE id=?',[id])).status,'failed');
+ const ambiguous=await db.tx(conn=>queueMail(enabled,db,customer.email,'Ambiguous','Private body',conn));
+ await work(enabled,db,{async sendMail(){throw Object.assign(Error('No acceptance acknowledgement'),{code:'ETIMEDOUT',command:'DATA'});}});
+ assert.equal((await db.one('SELECT status FROM mail_queue WHERE id=?',[ambiguous])).status,'sending');await work(enabled,db,failing);assert.equal(attempts,5);
+ const accepted=await db.tx(conn=>queueMail(enabled,db,customer.email,'Accepted before database outage','Private body',conn));
+ const failingDb={...db,q:async(sql,args,conn)=>{if(sql==='UPDATE mail_queue SET status=? WHERE id=?'&&args[0]==='sent') throw Error('Test database outage');return db.q(sql,args,conn);}};
+ await assert.rejects(()=>work(enabled,failingDb,{async sendMail(message){return {accepted:[message.to],rejected:[]};}}),/Test database outage/);
+ assert.equal((await db.one('SELECT status FROM mail_queue WHERE id=?',[accepted])).status,'sending');
+});
+test('staging recovery neither creates nor redirects tokens for a non-test account',async()=>{
+ const original={...c};Object.assign(c,enabledMail,{mode:'staging',mailTestRecipient:'owner@example.test'});
+ try {
+  await db.q('DELETE FROM rate_limits');const visitor=client();await success(visitor,'bootstrap');
+  const result=await success(visitor,'forgot-password',{email:customer.email});assert.equal(result.ok,true);
+  assert.equal(await db.one('SELECT id FROM password_resets WHERE user_id=(SELECT id FROM users WHERE email=?)',[customer.email]),null);
+  const unknown=await success(visitor,'forgot-password',{email:'unknown@example.test'});assert.deepEqual(unknown,result);
+ }finally {Object.assign(c,original);}
+});
+test('admin email checks require complete settings, recipient confirmation and staging allowlist',async()=>{
+ await db.q('DELETE FROM rate_limits');assert.equal((await admin.call('admin-email',{action:'verify'})).status,409);
+ const original={...c};Object.assign(c,enabledMail,{mode:'staging',mailTestRecipient:customer.email});
+ try {
+  const publicData=await success(buyer,'bootstrap');assert.equal(publicData.email_delivery.available,true);assert.equal(publicData.email_delivery.test_recipient,undefined);
+  assert.equal((await admin.call('admin-email',{action:'test',email:customer.email})).status,422);
+  assert.equal((await admin.call('admin-email',{action:'test',email:'other@example.test',confirm:true})).status,422);
+  assert.match((await success(admin,'admin-email',{action:'verify'})).message,/authentication succeeded/);
+  assert.match((await success(admin,'admin-email',{action:'test',email:customer.email,confirm:true})).message,/accepted/);
+  assert.equal((await admin.call('admin-email',{action:'verify'})).status,429);
+  const response=JSON.stringify(await success(admin,'admin-system'));assert.equal(response.includes(enabledMail.smtp.auth.pass),false);assert.equal(response.includes(enabledMail.smtp.host),false);
+ }finally {Object.assign(c,original);}
 });
 test('production defaults to preserved landing page and no marketplace endpoints',async()=>{
  const production=createApp({...c,mode:'production',marketplaceEnabled:false,manualPayments:false},db);const s=production.listen(0,'127.0.0.1');await new Promise(r=>s.once('listening',r));const origin='http://127.0.0.1:'+s.address().port;

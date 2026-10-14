@@ -21,7 +21,8 @@ export function config(env = process.env) {
     db:{host:env.DB_HOST || '127.0.0.1', port:Number(env.DB_PORT || 3306), database:env.DB_NAME,
       user:env.DB_USER, password:env.DB_PASSWORD || '', charset:'utf8mb4', connectionLimit:10, connectTimeout:5000,
       ...(env.DB_TLS === 'true' ? {ssl:{rejectUnauthorized:true}} : {})},
-    workerInterval:Number(env.MAIL_WORKER_INTERVAL_SECONDS || 0), mailEnabled:env.MAIL_ENABLED === 'true', mailFrom:env.MAIL_FROM,
+    workerInterval:Number(env.MAIL_WORKER_INTERVAL_SECONDS || 60), mailEnabled:env.MAIL_ENABLED === 'true', mailFrom:env.MAIL_FROM,
+    mailTestRecipient:env.MAIL_TEST_RECIPIENT?.trim(),
     smtp:{host:env.SMTP_HOST,port:Number(env.SMTP_PORT || 587),secure:env.SMTP_PORT === '465',
       auth:env.SMTP_USER ? {user:env.SMTP_USER, pass:env.SMTP_PASSWORD} : undefined},
     manualPayments:env.MANUAL_TEST_PAYMENTS === 'true' && mode !== 'production'};

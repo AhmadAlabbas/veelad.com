@@ -16,7 +16,7 @@ export async function migrate(db) {
       for(const sql of JSON.parse(source)) await db.q(sql+' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci',[],lock);
       await db.q('INSERT INTO schema_migrations VALUES (?,?,?)',[name,checksum,new Date().toISOString()],lock);
     }
-    const engines=await db.q("SELECT TABLE_NAME,ENGINE FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME IN ('users','products','orders','password_resets','mail_queue','rate_limits','uploads','customer_state','sessions')",[],lock);
+    const engines=await db.q("SELECT TABLE_NAME,ENGINE FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME IN ('users','products','orders','password_resets','mail_queue','mail_delivery','rate_limits','uploads','customer_state','sessions')",[],lock);
     if(engines.some(t=>t.ENGINE!=='InnoDB')) throw Error('Imported application tables must use InnoDB; convert in a reviewed data migration before running Node');
   } finally {await db.q("SELECT RELEASE_LOCK('veelad_migrations')",[],lock);lock.release();}
 }
