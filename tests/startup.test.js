@@ -54,8 +54,10 @@ test('direct entry environment loader reads its private .env and preserves injec
 });
 
 test('hosting-style require loader captures the listener without top-level-await rejection',async()=>{
- const child=spawn(process.execPath,['tests/fixtures/require-entry.cjs'],{env:{...process.env,APP_ENV:'test',APP_ORIGIN:'http://127.0.0.1:3000',PORT:'0',DB_NAME:'loader_test',DB_USER:'test',DB_PASSWORD:'test-only',SESSION_SECRET:'require-loader-test-secret-not-for-real-use',MAIL_ENABLED:'false'},stdio:['ignore','pipe','pipe']});
+ for(const mode of ['test','staging']) {
+ const child=spawn(process.execPath,['tests/fixtures/require-entry.cjs'],{env:{...process.env,APP_ENV:mode,APP_ORIGIN:mode==='staging'?'https://staging.veelad.com':'http://127.0.0.1:3000',PORT:'0',DB_NAME:'loader_test',DB_USER:'test',DB_PASSWORD:'test-only',SESSION_SECRET:'require-loader-test-secret-not-for-real-use',MAIL_ENABLED:'false'},stdio:['ignore','pipe','pipe']});
  let output='';child.stdout.on('data',data=>output+=data);child.stderr.on('data',data=>output+=data);
  const [code]=await once(child,'exit');assert.equal(code,0,output);
  assert.ok(output.includes('CommonJS listener capture succeeded.'));assert.equal(output.includes('require-loader-test-secret-not-for-real-use'),false);
+ }
 });

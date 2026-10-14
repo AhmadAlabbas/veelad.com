@@ -10,7 +10,11 @@ import {fileURLToPath} from 'node:url';
 import {ApiError,fail,uid,token,trackingToken,hash,equal,text,email,integer,password,passwordHash,verifyPassword,safeUser,json,product,order,now} from './security.js';
 const publicDir=fileURLToPath(new URL('../public',import.meta.url));
 const categories=['T-shirts','Tote bags','Phone cases','Art prints','Mugs','Stickers','Notebooks'];
-export function createApp(c,db) {
+function readinessCode(error,fallback='DATABASE_UNAVAILABLE') {
+ const knownCodes=['ETIMEDOUT','ECONNREFUSED','ENOTFOUND','EHOSTUNREACH','ER_ACCESS_DENIED_ERROR','ER_DBACCESS_DENIED_ERROR','ER_BAD_DB_ERROR','ER_NO_SUCH_TABLE'];
+ return knownCodes.includes(error?.code) ? error.code : error instanceof ApiError ? 'STORE_NOT_PROVISIONED' : fallback;
+}
+export function createApp(c,db,schema={status:'ready'}) {
  const app=express();
  app.disable('x-powered-by');app.set('trust proxy',c.trustProxy);
  app.use(helmet({contentSecurityPolicy:{directives:{defaultSrc:["'self'"],scriptSrc:["'self'"],styleSrc:["'self'","'unsafe-inline'","https://fonts.googleapis.com"],imgSrc:["'self'",'data:','blob:'],fontSrc:["'self'","https://fonts.gstatic.com"],connectSrc:["'self'"],upgradeInsecureRequests:c.secure ? [] : null}},crossOriginEmbedderPolicy:false}));
@@ -18,6 +22,14 @@ export function createApp(c,db) {
  app.locals.sessionStore=store;
  const api=express.Router();
  api.use((req,res,next)=>{res.set('Cache-Control','no-store');next();});
+ api.use((req,res,next)=>{
+  if(schema.status==='ready') return next();
+  const pending=schema.status==='pending';
+  if(pending) res.set('Retry-After','2');
+  res.status(503).json({ok:false,version:'3.0.0',environment:c.mode,revision:c.revision,
+   database_error:pending ? 'SCHEMA_INITIALIZING' : readinessCode(schema.error,'SCHEMA_INITIALIZATION_FAILED'),
+   error:pending ? 'The store is starting. Please try again shortly.' : 'Database schema initialization failed.'});
+ });
  api.get('/',async(req,res,next)=>{
   if(req.query.route!=='health') return next();
   try {
@@ -28,8 +40,7 @@ export function createApp(c,db) {
    res.json({ok:true,version:'3.0.0',environment:c.mode,revision:c.revision,marketplace_enabled:true});
   } catch(e) {
    console.error('Veelad readiness failed:',e.code||e.name);
-   const knownCodes=['ETIMEDOUT','ECONNREFUSED','ENOTFOUND','EHOSTUNREACH','ER_ACCESS_DENIED_ERROR','ER_DBACCESS_DENIED_ERROR','ER_BAD_DB_ERROR','ER_NO_SUCH_TABLE'];
-   const databaseError=knownCodes.includes(e.code) ? e.code : e instanceof ApiError ? 'STORE_NOT_PROVISIONED' : 'DATABASE_UNAVAILABLE';
+   const databaseError=readinessCode(e);
    res.status(503).json({ok:false,version:'3.0.0',environment:c.mode,revision:c.revision,database_error:databaseError,error:e instanceof ApiError ? e.message : 'Database readiness check failed.'});
   }
  });

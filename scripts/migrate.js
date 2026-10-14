@@ -20,6 +20,11 @@ export async function migrate(db) {
     if(engines.some(t=>t.ENGINE!=='InnoDB')) throw Error('Imported application tables must use InnoDB; convert in a reviewed data migration before running Node');
   } finally {await db.q("SELECT RELEASE_LOCK('veelad_migrations')",[],lock);lock.release();}
 }
-if(process.argv[1]===fileURLToPath(import.meta.url)) {
+// Keep imports synchronous for managed hosts that require() the server entry.
+async function main() {
  const db=database(config());try {await migrate(db);console.log('Schema up to date; existing records preserved.');}finally {await db.pool.end();}
 }
+if(process.argv[1]===fileURLToPath(import.meta.url)) main().catch(error=>{
+ console.error('Schema migration failed:',error.code||error.name);
+ process.exitCode=1;
+});

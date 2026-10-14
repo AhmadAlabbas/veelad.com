@@ -2,6 +2,17 @@ import {test,expect} from '@playwright/test';
 import fs from 'node:fs/promises';
 import sharp from 'sharp';
 const pw='Browser testing password 123';
+test('storefront waits for staging schema preparation and opens automatically',async({page})=>{
+ let attempts=0;
+ await page.route('**/api.php?route=bootstrap',async route=>{
+  if(++attempts===1) return route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({database_error:'SCHEMA_INITIALIZING',error:'The store is starting.'})});
+  await route.continue();
+ });
+ await page.goto('/#/shop');
+ await expect(page.getByRole('heading',{name:'Opening the store…'})).toBeVisible();
+ await expect(page.locator('.product-card').first()).toBeVisible({timeout:10000});
+ expect(attempts).toBeGreaterThanOrEqual(2);
+});
 async function ready(page,hash='') {await page.goto('/'+hash);await expect(page.locator('#app .loading')).toHaveCount(0);await expect(page.locator('#app')).not.toBeEmpty();}
 async function register(page,role) {
  await ready(page,'#/register');const address=`${role}-${Date.now()}-${Math.random().toString(16).slice(2)}@example.test`;

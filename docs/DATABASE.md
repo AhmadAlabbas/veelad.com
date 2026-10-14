@@ -8,6 +8,8 @@ No SQL export was provided. `data/seed.json` contains sample catalog data only. 
 
 `npm run migrate` runs under a MySQL advisory lock and creates missing tables only; it does not seed, overwrite or drop records. Applied migration checksum mismatches fail. MySQL DDL auto-commits: repeatable `CREATE TABLE IF NOT EXISTS` allows an interrupted initial migration to resume; this is not a claim of transactional DDL. Transaction-sensitive existing tables must use InnoDB; the migrator rejects imported engines that break this requirement. Back up before schema changes. Never edit an applied migration; add reviewed additive migrations. This initial compatibility migration deliberately avoids deleting or restructuring the PHP schema.
 
+For `APP_ENV=staging`, the server invokes this same migrator automatically after registering the HTTP listener, using the hosting runtime's environment variables. It does not require Node.js in the account's SSH shell or build-time database credentials. APIs remain unavailable until the migration completes successfully; failures do not report a healthy store. Existing settings, users, catalog and orders are preserved, and no demo seed or administrator is created. Repeated deployments skip migrations with matching recorded checksums. Local and production startup do not migrate automatically; use the documented local setup and deliberate production migration steps. Staging backups are still required before deploying schema changes.
+
 ## Import a future export
 
 1. Privately back up the original PHP database and artwork directory together while writes are paused. Request the complete schema/data export through secure storage, not a GitHub commit. Preserve IDs, JSON, password hashes, order request keys and guest hashes exactly.

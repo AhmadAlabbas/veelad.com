@@ -2,7 +2,7 @@
 
 Current machine: Node.js 24.19.0, MySQL 8.4 in a localhost-bound Docker database, Express 5. Original seed data is fictional; no production export was imported.
 
-20 integration/configuration/startup checks passed. Four desktop/mobile browser scenarios passed on the current machine.
+22 integration/configuration/startup checks passed. Six desktop/mobile browser scenarios passed on the current machine.
 
 The existing integration suite exercises actual MySQL queries, transactions and HTTP sessions: CSRF/origin protections; safe registration and session rotation; customer state/profile/messages; role restrictions; image content/dimension/ownership validation; artist submission and admin approval; server-calculated SAR totals/coupons; concurrent idempotency and final-unit stock contention; transaction rollback; manual test fulfillment; concurrent one-time cancellation restocking; checkout pause; suspension; PHP bcrypt verification/rehash; cross-session password invalidation; recovery expiry/single-use; email queue locks with a simulated transport; production landing-page preservation; and concurrent rate limiting. Mock email delivery does not validate a real provider.
 
@@ -12,7 +12,9 @@ Migration is exercised twice to confirm repeatability; local initialization/prov
 
 Hostinger runtime: the user confirmed Node.js 24 is available on their Cloud plan.
 
-Not verified: GitHub/native hosting connection, live staging DNS/TLS/proxy behavior, persistent private hosting storage, hPanel environment/secrets, SMTP delivery, real imported account/order/artwork consistency, production cutover, deployment in a new cloud task or a production release. The user reports a Cloud plan and a Node deployment option; authenticated account/deployment verification remains pending. Hostinger support pages returned 403 from this execution environment.
+The native GitHub connection and staging DNS/TLS are verified by the live Node health response reporting the tested staging revision. On October 14, 2026, correcting the private database password changed the live readiness error from ER_ACCESS_DENIED_ERROR to ER_NO_SUCH_TABLE, establishing that the login works and the schema remains incomplete. Hostinger SSH is reachable, but the account shell has no Node/npm commands and its managed build source paths can disappear. This is why staging now prepares its schema inside the managed Node runtime.
+
+Not verified: exact proxy topology, persistent private hosting storage, SMTP delivery, real imported account/order/artwork consistency, production cutover, deployment in a new cloud task or a production release. Codex has no authenticated hPanel access or access to its private environment values. Hostinger support pages returned 403 from this execution environment.
 
 Neither OAuth, online payments, real refunds, monthly artist payouts nor delivery-provider automation is enabled. The preserved royalty estimate is not a payable balance. Production remains a deliberate release and defaults to the existing coming-soon page.
 
@@ -25,3 +27,7 @@ A later account confirmation identified src/app.js as the hosting entry file; th
 ## Synchronous hosting loader compatibility
 
 The completed ed3ed1b deployment still exported only the generic listener timeout, without application startup markers. Requiring the server entry with Node.js 24 reproduced ERR_REQUIRE_ASYNC_MODULE before any marker ran: an imported mail-worker script had a top-level await in its CLI guard. Moving CLI execution into an async function keeps the import graph synchronous; an exact-file guard prevents unrelated hosting worker filenames from invoking that CLI. A CommonJS/listener-capture fixture failed before this correction and passes afterward, while normal ESM/CLI startup and mail-queue integration remain covered. This establishes a real loader compatibility defect, not independent confirmation of Hostinger’s internal loader implementation. Live hosting validation is still required.
+
+## Automatic staging migration regression
+
+A disposable MySQL database is populated with the original PHP tables and existing user/settings records, without sessions or migration tracking. A real production server is started first and verified not to create those tables. Staging then starts within the hosting deadline, creates the missing tables, serves healthy readiness and a secure-cookie bootstrap, and preserves original records without inserting a demo catalog. Restarting staging verifies migration repeatability. A second test stalls MySQL's handshake: HTTP opens immediately, data APIs stay unavailable during initialization, and timeout becomes a safe failure code without leaking credentials. The CommonJS listener-capture fixture runs for both test and staging modes so importing the migrator cannot reintroduce top-level-await startup failures. Desktop/mobile browser tests verify that the storefront retries a pending initialization and opens automatically, alongside the existing customer checkout and artist/admin approval workflows.
