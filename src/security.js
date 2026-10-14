@@ -23,6 +23,6 @@ export async function verifyPassword(value,encoded) {
 }
 export const safeUser=({id,name,email,role,status,created_at})=>({id,name,email,role,status,created_at});
 export const json=s=>JSON.parse(s);
-export const product=p=>({...json(p.data),id:p.id,artist_id:p.artist_id,status:p.status,stock:Number(p.stock)});
+export const product=p=>({...json(p.data),id:p.id,artist_id:p.artist_id,status:p.status,stock:Number(p.stock),created_at:p.created_at});
 export const order=o=>({...json(o.data),id:o.id,status:o.status,total:Number(o.total),created_at:o.created_at});
 export const now=()=>new Date().toISOString();

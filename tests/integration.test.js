@@ -34,7 +34,7 @@ const checkout=(key,qty=1,id='p1')=>({customer,consent:true,cart:[{id,variant:id
 before(async()=>{
  db=database(c);c.uploadDir=await fs.mkdtemp(path.join(os.tmpdir(),'veelad-test-'));
  await migrate(db);await migrate(db);
- for(const table of ['users','artists','products','orders','settings','messages','rate_limits','uploads','customer_state','password_resets','mail_delivery','mail_queue','audit_log','sessions']) await db.q(`DELETE FROM ${table}`);
+ for(const table of ['users','artists','products','orders','settings','messages','rate_limits','uploads','customer_state','password_resets','product_reviews','operational_status','mail_delivery','mail_queue','audit_log','sessions']) await db.q(`DELETE FROM ${table}`);
  const seed=JSON.parse(await fs.readFile(new URL('../data/seed.json',import.meta.url),'utf8'));
  await db.q('INSERT INTO users VALUES (?,?,?,?,?,?,?)',['admin-test','Admin','admin@example.test',await passwordHash(pw),'admin','active',now()]);
  for(const a of seed.artists) await db.q('INSERT INTO artists VALUES (?,?)',[a.id,JSON.stringify(a)]);
@@ -73,7 +73,7 @@ test('uploads validate content, dimensions and ownership; private until approved
  f=new FormData();f.append('artwork',new Blob([await sharp({create:{width:100,height:120,channels:3,background:'blue'}}).png().toBuffer()],{type:'image/png'}),'art.png');artId=(await success(artist,'upload',f)).upload_id;
  assert.equal((await buyer.call('image',undefined,{id:artId})).status,404);
  assert.equal((await artist.call('image',undefined,{id:artId},true)).status,200);
- const data={title:'Test Artwork',description:'An original work',category:'Art prints',price:9900,stock:5,variants:['Standard'],upload_id:artId};
+ const data={title:'Test Artwork',description:'An original work',category:'Art prints',price:9900,stock:5,variants:['Standard'],upload_id:artId,rights:true};
  assert.equal((await other.call('artist-product',data)).status,403);
  productId=(await success(artist,'artist-product',data)).id;
  assert.equal((await success(buyer,'bootstrap')).products.some(p=>p.id===productId),false);
@@ -93,7 +93,7 @@ test('product specifications and multiple photos persist, retain ownership check
  assert.equal((await artist.call('artist-product',{...original,materials:'x'.repeat(301)})).status,422);
  assert.equal((await artist.call('artist-product',{...original,size_guide:{invalid:true}})).status,422);
  const details={materials:'Confirmed test paper',dimensions:'A4, 210 × 297 mm',care_instructions:'Keep dry.',size_guide:'A4: 210 × 297 mm\nA3: 297 × 420 mm',gallery_upload_ids:[gallery,gallery]};
- await success(artist,'artist-product',{...original,...details});
+ await success(artist,'artist-product',{...original,...details,rights:true});
  assert.equal((await buyer.call('image',undefined,{id:gallery})).status,404);
  const submitted=(await success(admin,'admin')).products.find(p=>p.id===productId);
  assert.deepEqual(submitted.gallery_upload_ids,[gallery]);assert.equal(submitted.materials,details.materials);
@@ -101,17 +101,43 @@ test('product specifications and multiple photos persist, retain ownership check
  assert.equal((await buyer.call('image',undefined,{id:gallery},true)).status,200);
  assert.equal((await buyer.call('image',undefined,{id:adminPhoto},true)).status,200);
  const edited=(await success(artist,'studio')).products.find(p=>p.id===productId);
- await success(artist,'artist-product',edited);
+ await success(artist,'artist-product',{...edited,rights:true});
  assert.equal((await buyer.call('image',undefined,{id:adminPhoto})).status,404,'Existing administrator photos must return to private review with the listing');
  assert.equal((await artist.call('image',undefined,{id:adminPhoto},true)).status,200,'The listing artist must be able to review assigned administrator photos');
  assert.equal((await other.call('image',undefined,{id:adminPhoto})).status,404);
- const legacy={id:productId,title:original.title,category:original.category,price:original.price,stock:original.stock,description:original.description,variants:original.variants,upload_id:artId};
+ const legacy={id:productId,title:original.title,category:original.category,price:original.price,stock:original.stock,description:original.description,variants:original.variants,upload_id:artId,rights:true};
  await success(artist,'artist-product',legacy);
  const retained=(await success(admin,'admin')).products.find(p=>p.id===productId);
  assert.deepEqual(retained.gallery_upload_ids,[gallery,adminPhoto]);assert.equal(retained.size_guide,details.size_guide);
  await success(admin,'admin-product',{...retained,status:'active'});
  const publicProduct=(await success(buyer,'bootstrap')).products.find(p=>p.id===productId);
  assert.equal(publicProduct.dimensions,details.dimensions);assert.equal(publicProduct.care_instructions,details.care_instructions);
+});
+test('private drafts, previews, review feedback and artist portfolios preserve publication and ownership rules',async()=>{
+ const draft=await success(artist,'artist-product',{title:'Private draft',action:'draft'});
+ assert.equal(draft.status,'draft');assert.equal((await other.call('product-preview',undefined,{id:draft.id})).status,404);
+ assert.equal((await buyer.call('product-preview',undefined,{id:draft.id})).status,403);
+ assert.equal((await success(artist,'product-preview',undefined,{id:draft.id})).product.title,'Private draft');
+ assert.equal((await fetch(base+'/products/'+draft.id)).status,404);assert.equal((await fetch(base+'/share/products/'+draft.id+'.png')).status,404);
+ const details={id:draft.id,title:'Draft to approved',category:'Art prints',price:5900,stock:5,description:'An original draft work',variants:['Standard'],upload_id:artId};
+ assert.equal((await artist.call('artist-product',details)).status,422);
+ await success(artist,'artist-product',{...details,rights:true});
+ const pending=(await success(admin,'admin')).products.find(p=>p.id===draft.id);
+ assert.equal((await admin.call('admin-product',{...pending,status:'changes_requested'})).status,422);
+ await success(admin,'admin-product',{...pending,status:'changes_requested',review_feedback:'Please improve the image contrast.'});
+ const feedback=(await success(artist,'studio')).products.find(p=>p.id===draft.id);assert.equal(feedback.status,'changes_requested');assert.match(feedback.review.feedback,/contrast/);
+ assert.equal((await success(buyer,'bootstrap')).products.some(p=>p.id===draft.id),false);
+ await success(artist,'artist-product',{...details,action:'draft'});assert.match((await success(artist,'studio')).products.find(p=>p.id===draft.id).review.feedback,/contrast/);
+ assert.equal((await admin.call('admin-product',{...pending,status:'active'})).status,409);
+ await success(artist,'artist-product',{...details,rights:true});await success(admin,'admin-product',{...pending,status:'active'});
+ assert.equal((await fetch(base+'/products/'+draft.id)).status,200);
+ await success(artist,'profile',{name:'Artist New',bio:'Independent test artist',location:'Riyadh',story:'My original story, not a supplied template.',portfolio_upload_ids:[artId]});
+ const profile=(await success(buyer,'bootstrap')).artists.find(a=>a.id===pending.artist_id);assert.match(profile.story,/original story/);assert.deepEqual(profile.portfolio_upload_ids,[artId]);
+ assert.equal((await other.call('profile',{name:'Other',bio:'',location:'',portfolio_upload_ids:[artId]})).status,403);
+ const response=await fetch(base+'/artists/'+profile.id),html=await response.text();assert.equal(response.status,200);assert.ok(html.includes('My original story'));assert.ok(html.includes('rel="canonical"'));assert.ok(html.includes('og:image'));assert.equal(html.includes('contrast'),false);
+ const image=await fetch(base+'/share/artists/'+profile.id+'.png');assert.equal(image.status,200);assert.equal(image.headers.get('content-type'),'image/png');
+ const xml=await (await fetch(base+'/sitemap.xml')).text();assert.ok(xml.includes('/products/'+draft.id));assert.equal(xml.includes('/studio'),false);
+ const seo=await (await fetch(base+'/products/p1')).text();assert.match(seo,/<title>Sun &amp; Sea/);assert.ok(seo.includes('application/ld+json'));assert.ok(seo.includes('https://schema.org/InStock'));
 });
 test('delivery and return information is administrator-managed and preserved by older settings requests',async()=>{
  const s=(await success(admin,'admin')).settings;

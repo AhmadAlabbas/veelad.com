@@ -17,7 +17,9 @@
     "check": "node scripts/check.js",
     "build": "node scripts/build.js",
     "local:init": "node scripts/local-init.js",
-    "local:provision": "node --env-file-if-exists=.env scripts/local-provision.js"
+    "local:provision": "node --env-file-if-exists=.env scripts/local-provision.js",
+    "backup": "node --env-file-if-exists=.env scripts/backup.js",
+    "backup:restore": "node --env-file-if-exists=.env scripts/restore-backup.js"
   },
   "dependencies": {
     "argon2": "^0.45.1",

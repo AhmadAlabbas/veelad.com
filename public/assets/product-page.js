@@ -14,7 +14,7 @@ function productGallery(p) {
    <button type="button" class="gallery-enlarge ${view.detail?'gallery-detail':''}" data-action="gallery-zoom" data-id="${esc(p.id)}" data-index="${i}" aria-label="Enlarge ${esc(view.label.toLowerCase())} of ${esc(p.title)}">${photo(view.product)}<span class="gallery-zoom-label">${icon('plus')} Enlarge image</span></button>
   </div>`).join('')}</div>
   <div class="product-thumbs" role="tablist" aria-label="Choose a product image">${views.map((view,i)=>`<button type="button" class="gallery-thumb ${i?'':'active'}" role="tab" id="product-thumb-${i}" aria-controls="product-view-${i}" aria-selected="${i===0}" tabindex="${i?'-1':'0'}" data-action="gallery-select" data-index="${i}">${photo(view.product)}<span>${esc(view.label)}</span></button>`).join('')}</div>
-  <p class="gallery-caption">${p.upload_id?'Artwork preview. Product placement and finished appearance depend on the approved production specifications.':'Sample product photography. The close-up enlarges the same preview.'}</p>
+  <p class="gallery-caption">${p.status==='draft'&&!p.upload_id?'No artwork has been added to this draft yet.':p.upload_id?'Artwork preview. Product placement and finished appearance depend on the approved production specifications.':'Sample product photography. The close-up enlarges the same preview.'}</p>
  </section>`;
 }
 function selectProductView(index,focus=false) {
@@ -94,7 +94,7 @@ document.addEventListener('change',async event=>{
     const photoId=id('gallery-');dbLocal.uploads[photoId]=data;ids.push(photoId);persist();
    }else{
     const body=new FormData();body.append('artwork',file);
-    const response=await fetch('api.php?route=upload',{method:'POST',credentials:'same-origin',headers:{'X-CSRF-Token':csrf},body});const value=await response.json();
+    const response=await fetch('/api.php?route=upload',{method:'POST',credentials:'same-origin',headers:{'X-CSRF-Token':csrf},body});const value=await response.json();
     if(!response.ok)throw Error(value.error||'Photo upload failed.');ids.push(value.upload_id);
    }
   }

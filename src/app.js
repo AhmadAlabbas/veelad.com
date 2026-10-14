@@ -8,6 +8,9 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {ApiError,fail,uid,token,trackingToken,hash,equal,text,email,integer,password,passwordHash,verifyPassword,safeUser,json,product,order,now} from './security.js';
+import {operationsStatus,probeStorage,createBackup,backupReady,privateDirectory} from './operations.js';
+import {pageRoutes} from './pages.js';
+import {publicArtists,profileDetails,reviewedProducts} from './artists.js';
 import {queueMail,mailStatus,recipientAllowed,checkMail,safeMailError} from './mail.js';
 const publicDir=fileURLToPath(new URL('../public',import.meta.url));
 const categories=['T-shirts','Tote bags','Phone cases','Art prints','Mugs','Stickers','Notebooks'];
@@ -38,7 +41,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail) {
    if(!row) throw new ApiError(503,'Store provisioning is required.');
    JSON.parse(row.data);
    await db.q('SELECT session_id FROM sessions LIMIT 1');
-   res.json({ok:true,version:'3.0.0',environment:c.mode,revision:c.revision,marketplace_enabled:true});
+   res.json({ok:true,version:'3.0.0',environment:c.mode,revision:c.revision,marketplace_enabled:true,...(app.locals.operations?.storage?{storage:{ready:app.locals.operations.storage.ready,continuity:app.locals.operations.storage.continuity},backup:app.locals.operations.backup?{status:app.locals.operations.backup.status,created_at:app.locals.operations.backup.created_at}:null}:{})});
   } catch(e) {
    console.error('Veelad readiness failed:',e.code||e.name);
    const databaseError=readinessCode(e);
@@ -103,12 +106,13 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail) {
   if(hits>max) fail(429,'Too many attempts. Please try again in 15 minutes.');
   await q('DELETE FROM rate_limits WHERE expires<?',[Math.floor(Date.now()/1000)]);
  }
- async function validProduct(v,req) {
+ async function validProduct(v,req,draft=false) {
+  if(draft) v={title:"Untitled draft",category:"Art prints",price:0,description:"",...v};
   const category=text(v,'category',30);if(!categories.includes(category)) fail(422,'Choose a product category.');
   const variants=v.variants ?? ['Standard'];
   if(!Array.isArray(variants)||!variants.length||variants.length>12) fail(422,'Add 1–12 variants.');
   const options=[...new Set(variants.map(x=>text({option:x},'option',50)))];
-  const p={title:text(v,'title',100),category,price:integer(v.price,100,100000,'price'),stock:integer(v.stock??50,0,100000,'stock'),description:text(v,'description',2000),variants:options,royalty_percent:20,badge:'New',tags:[],sheet:integer(v.sheet??0,0,1,'sheet'),cell:integer(v.cell??0,0,5,'cell')};
+  const p={title:text(v,'title',100,!draft),category,price:integer(v.price,draft?0:100,100000,'price'),stock:integer(v.stock??50,0,100000,'stock'),description:text(v,'description',2000,!draft),variants:options,royalty_percent:20,badge:'New',tags:[],sheet:integer(v.sheet??0,0,1,'sheet'),cell:integer(v.cell??0,0,5,'cell')};
   Object.assign(p,optionalDetails(v,detailLimits));
   if(v.upload_id) p.upload_id=text(v,'upload_id',64);
   if(v.gallery_upload_ids!==undefined) {
@@ -123,12 +127,13 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail) {
    const existingIds=new Set([previous.upload_id,...(Array.isArray(previous.gallery_upload_ids)?previous.gallery_upload_ids:[])].filter(Boolean));
    for(const id of imageIds) {const image=await one('SELECT * FROM uploads WHERE id=?',[id]);if(!image||(image.user_id!==u.id&&u.role!=='admin'&&!existingIds.has(id))) fail(403,'Artwork unavailable.');}
   }
+  if(draft&&!p.title)p.title='Untitled draft';
   return p;
  }
  function payload(req) {const v=req.body??{};if(!v||Array.isArray(v)||typeof v!=='object') fail(400,'Invalid request.');return v;}
  api.all('/',async (req,res)=>{
   const route=String(req.query.route||'bootstrap'),method=req.method,v=payload(req);
-  if(method==='GET' && route==='bootstrap') {const u=await me(req);return res.json({mode:'server',csrf:req.session.csrf,user:u ? safeUser(u) : null,products:await products(),artists:(await q('SELECT * FROM artists')).map(a=>json(a.data)),settings:await settings(),email_delivery:{available:mailStatus(c).ready,staging_restricted:c.mode==='staging'}});}
+  if(method==='GET' && route==='bootstrap') {const u=await me(req);return res.json({mode:'server',csrf:req.session.csrf,user:u ? safeUser(u) : null,products:await products(),artists:await publicArtists(db),settings:await settings(),email_delivery:{available:mailStatus(c).ready,staging_restricted:c.mode==='staging'}});}
   if(route==='state' && ['GET','POST'].includes(method)) {
    const u=await me(req,true);if(method==='GET') return res.json(await state(u.id));
    await db.tx(async conn=>{
@@ -159,7 +164,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail) {
   if(method==='POST' && route==='logout') {await rotate(req);return res.json({ok:true});}
   if(method==='POST' && route==='profile') {
    const u=await me(req,true),name=text(v,'name',100);
-   await db.tx(async conn=>{await q('UPDATE users SET name=? WHERE id=?',[name,u.id],conn);if(u.role==='artist') {const a=json((await one('SELECT data FROM artists WHERE id=?',[u.id],conn)).data);Object.assign(a,{name,bio:text(v,'bio',500,false),location:text(v,'location',100,false)});await q('UPDATE artists SET data=? WHERE id=?',[JSON.stringify(a),u.id],conn);}});
+   await db.tx(async conn=>{await q('UPDATE users SET name=? WHERE id=?',[name,u.id],conn);if(u.role==='artist') {const a=json((await one('SELECT data FROM artists WHERE id=?',[u.id],conn)).data);Object.assign(a,await profileDetails(v,u,db,conn,a));await q('UPDATE artists SET data=? WHERE id=?',[JSON.stringify(a),u.id],conn);}});
    return res.json({user:safeUser(await me(req,true))});
   }
   if(method==='POST' && route==='password') {
@@ -234,7 +239,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail) {
    try {const image=sharp(f.buffer,{limitInputPixels:36000000,failOn:'warning'});metadata=await image.metadata();if(!['png','jpeg'].includes(metadata.format)||metadata.width<100||metadata.height<100||metadata.pages>1) fail(422,'Use a valid PNG/JPEG, at least 100 px and at most 36 megapixels.');bytes=await image.rotate().toBuffer();}
    catch(e){if(e instanceof ApiError) throw e;fail(422,'Use a valid PNG/JPEG, at least 100 px and at most 36 megapixels.');}
    const id=uid('art-'),name=id+(metadata.format==='png'?'.png':'.jpg');
-   await fs.mkdir(c.uploadDir,{recursive:true,mode:0o700});await fs.writeFile(path.join(c.uploadDir,name),bytes,{mode:0o600,flag:'wx'});
+   await privateDirectory(c,c.uploadDir);await fs.writeFile(path.join(c.uploadDir,name),bytes,{mode:0o600,flag:'wx'});
    try {await q('INSERT INTO uploads VALUES (?,?,?,?)',[id,u.id,name,metadata.format==='png'?'image/png':'image/jpeg']);}catch(e){await fs.unlink(path.join(c.uploadDir,name));throw e;}
    return res.json({upload_id:id});
   }
@@ -242,7 +247,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail) {
    const a=await one('SELECT * FROM uploads WHERE id=?',[String(req.query.id||'')]),u=await me(req);
    if(!a) fail(404,'Artwork not found.');
    const containsImage=p=>p.upload_id===a.id||(Array.isArray(p.gallery_upload_ids)&&p.gallery_upload_ids.includes(a.id));
-   const visible=(await products()).some(containsImage);
+   const visible=(await products()).some(containsImage)||(await publicArtists(db)).some(profile=>(profile.portfolio_upload_ids||[]).includes(a.id));
    const assigned=!visible&&u?.role==='artist'&&(await products(true,u.id)).some(containsImage);
    if(!visible&&!assigned&&(!u||(u.id!==a.user_id&&u.role!=='admin'))) fail(404,'Artwork not found.');
    if(!/^[a-zA-Z0-9_-]+\.(png|jpg)$/.test(a.path)) fail(404,'Artwork not found.');
@@ -251,24 +256,34 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail) {
   if(method==='GET' && route==='studio') {
    const u=await role(req,'artist'),orders=[];
    for(const o of await q('SELECT * FROM orders ORDER BY created_at DESC')) {const d=order(o),items=d.items.filter(l=>l.artist_id===u.id);if(items.length) orders.push({id:o.id,status:o.status,created_at:o.created_at,items,payment_status:d.payment_status??'awaiting_payment'});}
-   return res.json({products:await products(true,u.id),orders});
+   return res.json({products:await reviewedProducts(db,await products(true,u.id)),orders});
+  }
+  if(method==='GET' && route==='product-preview') {
+   const u=await role(req,'artist','admin'),p=await one('SELECT * FROM products WHERE id=?',[String(req.query.id||'')]);
+   if(!p||(u.role!=='admin'&&p.artist_id!==u.id)) fail(404,'Preview not found.');
+   return res.json({product:product(p)});
   }
   if(method==='POST' && route==='artist-product') {
-   const u=await role(req,'artist'),p=await validProduct(v,req);if(!p.upload_id) fail(422,'Upload your original artwork first.');
+   const u=await role(req,'artist'),draft=v.action==='draft',p=await validProduct(v,req,draft);if(!draft&&v.rights!==true) fail(422,'Confirm that you have the rights to sell this artwork.');if(!draft&&!p.upload_id) fail(422,'Upload your original artwork first.');
    const id=v.id ? text(v,'id',64) : uid('p-');
    await db.tx(async conn=>{const old=await one('SELECT * FROM products WHERE id=? FOR UPDATE',[id],conn);if(old&&old.artist_id!==u.id) fail(403,'You can only edit your own products.');
     preserveDetails(p,old);
-    if(old) await q('UPDATE products SET data=?,stock=?,status=? WHERE id=?',[JSON.stringify(p),p.stock,'pending',id],conn);else await q('INSERT INTO products VALUES (?,?,?,?,?,?)',[id,u.id,'pending',p.stock,JSON.stringify(p),now()],conn);
-    await queue(u.email,'Veelad submission received: '+p.title,`Hello ${u.name},\n\nWe received your product submission: ${p.title}. It is pending administrator review and is not yet available in the store.\n\nView your products: ${c.origin}/#/studio?tab=products`,conn);
-   });return res.json({id,status:'pending'});
+    if(old) await q('UPDATE products SET data=?,stock=?,status=? WHERE id=?',[JSON.stringify(p),p.stock,draft?'draft':'pending',id],conn);else await q('INSERT INTO products VALUES (?,?,?,?,?,?)',[id,u.id,draft?'draft':'pending',p.stock,JSON.stringify(p),now()],conn);
+    if(!draft) {await q('INSERT INTO product_reviews VALUES (?,?) ON DUPLICATE KEY UPDATE data=VALUES(data)',[id,JSON.stringify({status:'pending',feedback:'',submitted_at:now()})],conn);}
+    if(!draft) await queue(u.email,'Veelad submission received: '+p.title,`Hello ${u.name},\n\nWe received your product submission: ${p.title}. It is pending administrator review and is not yet available in the store.\n\nView your products: ${c.origin}/#/studio?tab=products`,conn);
+   });return res.json({id,status:draft?'draft':'pending'});
   }
   if(route.startsWith('admin')) {
    const u=await role(req,'admin');
-   if(method==='GET' && route==='admin') return res.json({products:await products(true),users:(await q('SELECT * FROM users ORDER BY created_at DESC')).map(safeUser),orders:(await q('SELECT * FROM orders ORDER BY created_at DESC')).map(order),messages:(await q('SELECT * FROM messages ORDER BY created_at DESC')).map(({data,...r})=>({...json(data),...r})),settings:await settings(),audit:await q('SELECT * FROM audit_log ORDER BY created_at DESC LIMIT 30')});
+   if(method==='GET' && route==='admin') return res.json({products:await reviewedProducts(db,await products(true)),users:(await q('SELECT * FROM users ORDER BY created_at DESC')).map(safeUser),orders:(await q('SELECT * FROM orders ORDER BY created_at DESC')).map(order),messages:(await q('SELECT * FROM messages ORDER BY created_at DESC')).map(({data,...r})=>({...json(data),...r})),settings:await settings(),audit:await q('SELECT * FROM audit_log ORDER BY created_at DESC LIMIT 30')});
    if(method==='GET' && route==='admin-system') {
     const counts=Object.fromEntries((await q("SELECT CASE WHEN m.status='queued' AND d.id IS NULL THEN 'held' ELSE m.status END AS delivery_status,COUNT(*) AS n FROM mail_queue m LEFT JOIN mail_delivery d ON d.id=m.id GROUP BY delivery_status")).map(r=>[r.delivery_status,Number(r.n)]));
-    return res.json({version:'3.0.0',database:'mysql',mail_enabled:c.mailEnabled,email:mailStatus(c),queued_emails:counts.queued||0,failed_emails:counts.failed||0,held_emails:counts.held||0,sending_emails:counts.sending||0,expired_emails:counts.expired||0,paid_orders:(await q('SELECT data FROM orders')).filter(o=>json(o.data).payment_status==='paid').length});
+    return res.json({version:'3.0.0',database:'mysql',operations:await operationsStatus(c,db),mail_enabled:c.mailEnabled,email:mailStatus(c),queued_emails:counts.queued||0,failed_emails:counts.failed||0,held_emails:counts.held||0,sending_emails:counts.sending||0,expired_emails:counts.expired||0,paid_orders:(await q('SELECT data FROM orders')).filter(o=>json(o.data).payment_status==='paid').length});
    }
+   if(method==='POST' && route==='admin-storage-check') {await throttle(req,'operations',5);await audit(u,'storage.check','private');const result=await probeStorage(c,db);app.locals.operations ||= {};app.locals.operations.storage=result;return res.json({ok:result.ready,storage:result});}
+   if(method==='POST' && route==='admin-backup') {await throttle(req,'operations',5);if(!backupReady(c))fail(409,'Configure BACKUP_ENABLED, BACKUP_DIR, BACKUP_ENCRYPTION_KEY and BACKUP_INTERVAL_HOURS privately before backing up.');await audit(u,'backup.request','encrypted');const result=await createBackup(c,db);return res.json({ok:result.status==='success',backup:result});}
+   if(method==='GET' && route==='admin-backup-key') {if(!backupReady(c))fail(409,'Backups are not configured.');await audit(u,'backup.key_download','private');return res.attachment('veelad-'+c.mode+'-backup-recovery-key.txt').type('text/plain').send(c.backupKey+'\n');}
+   if(method==='GET' && route==='admin-backup-download') {const record=await one('SELECT data FROM operational_status WHERE id=?',['backup']);const result=record?json(record.data):null;if(!c.backupDir||result?.status!=='success'||!/^veelad-[a-zA-Z0-9_-]+\.vbackup$/.test(result.file))fail(404,'Encrypted backup not available.');await audit(u,'backup.download','encrypted');return res.download(path.join(c.backupDir,result.file),result.file);}
    if(method==='POST' && route==='admin-email') {
     await throttle(req,'admin-email',5);
     if(!['verify','test'].includes(v.action)) fail(422,'Choose a connection check or test email.');
@@ -281,14 +296,18 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail) {
    }
    if(method==='POST' && route==='admin-product') {
     const p=await validProduct(v,req),id=v.id?text(v,'id',64):uid('p-'),artist=text(v,'artist_id',64),status=v.status??'active';
-    if(!await one('SELECT id FROM artists WHERE id=?',[artist])) fail(422,'Choose a valid artist.');if(!['active','pending','archived'].includes(status)) fail(422,'Invalid product status.');
+    if(!await one('SELECT id FROM artists WHERE id=?',[artist])) fail(422,'Choose a valid artist.');if(!['active','pending','changes_requested','archived'].includes(status)) fail(422,'Invalid product status.');
     await db.tx(async conn=>{
      const old=await one('SELECT * FROM products WHERE id=? FOR UPDATE',[id],conn);
      preserveDetails(p,old);
      await q('INSERT INTO products VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE artist_id=?,status=?,stock=?,data=?',[id,artist,status,p.stock,JSON.stringify(p),now(),artist,status,p.stock,JSON.stringify(p)],conn);await audit(u,'product.save',id,conn);
+     const feedback=text(v,'review_feedback',2000,false);
+     if(status==='changes_requested'&&!feedback) fail(422,'Explain the changes the artist needs to make.');
+     if(old?.status==='draft') fail(409,'The artist must submit a draft before administrator review.');
+     if(old && (old.status!==status || feedback!==json((await one('SELECT data FROM product_reviews WHERE id=?',[id],conn))?.data||'{}').feedback)) await q('INSERT INTO product_reviews VALUES (?,?) ON DUPLICATE KEY UPDATE data=VALUES(data)',[id,JSON.stringify({status,feedback,reviewed_at:now()})],conn);
      if(old && (old.status!==status || old.artist_id!==artist)) {
       const recipient=await one("SELECT name,email FROM users WHERE id=? AND role='artist' AND status='active'",[artist],conn);
-      if(recipient) await queue(recipient.email,'Veelad product update: '+p.title,`Hello ${recipient.name},\n\nYour product ${p.title} is now ${status==='active'?'approved and available in the store':status==='archived'?'archived and unavailable in the store':'pending review'}.\n\nView your products: ${c.origin}/#/studio?tab=products`,conn);
+      if(recipient) await queue(recipient.email,'Veelad product update: '+p.title,`Hello ${recipient.name},\n\nYour product ${p.title} is now ${status==='active'?'approved and available in the store':status==='archived'?'archived and unavailable in the store':status==='changes_requested'?'awaiting changes from you':'pending review'}.\n\n${feedback?'Administrator feedback: '+feedback+'\n\n':''}View your products: ${c.origin}/#/studio?tab=products`,conn);
      }
     });return res.json({ok:true});
    }
@@ -330,6 +349,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail) {
   app.use(express.static(fileURLToPath(new URL('../reference/coming-soon',import.meta.url)),{dotfiles:'deny'}));
  } else {
  app.use('/api.php',api);
+ pageRoutes(app,c,db,schema);
  app.use(express.static(publicDir,{dotfiles:'deny',index:'index.html'}));
  }
  app.use((req,res)=>res.status(404).json({error:'Not found.'}));

@@ -1,5 +1,6 @@
 import path from 'node:path';
 import fs from 'node:fs';
+import crypto from 'node:crypto';
 export function config(env = process.env) {
   const mode = env.APP_ENV || 'local';
   if (!['local','test','staging','production'].includes(mode)) throw Error('Invalid APP_ENV');
@@ -23,6 +24,10 @@ export function config(env = process.env) {
       ...(env.DB_TLS === 'true' ? {ssl:{rejectUnauthorized:true}} : {})},
     workerInterval:Number(env.MAIL_WORKER_INTERVAL_SECONDS || 60), mailEnabled:env.MAIL_ENABLED === 'true', mailFrom:env.MAIL_FROM,
     mailTestRecipient:env.MAIL_TEST_RECIPIENT?.trim(),
+    backupEnabled:env.BACKUP_ENABLED==='true'||(mode==='staging'&&env.BACKUP_ENABLED!=='false'),
+    backupDir:path.resolve(env.BACKUP_DIR||path.join(path.dirname(path.resolve(env.UPLOAD_DIR||'var/uploads')),'veelad-backups-'+mode)),
+    backupKey:env.BACKUP_ENCRYPTION_KEY||Buffer.from(crypto.hkdfSync('sha256',secret,'Veelad backup v1:'+mode,'backup encryption',32)).toString('base64'),
+    backupKeySource:env.BACKUP_ENCRYPTION_KEY?'dedicated_environment_secret':'derived_from_session_environment_secret',backupHours:Number(env.BACKUP_INTERVAL_HOURS||24),
     smtp:{host:env.SMTP_HOST,port:Number(env.SMTP_PORT || 587),secure:env.SMTP_PORT === '465',
       auth:env.SMTP_USER ? {user:env.SMTP_USER, pass:env.SMTP_PASSWORD} : undefined},
     manualPayments:env.MANUAL_TEST_PAYMENTS === 'true' && mode !== 'production'};

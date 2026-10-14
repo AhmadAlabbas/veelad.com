@@ -1,0 +1,23 @@
+'use strict';
+function artistListingForm(p=null) {
+ return `<form data-form="${p?'artist-edit':'artist-product'}">${p?`<input type="hidden" name="id" value="${esc(p.id)}">`:''}${p?.upload_id?`<input type="hidden" name="upload_id" value="${esc(p.upload_id)}">`:''}
+ ${p?.review?.feedback?`<div class="notice"><strong>Administrator feedback</strong><p class="product-long-text">${esc(p.review.feedback)}</p></div>`:''}
+ <div class="upload-zone"><div id="upload-preview">${p?.upload_id?photo(p):icon('upload')}</div><h3>Your original artwork</h3><p>PNG or JPEG, up to 8 MB. Drafts can be saved before uploading.</p><input type="file" id="artwork-file" accept="image/png,image/jpeg" aria-label="Choose artwork file"><p id="upload-status">${p?.upload_id?'Existing artwork retained until replaced.':'Add artwork before submitting for review.'}</p></div>
+ <section class="panel"><div class="form-grid">${field('Design title','title',p?.title||'','text','required maxlength="100"')}<label class="field">Product category<select name="category">${cats.map(c=>`<option ${p?.category===c?'selected':''}>${c}</option>`).join('')}</select></label>
+ ${field('Retail price (SAR)','price',p?p.price/100:99,'number','required min="1" max="1000" step="0.01"')}${field('Available quantity','stock',p?.stock??50,'number','required min="0" max="100000" step="1"')}${field('Options (comma separated)','variants',p?.variants?.join(', ')||'Standard','text','required maxlength="300"',true)}
+ <label class="field full">Description<textarea name="description" required maxlength="2000">${esc(p?.description||'')}</textarea></label></div>${productDetailsFields(p||{})}
+ <div class="notice bottom-gap">Estimated artist share: 20% of product price — <strong id="royalty-preview">${money(Math.round((p?.price??9900)*0.2))}</strong>. This is a projection, not a payable balance. Finished production mockups are not generated.</div>
+ <p class="small">Drafts and submissions are private. Administrator approval publishes a listing. Saving a published listing as a draft pauses it.</p>
+ <label class="check"><input type="checkbox" name="rights" required>I created this artwork or hold the rights needed to sell it.</label>
+ <div class="artist-actions"><button class="btn outline" type="submit" name="action" value="draft" formnovalidate>Save draft</button><button class="btn" type="submit" name="action" value="submit">${p?'Resubmit for review':'Submit for review'}</button></div></section></form>`;
+}
+function artistStoryFields(a) {
+ return `<label class="field full">Your artist story<textarea name="story" maxlength="3000" rows="6" placeholder="Share your influences, process, and the story behind your work.">${esc(a.story||'')}</textarea></label><div class="full"><h3>Portfolio</h3><p class="small">Select up to six pieces you own. Saving your profile makes these images public on your artist page.</p>${galleryUploadFields({gallery_upload_ids:a.portfolio_upload_ids||[]}).replace('Additional product photos','Portfolio artwork').replace('Artist photos stay private until the listing is approved.','Portfolio images become public when you save your profile.').replace('Product photos','Portfolio images')}</div>`;
+}
+function artistProfilePage(a) {
+ const ps=products.filter(p=>p.artist_id===a.id),portfolio=a.portfolio_upload_ids||[];
+ return `<main id="main" class="container section"><nav class="breadcrumb">${link('Home','home')} / ${link('Artists','artists')} / ${esc(a.name)}</nav><header class="artist-hero"><div class="avatar">${esc(a.initials)}</div><span class="eyebrow">INDEPENDENT ARTIST</span><h1>${esc(a.name)}</h1><p>${esc(a.bio)}</p><span class="small">${esc(a.location)}</span><p class="small">${ps.length} ${ps.length===1?'published design':'published designs'}</p><a class="btn outline" href="#artist-products">Explore the products</a></header>
+ ${a.story?`<section class="artist-story"><h2>The story behind the art</h2><p class="product-long-text">${esc(a.story)}</p></section>`:''}
+ ${portfolio.length?`<section class="section"><h2>Portfolio</h2><p class="small">Original work shared by ${esc(a.name)}.</p><div class="artist-portfolio">${portfolio.map((id,i)=>`<figure><img src="/api.php?route=image&id=${encodeURIComponent(id)}" alt="Portfolio artwork ${i+1} by ${esc(a.name)}" loading="lazy"><figcaption>Artwork ${i+1}</figcaption></figure>`).join('')}</div></section>`:''}
+ <section id="artist-products" class="section">${title('From this creative corner.','Discover products featuring '+esc(a.name)+'’s work.')}${ps.length?grid(ps):empty('New work is on its way.','This artist has no approved products yet.',link('Meet more artists','artists','btn'))}</section></main>`;
+}

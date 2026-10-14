@@ -2,7 +2,7 @@
 
 Current machine: Node.js 24.19.0, MySQL 8.4 in a localhost-bound Docker database, Express 5. Original seed data is fictional; no production export was imported.
 
-24 integration/configuration/startup checks passed. Twelve desktop/mobile browser scenarios passed on the current machine.
+37 integration/configuration/startup/operations/monitoring checks and twenty desktop/mobile browser scenarios passed locally for the artist/discovery/SEO/operations update. Backup tests use a real isolated MySQL database and compare restored original artwork bytes.
 
 The existing integration suite exercises actual MySQL queries, transactions and HTTP sessions: CSRF/origin protections; safe registration and session rotation; customer state/profile/messages; role restrictions; image content/dimension/ownership validation; artist submission and admin approval; server-calculated SAR totals/coupons; concurrent idempotency and final-unit stock contention; transaction rollback; manual test fulfillment; concurrent one-time cancellation restocking; checkout pause; suspension; PHP bcrypt verification/rehash; cross-session password invalidation; recovery expiry/single-use; email queue locks with a simulated transport; production landing-page preservation; and concurrent rate limiting. Mock email delivery does not validate a real provider.
 
@@ -41,3 +41,7 @@ Desktop/mobile browser scenarios exercise thumbnail keyboard navigation, enlarge
 ## Mobile shopping improvements
 
 Desktop and phone scenarios verify that navigation/menu links work, filter application retains search/gift tags and category changes retain other filters, and individual filter removal/clearing behave as labeled. Native radio options retain their selection after saving a design. Cart tests simulate a stock reduction and verify bounded increases, permitted decreases, scroll preservation, explicit removal and required-field validation from the fixed checkout action. The phone case also exercises a 320 px viewport; product, cart and filter-panel screenshots were reviewed at 320/390 px with no horizontal overflow. Existing full customer and artist/admin workflows still pass. Prices, stock enforcement and payment behavior remain server-controlled.
+
+## Artist, SEO, and operations update
+
+API/browser checks exercise private drafts and authorized previews, required submission rights, change-request feedback, re-submission, ownership-limited public portfolios, normal URL reload/back, server-rendered metadata and private sharing/sitemap boundaries, combined discovery filters and catalog-based suggestions. Operations tests authenticate encrypted snapshots, reject the wrong key, restore into a fresh isolated database, compare records/artwork bytes, refuse live/existing targets, and preserve storage-loss warnings. Live storage continuity, snapshot creation, and GitHub monitoring are verified separately during the staging rollout; they do not establish off-server retention or a Hostinger disaster-recovery rehearsal.
