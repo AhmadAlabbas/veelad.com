@@ -41,6 +41,7 @@ npm run check
 - [Database import, migrations and rollback](docs/DATABASE.md)
 - [Validation and known limitations](docs/VALIDATION.md)
 - [Product photos, specifications, delivery and returns editing](docs/PRODUCT-PAGES.md)
+- [Mobile navigation, filtering, options and cart controls](docs/MOBILE-SHOPPING.md)
 
 No frontend build is required. Hosting build: `npm ci --omit=dev && npm run build && npm run migrate`. Start: `npm start`. `npm run build` records the actual Git SHA; when Git metadata is absent set `DEPLOY_COMMIT` to the deployed full SHA. Health returns this revision so automation cannot mistake an old or PHP deployment for the new release.
 
