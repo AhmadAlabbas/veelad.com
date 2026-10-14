@@ -47,6 +47,7 @@
  .mobile-shopping-nav b { color: #715389; font-size: 9px; }
  body[data-route=checkout] .mobile-shopping-nav { display: none; }
  .nav .mobile-menu, .nav-actions .iconbtn { width: 44px; height: 44px; flex-shrink: 0; }
+ .nav .mobile-menu { align-items: center; justify-content: center; padding: 0; }
  .nav .search { height: 44px; }
  .nav .search input { font-size: 16px; }
  .category-nav a { display: inline-flex; align-items: center; min-height: 44px; }
