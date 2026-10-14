@@ -81,6 +81,47 @@ test('uploads validate content, dimensions and ownership; private until approved
  assert.equal((await success(artist,'studio')).products[0].id,productId);
  assert.equal((await fetch(base+'/uploads/'+artId+'.png')).status,404);
 });
+test('product specifications and multiple photos persist, retain ownership checks, and follow listing approval',async()=>{
+ const uploadPhoto=async client=>{const f=new FormData();f.append('artwork',new Blob([await sharp({create:{width:120,height:140,channels:3,background:'orange'}}).png().toBuffer()],{type:'image/png'}),'photo.png');return (await success(client,'upload',f)).upload_id;};
+ const gallery=await uploadPhoto(artist),foreign=await uploadPhoto(other),adminPhoto=await uploadPhoto(admin);
+ const original=(await success(artist,'studio')).products.find(p=>p.id===productId);
+ assert.equal((await artist.call('artist-product',{...original,gallery_upload_ids:[foreign]})).status,403);
+ assert.equal((await artist.call('artist-product',{...original,gallery_upload_ids:'invalid'})).status,422);
+ assert.equal((await artist.call('artist-product',{...original,gallery_upload_ids:Array(7).fill(gallery)})).status,422);
+ assert.equal((await artist.call('artist-product',{...original,materials:'x'.repeat(301)})).status,422);
+ assert.equal((await artist.call('artist-product',{...original,size_guide:{invalid:true}})).status,422);
+ const details={materials:'Confirmed test paper',dimensions:'A4, 210 × 297 mm',care_instructions:'Keep dry.',size_guide:'A4: 210 × 297 mm\nA3: 297 × 420 mm',gallery_upload_ids:[gallery,gallery]};
+ await success(artist,'artist-product',{...original,...details});
+ assert.equal((await buyer.call('image',undefined,{id:gallery})).status,404);
+ const submitted=(await success(admin,'admin')).products.find(p=>p.id===productId);
+ assert.deepEqual(submitted.gallery_upload_ids,[gallery]);assert.equal(submitted.materials,details.materials);
+ await success(admin,'admin-product',{...submitted,gallery_upload_ids:[gallery,adminPhoto],status:'active'});
+ assert.equal((await buyer.call('image',undefined,{id:gallery},true)).status,200);
+ assert.equal((await buyer.call('image',undefined,{id:adminPhoto},true)).status,200);
+ const edited=(await success(artist,'studio')).products.find(p=>p.id===productId);
+ await success(artist,'artist-product',edited);
+ assert.equal((await buyer.call('image',undefined,{id:adminPhoto})).status,404,'Existing administrator photos must return to private review with the listing');
+ assert.equal((await artist.call('image',undefined,{id:adminPhoto},true)).status,200,'The listing artist must be able to review assigned administrator photos');
+ assert.equal((await other.call('image',undefined,{id:adminPhoto})).status,404);
+ const legacy={id:productId,title:original.title,category:original.category,price:original.price,stock:original.stock,description:original.description,variants:original.variants,upload_id:artId};
+ await success(artist,'artist-product',legacy);
+ const retained=(await success(admin,'admin')).products.find(p=>p.id===productId);
+ assert.deepEqual(retained.gallery_upload_ids,[gallery,adminPhoto]);assert.equal(retained.size_guide,details.size_guide);
+ await success(admin,'admin-product',{...retained,status:'active'});
+ const publicProduct=(await success(buyer,'bootstrap')).products.find(p=>p.id===productId);
+ assert.equal(publicProduct.dimensions,details.dimensions);assert.equal(publicProduct.care_instructions,details.care_instructions);
+});
+test('delivery and return information is administrator-managed and preserved by older settings requests',async()=>{
+ const s=(await success(admin,'admin')).settings;
+ assert.equal((await buyer.call('admin-settings',{...s,delivery_estimate:'Invented policy'})).status,403);
+ await success(admin,'admin-settings',{...s,delivery_estimate:'Confirmed test delivery estimate',returns_policy:'Test policy for browser validation only.'});
+ const visible=(await success(buyer,'bootstrap')).settings;
+ assert.equal(visible.delivery_estimate,'Confirmed test delivery estimate');assert.equal(visible.returns_policy,'Test policy for browser validation only.');
+ await success(admin,'admin-settings',s);
+ assert.equal((await success(buyer,'bootstrap')).settings.returns_policy,visible.returns_policy);
+ assert.equal((await admin.call('admin-settings',{...s,returns_policy:'x'.repeat(3001)})).status,422);
+ await success(admin,'admin-settings',{...s,delivery_estimate:'',returns_policy:''});
+});
 test('checkout calculates SAR totals, validates options and clears customer cart',async()=>{
  const result=await success(buyer,'checkout',{...checkout('first'),total:1});orderId=result.order.id;guestToken=result.guest_token;
  assert.equal(result.order.subtotal,11500);assert.equal(result.order.discount,1150);assert.equal(result.order.total,12350);assert.equal(result.order.payment_status,'awaiting_payment');assert.equal(await stock('p1'),49);

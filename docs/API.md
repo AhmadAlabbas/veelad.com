@@ -22,17 +22,19 @@ Errors: JSON `{error}` with 400/401/403/404/409/413/422/429 or 503; unexpected e
 | order | GET owner/admin or private token | id,token query; unauthorized lookup returns 404 |
 | upload/image | POST artist/admin / GET authorized | artwork → upload_id; approved active artwork publicly visible, otherwise owner/admin only |
 | studio | GET artist | own products and own order lines, no other customers' shipping addresses |
-| artist-product | POST artist | id optional,title,category,price,stock,description,variants,upload_id; ownership enforced; returns pending |
+| artist-product | POST artist | id optional,title,category,price,stock,description,variants,upload_id; optional materials,dimensions,care_instructions,size_guide,gallery_upload_ids (≤6); ownership enforced; returns pending |
 | admin | GET admin | products,safe users,orders,messages,settings,recent audit |
 | admin-product | POST admin | listing fields,artist_id,status; audit |
 | admin-order | POST admin | id,status,tracking; row lock, valid transitions, cancellation restocks once |
 | admin-user | POST admin | id,status active/suspended; cannot change admin accounts |
 | admin-message | POST admin | id → resolved and audit |
-| admin-settings | POST admin | announcement,support_email,shipping,free_shipping,checkout_enabled,coupon_code,coupon_percent |
+| admin-settings | POST admin | announcement,support_email,shipping,free_shipping,checkout_enabled,coupon_code,coupon_percent; optional delivery_estimate,returns_policy |
 | admin-record-payment | POST admin, local/test/staging opt-in only | id,reference; simulated external-payment record, no charge or transfer |
 | admin-system | GET admin | DB driver, disabled/enabled mail and queue/paid-order counts |
 
 Checkout validates 1–50 lines, integer quantities 1–20, active products/options and stock; ignores client prices/totals. Prices and configured discounts/shipping are computed in halalas. Products are locked in stable ID order; order idempotency is unique per session/request key and reserved before stock changes. Duplicate checkout returns the same order/tracking token without another stock decrement. The request key's scope changes when the session rotates; do not retry an old purchase after logout/login using a new session. Guest tracking tokens are secret-derived opaque values; imported PHP token hashes continue to verify supplied original tokens.
+
+Product details are optional plain-text strings: materials/dimensions ≤300 bytes, care_instructions ≤1000, size_guide ≤2000. gallery_upload_ids accepts up to six private upload IDs, deduplicated and checked against upload ownership or assignment to the artist's own listing. Gallery images become public only when referenced by an active approved product. Pending images remain accessible to the upload owner, assigned listing artist and administrators. delivery_estimate ≤300 and returns_policy ≤3000 are administrator-managed store settings. Omitted new fields preserve saved values; empty strings/arrays clear them. No additional schema migration is needed for these JSON fields.
 
 Order states: awaiting_payment/new → cancelled; test payment record → processing; processing → shipped/cancelled; shipped → delivered. Paid cancellation sets refund_required; delivered/cancelled are terminal, repeat cancellation does not restock. Real gateway/payment webhooks, refunds, transfers and monthly ledger are not implemented. Existing product royalty snapshot fields are retained for frontend compatibility only.
 

@@ -2,7 +2,7 @@
 
 Current machine: Node.js 24.19.0, MySQL 8.4 in a localhost-bound Docker database, Express 5. Original seed data is fictional; no production export was imported.
 
-22 integration/configuration/startup checks passed. Six desktop/mobile browser scenarios passed on the current machine.
+24 integration/configuration/startup checks passed. Eight desktop/mobile browser scenarios passed on the current machine.
 
 The existing integration suite exercises actual MySQL queries, transactions and HTTP sessions: CSRF/origin protections; safe registration and session rotation; customer state/profile/messages; role restrictions; image content/dimension/ownership validation; artist submission and admin approval; server-calculated SAR totals/coupons; concurrent idempotency and final-unit stock contention; transaction rollback; manual test fulfillment; concurrent one-time cancellation restocking; checkout pause; suspension; PHP bcrypt verification/rehash; cross-session password invalidation; recovery expiry/single-use; email queue locks with a simulated transport; production landing-page preservation; and concurrent rate limiting. Mock email delivery does not validate a real provider.
 
@@ -31,3 +31,9 @@ The completed ed3ed1b deployment still exported only the generic listener timeou
 ## Automatic staging migration regression
 
 A disposable MySQL database is populated with the original PHP tables and existing user/settings records, without sessions or migration tracking. A real production server is started first and verified not to create those tables. Staging then starts within the hosting deadline, creates the missing tables, serves healthy readiness and a secure-cookie bootstrap, and preserves original records without inserting a demo catalog. Restarting staging verifies migration repeatability. A second test stalls MySQL's handshake: HTTP opens immediately, data APIs stay unavailable during initialization, and timeout becomes a safe failure code without leaking credentials. The CommonJS listener-capture fixture runs for both test and staging modes so importing the migrator cannot reintroduce top-level-await startup failures. Desktop/mobile browser tests verify that the storefront retries a pending initialization and opens automatically, alongside the existing customer checkout and artist/admin approval workflows.
+
+## Product page improvements
+
+MySQL/HTTP integration checks cover optional product specifications, validation limits, multiple photo ownership, deduplication, private pending images, publication on approval, and an artist retaining and privately viewing administrator-assigned photographs. Older product/settings requests preserve omitted new fields. Delivery and return text remains administrator-only and clears explicitly when requested.
+
+Desktop/mobile browser scenarios exercise thumbnail keyboard navigation, enlargement, unknown-size fallback and product-specific contact subjects. The artist/admin workflow uploads artwork and additional photos, edits specifications, approves and resubmits the listing, retains administrator photos, and saves delivery/return information through the actual administrator form. This uncovered and corrected an existing form bug that sent the numeric discount as text. Opening a product refreshes catalog/settings, so newly approved products and policy edits are reflected without a full reload. Both product layouts were visually inspected and fit the tested viewports. These tests use fictional local/CI data; no confirmed material specifications, supplier photographs or store policies were invented or written to staging.

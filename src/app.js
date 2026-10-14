@@ -65,6 +65,20 @@ export function createApp(c,db,schema={status:'ready'}) {
  const audit=async (u,action,target,conn)=>q('INSERT INTO audit_log VALUES (?,?,?,?,?)',[uid(),u.id,action,String(target),now()],conn);
  const state=async (id,conn)=> {const r=await one('SELECT data FROM customer_state WHERE id=?',[id],conn);return r ? json(r.data) : {cart:[],saved:[],address:[]};};
  const putState=async (id,value,conn)=>q('INSERT INTO customer_state VALUES (?,?) ON DUPLICATE KEY UPDATE data=?',[id,JSON.stringify(value),JSON.stringify(value)],conn);
+ const detailLimits={materials:300,dimensions:300,care_instructions:1000,size_guide:2000};
+ function optionalDetails(v,limits) {
+  const details={};
+  for(const [key,max] of Object.entries(limits)) if(v[key]!==undefined) {
+   if(typeof v[key]!=='string') fail(422,'Please check '+key+'.');
+   details[key]=text(v,key,max,false);
+  }
+  return details;
+ }
+ function preserveDetails(p,old) {
+  if(!old) return;
+  const previous=json(old.data);
+  for(const key of [...Object.keys(detailLimits),'gallery_upload_ids']) if(p[key]===undefined && previous[key]!==undefined) p[key]=previous[key];
+ }
  async function me(req,required=false,conn) {
   const u=req.session.user_id ? await one('SELECT * FROM users WHERE id=?',[req.session.user_id],conn) : null;
   const active=u && u.status==='active' && equal(req.session.password_stamp,hash(u.password)) ? u : null;
@@ -94,7 +108,20 @@ export function createApp(c,db,schema={status:'ready'}) {
   if(!Array.isArray(variants)||!variants.length||variants.length>12) fail(422,'Add 1–12 variants.');
   const options=[...new Set(variants.map(x=>text({option:x},'option',50)))];
   const p={title:text(v,'title',100),category,price:integer(v.price,100,100000,'price'),stock:integer(v.stock??50,0,100000,'stock'),description:text(v,'description',2000),variants:options,royalty_percent:20,badge:'New',tags:[],sheet:integer(v.sheet??0,0,1,'sheet'),cell:integer(v.cell??0,0,5,'cell')};
-  if(v.upload_id) {const a=await one('SELECT * FROM uploads WHERE id=?',[text(v,'upload_id',64)]), u=await me(req,true);if(!a||(a.user_id!==u.id&&u.role!=='admin')) fail(403,'Artwork unavailable.');p.upload_id=a.id;}
+  Object.assign(p,optionalDetails(v,detailLimits));
+  if(v.upload_id) p.upload_id=text(v,'upload_id',64);
+  if(v.gallery_upload_ids!==undefined) {
+   if(!Array.isArray(v.gallery_upload_ids)||v.gallery_upload_ids.length>6) fail(422,'Add up to six product photos.');
+   p.gallery_upload_ids=[...new Set(v.gallery_upload_ids.map(id=>text({id},'id',64)))];
+  }
+  const imageIds=[...new Set([p.upload_id,...(p.gallery_upload_ids||[])].filter(Boolean))];
+  if(imageIds.length) {
+   const u=await me(req,true);
+   const current=v.id&&u.role!=='admin' ? await one('SELECT artist_id,data FROM products WHERE id=?',[text(v,'id',64)]) : null;
+   const previous=current?.artist_id===u.id ? json(current.data) : {};
+   const existingIds=new Set([previous.upload_id,...(Array.isArray(previous.gallery_upload_ids)?previous.gallery_upload_ids:[])].filter(Boolean));
+   for(const id of imageIds) {const image=await one('SELECT * FROM uploads WHERE id=?',[id]);if(!image||(image.user_id!==u.id&&u.role!=='admin'&&!existingIds.has(id))) fail(403,'Artwork unavailable.');}
+  }
   return p;
  }
  function payload(req) {const v=req.body??{};if(!v||Array.isArray(v)||typeof v!=='object') fail(400,'Invalid request.');return v;}
@@ -213,8 +240,10 @@ export function createApp(c,db,schema={status:'ready'}) {
   if(method==='GET' && route==='image') {
    const a=await one('SELECT * FROM uploads WHERE id=?',[String(req.query.id||'')]),u=await me(req);
    if(!a) fail(404,'Artwork not found.');
-   const visible=(await products()).some(p=>p.upload_id===a.id);
-   if(!visible && (!u||(u.id!==a.user_id&&u.role!=='admin'))) fail(404,'Artwork not found.');
+   const containsImage=p=>p.upload_id===a.id||(Array.isArray(p.gallery_upload_ids)&&p.gallery_upload_ids.includes(a.id));
+   const visible=(await products()).some(containsImage);
+   const assigned=!visible&&u?.role==='artist'&&(await products(true,u.id)).some(containsImage);
+   if(!visible&&!assigned&&(!u||(u.id!==a.user_id&&u.role!=='admin'))) fail(404,'Artwork not found.');
    if(!/^[a-zA-Z0-9_-]+\.(png|jpg)$/.test(a.path)) fail(404,'Artwork not found.');
    res.type(a.mime).set('Content-Disposition','inline');return res.sendFile(path.join(c.uploadDir,a.path));
   }
@@ -227,6 +256,7 @@ export function createApp(c,db,schema={status:'ready'}) {
    const u=await role(req,'artist'),p=await validProduct(v,req);if(!p.upload_id) fail(422,'Upload your original artwork first.');
    const id=v.id ? text(v,'id',64) : uid('p-');
    await db.tx(async conn=>{const old=await one('SELECT * FROM products WHERE id=? FOR UPDATE',[id],conn);if(old&&old.artist_id!==u.id) fail(403,'You can only edit your own products.');
+    preserveDetails(p,old);
     if(old) await q('UPDATE products SET data=?,stock=?,status=? WHERE id=?',[JSON.stringify(p),p.stock,'pending',id],conn);else await q('INSERT INTO products VALUES (?,?,?,?,?,?)',[id,u.id,'pending',p.stock,JSON.stringify(p),now()],conn);
    });return res.json({id,status:'pending'});
   }
@@ -237,7 +267,10 @@ export function createApp(c,db,schema={status:'ready'}) {
    if(method==='POST' && route==='admin-product') {
     const p=await validProduct(v,req),id=v.id?text(v,'id',64):uid('p-'),artist=text(v,'artist_id',64),status=v.status??'active';
     if(!await one('SELECT id FROM artists WHERE id=?',[artist])) fail(422,'Choose a valid artist.');if(!['active','pending','archived'].includes(status)) fail(422,'Invalid product status.');
-    await db.tx(async conn=>{await q('INSERT INTO products VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE artist_id=?,status=?,stock=?,data=?',[id,artist,status,p.stock,JSON.stringify(p),now(),artist,status,p.stock,JSON.stringify(p)],conn);await audit(u,'product.save',id,conn);});return res.json({ok:true});
+    await db.tx(async conn=>{
+     preserveDetails(p,await one('SELECT data FROM products WHERE id=? FOR UPDATE',[id],conn));
+     await q('INSERT INTO products VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE artist_id=?,status=?,stock=?,data=?',[id,artist,status,p.stock,JSON.stringify(p),now(),artist,status,p.stock,JSON.stringify(p)],conn);await audit(u,'product.save',id,conn);
+    });return res.json({ok:true});
    }
    if(method==='POST' && ['admin-order','admin-record-payment'].includes(route)) {
     if(route==='admin-record-payment'&&!c.manualPayments) fail(409,'Manual test payments are disabled in this environment.');
@@ -265,7 +298,7 @@ export function createApp(c,db,schema={status:'ready'}) {
    }
    if(method==='POST' && route==='admin-message') {await db.tx(async conn=>{await q('UPDATE messages SET status=? WHERE id=?',['resolved',text(v,'id',64)],conn);await audit(u,'message.resolve',v.id,conn);});return res.json({ok:true});}
    if(method==='POST' && route==='admin-settings') {
-    const s=await settings();Object.assign(s,{announcement:text(v,'announcement',150),support_email:email(v,'support_email'),shipping:integer(v.shipping,0,100000,'shipping'),free_shipping:integer(v.free_shipping,0,100000,'free shipping'),checkout_enabled:v.checkout_enabled===true,coupon_code:text(v,'coupon_code',30,false).toUpperCase(),coupon_percent:integer(v.coupon_percent??0,0,70,'discount')});
+    const s=await settings();Object.assign(s,{announcement:text(v,'announcement',150),support_email:email(v,'support_email'),shipping:integer(v.shipping,0,100000,'shipping'),free_shipping:integer(v.free_shipping,0,100000,'free shipping'),checkout_enabled:v.checkout_enabled===true,coupon_code:text(v,'coupon_code',30,false).toUpperCase(),coupon_percent:integer(v.coupon_percent??0,0,70,'discount')},optionalDetails(v,{delivery_estimate:300,returns_policy:3000}));
     await db.tx(async conn=>{await q('UPDATE settings SET data=? WHERE id=?',[JSON.stringify(s),'store'],conn);await audit(u,'settings.save','store',conn);});return res.json({ok:true});
    }
   }
