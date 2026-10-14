@@ -33,13 +33,15 @@ jobs:
           PRODUCTION_RESULT: ${{ steps.production.outcome }}
         with:
           script: |
-            const title = '[Operations] Website or database unavailable';
+            const title = '[Operations] Website, database, or storage needs attention';
+            const previousTitle = '[Operations] Website or database unavailable';
             const { owner, repo } = context.repo;
             const issues = await github.paginate(github.rest.issues.listForRepo, { owner, repo, state: 'open', creator: 'github-actions[bot]', per_page: 100 });
-            const existing = issues.find(issue => issue.title === title && !issue.pull_request);
+            const existing = issues.find(issue => [title, previousTitle].includes(issue.title) && !issue.pull_request);
             const failed = process.env.STAGING_RESULT !== 'success' || process.env.PRODUCTION_RESULT !== 'success';
+            if (failed && existing && existing.title !== title) await github.rest.issues.update({ owner, repo, issue_number: existing.number, title });
             if (failed && !existing) {
-              await github.rest.issues.create({ owner, repo, title, body: `Staging: ${process.env.STAGING_RESULT}. Production: ${process.env.PRODUCTION_RESULT}.\n\nReview the [monitor run](https://github.com/${owner}/${repo}/actions/runs/${context.runId}) and Hostinger runtime logs. No credentials or private data are included.` });
+              await github.rest.issues.create({ owner, repo, title, body: `Staging readiness: ${process.env.STAGING_RESULT}. Production homepage: ${process.env.PRODUCTION_RESULT}. Checks include private artwork and backup completeness; a storage failure does not necessarily mean the storefront is offline.\n\nReview the [monitor run](https://github.com/${owner}/${repo}/actions/runs/${context.runId}) and Hostinger runtime logs. No credentials or private data are included.` });
             } else if (!failed && existing) {
               await github.rest.issues.update({ owner, repo, issue_number: existing.number, state: 'closed', state_reason: 'completed' });
             }

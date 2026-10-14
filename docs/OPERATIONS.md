@@ -44,7 +44,7 @@ Check restored account/product/order counts and artwork bytes before planning a 
 
 `.github/workflows/monitor.yml` checks staging HTTP/database readiness, failed storage checks, and failed/overdue backups; it checks the production homepage without enabling production APIs. It retries three times, allowing transient startup/migration delays. The schedule is every 15 minutes on the default branch, plus manual runs. GitHub may delay scheduled runs; this is not a guaranteed real-time paging service.
 
-A failure opens one deduplicated repository issue named `[Operations] Website or database unavailable` and fails the workflow. Recovery closes it. Issue bodies contain only status/run links. Enable notifications for repository issues and failed workflows in your GitHub account and verify the alert channel reaches you; notification delivery is an account setting Codex cannot confirm. No SMTP activation is needed for these GitHub alerts. Monitoring is read-only against both websites and never touches orders or payments.
+A failure opens one deduplicated repository issue named `[Operations] Website, database, or storage needs attention` and fails the workflow. Recovery closes it. Issue bodies contain only status/run links. Enable notifications for repository issues and failed workflows in your GitHub account and verify the alert channel reaches you; notification delivery is an account setting Codex cannot confirm. No SMTP activation is needed for these GitHub alerts. Monitoring is read-only against both websites and never touches orders or payments.
 
 ## Rollback
 
@@ -53,3 +53,7 @@ Before application rollback, take/download an encrypted snapshot and its separat
 ## Missing originals during migration
 
 If stored uploads are missing, the staging checker looks for the exact database filename in retained staging PHP/upload and Node build directories, validates its image format/dimensions, and copies it into private storage without overwriting a file or changing ownership. It never searches production or assigns unmapped ZIP artwork to guessed accounts. If no original is recoverable, Admin → System lists the missing filenames and offers **Restore missing original**: choose the matching database record, upload its actual original image, and confirm the association. The original bytes, existing upload ID and artist ownership are retained. Existing files cannot be overwritten through this action. A full backup intentionally fails until all recorded files are present; missing records are never silently deleted or replaced with sample artwork.
+
+## Live staging observations — October 14, 2026
+
+Revisions f4534a7 and ea728dd served normal product/artist URLs and sharing metadata successfully. The private directory marker survived the second revision (`observed_across_releases`). The live check found two missing recorded original files; the retained staging-folder scan did not recover them, so a complete encrypted snapshot correctly remains failed. Use the authenticated administrator recovery form to supply the matching originals, then verify the next snapshot succeeds. A real monitoring run detected this condition and opened operations issue #1. No production release, real payment, SMTP delivery, off-server backup, or Hostinger retention guarantee was asserted.

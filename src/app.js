@@ -251,7 +251,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail) {
    const assigned=!visible&&u?.role==='artist'&&(await products(true,u.id)).some(containsImage);
    if(!visible&&!assigned&&(!u||(u.id!==a.user_id&&u.role!=='admin'))) fail(404,'Artwork not found.');
    if(!/^[a-zA-Z0-9_-]+\.(png|jpg)$/.test(a.path)) fail(404,'Artwork not found.');
-   res.type(a.mime).set('Content-Disposition','inline');return res.sendFile(path.join(c.uploadDir,a.path));
+   res.type(a.mime).set('Content-Disposition','inline');return res.sendFile(path.join(c.uploadDir,a.path),error=>{if(error&&!res.headersSent)res.status(error.code==='ENOENT'?404:503).type('json').json({error:'Artwork file unavailable. Contact the store team.'});else if(error)res.destroy();});
   }
   if(method==='GET' && route==='studio') {
    const u=await role(req,'artist'),orders=[];

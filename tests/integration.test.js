@@ -141,6 +141,7 @@ test('private drafts, previews, review feedback and artist portfolios preserve p
 });
 test('administrator restores a missing original without changing ownership or overwriting existing artwork',async()=>{
  const record=await db.one('SELECT * FROM uploads WHERE id=?',[artId]),file=path.join(c.uploadDir,record.path),bytes=await fs.readFile(file);await fs.unlink(file);
+ const unavailable=await buyer.call('image',undefined,{id:artId});assert.equal(unavailable.status,404);assert.equal(unavailable.body.error,'Artwork file unavailable. Contact the store team.');
  assert.ok((await success(admin,'admin-missing-artwork')).uploads.some(image=>image.id===artId));
  assert.equal((await buyer.call('admin-missing-artwork')).status,403);assert.equal((await buyer.call('admin-backup-key')).status,403);
  const form=()=>{const f=new FormData();f.append('artwork',new Blob([bytes],{type:record.mime}),'original.png');return f;};
