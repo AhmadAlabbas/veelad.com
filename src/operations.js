@@ -3,9 +3,27 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import zlib from 'node:zlib';
 import {promisify} from 'node:util';
+import os from 'node:os';
 const gzip=promisify(zlib.gzip),gunzip=promisify(zlib.gunzip);
 export const backupTables=['users','artists','products','orders','settings','messages','rate_limits','uploads','customer_state','password_resets','mail_queue','mail_delivery','product_reviews','audit_log'];
 const namePattern=/^[a-zA-Z0-9_-]+\.(png|jpg)$/;
+export async function recoverStagingArtwork(c,records,root=path.join(os.homedir(),'domains','staging.veelad.com')) {
+ if(c.mode!=='staging')return 0;
+ const candidates=[path.join(root,'public_html','uploads'),path.join(root,'public_html','veelad-app','uploads')];
+ const versions=path.join(root,'hbuilds','versions');
+ try {for(const entry of (await fs.readdir(versions,{withFileTypes:true})).filter(e=>e.isDirectory()).slice(0,100)){const source=path.join(versions,entry.name,'nodejs');for(const directory of ['var/uploads','uploads','veelad-app/uploads'])candidates.push(path.join(source,directory));}}catch{}
+ let recovered=0;
+ for(const record of records){if(!namePattern.test(record.path))continue;const target=path.join(c.uploadDir,record.path);try{await fs.access(target);continue;}catch{}
+  // Recover only an exact existing database filename from this staging website. Never infer ownership.
+  for(const candidate of candidates){const source=path.join(candidate,record.path);try{
+   const real=await fs.realpath(source),realRoot=await fs.realpath(root);if(!real.startsWith(realRoot+path.sep))continue;
+   const info=await fs.stat(real);if(!info.isFile()||info.size>8*1024*1024)continue;
+   const {default:sharp}=await import('sharp');const metadata=await sharp(real,{limitInputPixels:36000000}).metadata();if(!['png','jpeg'].includes(metadata.format)||metadata.width<100||metadata.height<100)continue;
+   await fs.copyFile(real,target,fs.constants.COPYFILE_EXCL);await fs.chmod(target,0o600);recovered++;break;
+  }catch{}}
+ }
+ return recovered;
+}
 export async function putOperation(db,id,data){await db.q('INSERT INTO operational_status VALUES (?,?,?) ON DUPLICATE KEY UPDATE data=VALUES(data),updated_at=VALUES(updated_at)',[id,JSON.stringify(data),new Date().toISOString()]);}
 export async function operationsStatus(c,db){const rows=await db.q('SELECT id,data FROM operational_status');return {storage:null,backup:{enabled:c.backupEnabled,configured:backupReady(c),status:c.backupEnabled?'not_checked':'disabled'},...Object.fromEntries(rows.map(r=>[r.id,JSON.parse(r.data)])),backup_configuration:{enabled:c.backupEnabled,configured:backupReady(c),key_source:c.backupKeySource}};}
 export function backupReady(c){return c.backupEnabled && !!c.backupDir && typeof c.backupKey==='string' && Buffer.from(c.backupKey,'base64').length===32 && Number.isInteger(c.backupHours)&&c.backupHours>=1&&c.backupHours<=168;}
@@ -19,10 +37,11 @@ export async function probeStorage(c,db) {
   const folder=await privateDirectory(c,c.uploadDir),file=path.join(folder,'.veelad-storage-proof'),previous=await db.one('SELECT data FROM operational_status WHERE id=?',['storage']),old=previous?JSON.parse(previous.data):null;
   let marker;try {marker=(await fs.readFile(file,'utf8')).trim();}catch(error){if(error.code!=='ENOENT')throw error;marker=crypto.randomUUID();try{await fs.writeFile(file,marker,{mode:0o600,flag:'wx'});}catch(writeError){if(writeError.code!=='EEXIST')throw writeError;marker=(await fs.readFile(file,'utf8')).trim();}}
   const temporary=path.join(folder,'.write-check-'+crypto.randomUUID());await fs.writeFile(temporary,'Veelad private storage check',{mode:0o600,flag:'wx'});await fs.unlink(temporary);
-  let missing=0;for(const upload of await db.q('SELECT path FROM uploads')) {if(!namePattern.test(upload.path)){missing++;continue;}try{await fs.access(path.join(folder,upload.path));}catch{missing++;}}
+  const records=await db.q('SELECT path FROM uploads');const recovered=await recoverStagingArtwork(c,records);
+  let missing=0;for(const upload of records) {if(!namePattern.test(upload.path)){missing++;continue;}try{await fs.access(path.join(folder,upload.path));}catch{missing++;}}
   const markerHash=crypto.createHash('sha256').update(marker).digest('hex'),preserved=!!old&&old.marker_hash===markerHash;
   const lost=old?.continuity==='lost'||(old?.marker_hash&&!preserved);
-  const result={ready:missing===0&&!lost,private:true,writable:true,missing_files:missing,marker_hash:markerHash,first_revision:preserved?old.first_revision:c.revision,last_revision:c.revision,
+  const result={ready:missing===0&&!lost,private:true,writable:true,missing_files:missing,recovered_files:recovered,marker_hash:markerHash,first_revision:preserved?old.first_revision:c.revision,last_revision:c.revision,
    continuity:lost?'lost':preserved&&(old.first_revision!==c.revision||old.continuity==='observed_across_releases')?'observed_across_releases':'not_yet_observed',checked_at:new Date().toISOString()};
   await putOperation(db,'storage',result);return result;
  }catch(error){const result={ready:false,private:false,writable:false,continuity:'unverified',error_code:['PUBLIC_STORAGE_PATH','EACCES','ENOENT','ENOSPC'].includes(error.code)?error.code:'STORAGE_CHECK_FAILED',checked_at:new Date().toISOString()};await putOperation(db,'storage',result);return result;}
@@ -45,7 +64,7 @@ export async function createBackup(c,db) {
   await readBackup(path.join(folder,name),c.backupKey);
   const result={enabled:true,configured:true,status:'success',created_at:created,revision:c.revision,file:name,artwork_count:tables.uploads.length,bytes:(await fs.stat(path.join(folder,name))).size,offsite_confirmed:false};await putOperation(db,'backup',result);
   return result;
- }catch(error){await connection.rollback();await putOperation(db,'backup',{enabled:true,configured:backupReady(c),status:'failed',error_code:'BACKUP_FAILED',checked_at:new Date().toISOString()});throw Object.assign(Error('Backup failed; inspect private storage and configuration',{cause:error}),{code:'BACKUP_FAILED'});}
+ }catch(error){await connection.rollback();await putOperation(db,'backup',{enabled:true,configured:backupReady(c),status:'failed',error_code:['ENOENT','EACCES','ENOSPC','ER_UNSUPPORTED_PS'].includes(error.code)?error.code:'BACKUP_FAILED',checked_at:new Date().toISOString()});throw Object.assign(Error('Backup failed; inspect private storage and configuration',{cause:error}),{code:'BACKUP_FAILED'});}
  finally{if(file)await fs.unlink(file).catch(()=>{});try{if(locked)await db.q("SELECT RELEASE_LOCK('veelad_backup')",[],connection);}finally{connection.release();}}
 }
 export async function readBackup(file,key) {

@@ -139,6 +139,17 @@ test('private drafts, previews, review feedback and artist portfolios preserve p
  const xml=await (await fetch(base+'/sitemap.xml')).text();assert.ok(xml.includes('/products/'+draft.id));assert.equal(xml.includes('/studio'),false);
  const seo=await (await fetch(base+'/products/p1')).text();assert.match(seo,/<title>Sun &amp; Sea/);assert.ok(seo.includes('application/ld+json'));assert.ok(seo.includes('https://schema.org/InStock'));
 });
+test('administrator restores a missing original without changing ownership or overwriting existing artwork',async()=>{
+ const record=await db.one('SELECT * FROM uploads WHERE id=?',[artId]),file=path.join(c.uploadDir,record.path),bytes=await fs.readFile(file);await fs.unlink(file);
+ assert.ok((await success(admin,'admin-missing-artwork')).uploads.some(image=>image.id===artId));
+ assert.equal((await buyer.call('admin-missing-artwork')).status,403);assert.equal((await buyer.call('admin-backup-key')).status,403);
+ const form=()=>{const f=new FormData();f.append('artwork',new Blob([bytes],{type:record.mime}),'original.png');return f;};
+ assert.equal((await admin.call('admin-artwork-restore',form(),{id:artId})).status,422);
+ await success(admin,'admin-artwork-restore',form(),{id:artId,confirm:'true'});assert.deepEqual(await fs.readFile(file),bytes);
+ assert.equal((await db.one('SELECT user_id FROM uploads WHERE id=?',[artId])).user_id,record.user_id);
+ assert.equal((await admin.call('admin-artwork-restore',form(),{id:artId,confirm:'true'})).status,409);
+ assert.equal((await success(admin,'admin-missing-artwork')).uploads.some(image=>image.id===artId),false);
+});
 test('delivery and return information is administrator-managed and preserved by older settings requests',async()=>{
  const s=(await success(admin,'admin')).settings;
  assert.equal((await buyer.call('admin-settings',{...s,delivery_estimate:'Invented policy'})).status,403);

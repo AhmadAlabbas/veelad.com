@@ -41,7 +41,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail) {
    if(!row) throw new ApiError(503,'Store provisioning is required.');
    JSON.parse(row.data);
    await db.q('SELECT session_id FROM sessions LIMIT 1');
-   res.json({ok:true,version:'3.0.0',environment:c.mode,revision:c.revision,marketplace_enabled:true,...(app.locals.operations?.storage?{storage:{ready:app.locals.operations.storage.ready,continuity:app.locals.operations.storage.continuity},backup:app.locals.operations.backup?{status:app.locals.operations.backup.status,created_at:app.locals.operations.backup.created_at}:null}:{})});
+   res.json({ok:true,version:'3.0.0',environment:c.mode,revision:c.revision,marketplace_enabled:true,...(app.locals.operations?.storage?{storage:{ready:app.locals.operations.storage.ready,continuity:app.locals.operations.storage.continuity,missing_files:app.locals.operations.storage.missing_files},backup:app.locals.operations.backup?{status:app.locals.operations.backup.status,created_at:app.locals.operations.backup.created_at}:null}:{})});
   } catch(e) {
    console.error('Veelad readiness failed:',e.code||e.name);
    const databaseError=readinessCode(e);
@@ -61,7 +61,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail) {
  });
  api.use(express.json({limit:'100kb'}));
  const upload=multer({storage:multer.memoryStorage(),limits:{fileSize:8*1024*1024,files:1,fields:0}});
- api.use((req,res,next)=>req.method==='POST' && req.query.route==='upload' ? upload.single('artwork')(req,res,next) : next());
+ api.use((req,res,next)=>req.method==='POST' && ['upload','admin-artwork-restore'].includes(req.query.route) ? upload.single('artwork')(req,res,next) : next());
  const q=db.q, one=db.one;
  const settings=async conn=> {const r=await one('SELECT data FROM settings WHERE id=?',['store'],conn);if(!r) fail(503,'Store provisioning is required.');return json(r.data);};
  const products=async (all=false,artist=null,conn)=> (await q('SELECT * FROM products'+(!all ? " WHERE status='active'" : artist ? ' WHERE artist_id=?' : '')+' ORDER BY created_at DESC,id', all&&artist ? [artist] : [],conn)).map(product);
@@ -281,6 +281,18 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail) {
     return res.json({version:'3.0.0',database:'mysql',operations:await operationsStatus(c,db),mail_enabled:c.mailEnabled,email:mailStatus(c),queued_emails:counts.queued||0,failed_emails:counts.failed||0,held_emails:counts.held||0,sending_emails:counts.sending||0,expired_emails:counts.expired||0,paid_orders:(await q('SELECT data FROM orders')).filter(o=>json(o.data).payment_status==='paid').length});
    }
    if(method==='POST' && route==='admin-storage-check') {await throttle(req,'operations',5);await audit(u,'storage.check','private');const result=await probeStorage(c,db);app.locals.operations ||= {};app.locals.operations.storage=result;return res.json({ok:result.ready,storage:result});}
+   if(method==='GET' && route==='admin-missing-artwork') {
+    const missing=[];for(const image of await q('SELECT id,user_id,path,mime FROM uploads')){try{await fs.access(path.join(c.uploadDir,image.path));}catch(error){if(error.code==='ENOENT')missing.push({id:image.id,filename:image.path,mime:image.mime});}}
+    return res.json({uploads:missing});
+   }
+   if(method==='POST' && route==='admin-artwork-restore') {
+    await throttle(req,'artwork.restore',15);if(req.query.confirm!=='true')fail(422,'Confirm this is the original artwork for the missing record.');
+    const image=await one('SELECT * FROM uploads WHERE id=?',[String(req.query.id||'')]);if(!image||!req.file||!/^[a-zA-Z0-9_-]+\.(png|jpg)$/.test(image.path))fail(422,'Choose a missing record and its original image.');
+    const file=path.join(c.uploadDir,image.path);try{await fs.access(file);fail(409,'This artwork already exists and will not be overwritten.');}catch(error){if(error.code!=='ENOENT')throw error;}
+    let info;try{const original=sharp(req.file.buffer,{limitInputPixels:36000000,failOn:'warning'});info=await original.metadata();if(info.format!==(image.path.endsWith('.png')?'png':'jpeg')||info.width<100||info.height<100||info.pages>1)fail(422,'Use the original PNG/JPEG matching this record.');await original.toBuffer();}catch(error){if(error instanceof ApiError)throw error;fail(422,'The artwork file is invalid.');}
+    await privateDirectory(c,c.uploadDir);await fs.writeFile(file,req.file.buffer,{mode:0o600,flag:'wx'});await audit(u,'artwork.restore',image.id);
+    const result=await probeStorage(c,db);app.locals.operations ||= {};app.locals.operations.storage=result;return res.json({ok:true,storage:result});
+   }
    if(method==='POST' && route==='admin-backup') {await throttle(req,'operations',5);if(!backupReady(c))fail(409,'Configure BACKUP_ENABLED, BACKUP_DIR, BACKUP_ENCRYPTION_KEY and BACKUP_INTERVAL_HOURS privately before backing up.');await audit(u,'backup.request','encrypted');const result=await createBackup(c,db);return res.json({ok:result.status==='success',backup:result});}
    if(method==='GET' && route==='admin-backup-key') {if(!backupReady(c))fail(409,'Backups are not configured.');await audit(u,'backup.key_download','private');return res.attachment('veelad-'+c.mode+'-backup-recovery-key.txt').type('text/plain').send(c.backupKey+'\n');}
    if(method==='GET' && route==='admin-backup-download') {const record=await one('SELECT data FROM operational_status WHERE id=?',['backup']);const result=record?json(record.data):null;if(!c.backupDir||result?.status!=='success'||!/^veelad-[a-zA-Z0-9_-]+\.vbackup$/.test(result.file))fail(404,'Encrypted backup not available.');await audit(u,'backup.download','encrypted');return res.download(path.join(c.backupDir,result.file),result.file);}

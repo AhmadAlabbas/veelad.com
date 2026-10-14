@@ -2,7 +2,7 @@
 
 Current machine: Node.js 24.19.0, MySQL 8.4 in a localhost-bound Docker database, Express 5. Original seed data is fictional; no production export was imported.
 
-37 integration/configuration/startup/operations/monitoring checks and twenty desktop/mobile browser scenarios passed locally for the artist/discovery/SEO/operations update. Backup tests use a real isolated MySQL database and compare restored original artwork bytes.
+38 integration/configuration/startup/operations/monitoring checks and twenty-four desktop/mobile browser scenarios passed locally for the artist/discovery/SEO/operations update. Backup tests use a real isolated MySQL database and compare restored original artwork bytes.
 
 The existing integration suite exercises actual MySQL queries, transactions and HTTP sessions: CSRF/origin protections; safe registration and session rotation; customer state/profile/messages; role restrictions; image content/dimension/ownership validation; artist submission and admin approval; server-calculated SAR totals/coupons; concurrent idempotency and final-unit stock contention; transaction rollback; manual test fulfillment; concurrent one-time cancellation restocking; checkout pause; suspension; PHP bcrypt verification/rehash; cross-session password invalidation; recovery expiry/single-use; email queue locks with a simulated transport; production landing-page preservation; and concurrent rate limiting. Mock email delivery does not validate a real provider.
 

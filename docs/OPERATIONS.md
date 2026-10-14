@@ -49,3 +49,7 @@ A failure opens one deduplicated repository issue named `[Operations] Website or
 ## Rollback
 
 Before application rollback, take/download an encrypted snapshot and its separate key. Keep the added operational/review tables and migration history. Disable BACKUP_ENABLED for a rollout if diagnosing backup/storage errors, and use the GitHub monitor and provider logs to check recovery. An application revert does not require dropping tables. For data recovery, restore database and artwork together into an isolated target, validate and reconcile orders created after the snapshot, then deliberately switch the matched application/environment. Never silently replace live paid orders.
+
+## Missing originals during migration
+
+If stored uploads are missing, the staging checker looks for the exact database filename in retained staging PHP/upload and Node build directories, validates its image format/dimensions, and copies it into private storage without overwriting a file or changing ownership. It never searches production or assigns unmapped ZIP artwork to guessed accounts. If no original is recoverable, Admin → System lists the missing filenames and offers **Restore missing original**: choose the matching database record, upload its actual original image, and confirm the association. The original bytes, existing upload ID and artist ownership are retained. Existing files cannot be overwritten through this action. A full backup intentionally fails until all recorded files are present; missing records are never silently deleted or replaced with sample artwork.

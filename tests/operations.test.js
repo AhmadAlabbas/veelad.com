@@ -8,7 +8,7 @@ import sharp from 'sharp';
 import {config} from '../src/config.js';
 import {database} from '../src/db.js';
 import {migrate} from '../scripts/migrate.js';
-import {probeStorage,createBackup,readBackup,backupReady,privateDirectory} from '../src/operations.js';
+import {probeStorage,createBackup,readBackup,backupReady,privateDirectory,recoverStagingArtwork} from '../src/operations.js';
 import {restoreSnapshot} from '../scripts/restore-backup.js';
 test('storage continuity is observed across releases and encrypted database/artwork backup restores into an isolated database',async()=>{
  const rootConfig=config({...process.env,APP_ENV:'test'}),root=database(rootConfig),folder=await fs.mkdtemp(path.join(os.tmpdir(),'veelad-ops-'));
@@ -34,6 +34,9 @@ test('storage continuity is observed across releases and encrypted database/artw
   await assert.rejects(()=>privateDirectory({...c,mode:'staging'},path.join(folder,'public_html','artwork')),/Private directory/);
   await fs.unlink(path.join(c.uploadDir,'.veelad-storage-proof'));assert.equal((await probeStorage(c,db)).continuity,'lost');assert.equal((await probeStorage(c,db)).ready,false);
   await fs.unlink(path.join(c.uploadDir,'original.png'));assert.equal((await probeStorage(c,db)).missing_files,1);await assert.rejects(()=>createBackup(c,db),{code:'BACKUP_FAILED'});
+  const oldRoot=path.join(folder,'staging-site'),oldFolder=path.join(oldRoot,'hbuilds','versions','retained-version','nodejs','var','uploads');await fs.mkdir(oldFolder,{recursive:true});await fs.writeFile(path.join(oldFolder,'original.png'),bytes);
+  assert.equal(await recoverStagingArtwork({...c,mode:'staging'},[{path:'original.png'}],oldRoot),1);assert.deepEqual(await fs.readFile(path.join(c.uploadDir,'original.png')),bytes);
+  assert.equal(await recoverStagingArtwork({...c,mode:'staging'},[{path:'original.png'}],oldRoot),0);
  }finally{
   if(db)await db.pool.end();for(const targetName of [name,target])await root.pool.query('DROP DATABASE IF EXISTS ??',[targetName]);await root.pool.end();await fs.rm(folder,{recursive:true,force:true});
  }

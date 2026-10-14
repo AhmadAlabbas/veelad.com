@@ -2,3 +2,4 @@
 @media(max-width:760px){.artist-portfolio{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.artist-portfolio img{height:190px}.artist-actions .btn{flex:1;min-height:48px}.artist-hero h1{overflow-wrap:anywhere}.review-feedback{max-width:200px}.artist-story h2{font-size:25px}}
 
 .draft-placeholder{display:flex;align-items:center;justify-content:center;background:#f4eef9;color:#726581;text-align:center;padding:16px}
+.artist-portfolio figure{margin:0;min-width:0}

@@ -6,6 +6,7 @@ function normalUrl(page,values={}) {
  const search=new URLSearchParams(query).toString();return (path||'/not-found')+(search?'?'+search:'');
 }
 function currentPage() {
+ if(mode==='demo'){const [page,search='']=location.hash.replace(/^#\/?/,'').split('?');return {route:page||'home',params:new URLSearchParams(search)};}
  if(location.hash.startsWith('#/')){const [page,search='']=location.hash.slice(2).split('?');history.replaceState(null,'',normalUrl(page,Object.fromEntries(new URLSearchParams(search))));}
  const parts=location.pathname.split('/').filter(Boolean),values=new URLSearchParams(location.search);let page=Object.keys(pagePaths).find(key=>pagePaths[key]===location.pathname)||'not-found';
  if(parts.length===2&&['products','artists'].includes(parts[0])){page=parts[0]==='products'?'product':'artist';values.set('id',decodeURIComponent(parts[1]));}
