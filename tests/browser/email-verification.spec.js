@@ -3,6 +3,7 @@ import {googleApp} from '../helpers/google-app.js';
 try{process.loadEnvFile('.env');}catch(e){if(e.code!=='ENOENT')throw e;}
 for(const language of ['en','ar'])test(`native email confirmation and password recovery work in ${language} without automatic token consumption`,async({page,context},info)=>{
  test.setTimeout(90000);
+ context.setDefaultTimeout(15000);context.setDefaultNavigationTimeout(15000);
  const fixture=await googleApp({mailEnabled:true,mailFrom:'info@example.test',workerInterval:60,smtp:{host:'smtp.example.test',port:465,auth:{user:'info@example.test',pass:'simulated-only'}}});
  const errors=[],address='email-browser-'+language+'@example.test',password='Browser verification password 123';page.on('pageerror',e=>errors.push(e.message));
  const label=(en,ar)=>language==='ar'?ar:en;
