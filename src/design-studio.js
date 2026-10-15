@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import { createHash } from "node:crypto";
 import { fail } from "./security.js";
+import {validateTextLayers} from './text-layers.js';
 import {
   defaultPlacement,
   qualityEstimate,
@@ -17,6 +18,7 @@ export function validateDesignStudio(value, uploadId) {
     typeof value !== "object" ||
     Array.isArray(value) ||
     value.version !== 1 ||
+    (value.text_version!==undefined&&value.text_version!=="veelad-text-1") ||
     value.template_version !== printProducts.version ||
     value.artwork_id !== (uploadId || null) ||
     (value.listing_mockup !== undefined &&
@@ -76,6 +78,7 @@ export function validateDesignStudio(value, uploadId) {
     active_product: value.active_product,
     listing_mockup: value.listing_mockup !== false,
     placements,
+    ...(value.text_layers!==undefined?{text_layers:validateTextLayers(value.text_layers),text_version:"veelad-text-1"}:{}),
   };
 }
 export const printProductFor = (category) =>
@@ -98,6 +101,7 @@ export function mockupId(
           source: uploadId,
           product: product.id,
           placement: studio.placements[product.id],
+          ...(studio.text_layers?.[product.id]?.some(layer=>layer.text.trim())?{text_layers:studio.text_layers[product.id],text_version:studio.text_version||"veelad-text-1"}:{}),
         }),
       )
       .digest("hex")
@@ -141,6 +145,7 @@ export function productionPlan(product, metadata) {
       .map((p) => ({
         category: p.category,
         placement: product.design_studio.placements[p.id],
+        ...(product.design_studio.text_layers?.[p.id]?.length?{text_layers:product.design_studio.text_layers[p.id]}:{}),
         provisional_canvas_pixels: p.canvas,
         quality: metadata
           ? qualityEstimate(

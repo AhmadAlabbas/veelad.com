@@ -35,9 +35,9 @@ export async function artworkMetadata(directory,record) {
   resolution_guidance:'300 DPI dimensions are guidance only. Veelad must check the exact printing template, bleed, color and usable artwork before production.'};
 }
 // Lossless bounded input for compositing avoids repeated lossy encoding of art.
-export async function artworkRenderSource(directory,record) {
+export async function artworkRenderSource(directory,record,limit=artworkLimits.preview) {
  const bytes=await readArtwork(directory,record);
- try{return await sharp(bytes,{limitInputPixels:artworkLimits.pixels,failOn:'warning'}).rotate().resize({width:artworkLimits.preview,height:artworkLimits.preview,fit:'inside',withoutEnlargement:true}).png().toBuffer();}
+ try{let image=sharp(bytes,{limitInputPixels:artworkLimits.pixels,failOn:'warning'}).rotate();if(limit)image=image.resize({width:limit,height:limit,fit:'inside',withoutEnlargement:true});return await image.png().toBuffer();}
  catch{fail(422,'Artwork preview unavailable. Contact the store team.');}
 }
 export async function artworkPreview(directory,record) {

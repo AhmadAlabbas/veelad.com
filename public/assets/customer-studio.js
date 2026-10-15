@@ -10,7 +10,7 @@ function customizableProducts() {
   );
 }
 function customerCreatePage() {
-  const available = customizableProducts();
+  const available = customerEditorProducts();
   const intro = `<div class="page-title customer-create-intro"><span class="eyebrow">${t("MADE BY YOU / PRINTED BY VEELAD")}</span><h1>${t("Your idea. Your everyday.")}</h1><p>${t("Make a one-off gift or something just for you. Add your artwork, find its perfect placement, and we’ll print and ship your item after your order is confirmed.")}</p><ol class="customer-steps"><li>${t("Choose your item")}</li><li>${t("Make it yours")}</li><li>${t("Review and order")}</li></ol></div>`;
   if (mode === "demo")
     return `<main id="main" class="container customer-create">${intro}${empty(t("Personal designs use your secure account."), t("Open the connected store to create and order a private design."), link(t("Back to store"), "home", "btn"))}</main>`;
@@ -44,15 +44,17 @@ function customerCreatePage() {
       }
     : { category: p.category };
   uploadId = draft.upload_id || null;
-  return `<main id="main" class="container customer-create">${intro}<form data-form="customer-design"><section class="customer-product-choice"><label class="field">${t("Choose your item")}<select name="product_id" required>${available.map((item) => `<option value="${esc(item.id)}" ${item.id === p.id ? "selected" : ""}>${esc(t(item.category))} — ${esc(localField(item, "title"))} · ${money(item.price)}</option>`).join("")}</select></label><input type="hidden" name="category" value="${esc(p.category)}"><input type="hidden" name="upload_id" value="${esc(draft.upload_id || "")}"><label class="field">${t("Choose an option")}<select name="variant" required>${p.variants.map((v) => `<option value="${esc(v)}" ${customerDraft?.variant === v ? "selected" : ""}>${esc(localVariant(p, v))}</option>`).join("")}</select></label><div class="customer-price"><span>${t("Per item")}</span><strong data-customer-price>${money(p.price)}</strong></div></section>${designArtworkUpload(draft).replace(t("Your original stays private until the listing is approved."), t("Your artwork is private. Only you and the Veelad production team can access it."))}${designPlacementPreview(draft)}<section class="customer-review"><div><span class="eyebrow">${t("03 / REVIEW YOUR ITEM")}</span><h2>${t("Ready to make it real?")}</h2><p>${t("Check the product, option, crop and placement. This is a provisional visual preview; our team must confirm the printable area and quality before production.")}</p></div><label class="check"><input type="checkbox" name="rights" required ${customerDraft?.rights ? "checked" : ""}>${t("I own this artwork or have permission to print it.")}</label><label class="check"><input type="checkbox" name="preview_accepted" required>${t("I reviewed my design and understand the preview is provisional.")}</label><div class="customer-submit"><p>${t("Delivery is calculated in your bag. No payment is collected online.")}</p><button type="submit" class="btn">${t("Save design and add to bag")} ${icon("bag")}</button></div></section></form></main>`;
+  return `<main id="main" class="container customer-create">${intro}<form data-form="customer-design"><section class="customer-draft-bar">${field(t("Design name"), "design_name", customerDraft?.title || "", "text", 'maxlength="80" dir="auto"')}<div class="customer-draft-actions"><span role="status" aria-live="polite" data-customer-save-status>${t(customerDraft?.conflict ? "This draft changed in another tab. Reload it or save a copy." : "Your progress saves automatically")}</span><div><button type="button" class="btn outline sm" data-save-customer-draft>${t("Save draft now")}</button><button type="button" class="text-link" data-copy-customer-draft>${t("Save a copy")}</button><button type="button" class="text-link" data-reload-customer-draft ${customerDraft?.conflict ? "" : "hidden"}>${t("Reload saved version")}</button>${link(t("My Designs"), "my-designs", "text-link")}</div></div></section><section class="customer-product-choice"><label class="field">${t("Choose your item")}<select name="product_id" required>${available.map((item) => `<option value="${esc(item.id)}" ${item.id === p.id ? "selected" : ""}>${esc(t(item.category))} — ${esc(localField(item, "title"))} · ${money(item.price)}</option>`).join("")}</select></label><input type="hidden" name="category" value="${esc(p.category)}"><input type="hidden" name="upload_id" value="${esc(draft.upload_id || "")}"><label class="field">${t("Choose an option")}<select name="variant" required>${p.variants.map((v) => `<option value="${esc(v)}" ${customerDraft?.variant === v ? "selected" : ""}>${esc(localVariant(p, v))}</option>`).join("")}</select></label><div class="customer-price"><span>${t("Per item")}</span><strong data-customer-price>${money(p.price)}</strong></div></section>${designArtworkUpload(draft).replace(t("Start with your best original."), t("Upload artwork or start with text.")).replace(t("Your original stays private until the listing is approved."), t("Your artwork is private. Only you and the Veelad production team can access it."))}<p class="small customer-text-hint">${t("Artwork is optional. You can design with text only.")} <button type="button" class="text-link" data-start-with-text>${t("Start with text")}</button></p>${button(t("Remove uploaded artwork"), "remove-customer-artwork", "", "text-link")}${designPlacementPreview(draft)}<section class="customer-review"><p class="notice" data-customer-unavailable hidden>${t("This product is unavailable for ordering. You can keep editing your draft or choose another item.")}</p><div><span class="eyebrow">${t("03 / REVIEW YOUR ITEM")}</span><h2>${t("Ready to make it real?")}</h2><p>${t("Check the product, option, crop and placement. This is a provisional visual preview; our team must confirm the printable area and quality before production.")}</p></div><label class="check"><input type="checkbox" name="rights" required ${customerDraft?.rights ? "checked" : ""}>${t("I own this artwork or have permission to print it.")}</label><label class="check"><input type="checkbox" name="preview_accepted" required>${t("I reviewed my design and understand the preview is provisional.")}</label><div class="customer-submit"><p>${t("Delivery is calculated in your bag. No payment is collected online.")}</p><button type="submit" class="btn" data-customer-order>${t("Save design and add to bag")} ${icon("bag")}</button></div></section></form></main>`;
 }
 function rememberCustomerDraft(form) {
-  if (!form || !user) return;
+  if (!form || !user || !form.isConnected) return;
   let studio;
   try {
     studio = JSON.parse(form.querySelector("[name=design_studio]").value);
   } catch {}
   customerDraft = {
+    ...(customerDraft || {}),
+    title: form.elements.design_name.value,
     user_id: user.id,
     product_id: form.elements.product_id.value,
     variant: form.elements.variant.value,
@@ -61,10 +63,13 @@ function rememberCustomerDraft(form) {
     rights: form.elements.rights.checked,
     editing_key: customerDraft?.editing_key || null,
   };
+  const remove = form.querySelector("[data-action=remove-customer-artwork]");
+  if (remove) remove.hidden = !customerDraft.upload_id;
+  queueCustomerAutosave();
 }
 function syncCustomerProduct(form) {
   if (!form) return;
-  const p = customizableProducts().find(
+  const p = customerEditorProducts().find(
     (p) => p.id === form.elements.product_id.value,
   );
   if (!p) return;
@@ -97,6 +102,10 @@ function syncCustomerProduct(form) {
       ? "Existing artwork retained until replaced."
       : "Your artwork is private. Only you and the Veelad production team can access it.",
   );
+  form.querySelector("[data-customer-unavailable]").hidden =
+    customizableProducts().some((item) => item.id === p.id);
+  form.querySelector("[data-customer-order]").disabled =
+    !customizableProducts().some((item) => item.id === p.id);
   rememberCustomerDraft(form);
 }
 async function submitCustomerDesign(form, v) {
@@ -120,14 +129,26 @@ async function submitCustomerDesign(form, v) {
   const root = form.querySelector(".design-studio"),
     instance = studioInstances.get(root),
     source = uploadId || v.upload_id;
-  if (!source) throw Error(t("Upload your original artwork first."));
   if (!instance?.state)
     throw Error(t("Preview templates could not be loaded."));
-  instance.state.artwork_id = source;
+  if (!source && !textLayersFor(instance).some((layer) => layer.text.trim()))
+    throw Error(t("Add artwork or text to your design."));
+  if (
+    instance.root.dataset.textBusy ||
+    (textLayersFor(instance).some((layer) => layer.text.trim()) &&
+      instance.textReadyKey !== textGlyphKey(textLayersFor(instance)))
+  )
+    throw Error(t("Wait for the text preview to finish."));
+  if (!instance?.state)
+    throw Error(t("Preview templates could not be loaded."));
+  instance.state.artwork_id = source || null;
   instance.persist();
+  rememberCustomerDraft(form);
+  await flushCustomerDraft();
   const result = await api("customer-design", {
+    title: form.elements.design_name.value,
     product_id: p.id,
-    upload_id: source,
+    upload_id: source || null,
     design_studio: JSON.parse(form.elements.design_studio.value),
     rights: !!v.rights,
     preview_accepted: !!v.preview_accepted,
@@ -213,4 +234,31 @@ new MutationObserver(() => {
   childList: true,
   attributes: true,
   attributeFilter: ["data-ready"],
+});
+
+document.addEventListener("click", (event) => {
+  if (!event.target.closest("[data-action=remove-customer-artwork]")) return;
+  const form = event.target.closest("[data-form=customer-design]");
+  if (!form) return;
+  uploadId = null;
+  form.elements.upload_id.value = "";
+  form.querySelector("#upload-preview").innerHTML = icon("upload");
+  const root = form.querySelector(".design-studio"),
+    instance = studioInstances.get(root);
+  root.dataset.source = "";
+  root.dataset.artworkId = "";
+  if (instance) {
+    instance.image = null;
+    instance.source = null;
+    instance.metadata = null;
+    instance.state.artwork_id = null;
+    instance.update();
+  }
+  const meta = form.querySelector("[data-artwork-metadata]");
+  meta.textContent = "";
+  meta.dataset.artworkMetadata = "";
+  form.querySelector("#upload-status").textContent = t(
+    "Add artwork or create a text-only design.",
+  );
+  rememberCustomerDraft(form);
 });

@@ -54,7 +54,7 @@ async function loadStudioAsset(view) {
     );
   return studioAssets.get(view);
 }
-function studioTexture(image, product, placement, math) {
+function studioTexture(image, product, placement, math, textOverlay=null) {
   const canvas = document.createElement("canvas");
   canvas.width = 900;
   canvas.height = Math.round((900 * product.preview[1]) / product.preview[0]);
@@ -63,6 +63,7 @@ function studioTexture(image, product, placement, math) {
     ctx.fillStyle = placement.background;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
+  if(image){
   const layout = math.imageLayout(
       image.naturalWidth,
       image.naturalHeight,
@@ -93,6 +94,8 @@ function studioTexture(image, product, placement, math) {
     );
     ctx.restore();
   }
+  }
+  if(textOverlay)ctx.drawImage(textOverlay,0,0,canvas.width,canvas.height);
   return canvas;
 }
 function drawStudio(canvas, asset, texture, math, guides = false) {
@@ -306,6 +309,7 @@ async function startDesignStudio(root) {
     };
     instance.update = () => {
       if (!root.isConnected) return;
+      if(typeof syncCustomerTextTools==='function')syncCustomerTextTools(instance);
       const product = instance.product(),
         p = instance.state.placements[product.id],
         meta =
@@ -322,6 +326,7 @@ async function startDesignStudio(root) {
       const q = root.querySelector("[data-studio-quality]");
       q.dataset.level = quality.level;
       q.innerHTML = `<strong>${t(quality.level === "empty" ? "Add artwork to check quality" : quality.level === "template_required" ? "Supplier template required" : quality.level === "recommended" ? "Resolution estimate: good" : quality.level === "review" ? "Resolution estimate: review needed" : "Resolution estimate: too low")}</strong>${quality.dpi !== null ? `<span>${esc(t("About {dpi} DPI at this placement", { dpi: localNumber(quality.dpi) }))}</span>` : ""}<small>${t(quality.cropped ? "Artwork extends beyond the printable area and will be cropped." : quality.dense ? "The pattern is too dense. Increase its scale or use a single placement." : "Provisional dimensions. Supplier review is still required.")}</small>`;
+      if(!instance.image&&instance.state.text_layers?.[product.id]?.some(layer=>layer.text.trim()))q.innerHTML=`<strong>${t('Text design')}</strong><small>${t('Text is rendered with the same fonts for preview and production. Supplier review is still required.')}</small>`;
       instance.persist();
       cancelAnimationFrame(instance.frame);
       instance.frame = requestAnimationFrame(() => instance.render());
@@ -337,9 +342,10 @@ async function startDesignStudio(root) {
         const asset = await loadStudioAsset(p.view);
         if (serial !== instance.serial || !root.isConnected) return;
         instance.asset = asset;
-        const texture = instance.image
-          ? studioTexture(instance.image, product, p, math)
-          : null;
+        const textOverlay=typeof customerTextOverlay==='function'?await customerTextOverlay(instance,product):null;
+        if(serial!==instance.serial||!root.isConnected)return;
+        const content=instance.image||textOverlay||p.background!=='transparent';
+        const texture=content?studioTexture(instance.image,product,p,math,textOverlay):null;
         drawStudio(
           root.querySelector(".studio-canvas"),
           asset,
@@ -347,10 +353,10 @@ async function startDesignStudio(root) {
           math,
           root.querySelector("[data-studio-guides]").checked,
         );
-        status.textContent = instance.image
+        status.textContent = content
           ? ""
           : t("Upload artwork to see its placement");
-        status.hidden = !!instance.image;
+        status.hidden = !!content;
       } catch (error) {
         status.hidden = false;
         status.textContent = t(error.message);
@@ -509,7 +515,7 @@ async function startDesignStudio(root) {
         instance.syncControls();
         instance.update();
       } else if (node.hasAttribute("data-studio-export")) {
-        if (!instance.image) {
+        if (!instance.image&&!instance.state.text_layers?.[product.id]?.some(layer=>layer.text.trim())) {
           toast(t("Upload artwork to see its placement"));
           return;
         }
@@ -519,7 +525,7 @@ async function startDesignStudio(root) {
           drawStudio(
             canvas,
             await loadStudioAsset(p.view),
-            studioTexture(instance.image, product, p, math),
+            studioTexture(instance.image, product, p, math,await customerTextOverlay(instance,product)),
             math,
           );
           const ctx = canvas.getContext("2d");
@@ -570,13 +576,15 @@ async function startDesignStudio(root) {
     };
     let drag;
     canvas.addEventListener("pointerdown", (event) => {
-      if (!instance.image) return;
+      const textTarget=typeof customerDragTarget==='function'?customerDragTarget(instance):null;
+      if (!instance.image&&!textTarget) return;
       const point = uv(event);
       if (point) {
         drag = {
           point,
-          x: instance.state.placements[instance.product().id].x,
-          y: instance.state.placements[instance.product().id].y,
+          x: (textTarget||instance.state.placements[instance.product().id]).x,
+          y: (textTarget||instance.state.placements[instance.product().id]).y,
+          target:textTarget,
         };
         canvas.setPointerCapture(event.pointerId);
         canvas.focus();
@@ -587,11 +595,11 @@ async function startDesignStudio(root) {
       if (!drag) return;
       const point = uv(event);
       if (!point) return;
-      const p = instance.state.placements[instance.product().id];
+      const p = drag.target||instance.state.placements[instance.product().id];
       p.x = Math.max(0, Math.min(1, drag.x + point.x - drag.point.x));
       p.y = Math.max(0, Math.min(1, drag.y + point.y - drag.point.y));
       instance.update();
-      for (const key of ["x", "y"])
+      if(!drag.target)for (const key of ["x", "y"])
         root.querySelector("[data-placement=" + key + "]").value = Math.round(
           p[key] * 100,
         );
@@ -605,15 +613,17 @@ async function startDesignStudio(root) {
         ArrowUp: [0, -0.01],
         ArrowDown: [0, 0.01],
       }[event.key];
-      if (!move || !instance.image) return;
+      const textTarget=typeof customerDragTarget==='function'?customerDragTarget(instance):null;
+      if (!move || (!instance.image&&!textTarget)) return;
       event.preventDefault();
-      const p = instance.state.placements[instance.product().id];
+      const p = textTarget||instance.state.placements[instance.product().id];
       p.x = Math.max(0, Math.min(1, p.x + move[0] * (event.shiftKey ? 5 : 1)));
       p.y = Math.max(0, Math.min(1, p.y + move[1] * (event.shiftKey ? 5 : 1)));
       instance.syncControls();
       instance.update();
     });
     instance.syncControls();
+    if(typeof mountCustomerTextTools==='function')mountCustomerTextTools(instance);
     instance.update();
     const source =
       root

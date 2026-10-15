@@ -34,7 +34,7 @@ const checkout=(key,qty=1,id='p1')=>({customer,consent:true,cart:[{id,variant:id
 before(async()=>{
  db=database(c);c.uploadDir=await fs.mkdtemp(path.join(os.tmpdir(),'veelad-test-'));
  await migrate(db);await migrate(db);
- for(const table of ['users','artists','products','orders','settings','messages','rate_limits','uploads','customer_state','customer_designs','password_resets','product_reviews','operational_status','mail_delivery','mail_queue','audit_log','sessions']) await db.q(`DELETE FROM ${table}`);
+ for(const table of ['users','artists','products','orders','settings','messages','rate_limits','uploads','customer_state','customer_designs','customer_design_drafts','password_resets','product_reviews','operational_status','mail_delivery','mail_queue','audit_log','sessions']) await db.q(`DELETE FROM ${table}`);
  const seed=JSON.parse(await fs.readFile(new URL('../data/seed.json',import.meta.url),'utf8'));
  await db.q('INSERT INTO users VALUES (?,?,?,?,?,?,?)',['admin-test','Admin','admin@example.test',await passwordHash(pw),'admin','active',now()]);
  for(const a of seed.artists) await db.q('INSERT INTO artists VALUES (?,?)',[a.id,JSON.stringify(a)]);
@@ -460,4 +460,41 @@ test('private customer designs keep originals, separate cart lines and immutable
  assert.equal((await stock(pid)),12); // admin explicitly reset its stock to 12 above
  const snapshot=await success(admin,'admin-design-plan',undefined,{id:pid,order:o.id,line:custom[1].line_id});assert.equal(snapshot.products[0].placement.rotation,23);
  assert.deepEqual(await fs.readFile(path.join(c.uploadDir,(await db.one('SELECT path FROM uploads WHERE id=?',[source])).path)),bytes);
+});
+
+test('customer text, autosaved drafts and library enforce revisions and ownership while orders keep their original composition',async()=>{
+ await db.q('DELETE FROM rate_limits');const owner=client(),stranger=client(),anonymous=client();for(const c of [owner,stranger,anonymous])await success(c,'bootstrap');
+ await success(owner,'register',{name:'Text owner',email:'text-owner@example.test',password:pw});await success(stranger,'register',{name:'Text stranger',email:'text-stranger@example.test',password:pw});
+ const base={id:'p-text-draft-base',title:'Personal text T-shirt',description:'Customer text item.',category:'T-shirts',price:6500,stock:20,variants:['Standard'],artist_id:(await db.one('SELECT id FROM artists ORDER BY id LIMIT 1')).id,status:'active',customer_customizable:true,upload_id:artId};await success(admin,'admin-product',base);
+ const layer={id:'words-1',text:'مرحبا Veelad',font:'arabic',color:'#b52233',x:.5,y:.5,size:.08,rotation:8,align:'center',direction:'auto'};
+ const studio={version:1,template_version:'veelad-generic-1',artwork_id:null,active_product:'shirt',placements:{},text_layers:{shirt:[layer]}};
+ assert.equal((await anonymous.call('customer-text-preview',{category:base.category,layers:[layer]})).status,401);
+ const glyph=await success(owner,'customer-text-preview',{category:base.category,layers:[layer]});assert.match(glyph.layers[0].image,/^data:image\/png;base64,/);assert.ok((await sharp(Buffer.from(glyph.layers[0].image.split(',')[1],'base64')).metadata()).width>0);
+ assert.equal((await owner.call('customer-text-preview',{category:base.category,layers:[{...layer,font:'../../private'}]})).status,422);
+ const request={id:'draft-1234567890abcdef',revision:0,title:'My gift تصميمي',product_id:base.id,variant:'Standard',upload_id:null,design_studio:studio};
+ const saved=await success(owner,'customer-draft',request);assert.equal(saved.revision,1);
+ assert.equal((await stranger.call('customer-draft',undefined,{id:saved.id})).status,404);
+ assert.equal((await anonymous.call('customer-library')).status,401);assert.equal((await success(stranger,'customer-library')).drafts.length,0);
+ const restored=await success(owner,'customer-draft',undefined,{id:saved.id});assert.equal(restored.draft.title,request.title);assert.equal(restored.draft.design_studio.text_layers.shirt[0].text,layer.text);assert.equal(restored.product.id,base.id);
+ const stale=await owner.call('customer-draft',{...request,revision:0});assert.equal(stale.status,409);assert.equal(stale.body.code,'DRAFT_CONFLICT');
+ assert.equal((await stranger.call('customer-draft',{...request,revision:1})).status,404);
+ const racing=await Promise.all([owner.call('customer-draft',{...request,revision:1,title:'First tab'}),owner.call('customer-draft',{...request,revision:1,title:'Second tab'})]);assert.deepEqual(racing.map(r=>r.status).sort(),[200,409]);
+ const latest=await success(owner,'customer-draft',undefined,{id:saved.id});assert.equal(latest.draft.revision,2);
+ assert.equal((await owner.call('customer-draft',{...request,id:'draft-abcdef12345678',upload_id:artId,design_studio:{...studio,artwork_id:artId}})).status,404);
+ const preview=await owner.call('customer-draft-preview',undefined,{id:saved.id},true);assert.equal(preview.status,200);assert.equal((await sharp(Buffer.from(preview.body)).metadata()).format,'webp');assert.equal((await stranger.call('customer-draft-preview',undefined,{id:saved.id})).status,404);
+ const design=await success(owner,'customer-design',{product_id:base.id,upload_id:null,design_studio:studio,title:request.title,rights:true,preview_accepted:true});assert.equal(design.customization.upload_id,null);
+ const otherDesign=await success(stranger,'customer-design',{product_id:base.id,upload_id:null,design_studio:studio,rights:true,preview_accepted:true});assert.notEqual(design.customization.mockup_upload_id,otherDesign.customization.mockup_upload_id);
+ assert.equal((await stranger.call('image',undefined,{id:design.customization.mockup_upload_id})).status,404);
+ assert.equal((await stranger.call('customer-draft',undefined,{copy:design.customization_id})).status,404);
+ const copy=await success(owner,'customer-draft',undefined,{copy:design.customization_id});assert.equal(copy.draft.design_studio.text_layers.shirt[0].text,layer.text);assert.equal(copy.draft.revision,0);
+ const purchase=await success(owner,'checkout',{customer,consent:true,cart:[{id:base.id,variant:'Standard',qty:1,customization_id:design.customization_id}],request_key:'text-only-checkout'}),o=purchase.order,line=o.items[0];
+ assert.equal(line.upload_id,null,'A text-only order must never inherit the catalog artwork');assert.equal(line.design_title,request.title);assert.equal(line.design_studio.text_layers.shirt[0].text,layer.text);assert.equal(o.subtotal,6500);assert.equal(o.payment_status,'awaiting_payment');
+ const query={id:base.id,order:o.id,line:line.line_id};assert.equal((await owner.call('admin-design-artwork',undefined,query)).status,403);
+ const output=await admin.call('admin-design-artwork',undefined,query,true);assert.equal(output.status,200);const info=await sharp(Buffer.from(output.body)).metadata();assert.equal(info.width,4500);assert.equal(info.height,5400);assert.equal(info.hasAlpha,true);
+ const plan=await success(admin,'admin-design-plan',undefined,query);assert.equal(plan.products[0].text_layers[0].text,layer.text);assert.equal(plan.source_upload_id,null);
+ await success(owner,'customer-draft',{...request,revision:2,design_studio:{...studio,text_layers:{shirt:[{...layer,text:'Changed later'}]}}});
+ const frozen=await admin.call('admin-design-artwork',undefined,query,true);assert.deepEqual(Buffer.from(output.body),Buffer.from(frozen.body));
+ const library=await success(owner,'customer-library');assert.equal(library.drafts[0].design_studio.text_layers.shirt[0].text,'Changed later');assert.equal(library.designs[0].design_studio.text_layers.shirt[0].text,layer.text);
+ await success(owner,'customer-draft',{action:'archive',id:saved.id,revision:3});assert.equal((await success(owner,'customer-library')).drafts.length,0);assert.equal((await owner.call('customer-draft',undefined,{id:saved.id})).status,404);
+ assert.equal((await success(owner,'order',undefined,{id:o.id})).order.items[0].design_studio.text_layers.shirt[0].text,layer.text);
 });

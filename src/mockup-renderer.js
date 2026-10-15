@@ -9,6 +9,7 @@ import {
 import { printProductFor, mockupId, mockupMatches } from "./design-studio.js";
 import { artworkRenderSource } from "./artwork.js";
 import { fail } from "./security.js";
+import { renderTextOverlay } from "./text-layers.js";
 const assets = new URL("../public/assets/mockups/", import.meta.url);
 const baseCache = new Map();
 const loading = new Map();
@@ -22,45 +23,48 @@ async function template(view) {
   baseCache.set(view, result);
   return result;
 }
-export async function renderMockup(preview, category, studio) {
+export async function renderDesignTexture(preview, category, studio, cw = 900) {
   const product = printProductFor(category),
     placement = studio.placements[product.id],
-    info = await sharp(preview).metadata();
-  const cw = 900,
-    ch = Math.round((cw * product.preview[1]) / product.preview[0]),
-    layout = imageLayout(info.width, info.height, cw, ch, placement),
-    centers = patternCenters(layout, cw, ch, placement.repeat);
+    info = preview ? await sharp(preview).metadata() : null;
+  const ch = Math.round((cw * product.preview[1]) / product.preview[0]),
+    layout = info
+      ? imageLayout(info.width, info.height, cw, ch, placement)
+      : null,
+    centers = layout ? patternCenters(layout, cw, ch, placement.repeat) : [];
   if (!centers)
     fail(
       422,
       "The pattern is too dense. Increase its scale or use a single placement.",
     );
-  const rotated = await sharp(preview)
-      .resize(
-        Math.max(1, Math.round(layout.width)),
-        Math.max(1, Math.round(layout.height)),
-        { fit: "fill" },
-      )
-      .rotate(placement.rotation, { background: "#00000000" })
-      .png()
-      .toBuffer(),
-    rotInfo = await sharp(rotated).metadata(),
-    overlays = [];
-  for (const center of centers) {
-    const left = Math.round(center.x - rotInfo.width / 2),
-      top = Math.round(center.y - rotInfo.height / 2),
-      x = Math.max(0, -left),
-      y = Math.max(0, -top),
-      width = Math.min(rotInfo.width - x, cw - Math.max(0, left)),
-      height = Math.min(rotInfo.height - y, ch - Math.max(0, top));
-    if (width > 0 && height > 0)
-      overlays.push({
-        input: await sharp(rotated)
-          .extract({ left: x, top: y, width, height })
-          .toBuffer(),
-        left: Math.max(0, left),
-        top: Math.max(0, top),
-      });
+  const overlays = [];
+  if (preview) {
+    const rotated = await sharp(preview)
+        .resize(
+          Math.max(1, Math.round(layout.width)),
+          Math.max(1, Math.round(layout.height)),
+          { fit: "fill" },
+        )
+        .rotate(placement.rotation, { background: "#00000000" })
+        .png()
+        .toBuffer(),
+      rotInfo = await sharp(rotated).metadata();
+    for (const center of centers) {
+      const left = Math.round(center.x - rotInfo.width / 2),
+        top = Math.round(center.y - rotInfo.height / 2),
+        x = Math.max(0, -left),
+        y = Math.max(0, -top),
+        width = Math.min(rotInfo.width - x, cw - Math.max(0, left)),
+        height = Math.min(rotInfo.height - y, ch - Math.max(0, top));
+      if (width > 0 && height > 0)
+        overlays.push({
+          input: await sharp(rotated)
+            .extract({ left: x, top: y, width, height })
+            .toBuffer(),
+          left: Math.max(0, left),
+          top: Math.max(0, top),
+        });
+    }
   }
   const texture = await sharp({
     create: {
@@ -76,6 +80,20 @@ export async function renderMockup(preview, category, studio) {
     .composite(overlays)
     .png()
     .toBuffer();
+  const text = studio.text_layers?.[product.id];
+  return text?.some((layer) => layer.text.trim())
+    ? sharp(texture)
+        .composite([{ input: await renderTextOverlay(product, text, cw) }])
+        .png()
+        .toBuffer()
+    : texture;
+}
+export async function renderMockup(preview, category, studio) {
+  const product = printProductFor(category),
+    placement = studio.placements[product.id],
+    cw = 900,
+    ch = Math.round((cw * product.preview[1]) / product.preview[0]);
+  const texture = await renderDesignTexture(preview, category, studio, cw);
   const { base, projection } = await template(placement.view);
   const raw = await sharp(texture).ensureAlpha().raw().toBuffer(),
     projected = projectTexture(raw, cw, ch, projection);

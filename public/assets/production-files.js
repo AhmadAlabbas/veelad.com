@@ -33,9 +33,9 @@ async function openProductFiles(productId) {
 async function downloadProductionFile(control,archive=false) {
  if(control.disabled)return;control.disabled=true;
  try {
-  const plan=control.dataset.action==='download-design-plan';
-  const route=plan?'admin-design-plan':archive?'admin-product-files-download':'admin-artwork-original';
-  const response=await fetch('/api.php?'+new URLSearchParams({route,id:control.dataset.id,...(plan&&control.dataset.order?{order:control.dataset.order,...(control.dataset.line?{line:control.dataset.line}:{})}:{})}),{credentials:'same-origin'});
+  const plan=control.dataset.action==='download-design-plan',composed=control.dataset.action==='download-design-artwork';
+  const route=composed?'admin-design-artwork':plan?'admin-design-plan':archive?'admin-product-files-download':'admin-artwork-original';
+  const response=await fetch('/api.php?'+new URLSearchParams({route,id:control.dataset.id,...((plan||composed)&&control.dataset.order?{order:control.dataset.order,...(control.dataset.line?{line:control.dataset.line}:{})}:{})}),{credentials:'same-origin'});
   if(!response.ok){let error;try{error=(await response.json()).error;}catch{}throw Error(error||'Download failed. Please try again.');}
   const type=response.headers.get('content-type')||'';
   if(!(plan?type.startsWith('application/json'):archive?type.startsWith('application/zip'):/^image\/(png|jpeg)/.test(type)))throw Error('The server returned an unexpected response. Check the server configuration.');
@@ -48,5 +48,5 @@ async function downloadProductionFile(control,archive=false) {
 document.addEventListener('click',async event=>{
  const control=event.target.closest('[data-action]');if(!control)return;
  if(control.dataset.action==='product-files'){event.preventDefault();await openProductFiles(control.dataset.id);}
- if(['download-production-file','download-production-archive','download-design-plan'].includes(control.dataset.action)){event.preventDefault();await downloadProductionFile(control,control.dataset.action==='download-production-archive');}
+ if(['download-production-file','download-production-archive','download-design-plan','download-design-artwork'].includes(control.dataset.action)){event.preventDefault();await downloadProductionFile(control,control.dataset.action==='download-production-archive');}
 });

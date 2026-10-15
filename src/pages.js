@@ -9,7 +9,7 @@ import {currentProductMockup} from './mockup-renderer.js';
 const publicDir=fileURLToPath(new URL('../public',import.meta.url));
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const publicPaths=['/','/shop','/artists','/sell','/help','/policies'];
-const appPaths=[...publicPaths,'/create','/saved','/bag','/checkout','/confirmation','/login','/register','/account','/forgot','/reset','/admin','/studio','/track'];
+const appPaths=[...publicPaths,'/my-designs','/create','/saved','/bag','/checkout','/confirmation','/login','/register','/account','/forgot','/reset','/admin','/studio','/track'];
 const languages=['en','ar'];
 const languageFor=req=>/^\/ar(?:\/|$)/.test(req.path)?'ar':'en';
 const basePath=req=>req.path.replace(/^\/(en|ar)(?=\/|$)/,'').replace(/\/$/,'')||'/';
@@ -37,7 +37,7 @@ export function pageRoutes(app,c,db,schema) {
   res.status(status).set('Cache-Control','no-cache').type('html').send(source);
  }
  app.get('/robots.txt',(req,res)=>{
-  const blocked=['create','admin','studio','account','track','reset','checkout','confirmation','login','register','forgot','bag','saved'];
+  const blocked=['my-designs','create','admin','studio','account','track','reset','checkout','confirmation','login','register','forgot','bag','saved'];
   res.type('text/plain').send(c.mode==='staging'?'User-agent: *\nDisallow: /\n':`User-agent: *\nAllow: /\nDisallow: /api.php\n${['',...languages].flatMap(language=>blocked.map(page=>'Disallow: /'+(language?language+'/':'')+page)).join('\n')}\nSitemap: ${c.origin}/sitemap.xml\n`);
  });
  app.get('/sitemap.xml',async(req,res)=>{
@@ -60,7 +60,7 @@ export function pageRoutes(app,c,db,schema) {
  });
  app.get([...appPaths,'/studio/preview/:id'].flatMap(equivalents).filter(path=>path!=='/'),async(req,res)=>{
   if(!ready(req,res))return;
-  const pathname=basePath(req),language=languageFor(req),titles={'/create':pageText(language,'createTitle'),'/shop':pageText(language,'shopTitle'),'/artists':pageText(language,'artistsTitle')};
+  const pathname=basePath(req),language=languageFor(req),titles={'/my-designs':pageText(language,'myDesignsTitle'),'/create':pageText(language,'createTitle'),'/shop':pageText(language,'shopTitle'),'/artists':pageText(language,'artistsTitle')};
   return html(req,res,{title:titles[pathname],canonical:pathname,indexable:publicPaths.includes(pathname)&&!req.query.q,body:`<main><h1>${pageText(language,'storeName')}</h1><p>${pageText(language,'storeIntro')}</p><a href="${localizedPath('/shop',language)}">${pageText(language,'exploreDesigns')}</a><a href="${localizedPath('/artists',language)}">${pageText(language,'meetArtists')}</a></main>`});
  });
  app.get(['/share/store.png','/share/products/:image','/share/artists/:image',...languages.flatMap(language=>['/share/'+language+'/store.png','/share/'+language+'/products/:image','/share/'+language+'/artists/:image'])],async(req,res)=>{
