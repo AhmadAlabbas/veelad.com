@@ -1,0 +1,441 @@
+{
+  "version": 1,
+  "id": "veelad-originals-01",
+  "owner_email_sha256": "1995cdd0014d8eb5cd0df3801a7a16f9f61f45c57b4ab9b9e79668ab442427ea",
+  "label": "Veelad Originals — First Edit",
+  "label_ar": "اختيارات فيلاد — المجموعة الأولى",
+  "products": [
+    {
+      "id": "desert-afterglow-shirt",
+      "title": "Desert Afterglow T-Shirt",
+      "title_ar": "تيشيرت وهج الصحراء",
+      "category": "T-shirts",
+      "description": "An expressive desert scene for the days you would rather take the scenic route. Terracotta dunes, midnight blues and a distant caravan create a bold graphic with room to breathe. Pair the artwork with your own everyday style.",
+      "description_ar": "تصميم للي يحبّون الطريق الطويل ومناظر السفر. كثبان دافئة، زرقة ليل وقافلة بعيدة، في رسمة واضحة تضيف لمسة مختلفة لتيشيرتك اليومي.",
+      "story": "The last light on the dunes, caught between a deep-blue sky and a glowing apricot sun. Sweeping curves and a small passing caravan give this original travel-poster composition a quiet sense of movement.",
+      "story_ar": "آخر ضوء على الكثبان، بين سما زرقاء عميقة وشمس بلون المشمش. خطوط الرمل المنحنية وقافلة بعيدة تعطي التصميم هدوء السفر، بألوان دافئة ولمسة مستوحاة من ملصقات الرحلات القديمة.",
+      "design_group": "desert-afterglow",
+      "collection_id": "veelad-originals-01",
+      "tags": [
+        "desert",
+        "sunset",
+        "travel",
+        "vintage",
+        "warm tones"
+      ],
+      "tags_ar": [
+        "صحراء",
+        "غروب",
+        "سفر",
+        "ريترو",
+        "ألوان دافئة"
+      ],
+      "artwork": "desert-afterglow.enc",
+      "artwork_format": "png",
+      "artwork_sha256": "c389e1b7ca160a6d2a7aaec44a21b89d2ffd99ff44f00a3160c1f0e9f7bcf5ce",
+      "artwork_attribution": "Original AI-assisted sample artwork created for Veelad, October 2026. Generic product previews are illustrative, not supplier-certified.",
+      "variants": [
+        "Standard"
+      ],
+      "placement": {
+        "scale": 0.72
+      }
+    },
+    {
+      "id": "desert-afterglow-print",
+      "title": "Desert Afterglow Art Print",
+      "title_ar": "مطبوعة وهج الصحراء",
+      "category": "Art prints",
+      "description": "Bring the warmth and stillness of the dunes to a favourite corner. This vertical composition layers sunlit sand and deep-blue mountains into an atmospheric focal point. The artwork is shown on a provisional print preview; framing is not included in this concept.",
+      "description_ar": "خذ هدوء الصحراء لركنك المفضّل. طبقات الرمل المضيئة والجبال الزرقاء تعطي الجدار نقطة تلفت النظر بدون زحمة. الصورة تصوّر مبدئي للمطبوعة، والإطار مو ضمن هذا التصوّر.",
+      "story": "The last light on the dunes, caught between a deep-blue sky and a glowing apricot sun. Sweeping curves and a small passing caravan give this original travel-poster composition a quiet sense of movement.",
+      "story_ar": "آخر ضوء على الكثبان، بين سما زرقاء عميقة وشمس بلون المشمش. خطوط الرمل المنحنية وقافلة بعيدة تعطي التصميم هدوء السفر، بألوان دافئة ولمسة مستوحاة من ملصقات الرحلات القديمة.",
+      "design_group": "desert-afterglow",
+      "collection_id": "veelad-originals-01",
+      "tags": [
+        "desert",
+        "sunset",
+        "travel",
+        "vintage",
+        "warm tones"
+      ],
+      "tags_ar": [
+        "صحراء",
+        "غروب",
+        "سفر",
+        "ريترو",
+        "ألوان دافئة"
+      ],
+      "artwork": "desert-afterglow.enc",
+      "artwork_format": "png",
+      "artwork_sha256": "c389e1b7ca160a6d2a7aaec44a21b89d2ffd99ff44f00a3160c1f0e9f7bcf5ce",
+      "artwork_attribution": "Original AI-assisted sample artwork created for Veelad, October 2026. Generic product previews are illustrative, not supplier-certified.",
+      "variants": [
+        "Standard"
+      ],
+      "placement": {
+        "scale": 0.95
+      }
+    },
+    {
+      "id": "wild-bloom-notebook",
+      "title": "Wild Bloom Notebook",
+      "title_ar": "دفتر زهور برّية",
+      "category": "Notebooks",
+      "description": "Give your next idea a colourful starting point. Coral poppies and blue foliage turn the notebook cover into a small botanical composition, equally at home beside your sketches, plans or daily notes. Page format and final dimensions will be confirmed before release.",
+      "description_ar": "خلّ لأفكارك بداية ملوّنة. زهور مرجانية وأوراق زرقاء على غلاف يرافق رسوماتك وخططك وملاحظات يومك. نوع الصفحات والمقاس النهائي يتحدّد قبل طرح المنتج.",
+      "story": "A loose gathering of poppies and cobalt leaves, painted with lively, visible brushwork. Wild Bloom is a study in contrast: warm petals against cool foliage, with enough open space to let every stem have its own rhythm.",
+      "story_ar": "زهور خشخاش وأوراق زرقاء، بضربات فرشاة تبان فيها روح الرسم. ألوان الزهور الدافئة تقابل برودة الأوراق، وبينها مساحة تخلّي لكل غصن حضوره وإيقاعه.",
+      "design_group": "wild-bloom",
+      "collection_id": "veelad-originals-01",
+      "tags": [
+        "flowers",
+        "botanical",
+        "gouache",
+        "coral",
+        "cobalt"
+      ],
+      "tags_ar": [
+        "زهور",
+        "نباتات",
+        "غواش",
+        "مرجاني",
+        "أزرق"
+      ],
+      "artwork": "wild-bloom.enc",
+      "artwork_format": "png",
+      "artwork_sha256": "b609b577af19e2302393460be1336fae2e4729189da5c1ed19e47d446d60b154",
+      "artwork_attribution": "Original AI-assisted sample artwork created for Veelad, October 2026. Generic product previews are illustrative, not supplier-certified.",
+      "variants": [
+        "Standard"
+      ],
+      "placement": {
+        "scale": 0.88
+      }
+    },
+    {
+      "id": "wild-bloom-tote",
+      "title": "Wild Bloom Tote Bag",
+      "title_ar": "شنطة زهور برّية",
+      "category": "Tote bags",
+      "description": "A little garden to take along. The painted floral composition brings bold colour to a simple everyday tote concept, from a bookshop visit to a slow coffee stop. Final fabric and bag dimensions are still to be confirmed.",
+      "description_ar": "حديقة صغيرة تاخذها معك. رسمة زهور بألوان واضحة على تصوّر لشنطة يومية، من مشوار المكتبة لوقفة قهوة على رواق. نوع القماش ومقاس الشنطة يتحدّد قبل طرح المنتج.",
+      "story": "A loose gathering of poppies and cobalt leaves, painted with lively, visible brushwork. Wild Bloom is a study in contrast: warm petals against cool foliage, with enough open space to let every stem have its own rhythm.",
+      "story_ar": "زهور خشخاش وأوراق زرقاء، بضربات فرشاة تبان فيها روح الرسم. ألوان الزهور الدافئة تقابل برودة الأوراق، وبينها مساحة تخلّي لكل غصن حضوره وإيقاعه.",
+      "design_group": "wild-bloom",
+      "collection_id": "veelad-originals-01",
+      "tags": [
+        "flowers",
+        "botanical",
+        "gouache",
+        "coral",
+        "cobalt"
+      ],
+      "tags_ar": [
+        "زهور",
+        "نباتات",
+        "غواش",
+        "مرجاني",
+        "أزرق"
+      ],
+      "artwork": "wild-bloom.enc",
+      "artwork_format": "png",
+      "artwork_sha256": "b609b577af19e2302393460be1336fae2e4729189da5c1ed19e47d446d60b154",
+      "artwork_attribution": "Original AI-assisted sample artwork created for Veelad, October 2026. Generic product previews are illustrative, not supplier-certified.",
+      "variants": [
+        "Standard"
+      ],
+      "placement": {
+        "scale": 0.82
+      }
+    },
+    {
+      "id": "midnight-orbit-mug",
+      "title": "Midnight Orbit Mug",
+      "title_ar": "كوب مدار الليل",
+      "category": "Mugs",
+      "description": "For late-night ideas and early-morning coffee. A detailed crescent and a lavender planet bring a little celestial colour to the side of this mug concept. The preview shows one proposed placement, not a confirmed wrap or print size.",
+      "description_ar": "لأفكار آخر الليل وقهوة أول الصباح. هلال بتفاصيل دقيقة وكوكب لافندر يضيفون لمسة خيال لكوبك. المعاينة تعرض مكانًا مقترحًا للتصميم، ومقاس الطباعة النهائي لسه ما اعتُمد.",
+      "story": "A crescent, a ringed planet and a handful of stars, held together by graceful orbital lines. Navy, lavender and soft gold create a small imagined universe with the texture of a carefully layered paper collage.",
+      "story_ar": "هلال وكوكب بحلقاته ونجوم، تجمعهم خطوط مدارات هادئة. الكحلي واللافندر والذهبي يصنعون عالم صغير من الخيال، بملمس يشبه طبقات الورق الملوّن.",
+      "design_group": "midnight-orbit",
+      "collection_id": "veelad-originals-01",
+      "tags": [
+        "moon",
+        "space",
+        "celestial",
+        "lavender",
+        "night"
+      ],
+      "tags_ar": [
+        "قمر",
+        "فضاء",
+        "نجوم",
+        "لافندر",
+        "ليل"
+      ],
+      "artwork": "midnight-orbit.enc",
+      "artwork_format": "png",
+      "artwork_sha256": "3b88b9d467f8ac8ebb1d7686cafdb74efad8ac6b71061dc95c3e8d9aa98a81ab",
+      "artwork_attribution": "Original AI-assisted sample artwork created for Veelad, October 2026. Generic product previews are illustrative, not supplier-certified.",
+      "variants": [
+        "Standard"
+      ],
+      "placement": {
+        "scale": 0.9
+      }
+    },
+    {
+      "id": "midnight-orbit-sticker",
+      "title": "Midnight Orbit Sticker",
+      "title_ar": "ملصق مدار الليل",
+      "category": "Stickers",
+      "description": "A pocket-sized universe for your collection. This crescent-and-planet composition keeps its full illustrated silhouette in the sticker preview. Final cut shape, finish and surface suitability will be confirmed before release.",
+      "description_ar": "عالم صغير تضيفه لمجموعتك. الهلال والكوكب يظهرون بتفاصيلهم وحدود الرسمة كاملة في معاينة الملصق. شكل القص والتشطيب والأسطح المناسبة يتحدّد قبل طرح المنتج.",
+      "story": "A crescent, a ringed planet and a handful of stars, held together by graceful orbital lines. Navy, lavender and soft gold create a small imagined universe with the texture of a carefully layered paper collage.",
+      "story_ar": "هلال وكوكب بحلقاته ونجوم، تجمعهم خطوط مدارات هادئة. الكحلي واللافندر والذهبي يصنعون عالم صغير من الخيال، بملمس يشبه طبقات الورق الملوّن.",
+      "design_group": "midnight-orbit",
+      "collection_id": "veelad-originals-01",
+      "tags": [
+        "moon",
+        "space",
+        "celestial",
+        "lavender",
+        "night"
+      ],
+      "tags_ar": [
+        "قمر",
+        "فضاء",
+        "نجوم",
+        "لافندر",
+        "ليل"
+      ],
+      "artwork": "midnight-orbit.enc",
+      "artwork_format": "png",
+      "artwork_sha256": "3b88b9d467f8ac8ebb1d7686cafdb74efad8ac6b71061dc95c3e8d9aa98a81ab",
+      "artwork_attribution": "Original AI-assisted sample artwork created for Veelad, October 2026. Generic product previews are illustrative, not supplier-certified.",
+      "variants": [
+        "Standard"
+      ],
+      "placement": {
+        "scale": 0.9
+      }
+    },
+    {
+      "id": "red-sea-drift-shirt",
+      "title": "Red Sea Drift T-Shirt",
+      "title_ar": "تيشيرت سكون البحر",
+      "category": "T-shirts",
+      "description": "Keep a little ocean in your everyday. A graceful turtle, warm coral and rich blue water make a striking central artwork on this T-shirt concept. A design for people who are always looking forward to their next day by the sea.",
+      "description_ar": "خلّ للبحر مكان في يومك. سلحفاة هادئة ومرجان دافئ وزرقة واضحة في تصميم يتوسّط التيشيرت. للي بالهم دايم على جلستهم الجاية عند البحر.",
+      "story": "An unhurried sea turtle moves through a world of cobalt water and bright coral. The layered texture and flowing shapes take their cue from block printing, turning a reef scene into a bold, self-contained graphic.",
+      "story_ar": "سلحفاة تمشي على مهل بين زرقة البحر والمرجان المضيء. الملمس المتدرّج والخطوط الليّنة مستوحاة من الطباعة بالقوالب، وتحوّل مشهد الشعاب لرسمة لها حضورها.",
+      "design_group": "red-sea-drift",
+      "collection_id": "veelad-originals-01",
+      "tags": [
+        "ocean",
+        "turtle",
+        "coral",
+        "blue",
+        "marine life"
+      ],
+      "tags_ar": [
+        "بحر",
+        "سلحفاة",
+        "مرجان",
+        "أزرق",
+        "حياة بحرية"
+      ],
+      "artwork": "red-sea-drift.enc",
+      "artwork_format": "png",
+      "artwork_sha256": "89947a5455211176600bad1dd4995d6d5a674d730b99906be89b6db9886832ce",
+      "artwork_attribution": "Original AI-assisted sample artwork created for Veelad, October 2026. Generic product previews are illustrative, not supplier-certified.",
+      "variants": [
+        "Standard"
+      ],
+      "placement": {
+        "scale": 0.78
+      }
+    },
+    {
+      "id": "red-sea-drift-phone",
+      "title": "Red Sea Drift Phone Case",
+      "title_ar": "غطاء جوال سكون البحر",
+      "category": "Phone cases",
+      "description": "A calm reef scene for the object that goes everywhere with you. The turtle and coral composition is scaled inside a generic phone-case preview. Choose the final device model only after compatible dimensions and camera openings are confirmed.",
+      "description_ar": "مشهد بحري هادئ لشيء يرافقك طول اليوم. السلحفاة والمرجان داخل معاينة عامة لغطاء جوال. موديل الجهاز يتحدّد بعد تأكيد المقاسات وفتحات الكاميرا المناسبة.",
+      "story": "An unhurried sea turtle moves through a world of cobalt water and bright coral. The layered texture and flowing shapes take their cue from block printing, turning a reef scene into a bold, self-contained graphic.",
+      "story_ar": "سلحفاة تمشي على مهل بين زرقة البحر والمرجان المضيء. الملمس المتدرّج والخطوط الليّنة مستوحاة من الطباعة بالقوالب، وتحوّل مشهد الشعاب لرسمة لها حضورها.",
+      "design_group": "red-sea-drift",
+      "collection_id": "veelad-originals-01",
+      "tags": [
+        "ocean",
+        "turtle",
+        "coral",
+        "blue",
+        "marine life"
+      ],
+      "tags_ar": [
+        "بحر",
+        "سلحفاة",
+        "مرجان",
+        "أزرق",
+        "حياة بحرية"
+      ],
+      "artwork": "red-sea-drift.enc",
+      "artwork_format": "png",
+      "artwork_sha256": "89947a5455211176600bad1dd4995d6d5a674d730b99906be89b6db9886832ce",
+      "artwork_attribution": "Original AI-assisted sample artwork created for Veelad, October 2026. Generic product previews are illustrative, not supplier-certified.",
+      "variants": [
+        "Standard"
+      ],
+      "placement": {
+        "scale": 0.8
+      }
+    },
+    {
+      "id": "slow-sunday-mug",
+      "title": "Slow Sunday Mug",
+      "title_ar": "كوب على رواق",
+      "category": "Mugs",
+      "description": "Coffee, a good book and no need to hurry. This cheerful cat illustration brings a soft, playful mood to a daily coffee ritual. The blue cup and warm orange tabby keep the composition clear against the plain mug preview.",
+      "description_ar": "قهوة وكتاب حلو، وبدون استعجال. رسمة قط مرحة تضيف جو خفيف لوقت قهوتك. الكوب الأزرق والقط البرتقالي يخلّون تفاصيل التصميم واضحة على معاينة الكوب.",
+      "story": "A sleepy tabby has found the best seat in the house: a stack of books beside a blue coffee cup. Warm paper-cut colours and simple expressive shapes celebrate the pleasure of taking your time.",
+      "story_ar": "قط برتقالي لقى أحلى مكان للراحة: فوق كومة كتب وبجنب كوب قهوة أزرق. ألوان دافئة وأشكال بسيطة تعبّر عن متعة اليوم اللي ما فيه استعجال.",
+      "design_group": "slow-sunday",
+      "collection_id": "veelad-originals-01",
+      "tags": [
+        "cat",
+        "books",
+        "coffee",
+        "cozy",
+        "illustration"
+      ],
+      "tags_ar": [
+        "قطط",
+        "كتب",
+        "قهوة",
+        "هدوء",
+        "رسم"
+      ],
+      "artwork": "slow-sunday.enc",
+      "artwork_format": "png",
+      "artwork_sha256": "e08003ee75792460679f880c878bd8b9a4fc262568a38317f2356c42225797fd",
+      "artwork_attribution": "Original AI-assisted sample artwork created for Veelad, October 2026. Generic product previews are illustrative, not supplier-certified.",
+      "variants": [
+        "Standard"
+      ],
+      "placement": {
+        "scale": 0.9
+      }
+    },
+    {
+      "id": "slow-sunday-tote",
+      "title": "Slow Sunday Tote Bag",
+      "title_ar": "شنطة على رواق",
+      "category": "Tote bags",
+      "description": "For bookshop detours and the things you like to keep close. A resting cat, a pile of books and a blue coffee cup make this tote concept a friendly companion to a quiet afternoon. Final fabric and construction details remain to be confirmed.",
+      "description_ar": "لمشاوير المكتبات والأشياء اللي تحبّها قريبة منك. قط مرتاح وكتب وكوب أزرق على تصوّر لشنطة تناسب يوم هادي. نوع القماش وتفاصيل التنفيذ تتحدّد قبل طرح المنتج.",
+      "story": "A sleepy tabby has found the best seat in the house: a stack of books beside a blue coffee cup. Warm paper-cut colours and simple expressive shapes celebrate the pleasure of taking your time.",
+      "story_ar": "قط برتقالي لقى أحلى مكان للراحة: فوق كومة كتب وبجنب كوب قهوة أزرق. ألوان دافئة وأشكال بسيطة تعبّر عن متعة اليوم اللي ما فيه استعجال.",
+      "design_group": "slow-sunday",
+      "collection_id": "veelad-originals-01",
+      "tags": [
+        "cat",
+        "books",
+        "coffee",
+        "cozy",
+        "illustration"
+      ],
+      "tags_ar": [
+        "قطط",
+        "كتب",
+        "قهوة",
+        "هدوء",
+        "رسم"
+      ],
+      "artwork": "slow-sunday.enc",
+      "artwork_format": "png",
+      "artwork_sha256": "e08003ee75792460679f880c878bd8b9a4fc262568a38317f2356c42225797fd",
+      "artwork_attribution": "Original AI-assisted sample artwork created for Veelad, October 2026. Generic product previews are illustrative, not supplier-certified.",
+      "variants": [
+        "Standard"
+      ],
+      "placement": {
+        "scale": 0.86
+      }
+    },
+    {
+      "id": "courtyard-rhythm-print",
+      "title": "Courtyard Rhythm Art Print",
+      "title_ar": "مطبوعة إيقاع الفناء",
+      "category": "Art prints",
+      "description": "Create a quiet architectural focal point. Terracotta arches, deep cobalt stairs and a palm silhouette bring structure and warmth to this art-print concept. The tall composition suits a corner that needs colour without visual noise. Framing is not included in the concept.",
+      "description_ar": "لمسة عمارة هادئة لركن تحبّه. أقواس بلون الطين ودرج أزرق وظل نخلة يعطون المطبوعة دفء وترتيب. التكوين الطولي يناسب مكان يحتاج لون بدون زحمة، والإطار مو ضمن التصوّر.",
+      "story": "Three warm arches, a slender palm and a blue stairway create a courtyard that exists somewhere between memory and imagination. Strong geometry and a restrained palette let light and shadow carry the story.",
+      "story_ar": "ثلاثة أقواس دافئة ونخلة ودرج أزرق يرسمون فناء بين الذكرى والخيال. أشكال هندسية وألوان قليلة تخلّي الضوء والظل يحكون بقية الحكاية.",
+      "design_group": "courtyard-rhythm",
+      "collection_id": "veelad-originals-01",
+      "tags": [
+        "architecture",
+        "arches",
+        "palm",
+        "geometric",
+        "terracotta"
+      ],
+      "tags_ar": [
+        "عمارة",
+        "أقواس",
+        "نخيل",
+        "هندسي",
+        "طيني"
+      ],
+      "artwork": "courtyard-rhythm.enc",
+      "artwork_format": "png",
+      "artwork_sha256": "a0de29ac69788c54a77b6edbf604468e1dfc5f2f891e67ae6fcfb2d9f8a53f01",
+      "artwork_attribution": "Original AI-assisted sample artwork created for Veelad, October 2026. Generic product previews are illustrative, not supplier-certified.",
+      "variants": [
+        "Standard"
+      ],
+      "placement": {
+        "scale": 0.95
+      }
+    },
+    {
+      "id": "courtyard-rhythm-notebook",
+      "title": "Courtyard Rhythm Notebook",
+      "title_ar": "دفتر إيقاع الفناء",
+      "category": "Notebooks",
+      "description": "A little courtyard for your ideas. This architectural cover combines warm arches and blue geometric shapes for a notebook concept with a calm, considered mood. Use the design as a starting point for your notes, drawings or next plan; page format is not confirmed yet.",
+      "description_ar": "فناء صغير لأفكارك. أقواس دافئة وأشكال زرقاء على غلاف هادي، يرافق ملاحظاتك ورسوماتك وخطتك الجاية. نوع الصفحات والمقاس النهائي ما تحدّدوا بعد.",
+      "story": "Three warm arches, a slender palm and a blue stairway create a courtyard that exists somewhere between memory and imagination. Strong geometry and a restrained palette let light and shadow carry the story.",
+      "story_ar": "ثلاثة أقواس دافئة ونخلة ودرج أزرق يرسمون فناء بين الذكرى والخيال. أشكال هندسية وألوان قليلة تخلّي الضوء والظل يحكون بقية الحكاية.",
+      "design_group": "courtyard-rhythm",
+      "collection_id": "veelad-originals-01",
+      "tags": [
+        "architecture",
+        "arches",
+        "palm",
+        "geometric",
+        "terracotta"
+      ],
+      "tags_ar": [
+        "عمارة",
+        "أقواس",
+        "نخيل",
+        "هندسي",
+        "طيني"
+      ],
+      "artwork": "courtyard-rhythm.enc",
+      "artwork_format": "png",
+      "artwork_sha256": "a0de29ac69788c54a77b6edbf604468e1dfc5f2f891e67ae6fcfb2d9f8a53f01",
+      "artwork_attribution": "Original AI-assisted sample artwork created for Veelad, October 2026. Generic product previews are illustrative, not supplier-certified.",
+      "variants": [
+        "Standard"
+      ],
+      "placement": {
+        "scale": 0.93
+      }
+    }
+  ]
+}

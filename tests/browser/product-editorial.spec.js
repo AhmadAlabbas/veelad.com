@@ -1,0 +1,39 @@
+import {test,expect} from '@playwright/test';
+
+for(const language of ['en','ar'])test(`extended product pages connect real design siblings and preserve shopping in ${language}`,async({page})=>{
+ const errors=[];page.on('pageerror',error=>errors.push(error.message));
+ await page.route('**/api.php?route=image&id=art-editorial-*',route=>route.fulfill({contentType:'image/png',body:Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jZQkAAAAASUVORK5CYII=','base64')}));
+ await page.route('**/api.php?route=bootstrap',async route=>{
+  const response=await route.fetch(),data=await response.json();
+  const original=data.products.find(product=>product.id==='p1');
+  Object.assign(original,{upload_id:'art-editorial-original',design_group:'editorial-browser-fixture',story:'A sea of cobalt shapes. <img src=x onerror=1>',story_ar:'حكاية لون أزرق وبحر هادئ. <img src=x onerror=1>'});
+  data.products.push({...original,id:'editorial-notebook',category:'Notebooks',title:'Sea Notes',title_ar:'دفتر البحر',variants:['Standard'],variants_ar:['عادي']});
+  data.products.push({...original,id:'editorial-other-artist',artist_id:'artist-2',title:'A different artist',title_ar:'تصميم لمبدع آخر'});
+  data.products.push({...original,id:'editorial-replaced-artwork',upload_id:'art-editorial-replaced',title:'Replaced artwork',title_ar:'تصميم أصلي مختلف'});
+  await route.fulfill({response,json:data});
+ });
+ await page.goto(`/${language}/products/p1`);
+ await expect(page.locator('.product-info h1')).toBeVisible();
+ await expect(page.locator('.product-story-copy')).toContainText(language==='ar'?'حكاية لون أزرق':'A sea of cobalt');
+ await expect(page.locator('.product-story-copy img')).toHaveCount(0);
+ await expect(page.locator('.product-format-link')).toHaveCount(2);
+ await expect(page.locator('.product-format-link[aria-current=page]')).toContainText(language==='ar'?'تيشيرتات':'T-shirts');
+ await expect(page.locator('#same-design .product-card')).toHaveCount(1);
+ await expect(page.locator('#same-design')).toContainText(language==='ar'?'دفتر البحر':'Sea Notes');
+ await expect(page.locator('#same-design')).not.toContainText('A different artist');
+ await expect(page.locator('#same-design a[href$="/editorial-replaced-artwork"]')).toHaveCount(0);
+ await expect(page.locator('#product-artist .product-card')).not.toHaveCount(0);
+ await expect(page.locator('#product-discover .product-card')).not.toHaveCount(0);
+ await expect(page.locator('.product-everyday-editorial figcaption')).toContainText(language==='ar'?'الذكاء الاصطناعي':'AI-generated');
+ await page.locator('.product-section-nav a[href="#same-design"]').focus();
+ await page.keyboard.press('Enter');
+ await expect(page.locator('#same-design')).toBeFocused();
+ await page.locator('#same-design .product-image-link a').click();
+ await expect(page).toHaveURL(new RegExp(`/${language}/products/editorial-notebook`));
+ await expect(page.locator('.product-info h1')).toHaveText(language==='ar'?'دفتر البحر':'Sea Notes');
+ await page.locator('.product-purchase button[type=submit]').click();
+ await expect(page.locator('#modal')).toBeVisible();
+ await page.locator('#modal [data-action=close-modal]').first().click();
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBeTruthy();
+ expect(errors).toEqual([]);
+});

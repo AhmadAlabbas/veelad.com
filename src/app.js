@@ -51,7 +51,12 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
    if(!row) throw new ApiError(503,'Store provisioning is required.');
    JSON.parse(row.data);
    await db.q('SELECT session_id FROM sessions LIMIT 1');
-   res.json({ok:true,version:'3.0.0',environment:c.mode,revision:c.revision,marketplace_enabled:true,...(app.locals.operations?.storage?{storage:{ready:app.locals.operations.storage.ready,continuity:app.locals.operations.storage.continuity,missing_files:app.locals.operations.storage.missing_files},backup:app.locals.operations.backup?{status:app.locals.operations.backup.status,created_at:app.locals.operations.backup.created_at}:null}:{})});
+   let collectionStatus;
+   if(c.mode==='staging'){
+    collectionStatus='unavailable';
+    try{const collection=await db.one('SELECT data FROM operational_status WHERE id=?',['sample_collection']),status=collection?JSON.parse(collection.data).status:null;collectionStatus=status==='installed'?'installed':status==='pending_account'?'pending':'unavailable';}catch{}
+   }
+   res.json({ok:true,version:'3.0.0',environment:c.mode,revision:c.revision,marketplace_enabled:true,...(collectionStatus?{sample_collection_status:collectionStatus}:{}),...(app.locals.operations?.storage?{storage:{ready:app.locals.operations.storage.ready,continuity:app.locals.operations.storage.continuity,missing_files:app.locals.operations.storage.missing_files},backup:app.locals.operations.backup?{status:app.locals.operations.backup.status,created_at:app.locals.operations.backup.created_at}:null}:{})});
   } catch(e) {
    console.error('Veelad readiness failed:',e.code||e.name);
    const databaseError=readinessCode(e);
@@ -92,7 +97,8 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
  function preserveDetails(p,old) {
   if(!old) return;
   const previous=json(old.data);
-  for(const key of [...Object.keys(detailLimits),...Object.keys(translationLimits),'production_notes','print_formats','tags','tags_ar','gallery_upload_ids','design_studio','mockup_upload_id','customer_customizable']) if(p[key]===undefined && previous[key]!==undefined) p[key]=previous[key];
+  for(const key of [...Object.keys(detailLimits),...Object.keys(translationLimits),'production_notes','print_formats','tags','tags_ar','gallery_upload_ids','design_studio','mockup_upload_id','customer_customizable','collection_id','design_group','story','story_ar','artwork_attribution']) if(p[key]===undefined && previous[key]!==undefined) p[key]=previous[key];
+  if(previous.upload_id===p.upload_id&&previous.artwork_metadata!==undefined)p.artwork_metadata=previous.artwork_metadata;
   if(p.design_studio?.artwork_id!==(p.upload_id||null)){delete p.design_studio;delete p.mockup_upload_id;}
   if(!mockupMatches(p.mockup_upload_id,p.upload_id,p.category,p.design_studio))delete p.mockup_upload_id;
  }
