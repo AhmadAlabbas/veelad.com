@@ -73,7 +73,7 @@ test("Google customer login keeps the guest bag, supports Arabic, sets a passwor
     const form = page.locator("[data-google-form=disconnect]");
     await form.locator("[name=password]").fill(pw);
     await form.locator("button").click();
-    await expect(page.locator(".google-account")).toContainText("اربط Google");
+    await expect(page.locator(".google-account")).toContainText("اربط حسابك بـ Google");
     await page.locator(".account-menu [data-action=logout]").click();
     await page.goto(fixture.origin + "/en/login");
     const login = page.locator("[data-form=login]");

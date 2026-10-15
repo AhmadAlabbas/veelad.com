@@ -93,7 +93,7 @@ test("bilingual text designs autosave, survive reload/offline recovery, appear i
     );
     await expect(form.locator("[data-text-prop=text]")).toHaveValue(mixed);
     await expect(form.locator(".customer-text-tools h3")).toHaveText(
-      "أضف كلماتك",
+      "اكتب اللي في بالك",
     );
     await expect(form.locator(".studio-canvas-status")).not.toBeVisible();
     await page.evaluate(() => document.fonts.ready);

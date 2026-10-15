@@ -20,7 +20,7 @@ function searchSuggestions(query,catalog,profiles) {
 }
 function discoveryPage() {
  const values=Object.fromEntries(params),cat=values.category||'',q=values.q||'',ps=discoverProducts(products,artists,values),suggestions=searchSuggestions(q,products,artists);
- return `<main id="main" class="container section"><div class="breadcrumb">${link(t('Home'),'home')} / ${t('Explore')}</div><div class="shop-intro"><span class="eyebrow">${t('INDEPENDENT ART. ENDLESS PERSONALITY.')}</span><h1>${q?t('Finds for “{query}”',{query:esc(q)}):esc(t(cat||'Find your thing.'))}</h1><p>${t('Find a design, meet its artist, make it yours.')}</p></div>
+ return `<main id="main" class="container section"><div class="breadcrumb">${link(t('Home'),'home')} / ${t('Explore')}</div><div class="shop-intro"><span class="eyebrow">${t('INDEPENDENT ART. ENDLESS PERSONALITY.')}</span><h1>${q?t('Finds for “{query}”',{query:'<bdi dir="auto">'+esc(q)+'</bdi>'}):esc(t(cat||'Find your thing.'))}</h1><p>${t('Find a design, meet its artist, make it yours.')}</p></div>
  <div class="chips">${['',...cats].map(c=>link(esc(t(c||'All products')),'shop','chip '+(cat===c?'active':''),shopCategoryParams(c))).join('')}</div>${shopFilterToolbar(ps.length)}
  <form class="filterbar" data-form="filters"><input type="hidden" name="q" value="${esc(q)}"><input type="hidden" name="category" value="${esc(cat)}"><input type="hidden" name="tag" value="${esc(values.tag||'')}">
  <select name="artist" aria-label="${t('Filter by artist')}"><option value="">${t('All artists')}</option>${artists.map(a=>`<option value="${esc(a.id)}" ${values.artist===a.id?'selected':''}>${esc(localField(a,'name'))}</option>`).join('')}</select>

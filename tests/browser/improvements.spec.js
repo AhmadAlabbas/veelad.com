@@ -23,5 +23,6 @@ test('normal URLs support refresh/back, distinct metadata and helpful empty sear
  await page.goto('/shop?q=Night+Sk');await expect(page.locator('#main')).toBeVisible();
  await page.goto('/shop?q=Sun+%26+Sae');await expect(page.getByRole('heading',{name:'No designs match yet.'})).toBeVisible();await expect(page.getByRole('link',{name:'Try “Sun & Sea”'})).toBeVisible();await page.getByRole('link',{name:'Try “Sun & Sea”'}).click();await expect(page.locator('.product-card').first()).toBeVisible();
  await page.goto('/shop?availability=sold_out');await expect(page.locator('[aria-label="Active filters"]')).toContainText('Sold out');await noOverflow(page);
+ const mixedQuery='Sun & Sea <img src=x onerror=1>';await page.goto('/ar/shop?q='+encodeURIComponent(mixedQuery));await expect(page.locator('.shop-intro h1 bdi')).toHaveText(mixedQuery);await expect(page.locator('.shop-intro h1 bdi')).toHaveAttribute('dir','auto');await expect(page.locator('.shop-intro h1 img')).toHaveCount(0);await noOverflow(page);
  await adminLogin(page);await page.goto('/admin?tab=system');await expect(page.getByRole('heading',{name:'Reliable operations'})).toBeVisible();await expect(page.locator('#main')).toContainText('Redeployment continuity');await noOverflow(page);
 });
