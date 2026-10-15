@@ -34,7 +34,7 @@ const checkout=(key,qty=1,id='p1')=>({customer,consent:true,cart:[{id,variant:id
 before(async()=>{
  db=database(c);c.uploadDir=await fs.mkdtemp(path.join(os.tmpdir(),'veelad-test-'));
  await migrate(db);await migrate(db);
- for(const table of ['oauth_states','auth_identities','users','artists','products','orders','settings','messages','rate_limits','uploads','customer_state','customer_designs','customer_design_drafts','password_resets','product_reviews','operational_status','mail_delivery','mail_queue','audit_log','sessions']) await db.q(`DELETE FROM ${table}`);
+ for(const table of ['email_verification_tokens','account_emails','oauth_states','auth_identities','users','artists','products','orders','settings','messages','rate_limits','uploads','customer_state','customer_designs','customer_design_drafts','password_resets','product_reviews','operational_status','mail_delivery','mail_queue','audit_log','sessions']) await db.q(`DELETE FROM ${table}`);
  const seed=JSON.parse(await fs.readFile(new URL('../data/seed.json',import.meta.url),'utf8'));
  await db.q('INSERT INTO users VALUES (?,?,?,?,?,?,?)',['admin-test','Admin','admin@example.test',await passwordHash(pw),'admin','active',now()]);
  for(const a of seed.artists) await db.q('INSERT INTO artists VALUES (?,?)',[a.id,JSON.stringify(a)]);

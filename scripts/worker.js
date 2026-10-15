@@ -17,8 +17,8 @@ export async function work(c,db,transport) {
   for(const m of rows) {
    const currentTime=Math.floor(Date.now()/1000);
    if(!recipientAllowed(c,m.email)) {await db.q("UPDATE mail_queue SET status='held' WHERE id=?",[m.id],conn);held++;continue;}
-   if((m.expires && m.expires<=currentTime) || (m.kind==='recovery' && !await db.one('SELECT id FROM password_resets WHERE id=? AND expires>?',[m.reset_hash,currentTime],conn))) {
-    await db.q("UPDATE mail_queue SET status='expired',body='This recovery link has expired or was replaced.' WHERE id=?",[m.id],conn);expired++;continue;
+   if((m.expires && m.expires<=currentTime) || (m.kind==='recovery' && !await db.one("SELECT r.id FROM password_resets r JOIN users u ON u.id=r.user_id WHERE r.id=? AND r.expires>? AND u.email=? AND u.status='active'",[m.reset_hash,currentTime,m.email],conn)) || (m.kind==='verification' && !await db.one("SELECT v.id FROM email_verification_tokens v JOIN users u ON u.id=v.user_id WHERE v.id=? AND v.expires>? AND v.email=? AND u.email=v.email AND u.status='active'",[m.reset_hash,currentTime,m.email],conn))) {
+    await db.q("UPDATE mail_queue SET status='expired',body='This account link has expired or was replaced.' WHERE id=?",[m.id],conn);expired++;continue;
    }
    await db.q('UPDATE mail_queue SET status=?,attempts=attempts+1 WHERE id=?',['sending',m.id],conn);
    try {
@@ -36,6 +36,7 @@ export async function work(c,db,transport) {
    // A DB failure after SMTP acceptance must leave 'sending', never requeue an accepted email.
    await db.q('UPDATE mail_queue SET status=? WHERE id=?',['sent',m.id],conn);sent++;
   }
+  await db.q('DELETE FROM email_verification_tokens WHERE expires<?',[Math.floor(Date.now()/1000)],conn);
   await db.q('DELETE FROM password_resets WHERE expires<?',[Math.floor(Date.now()/1000)],conn);
   return {sent,failed,held,expired};
  } finally {try {if(conn) await db.q("SELECT RELEASE_LOCK('veelad_mail_worker')",[],conn);} finally {conn?.release();if(own) transport.close();}}

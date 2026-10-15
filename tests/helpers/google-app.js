@@ -5,7 +5,7 @@ import { database } from "../../src/db.js";
 import { migrate } from "../../scripts/migrate.js";
 import { createApp } from "../../src/app.js";
 import { mockGoogle, googleClientId } from "./google-provider.js";
-export async function googleApp() {
+export async function googleApp(overrides = {}) {
   const base = config();
   if (base.mode !== "local" || base.db.database !== "veelad_local")
     throw Error("Google browser fixtures require isolated local configuration");
@@ -19,6 +19,7 @@ export async function googleApp() {
   await root.pool.query("CREATE DATABASE ??", [name]);
   const c = {
       ...base,
+      ...overrides,
       mode: "test",
       google: {
         enabled: true,
@@ -55,6 +56,7 @@ export async function googleApp() {
   await new Promise((resolve) => server.once("listening", resolve));
   c.origin = "http://127.0.0.1:" + server.address().port;
   return {
+    config: c,
     db,
     origin: c.origin,
     provider,

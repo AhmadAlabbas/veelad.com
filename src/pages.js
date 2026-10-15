@@ -9,7 +9,7 @@ import {currentProductMockup} from './mockup-renderer.js';
 const publicDir=fileURLToPath(new URL('../public',import.meta.url));
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const publicPaths=['/','/shop','/artists','/sell','/help','/policies'];
-const appPaths=[...publicPaths,'/my-designs','/create','/saved','/bag','/checkout','/confirmation','/login','/register','/account','/forgot','/reset','/admin','/studio','/track'];
+const appPaths=[...publicPaths,'/my-designs','/create','/saved','/bag','/checkout','/confirmation','/login','/register','/account','/forgot','/verify-email','/reset','/admin','/studio','/track'];
 const languages=['en','ar'];
 const languageFor=req=>/^\/ar(?:\/|$)/.test(req.path)?'ar':'en';
 const basePath=req=>req.path.replace(/^\/(en|ar)(?=\/|$)/,'').replace(/\/$/,'')||'/';
@@ -37,7 +37,7 @@ export function pageRoutes(app,c,db,schema) {
   res.status(status).set('Cache-Control','no-cache').type('html').send(source);
  }
  app.get('/robots.txt',(req,res)=>{
-  const blocked=['my-designs','create','admin','studio','account','track','reset','checkout','confirmation','login','register','forgot','bag','saved'];
+  const blocked=['my-designs','create','admin','studio','account','track','verify-email','reset','checkout','confirmation','login','register','forgot','bag','saved'];
   res.type('text/plain').send(c.mode==='staging'?'User-agent: *\nDisallow: /\n':`User-agent: *\nAllow: /\nDisallow: /api.php\n${['',...languages].flatMap(language=>blocked.map(page=>'Disallow: /'+(language?language+'/':'')+page)).join('\n')}\nSitemap: ${c.origin}/sitemap.xml\n`);
  });
  app.get('/sitemap.xml',async(req,res)=>{

@@ -30,3 +30,5 @@ If an incompatible data/schema change occurs, pause checkout/writes and worker, 
 Cancellation locks orders, restocks once and marks recorded paid orders `refund_required`; this does not execute a refund. The preserved 20% demo royalty field is a compatibility placeholder, not an agreed artist contract, ledger or payout instruction. No transfers occur.
 
 Migration `006-google-auth.json` adds binary provider-subject identity mapping with one Google identity per user, plus session-bound expiring OAuth attempts. Include identities with users in backups; temporary OAuth states are deliberately excluded. No existing users or passwords are rewritten. See [Google sign-in](GOOGLE-SIGN-IN.md).
+
+Migration 007 adds verified account email records (`account_emails`) and single-use expiring confirmation token hashes (`email_verification_tokens`). No `users` columns are changed. Verified addresses are backed up; temporary tokens are excluded. Retain additive tables on application rollback, disable email and verification enforcement first, and request fresh links after restore.

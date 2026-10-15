@@ -1,3 +1,4 @@
+import {verificationStatus,markEmailVerified,verifiedEmail} from './email-verification.js';
 import * as oidc from "openid-client";
 import {
   fail,
@@ -43,6 +44,7 @@ export async function authenticationStatus(c, db, user) {
       ...(identity ? { email: identity.email } : {}),
     },
     has_password: hasLocalPassword(user),
+    email: await verificationStatus(c,db,user),
   };
 }
 export function createGoogleProvider(c, options = {}) {
@@ -220,6 +222,7 @@ export async function googleRoute({
         [user.id],
         conn,
       );
+      if(await verifiedEmail(db,user,conn))await markEmailVerified(db,user,conn);
       await db.q(
         "DELETE FROM auth_identities WHERE provider='google' AND user_id=?",
         [user.id],
@@ -422,6 +425,7 @@ export async function googleRoute({
         [user.id],
         conn,
       );
+      if(user.email.toLowerCase()===claims.email.toLowerCase())await markEmailVerified(db,user,conn);
       const old = await db.one(
           "SELECT data FROM customer_state WHERE id=?",
           [user.id],

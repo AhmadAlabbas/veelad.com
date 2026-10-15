@@ -1,4 +1,5 @@
 import express from 'express';
+import {queueVerification,consumeVerification,requireVerifiedEmail,markEmailVerified,recoveryMessage} from './email-verification.js';
 import {createGoogleProvider,googleRoute,googleStatus,authenticationStatus,hasLocalPassword} from './google-auth.js';
 import session from 'express-session';
 import {MySQLSessionStore} from './session-store.js';
@@ -198,6 +199,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
    try {await db.tx(async conn=>{
     await q('INSERT INTO users VALUES (?,?,?,?,?,?,?)',[id,name,address,encoded,r,'active',now()],conn);
     if(r==='artist') await q('INSERT INTO artists VALUES (?,?)',[id,JSON.stringify({id,name,initials:[...name].slice(0,2).join('').toUpperCase(),handle:id,bio:'Independent artist on Veelad.',location:'',color:'#d9d0ff'})],conn);
+    await queueVerification(c,db,{id,email:address},v.locale,conn);
    });}catch(e){if(e.code==='ER_DUP_ENTRY') fail(409,'This email is already registered.');throw e;}
    const u=await one('SELECT * FROM users WHERE id=?',[id]);await rotate(req,u);return res.json({user:safeUser(u)});
   }
@@ -217,6 +219,15 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
    const u=await me(req,true);if(hasLocalPassword(u)){if(!await verifyPassword(v.current,u.password))fail(403,'Current password is incorrect.');}else if(!req.session.google_authenticated_at||Date.now()-req.session.google_authenticated_at>300000)fail(403,'Confirm your identity with Google again before setting a password.');
    u.password=await passwordHash(password(v.password));await q('UPDATE users SET password=? WHERE id=?',[u.password,u.id]);await rotate(req,u);return res.json({ok:true});
   }
+  if(method==='POST' && route==='resend-verification') {
+   const u=await me(req,true);await throttle(req,'verification-resend',5);
+   if(!mailStatus(c).ready||!recipientAllowed(c,u.email))fail(503,'Email verification delivery is unavailable for this address.');
+   await db.tx(async conn=>{await one('SELECT id FROM users WHERE id=? FOR UPDATE',[u.id],conn);await queueVerification(c,db,u,v.locale,conn);});
+   return res.json({ok:true,message:'If your email still needs verification, a verification link has been queued.'});
+  }
+  if(method==='POST' && route==='verify-email') {
+   await throttle(req,'verify-email',15);await consumeVerification(db,v.token);return res.json({ok:true,message:'Email verified. You can now continue with your account.'});
+  }
   if(method==='POST' && route==='forgot-password') {
    await throttle(req,'recovery',5);const address=email(v);
    if(!mailStatus(c).ready) fail(503,'Password recovery is unavailable until email delivery is configured.');
@@ -225,12 +236,14 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
     await one('SELECT id FROM users WHERE id=? FOR UPDATE',[u.id],conn);
     await q('DELETE FROM password_resets WHERE user_id=?',[u.id],conn);
     await q('INSERT INTO password_resets VALUES (?,?,?)',[hash(t),u.id,Math.floor(Date.now()/1000)+3600],conn);
-    await queue(address,'Reset your Veelad password',`Use this link within one hour: ${c.origin}/#/reset?token=${t}\nIf you did not request this, ignore this message.`,conn,{kind:'recovery',expires:Math.floor(Date.now()/1000)+3600,resetHash:hash(t)});
+    const message=recoveryMessage(c,t,v.locale);
+    await queue(address,message.subject,message.body,conn,{kind:'recovery',expires:Math.floor(Date.now()/1000)+3600,resetHash:hash(t)});
    });}return res.json({ok:true,message:'If that account exists, a recovery email has been queued.'});
   }
   if(method==='POST' && route==='reset-password') {
    await throttle(req,'reset',10);const key=hash(text(v,'token',100)),encoded=await passwordHash(password(v.password));
-   await db.tx(async conn=>{const r=await one('SELECT * FROM password_resets WHERE id=? AND expires>? FOR UPDATE',[key,Math.floor(Date.now()/1000)],conn);if(!r) fail(422,'This recovery link is invalid or expired.');await q('DELETE FROM password_resets WHERE user_id=?',[r.user_id],conn);await q('UPDATE users SET password=? WHERE id=?',[encoded,r.user_id],conn);});
+   const candidate=await one('SELECT user_id FROM password_resets WHERE id=?',[key]);if(!candidate)fail(422,'This recovery link is invalid or expired.');
+   await db.tx(async conn=>{const target=await one('SELECT * FROM users WHERE id=? FOR UPDATE',[candidate.user_id],conn),r=await one('SELECT * FROM password_resets WHERE id=? AND expires>? FOR UPDATE',[key,Math.floor(Date.now()/1000)],conn);if(!r||!target||target.status!=='active') fail(422,'This recovery link is invalid or expired.');await q('DELETE FROM password_resets WHERE user_id=?',[r.user_id],conn);await q('UPDATE users SET password=? WHERE id=?',[encoded,r.user_id],conn);await markEmailVerified(db,target,conn);});
    await rotate(req);return res.json({ok:true});
   }
   if(method==='POST' && route==='message') {
@@ -243,6 +256,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
    if(v.consent!==true) fail(422,'Please accept the order terms.');
    if(!Array.isArray(v.cart)||v.cart.length<1||v.cart.length>50) fail(422,'Your bag needs 1–50 items.');
    const requestKey=hash(req.sessionID+'|'+text(v,'request_key',100)),guest=trackingToken(requestKey,c.secret),id=uid('VLD-'),u=await me(req);
+   await requireVerifiedEmail(c,db,u);
    let result;
    try {result=await db.tx(async conn=>{
     // An insert reserves the idempotency key before touching stock. Unique-key contenders wait for its commit.
@@ -367,7 +381,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
    const u=await role(req,'artist');await throttle(req,'artist-batch',15);
    if(v.id)fail(422,'Use a new submission to create multiple products.');
    const formats=v.print_formats;if(!Array.isArray(formats)||formats.length<2||formats.length>7||new Set(formats).size!==formats.length||formats.some(format=>!categories.includes(format)))fail(422,'Choose two to seven product types.');
-   const draft=v.action==='draft';if(!draft&&v.rights!==true)fail(422,'Confirm that you have the rights to sell this artwork.');
+   const draft=v.action==='draft';if(!draft)await requireVerifiedEmail(c,db,u);if(!draft&&v.rights!==true)fail(422,'Confirm that you have the rights to sell this artwork.');
    const requestKey=text(v,'request_key',100),batchId=hash(u.id+'|'+requestKey),prepared=[];
    for(const category of formats){
     const p=await validProduct({...v,category,mockup_upload_id:null},req,draft,true);if(!p.upload_id)fail(422,'Upload your original artwork first.');
@@ -382,7 +396,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
    });return res.json({ids:prepared.map(item=>item.id),status:draft?'draft':'pending'});
   }
   if(method==='POST' && route==='artist-product') {
-   const u=await role(req,'artist'),draft=v.action==='draft',p=await validProduct(v,req,draft,true);if(!draft&&v.rights!==true) fail(422,'Confirm that you have the rights to sell this artwork.');if(!draft&&!p.upload_id) fail(422,'Upload your original artwork first.');
+   const u=await role(req,'artist'),draft=v.action==='draft';if(!draft)await requireVerifiedEmail(c,db,u);const p=await validProduct(v,req,draft,true);if(!draft&&v.rights!==true) fail(422,'Confirm that you have the rights to sell this artwork.');if(!draft&&!p.upload_id) fail(422,'Upload your original artwork first.');
    const id=v.id ? text(v,'id',64) : uid('p-');
    await db.tx(async conn=>{const old=await one('SELECT * FROM products WHERE id=? FOR UPDATE',[id],conn);if(old&&old.artist_id!==u.id) fail(403,'You can only edit your own products.');
     preserveDetails(p,old);
@@ -440,7 +454,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
    if(method==='GET' && route==='admin') return res.json({products:await reviewedProducts(db,await products(true)),users:(await q('SELECT * FROM users ORDER BY created_at DESC')).map(safeUser),orders:(await q('SELECT * FROM orders ORDER BY created_at DESC')).map(order),messages:(await q('SELECT * FROM messages ORDER BY created_at DESC')).map(({data,...r})=>({...json(data),...r})),settings:await settings(),audit:await q('SELECT * FROM audit_log ORDER BY created_at DESC LIMIT 30')});
    if(method==='GET' && route==='admin-system') {
     const counts=Object.fromEntries((await q("SELECT CASE WHEN m.status='queued' AND d.id IS NULL THEN 'held' ELSE m.status END AS delivery_status,COUNT(*) AS n FROM mail_queue m LEFT JOIN mail_delivery d ON d.id=m.id GROUP BY delivery_status")).map(r=>[r.delivery_status,Number(r.n)]));
-    return res.json({version:'3.0.0',database:'mysql',operations:await operationsStatus(c,db),google:googleStatus(c),mail_enabled:c.mailEnabled,email:mailStatus(c),queued_emails:counts.queued||0,failed_emails:counts.failed||0,held_emails:counts.held||0,sending_emails:counts.sending||0,expired_emails:counts.expired||0,paid_orders:(await q('SELECT data FROM orders')).filter(o=>json(o.data).payment_status==='paid').length});
+    return res.json({version:'3.0.0',database:'mysql',operations:await operationsStatus(c,db),google:googleStatus(c),email_verification_required:c.emailVerificationRequired,mail_enabled:c.mailEnabled,email:mailStatus(c),queued_emails:counts.queued||0,failed_emails:counts.failed||0,held_emails:counts.held||0,sending_emails:counts.sending||0,expired_emails:counts.expired||0,paid_orders:(await q('SELECT data FROM orders')).filter(o=>json(o.data).payment_status==='paid').length});
    }
    if(method==='POST' && route==='admin-storage-check') {await throttle(req,'operations',5);await audit(u,'storage.check','private');const result=await probeStorage(c,db);app.locals.operations ||= {};app.locals.operations.storage=result;return res.json({ok:result.ready,storage:result});}
    if(method==='GET' && route==='admin-missing-artwork') {

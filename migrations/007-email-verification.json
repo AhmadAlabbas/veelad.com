@@ -1,0 +1,4 @@
+[
+"CREATE TABLE IF NOT EXISTS account_emails (user_id VARCHAR(64) PRIMARY KEY,email VARCHAR(190) NOT NULL,verified_at VARCHAR(40) NOT NULL)",
+"CREATE TABLE IF NOT EXISTS email_verification_tokens (id VARCHAR(64) COLLATE utf8mb4_bin PRIMARY KEY,user_id VARCHAR(64) NOT NULL,email VARCHAR(190) NOT NULL,expires BIGINT UNSIGNED NOT NULL,created_at BIGINT UNSIGNED NOT NULL,UNIQUE KEY verification_user (user_id),INDEX verification_expiry (expires))"
+]

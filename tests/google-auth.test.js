@@ -327,6 +327,7 @@ test("Google-only users can set a password after recent authentication, then dis
   );
   await ok(a, "google-disconnect", { password: pw });
   assert.equal((await ok(a, "bootstrap")).authentication.google.linked, false);
+  assert.equal((await ok(a, "bootstrap")).authentication.email.verified, true);
   await ok(a, "logout", {});
   await ok(a, "login", { email: "google-password@example.test", password: pw });
   assert.equal((await ok(a, "bootstrap")).user.id, id);

@@ -6,6 +6,7 @@ function emailSystemPanel(sys) {
  const deliveryStatus=mail.ready?'configured — inbox test still required':mail.enabled?'settings incomplete':'disabled';
  return `<section class="panel" style="max-width:800px;margin-top:24px"><h2 style="font-size:24px">${esc(t('Transactional email'))}</h2>
  <p>${esc(t('Email delivery:'))} <strong>${esc(t(deliveryStatus))}</strong></p>
+ <p class="small">${esc(t(sys.email_verification_required?'Email verification is required for account orders and artwork submissions.':'Email verification is optional until delivery has been tested.'))}</p>
  ${mail.missing.length?`<p class="small">${esc(t('Set these in Hostinger’s private environment settings:'))} <bdi dir="ltr">${mail.missing.map(esc).join(', ')}</bdi>.</p>`:''}
  ${mail.staging_restricted?`<div class="notice">${esc(t('Staging only sends to {recipient}. Messages to other addresses stay on hold.',{recipient:mail.test_recipient||t('the inbox configured as MAIL_TEST_RECIPIENT')}))}</div>`:''}
  <p>${esc(t('Queued: {queued} · Held: {held} · Failed: {failed} · Sending: {sending} · Expired: {expired}',{queued:localNumber(sys.queued_emails),held:localNumber(sys.held_emails),failed:localNumber(sys.failed_emails),sending:localNumber(sys.sending_emails),expired:localNumber(sys.expired_emails)}))}</p>

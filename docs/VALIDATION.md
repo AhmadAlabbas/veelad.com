@@ -16,7 +16,7 @@ The native GitHub connection and staging DNS/TLS are verified by the live Node h
 
 Not verified: exact proxy topology, persistent private hosting storage, SMTP delivery, real imported account/order/artwork consistency, production cutover, deployment in a new cloud task or a production release. Codex has no authenticated hPanel access or access to its private environment values. Hostinger support pages returned 403 from this execution environment.
 
-Neither OAuth, online payments, real refunds, monthly artist payouts nor delivery-provider automation is enabled. The preserved royalty estimate is not a payable balance. Production remains a deliberate release and defaults to the existing coming-soon page.
+Production OAuth, online payments, real refunds, monthly artist payouts and delivery-provider automation remain separate launch tasks. The preserved royalty estimate is not a payable balance. Production remains a deliberate release and defaults to the existing coming-soon page.
 
 ## Hostinger startup regression
 
@@ -84,4 +84,13 @@ Local verification passed 74 backend and 54 desktop/mobile Chromium checks. Nine
 
 Four browser journeys exercise Google customer and artist signup, guest-bag preservation, English/Arabic layout, matching-email collision, explicit existing-account connection, password fallback and disconnect. Screenshots of the sign-up and Arabic account screens were inspected. These are Chromium emulation tests, not native iOS Safari or a real Google consent test. Backup/restore coverage preserves identity mappings and accepts older snapshots without them; temporary OAuth states stay outside backups. Hosting startup and native registration/login continue to pass.
 
-Google credentials have not been created or supplied. Staging activation, actual Google consent and a real Hostinger-to-Google token exchange remain dependent on the private steps in [Google sign-in setup](GOOGLE-SIGN-IN.md). No production release, live payment or SMTP delivery is enabled by this change.
+At initial implementation, Google credentials were still pending. The owner has since configured the staging Web client privately: the public staging status reports Google available, and its authorization start returns HTTP 200 with the correct Google host and callback. The owner confirmed completing sign-in. Credentials were not supplied to Codex. Production activation remains separate. No live payment or SMTP delivery was enabled by the Google change.
+
+
+## Account email confirmation and info sender (2026-10-15)
+
+The owner confirmed `info@veelad.com` on Hostinger Email. Signup confirmation, resend, a verified account status, and verification pages are implemented in English and Arabic. New confirmation and recovery email links carry tokens in fragments, strip them from the address bar and require an explicit form submission. Opening or previewing an email cannot consume a confirmation. Older recovery links continue working. Tokens expire after one hour; confirmation is single-use under concurrent requests and replacement invalidates/redacts older links. A successful recovery also verifies account-email ownership and revokes older password sessions. Matching Google verification survives disconnection, including pre-migration identities; a different Google email does not verify the native address.
+
+Local backend validation passed 82 checks. A final focused run passed all 17 email/Google cases after preserving legacy identity verification and hardening recovery-link URLs. The full 58-case desktop/mobile Chromium suite passed, including the bilingual confirmation/recovery flows and existing customer, artist and administrator workflows. The Arabic mobile confirmation screenshot was visually inspected. GitHub validation is also required before advancing staging. New tests use simulated SMTP only. Migration 007 is additive and was applied twice safely during local validation. Encrypted backup/restore preserves verified email records and accepts older snapshots without them; temporary email confirmation tokens are excluded. Existing storage limitations remain unchanged.
+
+Mailbox SMTP authentication and actual inbox delivery are **not** verified. Staging retains its recipient allowlist. `EMAIL_VERIFICATION_REQUIRED` defaults off until controlled delivery tests pass; enabling it requires verified account email for signed-in orders and artist submissions, while drafts, guest checkout and administrator access remain available. Configure the private SMTP password and follow [EMAIL.md](EMAIL.md). Production and online payments are unchanged.
