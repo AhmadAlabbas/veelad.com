@@ -1,0 +1,53 @@
+import {test,expect} from '@playwright/test';
+import fs from 'node:fs/promises';
+import sharp from 'sharp';
+import {config} from '../../src/config.js';
+import {database} from '../../src/db.js';
+try{process.loadEnvFile('.env');}catch(error){if(error.code!=='ENOENT')throw error;}
+// Each bilingual journey starts with fresh local attempt counters; production throttles stay unchanged.
+test.beforeEach(async()=>{const c=config();if(c.mode!=='local'||c.db.database!=='veelad_local')throw Error('Bilingual browser fixtures require the isolated local database');const db=database(c);try{await db.q('DELETE FROM rate_limits');}finally{await db.pool.end();}});
+async function noOverflow(page){await page.evaluate(()=>document.fonts.ready);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBeTruthy();}
+async function toggle(page){await page.locator('[data-action=language-switch]').first().click();}
+async function adminLogin(page){const c=JSON.parse(await fs.readFile('var/local-admin.json','utf8'));await page.goto('/en/login');const f=page.locator('[data-form=login]');await f.locator('[name=email]').fill(c.email);await f.locator('[name=password]').fill(c.password);await f.locator('[type=submit]').click();await expect(page).toHaveURL(/admin/);await page.goto('/en/admin');}
+
+test('language switching preserves product, filters, cart and preference while changing direction',async({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/en/products/p1');await expect(page.locator('.product-info h1')).toBeVisible();
+ await page.locator('[data-form=add-to-bag] [type=submit]').click();await page.locator('#modal [data-action=close-modal]').first().click();
+ const before=await page.evaluate(()=>localStorage.getItem('veelad-v2-cart'));await toggle(page);await expect(page).toHaveURL(/\/ar\/products\/p1$/);await expect(page.locator('html')).toHaveAttribute('dir','rtl');await expect(page.locator('[data-action=language-switch]').first()).toHaveText('English');await expect(page.locator('[data-form=add-to-bag] [type=submit]')).not.toContainText('Add to bag');expect(await page.evaluate(()=>localStorage.getItem('veelad-v2-cart'))).toBe(before);await noOverflow(page);const formatted=await page.evaluate(()=>{window.VEELAD_NUMERAL_SYSTEM='arab';const value={number:localNumber(1234),money:money(12345),year:localDate('2026-10-14',{year:'numeric'})};delete window.VEELAD_NUMERAL_SYSTEM;return value;});expect(formatted.number).toContain('١');expect(formatted.money).toContain('١٢٣');expect(formatted.year).toContain('٢٠٢٦');
+ await page.reload();await expect(page.locator('html')).toHaveAttribute('lang','ar');await toggle(page);await expect(page).toHaveURL(/\/en\/products\/p1$/);await expect(page.locator('html')).toHaveAttribute('dir','ltr');
+ await page.goto('/en/shop?q=Sun&category=T-shirts&availability=in_stock');await expect(page.locator('#main')).toBeVisible();await toggle(page);await expect(page).toHaveURL(/\/ar\/shop\?/);await expect(page).toHaveURL(/q=Sun/);await expect(page).toHaveURL(/category=T-shirts/);await noOverflow(page);
+ await page.goto('/');await expect(page).toHaveURL(/\/ar\/?$/);await expect(page.locator('html')).toHaveAttribute('lang','ar');expect(errors).toEqual([]);
+});
+
+test('Arabic availability errors offer a working retry under the site security policy',async({page})=>{
+ let attempts=0;await page.route('**/api.php?route=bootstrap',async route=>{if(++attempts===1)return route.fulfill({status:503,json:{error:'Store unavailable',database_error:'DATABASE_UNAVAILABLE'}});return route.continue();});
+ await page.goto('/ar/shop');const retry=page.locator('[data-action=retry-store]');await expect(retry).toBeVisible();await expect(retry).not.toHaveText('Try again');await retry.click();await expect(page.locator('.product-card').first()).toBeVisible();await expect(page.locator('html')).toHaveAttribute('dir','rtl');expect(attempts).toBeGreaterThan(1);
+});
+
+test('Arabic public screens and administrator tables render without overflow or mirrored artwork',async({page})=>{
+ test.setTimeout(120000);const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ for(const lang of ['en','ar'])for(const path of ['', '/shop','/artists','/artists/artist-1','/sell','/help','/policies','/saved','/bag','/checkout','/track','/login','/register','/forgot']){
+  await page.goto('/'+lang+path);await expect(page.locator('#main')).toBeVisible();await noOverflow(page);await expect(page.locator('html')).toHaveAttribute('dir',lang==='ar'?'rtl':'ltr');
+  expect(await page.locator('.product-photo img').evaluateAll(images=>images.every(img=>getComputedStyle(img).transform==='none'))).toBeTruthy();
+ }
+ await adminLogin(page);await toggle(page);await expect(page).toHaveURL(/\/ar\/admin/);
+ for(const tab of ['overview','products','orders','users','artists','messages','settings','system']){
+  await page.goto('/ar/admin?tab='+tab);await expect(page.locator('.admin-content')).toBeVisible();await noOverflow(page);await expect(page.locator('html')).toHaveAttribute('dir','rtl');
+ }
+ await expect(page.getByRole('heading',{name:'موثوقية التشغيل',exact:true})).toBeVisible();await expect(page.getByRole('heading',{name:'الرسائل التلقائية',exact:true})).toBeVisible();const language=await page.evaluate(async()=>{const b=await (await fetch('/api.php?route=bootstrap')).json();return b.locale;});expect(language).toBe('ar');expect(errors).toEqual([]);
+});
+
+test('bilingual artist design reaches admin production and the same public product in both languages',async({page,browser})=>{
+ test.setTimeout(90000);await page.goto('/en/register');let f=page.locator('[data-form=register]');await f.locator('[name=name]').fill('Bilingual artist');await f.locator('[name=email]').fill(`bilingual-${Date.now()}-${Math.random().toString(16).slice(2)}@example.test`);await f.locator('[name=password]').fill('Bilingual test password 123');await f.locator('[name=role]').selectOption('artist');await f.locator('[type=submit]').click();await expect(page).toHaveURL(/studio/);await toggle(page);await expect(page.locator('html')).toHaveAttribute('dir','rtl');
+ await page.goto('/ar/studio?tab=upload');f=page.locator('[data-form=artist-product]');expect(await f.locator('[name=price],[name=stock]').count()).toBe(0);
+ const title='Bilingual work '+Date.now(),arabic='حديقة الألوان '+Date.now();await f.locator('[name=title]').fill(title);await f.locator('[name=title_ar]').fill(arabic);await f.locator('[name=description]').fill('Original colours for everyday products.');await f.locator('[name=description_ar]').fill('ألوان أصلية لتفاصيل الحياة اليومية.');await f.locator('[name=tags]').fill('garden,colour');await f.locator('[name=tags_ar]').fill('حديقة،ألوان');await f.locator('[name=production_notes]').fill('PRIVATE-PRODUCTION-NOTE');await f.locator('[name=print_formats][value=Mugs]').check();
+ await toggle(page);await expect(page).toHaveURL(/\/en\/studio/);await expect(f.locator('[name=title_ar]')).toHaveValue(arabic);await expect(f.locator('[name=production_notes]')).toHaveValue('PRIVATE-PRODUCTION-NOTE');await expect(f.locator('[name=print_formats][value=Mugs]')).toBeChecked();await toggle(page);await expect(page).toHaveURL(/\/ar\/studio/);
+ const original=await sharp({create:{width:2200,height:2000,channels:4,background:{r:70,g:130,b:190,alpha:0.8}}}).png().toBuffer();await f.locator('#artwork-file').setInputFiles({name:'production-original.png',mimeType:'image/png',buffer:original});await expect(f.locator('#upload-preview img')).toBeVisible();await expect(f.locator('.mockup-art')).toBeVisible();await f.locator('.design-preview-format').selectOption('shirt');await expect(f.locator('.design-mockup')).toHaveAttribute('data-format','shirt');await toggle(page);await expect(page).toHaveURL(/\/en\/studio/);await expect(f.locator('#upload-preview img')).toBeVisible();await toggle(page);await expect(page).toHaveURL(/\/ar\/studio/);await f.locator('[name=rights]').check();await f.locator('[type=submit][value=submit]').click();await expect(page).toHaveURL(/tab=products/);await noOverflow(page);
+ const context=await browser.newContext({viewport:page.viewportSize()}),admin=await context.newPage();await adminLogin(admin);await admin.goto('/en/admin?tab=products');await admin.locator('tr').filter({hasText:title}).locator('[data-action=edit-product]').click();const edit=admin.locator('[data-form=admin-product]');const id=await edit.locator('[name=id]').inputValue();await expect(edit.locator('[name=title_ar]')).toHaveValue(arabic);await expect(edit).toContainText('PRIVATE-PRODUCTION-NOTE');
+ const download=edit.locator('a[href*="admin-artwork-original"]');await expect(download).toBeVisible();const bytes=await (await admin.request.get(await download.getAttribute('href'))).body();expect(bytes.equals(original)).toBeTruthy();
+ await edit.locator('[name=price]').fill('99');await edit.locator('[name=stock]').fill('50');await edit.locator('[name=status]').selectOption('active');await edit.locator('[type=submit]').click();await expect(admin.locator('#modal')).not.toBeVisible();
+ await page.goto('/ar/products/'+id);await expect(page.locator('.product-info h1')).toHaveText(arabic);await expect(page.locator('.product-description')).toContainText('ألوان أصلية');await expect(page).toHaveTitle(new RegExp(arabic));await noOverflow(page);
+ await toggle(page);await expect(page).toHaveURL(new RegExp('/en/products/'+id));await expect(page.locator('.product-info h1')).toHaveText(title);
+ const publicPayload=await page.evaluate(async()=>JSON.stringify(await (await fetch('/api.php?route=bootstrap')).json()));expect(publicPayload).not.toContain('PRIVATE-PRODUCTION-NOTE');
+ await page.goto('/ar/shop?q='+encodeURIComponent('حديقة'));await expect(page.locator('.product-card').filter({hasText:arabic})).toBeVisible();for(const tab of ['overview','products','orders','earnings','settings']){await page.goto('/ar/studio?tab='+tab);await expect(page.locator('.admin-content')).toBeVisible();await noOverflow(page);}await context.close();
+});

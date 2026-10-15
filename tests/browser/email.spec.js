@@ -3,13 +3,13 @@ import fs from 'node:fs/promises';
 
 async function loginAdmin(page) {
  const access=JSON.parse(await fs.readFile('var/local-admin.json','utf8'));
- await page.goto('/#/login');const form=page.locator('[data-form=login]');
+ await page.goto('/en#/login');const form=page.locator('[data-form=login]');
  await form.locator('[name=email]').fill(access.email);await form.locator('[name=password]').fill(access.password);
  await form.getByRole('button',{name:'Sign in',exact:true}).click();await expect(page).toHaveURL(/admin/);
- await page.goto('/#/admin?tab=system');await expect(page.getByRole('heading',{name:'Transactional email'})).toBeVisible();
+ await page.goto('/en#/admin?tab=system');await expect(page.getByRole('heading',{name:'Transactional email'})).toBeVisible();
 }
 test('email setup status is clear and recovery stays unavailable while SMTP is disabled',async({page})=>{
- await page.goto('/#/forgot');await expect(page.locator('#main')).toContainText('Password recovery is unavailable');
+ await page.goto('/en#/forgot');await expect(page.locator('#main')).toContainText('Password recovery is unavailable');
  await expect(page.getByRole('button',{name:'Request recovery link'})).toBeDisabled();
  await loginAdmin(page);await expect(page.getByRole('button',{name:'Check SMTP connection'})).toBeDisabled();
  await expect(page.getByRole('button',{name:'Send test email'})).toBeDisabled();

@@ -1,0 +1,69 @@
+@font-face { font-family: 'Veelad Arabic'; font-style: normal; font-weight: 400; font-display: swap; src: url('/assets/fonts/veelad-arabic-400.woff2') format('woff2'); }
+@font-face { font-family: 'Veelad Arabic'; font-style: normal; font-weight: 500; font-display: swap; src: url('/assets/fonts/veelad-arabic-500.woff2') format('woff2'); }
+@font-face { font-family: 'Veelad Arabic'; font-style: normal; font-weight: 600; font-display: swap; src: url('/assets/fonts/veelad-arabic-600.woff2') format('woff2'); }
+@font-face { font-family: 'Veelad Arabic'; font-style: normal; font-weight: 700; font-display: swap; src: url('/assets/fonts/veelad-arabic-700.woff2') format('woff2'); }
+@font-face { font-family: 'DM Sans'; font-style: normal; font-weight: 400; font-display: swap; src: url('/assets/fonts/dm-sans-400.woff2') format('woff2'); }
+@font-face { font-family: 'DM Sans'; font-style: normal; font-weight: 500; font-display: swap; src: url('/assets/fonts/dm-sans-500.woff2') format('woff2'); }
+@font-face { font-family: 'DM Sans'; font-style: normal; font-weight: 600; font-display: swap; src: url('/assets/fonts/dm-sans-600.woff2') format('woff2'); }
+@font-face { font-family: 'DM Sans'; font-style: normal; font-weight: 700; font-display: swap; src: url('/assets/fonts/dm-sans-700.woff2') format('woff2'); }
+@font-face { font-family: 'Manrope'; font-style: normal; font-weight: 400; font-display: swap; src: url('/assets/fonts/manrope-400.woff2') format('woff2'); }
+@font-face { font-family: 'Manrope'; font-style: normal; font-weight: 500; font-display: swap; src: url('/assets/fonts/manrope-500.woff2') format('woff2'); }
+@font-face { font-family: 'Manrope'; font-style: normal; font-weight: 600; font-display: swap; src: url('/assets/fonts/manrope-600.woff2') format('woff2'); }
+@font-face { font-family: 'Manrope'; font-style: normal; font-weight: 700; font-display: swap; src: url('/assets/fonts/manrope-700.woff2') format('woff2'); }
+@font-face { font-family: 'Manrope'; font-style: normal; font-weight: 800; font-display: swap; src: url('/assets/fonts/manrope-800.woff2') format('woff2'); }
+:root { --font-body: 'DM Sans', Arial, sans-serif; --font-heading: 'Manrope', Arial, sans-serif; --body-leading: 1.55; --heading-leading: 1.13; }
+html[lang=ar] { --font-body: 'Veelad Arabic', Tahoma, sans-serif; --font-heading: 'Veelad Arabic', Tahoma, sans-serif; --body-leading: 1.85; --heading-leading: 1.45; }
+body { font-family: var(--font-body); line-height: var(--body-leading); }
+h1, h2, h3, h4 { font-family: var(--font-heading); }
+html[lang=ar] h1, html[lang=ar] h2, html[lang=ar] h3, html[lang=ar] h4 { line-height: var(--heading-leading); }
+html[lang=ar] * { letter-spacing: 0; }
+.wordmark { font-family: 'Manrope', Arial, sans-serif; direction: ltr; unicode-bidi: isolate; letter-spacing: -2.8px; }
+html[lang=ar] .wordmark { letter-spacing: -2.8px; }
+html[lang=ar] .product-card h3, html[lang=ar] .marquee, html[lang=ar] .avatar { font-family: var(--font-body); }
+html[lang=ar] .hero h1 { line-height: 1.4; }
+html[lang=ar] .hero p, html[lang=ar] .product-description, html[lang=ar] .product-long-text { line-height: 1.95; }
+html[lang=ar] .eyebrow { font-size: 12px; }
+html[dir=rtl] .icon[data-symbol=arrow] { transform: scaleX(-1); }
+html[dir=rtl] .marquee>div { animation-direction: reverse; }
+/* Direction affects placement; logos and artwork retain their original orientation. */
+.language-switch { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; min-height: 44px; padding-inline: 12px; border: 1px solid currentColor; border-radius: 6px; font-family: 'Veelad Arabic', 'DM Sans', Arial, sans-serif; font-size: 13px; font-weight: 600; line-height: 1.3; }
+.nav-actions, .admin-topbar { min-width: 0; }
+.nav-actions .language-switch { margin-inline-start: 8px; }
+.admin-topbar .language-switch { margin-inline-start: auto; margin-inline-end: 16px; }
+input[dir=ltr], textarea[dir=ltr], input[type=email], input[type=tel], input[type=password], [data-ltr] { direction: ltr; text-align: start; unicode-bidi: plaintext; }
+input[dir=rtl], textarea[dir=rtl] { direction: rtl; text-align: start; font-family: 'Veelad Arabic', Tahoma, sans-serif; }
+.table-wrap { max-width: 100%; }
+.table-wrap th, .table-wrap td { text-align: start; }
+.admin-title, .admin-topbar, .product-topline { gap: 12px; }
+.admin-title { flex-wrap: wrap; }
+.print-formats { display: flex; flex-wrap: wrap; gap: 10px 20px; margin-block: 14px; border: 0; padding: 0; }
+.print-formats legend { margin-block-end: 12px; }
+.print-formats label { display: flex; align-items: center; gap: 8px; }
+.design-placement { margin-block: 24px; padding: 22px; background: #f7f3fa; border-radius: 12px; }
+.design-placement .field { margin-block: 16px; max-width: 260px; }
+.design-mockup { margin: 0; min-width: 0; padding-block: 20px; text-align: center; }
+.mockup-surface { position: relative; width: 170px; height: 165px; margin: 0 auto 26px; background: linear-gradient(90deg,#ece9e4,#fff 25%,#fff 70%,#dedbd7); border: 1px solid #d6d0ca; border-radius: 10px 10px 38px 38px; display: grid; place-items: center; box-shadow: 0 15px 18px #2a20361a; }
+.design-mockup[data-format=mug] .mockup-surface::after { content: ''; position: absolute; right: -44px; top: 25px; width: 42px; height: 76px; border: 13px solid #ebe8e3; border-radius: 0 34px 34px 0; border-left: 0; }
+.mockup-art { width: 88px; height: 95px; object-fit: contain; position: relative; z-index: 1; }
+.mockup-placeholder { padding: 18px; font-size: 12px; color: #6d6177; }
+.mockup-art[hidden], .mockup-placeholder[hidden] { display: none; }
+.design-mockup[data-format=shirt] .mockup-surface { width: 220px; height: 230px; border-radius: 0; clip-path: polygon(25% 0,40% 0,43% 6%,57% 6%,60% 0,75% 0,100% 20%,83% 39%,75% 32%,75% 100%,25% 100%,25% 32%,17% 39%,0 20%); }
+.design-mockup[data-format=shirt] .mockup-art { width: 90px; height: 120px; }
+.design-mockup figcaption { font-size: 12px; color: #675b72; }
+@media (max-width:760px) {
+ .nav .container { gap: 8px; }
+ .nav-actions .language-switch { margin-inline-start: 2px; padding-inline: 7px; min-width: 50px; font-size: 11px; }
+ .admin-topbar { min-height: 65px; height: auto; padding-block: 10px; flex-wrap: wrap; }
+ .admin-topbar .language-switch { margin-inline-end: 0; padding-inline: 9px; font-size: 12px; }
+ html[lang=ar] .hero h1 { font-size: 37px; }
+ html[lang=ar] .product-card h3 { font-size: 13px; line-height: 1.7; }
+ html[lang=ar] .announcement { font-size: 10px; }
+ html[lang=ar] .admin-title p, html[lang=ar] .field, html[lang=ar] .sidebar a.nav-item { font-size: 12px; }
+ .stat-card strong { overflow-wrap: anywhere; }
+ .design-placement { padding: 16px; }
+}
+@media (max-width:370px) {
+ .nav .wordmark { font-size: 26px; }
+ .nav .container { gap: 6px; }
+ .nav-actions .language-switch { padding-inline: 5px; min-width: 47px; }
+}
