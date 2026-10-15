@@ -378,6 +378,17 @@ document.addEventListener("click", async (event) => {
 window.addEventListener("online", () => {
   if (customerDraft && !customerDraft.conflict)
     flushCustomerDraft().catch(() => {});
+  const form = document.querySelector("[data-form=customer-design]"),
+    root = form?.querySelector(".design-studio"),
+    instance = root && studioInstances.get(root);
+  if (instance?.state) {
+    instance.glyphCache?.clear();
+    if (customerDraft?.upload_id && !instance.image) {
+      instance.source = null;
+      instance.loadSource(studioSource(customerDraft), customerDraft.upload_id);
+      refreshArtworkMetadata(customerDraft.upload_id);
+    } else instance.update();
+  }
 });
 window.addEventListener("pagehide", () => {
   if (customerDraft && user && customerDraft.user_id === user.id)

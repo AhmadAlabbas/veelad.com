@@ -45,7 +45,10 @@ async function customerTextOverlay(instance, product) {
     instance.glyphCache.set(key, work);
     while (instance.glyphCache.size > 12)
       instance.glyphCache.delete(instance.glyphCache.keys().next().value);
-    work.catch(() => instance.glyphCache.delete(key));
+    work.catch(() => {
+      if (instance.glyphCache.get(key) === work)
+        instance.glyphCache.delete(key);
+    });
   }
   try {
     const glyphs = await instance.glyphCache.get(key),
@@ -233,13 +236,11 @@ document.addEventListener("click", (event) => {
   syncCustomerTextTools(instance);
   if (!textLayersFor(instance).length)
     root.querySelector("[data-text-add]").click();
-  root
-    .querySelector(".customer-text-tools")
-    .scrollIntoView({
-      block: "center",
-      behavior: matchMedia("(prefers-reduced-motion: reduce)").matches
-        ? "instant"
-        : "smooth",
-    });
+  root.querySelector(".customer-text-tools").scrollIntoView({
+    block: "center",
+    behavior: matchMedia("(prefers-reduced-motion: reduce)").matches
+      ? "instant"
+      : "smooth",
+  });
   root.querySelector("[data-text-prop=text]")?.focus({ preventScroll: true });
 });

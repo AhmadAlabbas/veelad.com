@@ -160,6 +160,7 @@ test("bilingual text designs autosave, survive reload/offline recovery, appear i
     const blocked = async (route) =>
       route.request().method() === "POST" ? route.abort() : route.continue();
     await page.route("**/api.php?route=customer-draft", blocked);
+    await page.route("**/api.php?route=customer-text-preview", blocked);
     await form.locator("[data-text-prop=text]").fill("Offline recovery مرحبا");
     await expect(form.locator("[data-customer-save-status]")).toContainText(
       "Could not sync",
@@ -174,7 +175,11 @@ test("bilingual text designs autosave, survive reload/offline recovery, appear i
       "Offline recovery مرحبا",
     );
     await page.unroute("**/api.php?route=customer-draft", blocked);
+    await page.unroute("**/api.php?route=customer-text-preview", blocked);
     await page.evaluate(() => dispatchEvent(new Event("online")));
+    await expect(form.locator(".studio-canvas-status")).not.toBeVisible({
+      timeout: 15000,
+    });
     await expect(form.locator("[data-customer-save-status]")).toHaveText(
       "All changes saved",
       { timeout: 15000 },

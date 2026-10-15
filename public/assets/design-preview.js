@@ -358,6 +358,7 @@ async function startDesignStudio(root) {
           : t("Upload artwork to see its placement");
         status.hidden = !!content;
       } catch (error) {
+        if(serial!==instance.serial||!root.isConnected)return;
         status.hidden = false;
         status.textContent = t(error.message);
       }
