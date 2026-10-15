@@ -1,12 +1,11 @@
 'use strict';
 function artistListingForm(p=null) {
- const formats=Array.isArray(p?.print_formats)?p.print_formats:[p?.category||'Art prints'];
  return `<form data-form="${p?'artist-edit':'artist-product'}">${p?`<input type="hidden" name="id" value="${esc(p.id)}">`:''}${p?.upload_id?`<input type="hidden" name="upload_id" value="${esc(p.upload_id)}">`:''}
  ${p?.review?.feedback?`<div class="notice"><strong>${t('Administrator feedback')}</strong><p class="product-long-text">${esc(p.review.feedback)}</p></div>`:''}
- <div class="notice"><h3>${t('You create. We print and ship.')}</h3><p>${t('Upload your original design and choose the products you would like it printed on. Veelad reviews the artwork, sets the final product specifications and prices, prints each order, and ships it to the customer.')}</p></div>
- <div class="upload-zone"><div id="upload-preview">${p?.upload_id?photo(p):icon('upload')}</div><h3>${t('Your original artwork')}</h3><p>${t('PNG or JPEG, up to 25 MB and 60 megapixels. Minimum 100 pixels on each side. Drafts can be saved before uploading.')}</p><p class="small">${t('Upload your highest-quality original. A transparent PNG is useful when the product needs no background. SVG and PDF are not accepted yet.')}</p><p class="small">${t('For sharp printing, aim for 300 DPI at the actual print size: for example, 3000 × 3000 pixels for a 25.4 × 25.4 cm print. Veelad checks the production template, bleed and color before printing.')}</p><input type="file" id="artwork-file" accept="image/png,image/jpeg" aria-label="${esc(t('Choose artwork file'))}"><p id="upload-status">${t(p?.upload_id?'Existing artwork retained until replaced.':'Add artwork before submitting for review.')}</p><p class="small artwork-metadata" data-artwork-metadata="${esc(p?.upload_id||'')}" role="status"></p></div>
+ <header class="studio-title-banner"><span class="eyebrow">${t('YOUR DESIGN STUDIO')}</span><h2>${t('Create something worth wearing. And keeping.')}</h2><p>${t('You bring the art. Veelad reviews it, prepares the product, prints each order and ships it to your customer.')}</p></header>
+ ${designArtworkUpload(p)}
  ${designPlacementPreview(p)}
- <section class="panel"><p class="small">${t('English and Arabic describe the same design. English title and description are required for submission; Arabic fields are optional and fall back to English until translated.')}</p><div class="form-grid">
+ <section class="panel"><h3 class="studio-step-title">${t('03 / DETAILS & REVIEW')}</h3><p class="small">${t('English and Arabic describe the same design. English title and description are required for submission; Arabic fields are optional and fall back to English until translated.')}</p><div class="form-grid">
  ${field(t('Design title (English)'), 'title',p?.title||'','text','required maxlength="100" dir="ltr" lang="en"')}
  ${field(t('Design title (Arabic, optional)'), 'title_ar',p?.title_ar||'','text','maxlength="100" dir="rtl" lang="ar"')}
  <label class="field full">${t('Description (English)')}<textarea name="description" required maxlength="2000" dir="ltr" lang="en">${esc(p?.description||'')}</textarea></label>
@@ -15,7 +14,6 @@ function artistListingForm(p=null) {
  ${field(t('Tags (Arabic, comma separated)'), 'tags_ar',(p?.tags_ar||[]).join('، '),'text','maxlength="600" dir="rtl" lang="ar"')}
  <p class="small full">${t('Add up to 12 tags per language, up to 50 characters each.')}</p>
  <label class="field">${t('Preferred product type')}<select name="category">${cats.map(c=>`<option value="${esc(c)}" ${p?.category===c||(!p&&c==='Art prints')?'selected':''}>${esc(t(c))}</option>`).join('')}</select></label>
- <fieldset class="field full"><legend>${t('Requested print formats')}</legend><div class="artist-actions">${cats.map(c=>`<label class="check"><input type="checkbox" name="print_formats" value="${esc(c)}" ${formats.includes(c)?'checked':''}>${esc(t(c))}</label>`).join('')}</div><p class="small">${t('These are requests for the same design. The administrator confirms each final product before publication.')}</p></fieldset>
  <label class="field full">${t('Private production notes')}<textarea name="production_notes" maxlength="2000" placeholder="${esc(t('Share placement preferences or printing instructions for the Veelad team.'))}">${esc(p?.production_notes||'')}</textarea></label>
  </div>${galleryUploadFields(p||{})}
  <p class="small">${t('Veelad sets retail pricing, product options and availability after reviewing the design. Your artist share is based on the approved product price; projections are not payable balances.')}</p>
@@ -42,6 +40,7 @@ async function refreshArtworkMetadata(uploadId=null) {
   try {
    const value=await api('artwork-metadata',null,{id:artworkId});if(!node.isConnected||node.dataset.artworkMetadata!==artworkId)continue;
    const meta=value.artwork||value.metadata||value;
+   setDesignStudioMetadata(meta,node.closest('form'));
    node.textContent=t('Original: {width} × {height} pixels · {size} MB. At 300 DPI: about {printWidth} × {printHeight} cm. Final print suitability needs Veelad review.',{width:localNumber(meta.width),height:localNumber(meta.height),size:localNumber(meta.size_bytes/1024/1024,{maximumFractionDigits:1}),printWidth:localNumber(meta.print_width_cm_300dpi),printHeight:localNumber(meta.print_height_cm_300dpi)});
   }catch(error){node.textContent=t(error.message);}
  }

@@ -1,0 +1,71 @@
+{
+  "version": "veelad-generic-1",
+  "status": "provisional",
+  "dpi": 300,
+  "safeInset": 0.05,
+  "products": [
+    {
+      "id": "shirt",
+      "category": "T-shirts",
+      "label": "T-shirt",
+      "canvas": [4500, 5400],
+      "preview": [4500, 5400],
+      "views": ["shirt", "shirt-back"],
+      "defaultScale": 0.72
+    },
+    {
+      "id": "tote",
+      "category": "Tote bags",
+      "label": "Tote bag",
+      "canvas": [4500, 4500],
+      "preview": [4500, 4500],
+      "views": ["tote"],
+      "defaultScale": 0.72
+    },
+    {
+      "id": "mug",
+      "category": "Mugs",
+      "label": "Mug",
+      "canvas": [2700, 1050],
+      "preview": [2700, 1050],
+      "views": ["mug", "mug-back"],
+      "defaultScale": 0.65
+    },
+    {
+      "id": "notebook",
+      "category": "Notebooks",
+      "label": "Notebook",
+      "canvas": null,
+      "preview": [1820, 2560],
+      "views": ["notebook"],
+      "defaultScale": 0.8
+    },
+    {
+      "id": "phone",
+      "category": "Phone cases",
+      "label": "Phone case",
+      "canvas": null,
+      "preview": [1320, 2720],
+      "views": ["phone"],
+      "defaultScale": 0.85
+    },
+    {
+      "id": "print",
+      "category": "Art prints",
+      "label": "Art print",
+      "canvas": [5400, 7200],
+      "preview": [5400, 7200],
+      "views": ["print"],
+      "defaultScale": 1
+    },
+    {
+      "id": "sticker",
+      "category": "Stickers",
+      "label": "Sticker",
+      "canvas": [1800, 1800],
+      "preview": [1800, 1800],
+      "views": ["sticker"],
+      "defaultScale": 0.85
+    }
+  ]
+}

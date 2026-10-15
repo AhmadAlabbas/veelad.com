@@ -3,7 +3,7 @@
 function productViews(p) {
  const ids=Array.isArray(p.gallery_upload_ids)?p.gallery_upload_ids.filter(id=>typeof id==='string'&&id!==p.upload_id):[];
  const views=[{product:p,label:t(p.upload_id?'Artwork':'Overview'),detail:false}];
- for(const [i,upload_id] of [...new Set(ids)].entries()) views.push({product:{...p,upload_id},label:t('Photo {number}',{number:localNumber(i+1)}),detail:false});
+ for(const [i,upload_id] of [...new Set(ids)].entries()) views.push({product:{...p,upload_id,mockup_upload_id:null},label:t('Photo {number}',{number:localNumber(i+1)}),detail:false});
  views.push({product:p,label:t('Close-up'),detail:true});
  return views;
 }

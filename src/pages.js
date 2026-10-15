@@ -67,7 +67,7 @@ export function pageRoutes(app,c,db,schema) {
   const id=req.params.image?.replace(/\.png$/,'');
   if(/\/products\//.test(req.path)){item=await listing(id);if(!item)return res.status(404).end();a=await artist(item.artist_id);title=field(item,'title',language);subtitle=pageText(language,'shareDesignedBy',{artist:field(a,'name',language)||pageText(language,'independentArtist')});}
   if(/\/artists\//.test(req.path)){a=await artist(id);if(!a)return res.status(404).end();title=field(a,'name',language);subtitle=field(a,'bio',language);}
-  const imageId=item?.upload_id||a?.portfolio_upload_ids?.[0];
+  const imageId=item?.mockup_upload_id||item?.upload_id||a?.portfolio_upload_ids?.[0];
   if(imageId){const image=await db.one('SELECT path FROM uploads WHERE id=?',[imageId]);if(image&&/^[a-zA-Z0-9_-]+\.(png|jpg)$/.test(image.path))try{imageBytes=await fs.readFile(path.join(c.uploadDir,image.path));}catch{}}
   if(!imageBytes&&item&&!item.upload_id){const sheet=path.join(publicDir,'assets',item.sheet===1?'catalog-2.jpg':'catalog.jpg'),info=await sharp(sheet).metadata(),cell=Math.min(5,Math.max(0,Number(item.cell)||0)),width=Math.floor(info.width/3),height=Math.floor(info.height/2);imageBytes=await sharp(sheet).extract({left:(cell%3)*width,top:Math.floor(cell/3)*height,width,height}).toBuffer();}
   const words=title.split(/\s+/),lines=[''];for(const word of words){if((lines.at(-1)+' '+word).length>25&&lines.length<4)lines.push(word);else lines[lines.length-1]+=(lines.at(-1)?' ':'')+word;}

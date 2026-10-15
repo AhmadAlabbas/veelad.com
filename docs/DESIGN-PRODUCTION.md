@@ -45,3 +45,7 @@ Backend checks cover Arabic field persistence, omitted-field compatibility, per-
 Back up the database and private artwork before release. Reverting application code does not delete these additive JSON fields. Keep original artwork and the matching upload records together when restoring. Older application versions served image originals publicly after publication, so a rollback to such a version would weaken original-file privacy; prefer a forward fix or retain the private preview/download endpoints when rolling back.
 
 Preview conversion uses a bounded in-memory cache (16 MiB, at most 32 entries) keyed by the original's file version. Access authorization and original-file availability are checked before a cached preview can be returned. The cache is disposable and is not a substitute for original-file storage or backups. Sharing images honor original EXIF orientation without changing the stored file.
+
+## Product mockups and placement handoff
+
+The [design studio](DESIGN-STUDIO.md) now saves per-product placements and generates a separate presentation mockup. `upload_id` remains the unchanged print original; `mockup_upload_id` is only a visual derivative. The administrator file dialog offers a private, audited placement-plan JSON download (`GET admin-design-plan&id=PRODUCT_ID`) beside the original attachments. All supplied templates are provisional and require supplier specifications and a physical sample before production.
