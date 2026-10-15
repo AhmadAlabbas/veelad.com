@@ -35,7 +35,7 @@ async function downloadProductionFile(control,archive=false) {
  try {
   const plan=control.dataset.action==='download-design-plan';
   const route=plan?'admin-design-plan':archive?'admin-product-files-download':'admin-artwork-original';
-  const response=await fetch('/api.php?'+new URLSearchParams({route,id:control.dataset.id,...(plan&&control.dataset.order?{order:control.dataset.order}:{})}),{credentials:'same-origin'});
+  const response=await fetch('/api.php?'+new URLSearchParams({route,id:control.dataset.id,...(plan&&control.dataset.order?{order:control.dataset.order,...(control.dataset.line?{line:control.dataset.line}:{})}:{})}),{credentials:'same-origin'});
   if(!response.ok){let error;try{error=(await response.json()).error;}catch{}throw Error(error||'Download failed. Please try again.');}
   const type=response.headers.get('content-type')||'';
   if(!(plan?type.startsWith('application/json'):archive?type.startsWith('application/zip'):/^image\/(png|jpeg)/.test(type)))throw Error('The server returned an unexpected response. Check the server configuration.');

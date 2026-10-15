@@ -36,7 +36,8 @@ test('Arabic and English product pages share one SKU with localized metadata and
 }));
 test('Arabic artist pages localize biographies and public sitemap contains only both-language public URLs',async()=>withPages('production',async base=>{
  const html=await (await fetch(base+'/ar/artists/artist-1')).text();assert.match(html,/<h1>الفنان العربي<\/h1>/);assert.ok(html.includes('قصة الفنان بالعربية'));assert.ok(html.includes('/ar/shop?artist=artist-1'));assert.equal(structured(html).inLanguage,'ar');
- const sitemap=await (await fetch(base+'/sitemap.xml')).text();for(const path of ['/en','/ar','/en/products/design-1','/ar/products/design-1','/en/artists/artist-1','/ar/artists/artist-1'])assert.ok(sitemap.includes('<loc>https://veelad.example'+path+'</loc>'));
+ for(const lang of ['en','ar']){const response=await fetch(base+'/'+lang+'/create');assert.equal(response.status,200);const body=await response.text();assert.ok(body.includes('noindex, nofollow'));assert.ok(body.includes(pageTranslations[lang].createTitle));assert.ok(body.includes('/assets/customer-studio.js'));}
+ const sitemap=await (await fetch(base+'/sitemap.xml')).text();assert.equal(sitemap.includes('/create'),false);for(const path of ['/en','/ar','/en/products/design-1','/ar/products/design-1','/en/artists/artist-1','/ar/artists/artist-1'])assert.ok(sitemap.includes('<loc>https://veelad.example'+path+'</loc>'));
  assert.ok(sitemap.includes('xhtml:link rel="alternate" hreflang="ar"'));assert.equal(sitemap.includes('/studio'),false);assert.equal(sitemap.includes('/account'),false);assert.equal(sitemap.includes('<loc>https://veelad.example/products/'),false);
  const robots=await (await fetch(base+'/robots.txt')).text();assert.ok(robots.includes('Disallow: /ar/studio'));assert.ok(robots.includes('Disallow: /en/reset'));
 }));

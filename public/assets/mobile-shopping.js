@@ -15,7 +15,7 @@ function openShoppingSheet(title,body) {
  openModal(title,body);document.querySelector('#modal').classList.add('shopping-sheet');
 }
 function shoppingMenu() {
- return `<nav class="shopping-menu" aria-label="${t('Shopping menu')}"><div class="menu-shortcuts">${link(icon('bag')+t('Your bag'),'bag')}${link(icon('heart')+t('Saved designs'),'saved')}${link(icon('user')+(user?t('Your account'):t('Sign in')),user?'account':'login')}${link(icon('truck')+t('Track an order'),'track')}</div><h4>${t('Shop by category')}</h4><div class="menu-categories">${link(t('Explore all products')+' '+icon('arrow'),'shop')}${cats.map(category=>link(esc(t(category))+' '+icon('arrow'),'shop','',{category})).join('')}</div><div class="menu-help">${link(t('Meet the artists'),'artists')}${link(t('Sell your art'),'sell')}${link(t('Help & contact'),'help')}</div></nav>`;
+ return `<nav class="shopping-menu" aria-label="${t('Shopping menu')}"><div class="menu-shortcuts">${link(icon('bag')+t('Your bag'),'bag')}${link(icon('heart')+t('Saved designs'),'saved')}${link(icon('user')+(user?t('Your account'):t('Sign in')),user?'account':'login')}${link(icon('truck')+t('Track an order'),'track')}</div><h4>${t('Shop by category')}</h4><div class="menu-categories">${link(t('Explore all products')+' '+icon('arrow'),'shop')}${cats.map(category=>link(esc(t(category))+' '+icon('arrow'),'shop','',{category})).join('')}</div><div class="menu-help">${link(t('Create your own'),'create')}${link(t('Meet the artists'),'artists')}${link(t('Sell your art'),'sell')}${link(t('Help & contact'),'help')}</div></nav>`;
 }
 function shopCategoryParams(category) {
  const values=Object.fromEntries(params);delete values.category;if(category)values.category=category;return values;

@@ -548,3 +548,28 @@ dialog:has(.design-studio) .modal-body {
 /* A finished product mockup already contains its studio backdrop. */
 .product-photo.custom.mockup{padding:0;background:#d6bee8}
 .product-photo.custom.mockup img{object-fit:cover;box-shadow:none}
+.customer-create{padding-bottom:64px}
+.customer-create-intro{max-width:850px}
+.customer-steps{display:flex;gap:32px;flex-wrap:wrap;list-style:decimal-leading-zero;padding-inline-start:28px;margin-top:28px;font-weight:600}
+.customer-steps li{padding-inline-end:20px}
+.customer-product-choice{display:grid;grid-template-columns:2fr 1fr auto;gap:24px;align-items:end;padding:28px;border:1px solid #e5ddeb;border-radius:18px;margin-bottom:24px;background:#faf7fd}
+.customer-product-choice .field{margin:0;min-width:0}
+.customer-price{display:grid;gap:6px;padding-bottom:12px;white-space:nowrap}
+.customer-price strong{font-size:26px}
+.customer-price span{font-size:13px;color:#665b72}
+.customer-create .studio-products,.customer-create .studio-listing-preview,.customer-create .design-studio>p.small{display:none}
+.customer-review{display:grid;gap:22px;border:1px solid #e5ddeb;border-radius:18px;padding:32px;margin-top:24px}
+.customer-review h2{margin:10px 0}
+.customer-review .check{align-items:start;line-height:1.7}
+.customer-review .check input{margin-top:6px;flex-shrink:0}
+.customer-submit{display:flex;gap:24px;align-items:center;justify-content:space-between;border-top:1px solid #eee;padding-top:24px}
+.customer-submit p{max-width:420px;font-size:14px;color:#665b72}
+.customer-blank-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:24px;margin-bottom:32px}
+.customer-blank-grid img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:14px}
+.customer-blank-grid h3{margin:12px 0 6px}
+@media(max-width:700px){.customer-product-choice{grid-template-columns:1fr;gap:18px;padding:20px}.customer-price{display:flex;justify-content:space-between;align-items:center;padding:0}.customer-review{padding:20px}.customer-submit{align-items:stretch;flex-direction:column}.customer-submit .btn{width:100%}.customer-steps{gap:10px;font-size:13px}.customer-steps li{padding-inline-end:12px}.customer-create-intro h1{font-size:clamp(32px,9vw,52px)}.customer-create .studio-workspace{margin-top:0}}
+
+.customer-order-preview{max-width:220px;margin:12px 0}
+
+.customer-create .studio-toolbar label:first-child{display:none}
+.customer-create .studio-toolbar{justify-content:flex-end}

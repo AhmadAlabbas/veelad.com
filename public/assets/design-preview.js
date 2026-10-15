@@ -264,6 +264,7 @@ async function startDesignStudio(root) {
         "[name=use_mockup_preview]",
       ).checked;
       hidden.value = JSON.stringify(instance.state);
+      root.dispatchEvent(new CustomEvent('design-studio-change', {bubbles:true}));
     };
     instance.syncControls = () => {
       root.querySelector("[name=use_mockup_preview]").checked =
@@ -356,6 +357,7 @@ async function startDesignStudio(root) {
       }
     };
     instance.thumbnails = async () => {
+      if(root.closest('[data-form=customer-design]'))return;
       for (const product of config.products) {
         if (!root.isConnected) return;
         const p = { ...instance.state.placements[product.id] },
