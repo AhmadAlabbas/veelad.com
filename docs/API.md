@@ -24,6 +24,8 @@ Errors: JSON `{error}` with 400/401/403/404/409/413/422/429 or 503; unexpected e
 | upload/image | POST artist/admin / GET authorized | artwork → `{upload_id,artwork}`; image returns a bounded WebP preview following listing/portfolio visibility and ownership |
 | artwork-metadata | GET artist/admin | id; `{artwork}` with pixel dimensions, byte size and calculated 300 DPI print-size guidance; artist must own artwork or its assigned listing |
 | admin-artwork-original | GET admin | id; exact private original as an attachment; audit entry |
+| admin-product-files | GET admin | product id; `{product_id,title,title_ar,has_original,files:[{id,primary,available,size_bytes,extension}]}`; no server paths, checks missing files |
+| admin-product-files-download | GET admin | product id; audited ZIP attachment of up to seven unchanged originals/additional images, ≤25 MiB each; missing files fail before streaming; no product files returns 422 |
 | studio | GET artist | own products and own order lines, no other customers' shipping addresses |
 | artist-product | POST artist | id optional,title,category,description,variants,upload_id; optional bilingual fields,tags/tags_ar,print_formats,production_notes,product details,gallery_upload_ids (≤6); new submissions have price/stock zero, edits preserve administrator-set price/stock; `action:'draft'` saves privately, otherwise rights confirmation required and returns pending |
 | admin | GET admin | products,safe users,orders,messages,settings,recent audit |

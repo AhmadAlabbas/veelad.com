@@ -6,11 +6,14 @@ import multer from 'multer';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {Readable} from 'node:stream';
+import {pipeline} from 'node:stream/promises';
 import {ApiError,fail,uid,token,trackingToken,hash,equal,text,email,integer,password,passwordHash,verifyPassword,safeUser,json,product,order,now} from './security.js';
 import {operationsStatus,probeStorage,createBackup,backupReady,privateDirectory} from './operations.js';
 import {pageRoutes} from './pages.js';
 import {publicArtists,profileDetails,reviewedProducts,optionalTranslations} from './artists.js';
-import {artworkLimits,validateArtwork,artworkMetadata,artworkPreview,readArtwork} from './artwork.js';
+import {artworkLimits,artworkPath,validateArtwork,artworkMetadata,artworkPreview,readArtwork} from './artwork.js';
+import {prepareArtworkArchive} from './artwork-archive.js';
 import {queueMail,mailStatus,recipientAllowed,checkMail,safeMailError} from './mail.js';
 const publicDir=fileURLToPath(new URL('../public',import.meta.url));
 const categories=['T-shirts','Tote bags','Phone cases','Art prints','Mugs','Stickers','Notebooks'];
@@ -295,6 +298,28 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail) {
   }
   if(route.startsWith('admin')) {
    const u=await role(req,'admin');
+   if(method==='GET' && ['admin-product-files','admin-product-files-download'].includes(route)) {
+    const row=await one('SELECT * FROM products WHERE id=?',[String(req.query.id||'')]);if(!row)fail(404,'Product not found.');
+    const p=product(row),ids=[...new Set([p.upload_id,...(p.gallery_upload_ids||[])].filter(Boolean))];
+    if(ids.length>7)fail(422,'Too many product files.');
+    const records=[];
+    for(const id of ids){const record=await one('SELECT * FROM uploads WHERE id=?',[id]);records.push(record?{...record,primary:id===p.upload_id}:{id,primary:id===p.upload_id});}
+    if(route==='admin-product-files') {
+     const files=await Promise.all(records.map(async record=>{
+      let available=false,bytes=null;
+      try{const info=await fs.stat(artworkPath(c.uploadDir,record));available=info.isFile()&&info.size>0&&info.size<=artworkLimits.bytes;if(available)bytes=info.size;}catch{}
+      return {id:record.id,primary:record.primary,available,size_bytes:bytes,extension:record.mime==='image/png'?'png':record.mime==='image/jpeg'?'jpg':null};
+     }));
+     return res.json({product_id:p.id,title:p.title,title_ar:p.title_ar||'',has_original:!!p.upload_id,files});
+    }
+    const archive=await prepareArtworkArchive(c.uploadDir,records);
+    try{
+     await audit(u,'artwork.bundle_download',p.id);
+     res.attachment('veelad-'+p.id.replace(/[^a-zA-Z0-9_-]/g,'_')+'-files.zip').type('application/zip');
+     await pipeline(Readable.from(archive.stream),res);
+    }finally{await archive.close();}
+    return;
+   }
    if(method==='GET' && route==='admin-artwork-original') {
     const image=await one('SELECT * FROM uploads WHERE id=?',[String(req.query.id||'')]);if(!image)fail(404,'Artwork not found.');
     const bytes=await readArtwork(c.uploadDir,image);await audit(u,'artwork.original_download',image.id);return res.attachment(image.id+(image.mime==='image/png'?'.png':'.jpg')).type(image.mime).send(bytes);

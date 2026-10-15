@@ -24,6 +24,14 @@ The submitted original is stored byte for byte in the private `UPLOAD_DIR`, usin
 
 `GET /api.php?route=admin-artwork-original&id=UPLOAD_ID` requires an administrator session, downloads the exact original as an attachment, and records an audit entry. Sellers and customers cannot use this endpoint. Downloaded originals must remain within the team's private production workflow.
 
+### Download from the administrator dashboard
+
+Open **Products → Design files** beside the relevant product. The dialog lists the saved print original and any additional images, with individual **Download file** controls. For multiple attachments, **Download all files (.zip)** creates an uncompressed archive containing the unchanged source bytes. Additional images may be product photos/mockups; they are labeled separately and are not automatically certified as print-ready designs. The product editor retains its direct original link and a file-dialog button. Managing an order also offers the original captured in each order item's `upload_id`, rather than silently substituting the product's current artwork.
+
+The dialog checks file presence before offering a download. Missing records/files are marked for restoration; the all-files archive stays disabled until every referenced file is available. Use **System → Restore missing original** with the matching source. The twelve initial sample catalog listings use a sheet of concept pictures and do not contain separate print originals. Their dialog explains this and opens the product editor to upload the real artwork. Do not crop or relabel these concept previews as manufacturing files.
+
+`GET admin-product-files&id=PRODUCT_ID` returns private attachment inventory without server paths. `GET admin-product-files-download&id=PRODUCT_ID` streams a ZIP of at most seven attachments, each at most 25 MiB. Both require an administrator session, including private draft listings. ZIP entries are `01-print-original.png/jpg` and numbered additional images; downloads are audited, never cached, and never written to the public directory. Archive preparation opens and checks every source before sending headers, so missing files produce a JSON error rather than a partial successful archive. Streaming avoids loading the full bundle into server memory. These routes do not grant artists or customers original download access.
+
 ## Fulfillment and language preference
 
 The existing order state transitions remain intact: unpaid orders await payment; confirmed test orders enter `processing`, then `shipped`, then `delivered`. The bilingual dashboard may label `processing` as printing/production. This release does not activate real payments, SMTP, or a new payment-dependent transition.

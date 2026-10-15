@@ -1,6 +1,7 @@
 // Server-rendered public page copy. Keep user-authored bilingual content separate.
 const en={
  storeStarting:'The store is starting. Please try again shortly.',
+ storeLoading:'Loading the store…',
  storeTitle:'Veelad — Art for your kind of everyday.',
  storeDescription:'Discover original designs and independent artists at Veelad.',
  productUnavailable:'Product unavailable | Veelad',
@@ -23,6 +24,7 @@ const en={
 };
 const ar={
  storeStarting:'المتجر قيد التشغيل. حاول مرة أخرى بعد قليل.',
+ storeLoading:'جارٍ تحميل المتجر…',
  storeTitle:'فيلاد — فنّ تحبّه، لأشياء تستخدمها.',
  storeDescription:'اكتشف تصاميم أصلية وفنانين مستقلين في فيلاد.',
  productUnavailable:'المنتج غير متاح | فيلاد',

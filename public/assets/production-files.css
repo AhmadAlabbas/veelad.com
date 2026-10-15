@@ -1,0 +1,13 @@
+.store-loading { min-height: 75vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; padding: 30px; }
+.store-loading .wordmark { color: #111; font-size: 48px; }
+.store-loading .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.store-loading-spinner { width: 24px; height: 24px; border: 2px solid #e5ddf4; border-block-start-color: #111; border-radius: 50%; animation: store-loading-spin .8s linear infinite; }
+@keyframes store-loading-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .store-loading-spinner { animation: none; } }
+.production-file-list { padding: 0; list-style: none; margin-block: 22px; }
+.production-file-list li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; padding-block: 16px; border-block-end: 1px solid #e6e1eb; }
+.production-file-list small { display: block; color: #68616d; margin-block-start: 5px; }
+.production-files h4 { overflow-wrap: anywhere; }
+.production-files > .small { margin-block: 14px; }
+.production-files > .btn { margin-block: 8px; }
+.production-files-editor .btn { margin-block: 10px; margin-inline-end: 8px; }

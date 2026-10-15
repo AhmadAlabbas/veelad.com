@@ -13,7 +13,7 @@ const db={
  async q(query){if(query.includes('FROM artists'))return [{data:JSON.stringify(artist)}];if(query.includes('FROM products'))return [{id:product.id}];return [];}
 };
 async function withPages(mode,run){
- const app=express();pageRoutes(app,{mode,origin:'https://veelad.example',uploadDir:'/tmp',numberingSystem:'latn'},db,{status:'ready'});
+ const app=express();pageRoutes(app,{mode,origin:'https://veelad.example',uploadDir:'/tmp',numberingSystem:'latn',revision:'f'.repeat(40)},db,{status:'ready'});
  const server=app.listen(0,'127.0.0.1');await new Promise(resolve=>server.once('listening',resolve));
  try{await run('http://127.0.0.1:'+server.address().port);}finally{await new Promise(resolve=>server.close(resolve));}
 }
@@ -22,6 +22,8 @@ test('Arabic and English product pages share one SKU with localized metadata and
  const en=await (await fetch(base+'/en/products/design-1')).text(),ar=await (await fetch(base+'/ar/products/design-1')).text();
  assert.match(en,/<html lang="en" dir="ltr" data-numerals="latn">/);assert.match(ar,/<html lang="ar" dir="rtl" data-numerals="latn">/);
  assert.match(en,/<h1>English design<\/h1>/);assert.match(ar,/<h1>تصميم عربي<\/h1>/);assert.match(ar,/<p>وصف التصميم بالعربية<\/p>/);
+ assert.ok(ar.indexOf('<h1>')>ar.indexOf('<noscript>'));assert.match(ar,/class="store-loading"/);assert.match(ar,/<span class="wordmark" dir="ltr">veelad<\/span>/);
+ assert.match(ar,/src="\/assets\/production-files\.js\?v=f{40}"/);assert.match(ar,/href="\/assets\/production-files\.css\?v=f{40}"/);
  assert.ok(ar.includes('تصميم الفنان العربي'));assert.ok(ar.includes('href="/ar/artists/artist-1"'));assert.ok(ar.includes(pageMoney(product.price,'ar')));
  assert.match(ar,/rel="canonical" href="https:\/\/veelad.example\/ar\/products\/design-1"/);
  for(const [language,html] of [['en',en],['ar',ar]]){

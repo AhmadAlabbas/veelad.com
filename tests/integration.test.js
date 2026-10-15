@@ -190,6 +190,26 @@ test('print originals retain exact bytes, only administrators can download them,
  const p=(await success(admin,'admin')).products.find(p=>p.id===productId);await success(admin,'admin-product',{...p,upload_id:id,status:'active'});const response=await buyer.call('image',undefined,{id},true),preview=Buffer.from(response.body),info=await sharp(preview).metadata();assert.equal(response.status,200);assert.equal(response.headers.get('content-type'),'image/webp');assert.equal(info.format,'webp');assert.ok(info.width<=1600&&info.height<=1600);assert.equal(info.density,undefined);assert.notDeepEqual(preview,bytes);
  const assigned=await success(artist,'artwork-metadata',undefined,{id});assert.equal(assigned.artwork.height,2400);assert.equal((await success(admin,'admin')).audit.some(a=>a.action==='artwork.original_download'&&a.target===id),true);
 });
+test('administrator file inventory and ZIP downloads preserve multiple originals and fail before streaming missing files',async()=>{
+ const images=[await sharp({create:{width:240,height:220,channels:4,background:{r:20,g:80,b:140,alpha:0.5}}}).png().toBuffer(),await sharp({create:{width:240,height:220,channels:3,background:'orange'}}).jpeg().toBuffer()];
+ const ids=[];for(const [i,bytes]of images.entries()){const body=new FormData();body.append('artwork',new Blob([bytes]),i?'extra.jpg':'original.png');ids.push((await success(admin,'upload',body)).upload_id);}
+ const artistId=(await success(artist,'studio')).products[0].artist_id,id='p-file-download-test';
+ await success(admin,'admin-product',{id,artist_id:artistId,title:'Download test',description:'Exact original downloads',category:'Art prints',price:0,stock:0,variants:['Standard'],status:'pending',upload_id:ids[0],gallery_upload_ids:[ids[1]]});
+ for(const client of [buyer,artist,other])for(const route of ['admin-product-files','admin-product-files-download'])assert.equal((await client.call(route,undefined,{id})).status,403);
+ const info=await success(admin,'admin-product-files',undefined,{id});assert.equal(info.has_original,true);assert.equal(info.files.length,2);assert.equal(info.files[0].primary,true);assert.equal(info.files[1].primary,false);assert.ok(info.files.every(f=>f.available&&f.size_bytes>0&&!('path'in f)));
+ const response=await admin.call('admin-product-files-download',undefined,{id},true);assert.equal(response.status,200);assert.match(response.headers.get('content-type'),/application\/zip/);assert.match(response.headers.get('content-disposition'),/attachment;/);assert.equal(response.headers.get('cache-control'),'no-store');
+ const zip=Buffer.from(response.body),end=zip.length-22;assert.equal(zip.readUInt32LE(end),0x06054b50);assert.equal(zip.readUInt16LE(end+10),2);
+ let cursor=zip.readUInt32LE(end+16);for(const [index,original]of images.entries()){
+  assert.equal(zip.readUInt32LE(cursor),0x02014b50);const size=zip.readUInt32LE(cursor+24),nameLength=zip.readUInt16LE(cursor+28),local=zip.readUInt32LE(cursor+42);const name=zip.subarray(cursor+46,cursor+46+nameLength).toString();assert.equal(name,index?'02-additional-image.jpg':'01-print-original.png');
+  const dataOffset=local+30+zip.readUInt16LE(local+26)+zip.readUInt16LE(local+28);assert.deepEqual(zip.subarray(dataOffset,dataOffset+size),original);cursor+=46+nameLength+zip.readUInt16LE(cursor+30)+zip.readUInt16LE(cursor+32);
+ }
+ assert.ok((await success(admin,'admin')).audit.some(a=>a.action==='artwork.bundle_download'&&a.target===id));
+ const missing=await db.one('SELECT path FROM uploads WHERE id=?',[ids[1]]);await fs.unlink(path.join(c.uploadDir,missing.path));
+ const after=await success(admin,'admin-product-files',undefined,{id});assert.equal(after.files[1].available,false);assert.equal(after.files[1].size_bytes,null);
+ const failed=await admin.call('admin-product-files-download',undefined,{id});assert.equal(failed.status,409);assert.match(failed.body.error,/Restore missing files/);assert.match(failed.headers.get('content-type'),/json/);
+ const sample=await success(admin,'admin-product-files',undefined,{id:'p1'});assert.equal(sample.has_original,false);assert.deepEqual(sample.files,[]);assert.equal((await admin.call('admin-product-files-download',undefined,{id:'p1'})).status,422);
+ assert.equal((await admin.call('admin-product-files',undefined,{id:'not-a-product'})).status,404);
+});
 test('delivery and return information is administrator-managed and preserved by older settings requests',async()=>{
  const s=(await success(admin,'admin')).settings;
  assert.equal((await buyer.call('admin-settings',{...s,delivery_estimate:'Invented policy'})).status,403);
