@@ -316,7 +316,7 @@ window.VEELAD_LOCALES.ar = Object.freeze({
   "Request recovery link": "أرسل لي رابط تغيير كلمة المرور",
   "Back to sign in": "العودة لتسجيل الدخول",
   "WELCOME TO YOUR KIND OF DIFFERENT": "يا هلا بك في فيلاد",
-  "A world of art.": "لك ذوقك.",
+  "A world of art.": "فنّ من إبداعهم.",
   "Make yourself at home.": "يا هلا بك بيننا.",
   "Good to see you.": "يا هلا بعودتك.",
   "Choose a demo workspace. No password or real account is needed.": "اختر مساحة عمل تجريبية. لا تحتاج كلمة مرور أو حسابًا حقيقيًا.",
