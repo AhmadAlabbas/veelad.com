@@ -6,7 +6,7 @@ import {promisify} from 'node:util';
 import os from 'node:os';
 import {artworkLimits,validateArtwork} from './artwork.js';
 const gzip=promisify(zlib.gzip),gunzip=promisify(zlib.gunzip);
-export const backupTables=['users','artists','products','orders','settings','messages','rate_limits','uploads','customer_state','customer_designs','customer_design_drafts','password_resets','mail_queue','mail_delivery','product_reviews','audit_log'];
+export const backupTables=['users','auth_identities','artists','products','orders','settings','messages','rate_limits','uploads','customer_state','customer_designs','customer_design_drafts','password_resets','mail_queue','mail_delivery','product_reviews','audit_log'];
 const namePattern=/^[a-zA-Z0-9_-]+\.(png|jpg)$/;
 export async function recoverStagingArtwork(c,records,root=path.join(os.homedir(),'domains','staging.veelad.com')) {
  if(c.mode!=='staging')return 0;
@@ -81,7 +81,7 @@ export async function readBackup(file,key) {
  const decipher=crypto.createDecipheriv('aes-256-gcm',Buffer.from(key,'base64'),bytes.subarray(4,16));decipher.setAuthTag(bytes.subarray(16,32));
  const payload=JSON.parse((await gunzip(Buffer.concat([decipher.update(bytes.subarray(32)),decipher.final()]),{maxOutputLength:150*1024*1024})).toString());
  // Backups from before customer customization contain no customer designs.
- if(payload.tables)for(const name of ['customer_designs','customer_design_drafts'])if(!Object.hasOwn(payload.tables,name))payload.tables[name]=[];
+ if(payload.tables)for(const name of ['customer_designs','customer_design_drafts','auth_identities'])if(!Object.hasOwn(payload.tables,name))payload.tables[name]=[];
  if(payload.format!==1||!payload.tables||!payload.artwork||backupTables.some(name=>!Array.isArray(payload.tables[name])))throw Error('Invalid snapshot data');return payload;
 }
 export async function startOperations(c,db,cache) {

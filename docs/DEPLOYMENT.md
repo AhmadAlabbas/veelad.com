@@ -60,3 +60,5 @@ The process preserves existing PHP records and checks transaction-table engines.
 ## Artist and operations release
 
 Normal URLs and artist reviews add migration 003 without rewriting existing tables. Staging automatically checks private artwork continuity and runs encrypted daily snapshots using its existing environment secret; production backups stay disabled until their separate release. See [operations](OPERATIONS.md) for key recovery, off-server copies, isolated restore, and monitoring notifications. Configure a dedicated backup key for long-term use; keep the key separately before rotating session secrets. Do not set `BACKUP_ENABLED=false` unless you intend to stop staging backups.
+
+Google sign-up/login is optional and defaults off. Follow [Google sign-in setup](GOOGLE-SIGN-IN.md) for separate staging/production Web clients, exact callback URIs, three private runtime variables, migration 006, activation tests and fallback/rollback access. Existing native login does not depend on Google or SMTP.

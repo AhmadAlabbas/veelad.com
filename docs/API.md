@@ -82,3 +82,13 @@ Customer design saves accept an optional title (80 Unicode characters) and `uplo
 - `POST artist-products-batch`: artist-only, same fields as a new artist product plus stable `request_key` and two to seven distinct `print_formats`. Creates separate private/pending listings atomically, sharing the owned original. Repeated identical requests return the same IDs; changed retries conflict. Each category gets its own mockup when placement previews are enabled. Optional `source_product_id` on a new artist submission permits reusing artwork/gallery files already assigned to that artist’s own listing, including administrator-supplied originals; it does not grant access to another artist’s source.
 
 No live payment or mail delivery is enabled by these routes. See [Production workflow](PRODUCTION-WORKFLOW.md) for gates and legacy compatibility.
+
+## Google sign-in
+
+- `POST google-start`: CSRF-protected. `intent=signin|link|reauth`, `locale=en|ar`, optional new-account `role=buyer|artist`, and optional internal `next=create|my-designs|checkout`. Link requires the signed-in account's current `password`; reauthentication must use its existing Google identity. Returns a Google `authorization_url`. The client secret is never returned.
+- `GET /auth/google/callback`: registered Google callback, consumes one session-bound state before exchanging the authorization code. Redirects to a localized internal page with an allowlisted status code.
+- `POST google-disconnect`: requires an active local password and its confirmation in `password`; retains the Veelad account.
+- `GET bootstrap`: includes safe `authentication.google.available`, own-account `linked`/connected email and `has_password`. A one-time `auth_event=google-login` tells the client to merge the guest bag/favorites.
+- `POST password`: existing accounts still require their current password. Google-only accounts can set their first password after Google authentication within the previous five minutes.
+
+See [Google sign-in setup](GOOGLE-SIGN-IN.md) for exact Google Console and Hostinger steps. Google-verified email applies to Google identity sign-in; ordinary signup email confirmation is not implemented by this change.

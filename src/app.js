@@ -1,4 +1,5 @@
 import express from 'express';
+import {createGoogleProvider,googleRoute,googleStatus,authenticationStatus,hasLocalPassword} from './google-auth.js';
 import session from 'express-session';
 import {MySQLSessionStore} from './session-store.js';
 import helmet from 'helmet';
@@ -26,8 +27,8 @@ function readinessCode(error,fallback='DATABASE_UNAVAILABLE') {
  const knownCodes=['ETIMEDOUT','ECONNREFUSED','ENOTFOUND','EHOSTUNREACH','ER_ACCESS_DENIED_ERROR','ER_DBACCESS_DENIED_ERROR','ER_BAD_DB_ERROR','ER_NO_SUCH_TABLE'];
  return knownCodes.includes(error?.code) ? error.code : error instanceof ApiError ? 'STORE_NOT_PROVISIONED' : fallback;
 }
-export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail) {
- const app=express();
+export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googleOptions={}) {
+ const app=express(),googleProvider=createGoogleProvider(c,googleOptions);
  app.disable('x-powered-by');app.set('trust proxy',c.trustProxy);
  app.use(helmet({contentSecurityPolicy:{directives:{defaultSrc:["'self'"],scriptSrc:["'self'"],styleSrc:["'self'","'unsafe-inline'","https://fonts.googleapis.com"],imgSrc:["'self'",'data:','blob:'],fontSrc:["'self'","https://fonts.gstatic.com"],connectSrc:["'self'"],upgradeInsecureRequests:c.secure ? [] : null}},crossOriginEmbedderPolicy:false}));
  const store=new MySQLSessionStore(db);
@@ -170,8 +171,8 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail) {
   return {customization_id:row.id,...design};
  }
  api.all('/',async (req,res)=>{
-  const route=String(req.query.route||'bootstrap'),method=req.method,v=payload(req);
-  if(method==='GET' && route==='bootstrap') {const u=await me(req),locale=u?(await state(u.id)).user_locale:null;return res.json({mode:'server',csrf:req.session.csrf,user:u ? safeUser(u) : null,locale:['ar','en'].includes(locale)?locale:null,products:await products(),artists:await publicArtists(db),settings:await settings(),email_delivery:{available:mailStatus(c).ready,staging_restricted:c.mode==='staging'}});}
+  const route=req.baseUrl==='/auth/google/callback'?'google-callback':String(req.query.route||'bootstrap'),method=req.method,v=payload(req);
+  if(method==='GET' && route==='bootstrap') {const u=await me(req),locale=u?(await state(u.id)).user_locale:null,googleReturn=req.session.google_login_complete===true;delete req.session.google_login_complete;return res.json({mode:'server',authentication:await authenticationStatus(c,db,u),auth_event:googleReturn?'google-login':null,csrf:req.session.csrf,user:u ? safeUser(u) : null,locale:['ar','en'].includes(locale)?locale:null,products:await products(),artists:await publicArtists(db),settings:await settings(),email_delivery:{available:mailStatus(c).ready,staging_restricted:c.mode==='staging'}});}
   if(method==='POST' && route==='language-preference') {
    const u=await me(req,true);if(!['ar','en'].includes(v.locale))fail(422,'Choose Arabic or English.');
    await db.tx(async conn=>{await q('SELECT id FROM users WHERE id=? FOR UPDATE',[u.id],conn);const s=await state(u.id,conn);s.user_locale=v.locale;await putState(u.id,s,conn);});return res.json({ok:true,locale:v.locale});
@@ -191,6 +192,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail) {
     await putState(u.id,s,conn);
    });return res.json({ok:true});
   }
+  if(['google-start','google-callback','google-disconnect'].includes(route))return googleRoute({route,method,v,req,res,db,c,provider:googleProvider,me,rotate,throttle});
   if(method==='POST' && route==='register') {
    await throttle(req,'register',8);const name=text(v,'name',100),address=email(v),encoded=await passwordHash(password(v.password)),r=v.role==='artist'?'artist':'buyer',id=uid('user-');
    try {await db.tx(async conn=>{
@@ -212,7 +214,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail) {
    return res.json({user:safeUser(await me(req,true))});
   }
   if(method==='POST' && route==='password') {
-   const u=await me(req,true);if(!await verifyPassword(v.current,u.password)) fail(403,'Current password is incorrect.');
+   const u=await me(req,true);if(hasLocalPassword(u)){if(!await verifyPassword(v.current,u.password))fail(403,'Current password is incorrect.');}else if(!req.session.google_authenticated_at||Date.now()-req.session.google_authenticated_at>300000)fail(403,'Confirm your identity with Google again before setting a password.');
    u.password=await passwordHash(password(v.password));await q('UPDATE users SET password=? WHERE id=?',[u.password,u.id]);await rotate(req,u);return res.json({ok:true});
   }
   if(method==='POST' && route==='forgot-password') {
@@ -438,7 +440,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail) {
    if(method==='GET' && route==='admin') return res.json({products:await reviewedProducts(db,await products(true)),users:(await q('SELECT * FROM users ORDER BY created_at DESC')).map(safeUser),orders:(await q('SELECT * FROM orders ORDER BY created_at DESC')).map(order),messages:(await q('SELECT * FROM messages ORDER BY created_at DESC')).map(({data,...r})=>({...json(data),...r})),settings:await settings(),audit:await q('SELECT * FROM audit_log ORDER BY created_at DESC LIMIT 30')});
    if(method==='GET' && route==='admin-system') {
     const counts=Object.fromEntries((await q("SELECT CASE WHEN m.status='queued' AND d.id IS NULL THEN 'held' ELSE m.status END AS delivery_status,COUNT(*) AS n FROM mail_queue m LEFT JOIN mail_delivery d ON d.id=m.id GROUP BY delivery_status")).map(r=>[r.delivery_status,Number(r.n)]));
-    return res.json({version:'3.0.0',database:'mysql',operations:await operationsStatus(c,db),mail_enabled:c.mailEnabled,email:mailStatus(c),queued_emails:counts.queued||0,failed_emails:counts.failed||0,held_emails:counts.held||0,sending_emails:counts.sending||0,expired_emails:counts.expired||0,paid_orders:(await q('SELECT data FROM orders')).filter(o=>json(o.data).payment_status==='paid').length});
+    return res.json({version:'3.0.0',database:'mysql',operations:await operationsStatus(c,db),google:googleStatus(c),mail_enabled:c.mailEnabled,email:mailStatus(c),queued_emails:counts.queued||0,failed_emails:counts.failed||0,held_emails:counts.held||0,sending_emails:counts.sending||0,expired_emails:counts.expired||0,paid_orders:(await q('SELECT data FROM orders')).filter(o=>json(o.data).payment_status==='paid').length});
    }
    if(method==='POST' && route==='admin-storage-check') {await throttle(req,'operations',5);await audit(u,'storage.check','private');const result=await probeStorage(c,db);app.locals.operations ||= {};app.locals.operations.storage=result;return res.json({ok:result.ready,storage:result});}
    if(method==='GET' && route==='admin-missing-artwork') {
@@ -521,7 +523,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail) {
   app.get('/api.php',async(req,res)=>{if(req.query.route!=='health') return res.status(404).json({error:'Not found.'});try {await q('SELECT id FROM schema_migrations LIMIT 1');res.set('Cache-Control','no-store').json({ok:true,version:'3.0.0',environment:c.mode,revision:c.revision,marketplace_enabled:false});}catch {res.status(503).json({ok:false});}});
   app.use(express.static(fileURLToPath(new URL('../reference/coming-soon',import.meta.url)),{dotfiles:'deny'}));
  } else {
- app.use('/api.php',api);
+ app.use(['/api.php','/auth/google/callback'],api);
  pageRoutes(app,c,db,schema);
  app.use(express.static(publicDir,{dotfiles:'deny',index:'index.html'}));
  }

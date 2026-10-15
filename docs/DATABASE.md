@@ -28,3 +28,5 @@ For this additive migration, preferred application rollback is a **revert commit
 If an incompatible data/schema change occurs, pause checkout/writes and worker, take a fresh recovery backup, restore the verified prior database AND artwork snapshot to a separate database/path, update that environment's private bindings, and switch to the matching reviewed application version. Never restore blindly over current paid orders: reconcile all orders/payments/refund work created after the backup with an operator. No destructive automatic down-migration is supplied.
 
 Cancellation locks orders, restocks once and marks recorded paid orders `refund_required`; this does not execute a refund. The preserved 20% demo royalty field is a compatibility placeholder, not an agreed artist contract, ledger or payout instruction. No transfers occur.
+
+Migration `006-google-auth.json` adds binary provider-subject identity mapping with one Google identity per user, plus session-bound expiring OAuth attempts. Include identities with users in backups; temporary OAuth states are deliberately excluded. No existing users or passwords are rewritten. See [Google sign-in](GOOGLE-SIGN-IN.md).

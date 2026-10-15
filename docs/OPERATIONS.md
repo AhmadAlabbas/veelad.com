@@ -69,3 +69,5 @@ npm run backup:restore -- --file /private/incomplete.vbackup --target veelad_par
 ```
 
 Local regression coverage creates complete and incomplete encrypted snapshots, tests authentication failure with a wrong key, restores complete records and artwork into a fresh database, refuses normal partial restore, and tests explicitly isolated partial recovery. Live Hostinger originals cannot be recreated from code; account-only backups or matching originals are still needed if the retained staging sources and authenticated snapshots contain no copy.
+
+Google identities are included in new encrypted snapshots alongside their user records. Temporary OAuth state, authorization codes and provider tokens are not backup data. Older snapshots without an identity table restore an empty identity list. Preserve the identity mapping when restoring Google-only accounts.

@@ -19,6 +19,7 @@ export function config(env = process.env) {
   let revision=env.DEPLOY_COMMIT||null;
   try {revision ||= JSON.parse(fs.readFileSync(new URL('../.release.json',import.meta.url),'utf8')).revision;} catch {}
   return {mode, origin, secret, secure, trustProxy, revision, numberingSystem, marketplaceEnabled:mode!=='production'||env.PRODUCTION_MARKETPLACE_ENABLED==='true',
+    google:{enabled:env.GOOGLE_AUTH_ENABLED==='true',clientId:env.GOOGLE_CLIENT_ID?.trim(),clientSecret:env.GOOGLE_CLIENT_SECRET?.trim()},
     port:Number(env.PORT || 3000), uploadDir:path.resolve(env.UPLOAD_DIR || 'var/uploads'),
     cookieName:secure ? '__Host-veelad_session' : 'veelad_session',
     db:{host:env.DB_HOST || '127.0.0.1', port:Number(env.DB_PORT || 3306), database:env.DB_NAME,

@@ -1,0 +1,86 @@
+.google-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 44px;
+  width: 100%;
+  padding: 12px 16px;
+  background: #fff;
+  color: #1f1f1f;
+  border: 1px solid #747775;
+  border-radius: 8px;
+  cursor: pointer;
+  font:
+    500 14px/1.5 Arial,
+    sans-serif;
+  text-decoration: none;
+}
+.google-button:hover {
+  background: #f6f8fc;
+}
+.google-button:focus-visible {
+  outline: 3px solid #b4c8f7;
+  outline-offset: 3px;
+}
+.google-button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+.google-logo {
+  height: 20px;
+  width: 20px;
+  flex: 0 0 20px;
+  transform: none !important;
+  direction: ltr;
+}
+.google-signin {
+  margin: 20px 0;
+}
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 22px 0;
+  color: #777;
+  font-size: 12px;
+}
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  height: 1px;
+  background: #ddd;
+  flex: 1;
+}
+.google-account p {
+  margin: 12px 0;
+}
+.google-account .stack {
+  max-width: 400px;
+}
+.google-set-password {
+  margin-top: 20px;
+}
+.google-set-password > .google-button {
+  max-width: 400px;
+  margin: 15px 0;
+}
+.google-system {
+  margin-top: 24px;
+  overflow-wrap: anywhere;
+}
+.google-system dd {
+  margin: 12px 0;
+}
+.google-system code {
+  font-size: 12px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.google-account input {
+  width: 100%;
+  max-width: 100%;
+}
+.google-error {
+  margin: 14px 0;
+}

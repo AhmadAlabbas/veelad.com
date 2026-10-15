@@ -1,0 +1,4 @@
+[
+"CREATE TABLE IF NOT EXISTS auth_identities (provider VARCHAR(20) NOT NULL,subject VARCHAR(255) COLLATE utf8mb4_bin NOT NULL,user_id VARCHAR(64) NOT NULL,email VARCHAR(190) NOT NULL,created_at VARCHAR(40) NOT NULL,verified_at VARCHAR(40) NOT NULL,PRIMARY KEY (provider,subject),UNIQUE KEY identity_user (provider,user_id))",
+"CREATE TABLE IF NOT EXISTS oauth_states (id VARCHAR(64) COLLATE utf8mb4_bin PRIMARY KEY,session_hash VARCHAR(64) COLLATE utf8mb4_bin NOT NULL,expires BIGINT UNSIGNED NOT NULL,data TEXT NOT NULL,INDEX oauth_expiry (expires))"
+]
