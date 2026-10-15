@@ -150,7 +150,8 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail) {
   const imageIds=[...new Set([p.upload_id,...(p.gallery_upload_ids||[])].filter(Boolean))];
   if(imageIds.length) {
    const u=await me(req,true);
-   const current=v.id&&u.role!=='admin' ? await one('SELECT artist_id,data FROM products WHERE id=?',[text(v,'id',64)]) : null;
+   const sourceId=v.id||(artistSubmission?v.source_product_id:null);
+   const current=sourceId&&u.role!=='admin' ? await one('SELECT artist_id,data FROM products WHERE id=?',[text({id:sourceId},'id',64)]) : null;
    const previous=current?.artist_id===u.id ? json(current.data) : {};
    const existingIds=new Set([previous.upload_id,...(Array.isArray(previous.gallery_upload_ids)?previous.gallery_upload_ids:[])].filter(Boolean));
    for(const id of imageIds) {const image=await one('SELECT * FROM uploads WHERE id=?',[id]);if(!image||(image.user_id!==u.id&&u.role!=='admin'&&!existingIds.has(id))) fail(403,'Artwork unavailable.');}
@@ -290,7 +291,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail) {
   if(method==='POST' && route==='design-mockup') {
    const u=await role(req,'artist','admin');await throttle(req,'mockup',25);
    const image=await one('SELECT * FROM uploads WHERE id=?',[text(v,'upload_id',64)]);if(!image)fail(404,'Artwork not found.');
-   const previous=v.id?await one('SELECT * FROM products WHERE id=?',[text(v,'id',64)]):null;
+   const sourceId=v.id||v.source_product_id;const previous=sourceId?await one('SELECT * FROM products WHERE id=?',[text({id:sourceId},'id',64)]):null;
    const assigned=u.role==='artist'&&previous?.artist_id===u.id&&json(previous.data).upload_id===image.id;
    if(u.role!=='admin'&&u.id!==image.user_id&&!assigned)fail(403,'Artwork unavailable.');
    const studio=validateDesignStudio(v.design_studio,image.id),category=text(v,'category',30),id=mockupId(image.id,category,studio);if(!id)fail(422,'Choose a product category.');

@@ -1,7 +1,7 @@
 'use strict';
 function artistListingForm(p=null) {
  const editing=!!p?.id;
- return `<form data-form="${editing?'artist-edit':'artist-product'}">${editing?`<input type="hidden" name="id" value="${esc(p.id)}">`:''}${p?.upload_id?`<input type="hidden" name="upload_id" value="${esc(p.upload_id)}">`:''}
+ return `<form data-form="${editing?'artist-edit':'artist-product'}">${editing?`<input type="hidden" name="id" value="${esc(p.id)}">`:''}${p?.source_product_id?`<input type="hidden" name="source_product_id" value="${esc(p.source_product_id)}">`:''}${p?.upload_id?`<input type="hidden" name="upload_id" value="${esc(p.upload_id)}">`:''}
  ${p?.review?.feedback?`<div class="notice"><strong>${t('Administrator feedback')}</strong><p class="product-long-text">${esc(p.review.feedback)}</p></div>`:''}
  <header class="studio-title-banner"><span class="eyebrow">${t('YOUR DESIGN STUDIO')}</span><h2>${t('Create something worth wearing. And keeping.')}</h2><p>${t('You bring the art. Veelad reviews it, prepares the product, prints each order and ships it to your customer.')}</p></header>
  ${artistSubmissionChecklist(p)}${designArtworkUpload(p)}
@@ -50,7 +50,7 @@ new MutationObserver(()=>refreshArtworkMetadata()).observe(document.getElementBy
 new MutationObserver(()=>refreshArtworkMetadata()).observe(document.getElementById('modal'),{childList:true,subtree:true});
 
 function artistSubmissionChecklist(p){return `<section class="submission-checklist panel" aria-label="${t('Submission checklist')}"><h3>${t('Submission checklist')}</h3><ol><li data-submit-check="art">${t('Attach the high-resolution original')}</li><li data-submit-check="details">${t('Add a title and description')}</li><li>${t('Check placement on every requested product')}</li><li>${t('Confirm your artwork rights before submitting')}</li></ol>${!p?.id?`<label class="check"><input type="checkbox" name="create_products">${t('Create a separate listing for each requested product')}</label><p class="small">${t('Choose two or more product types in the preview studio. Each listing has its own placement and administrator review. Pricing and stock are set by Veelad.')}</p>`:''}</section>`;}
-document.addEventListener('click',event=>{const control=event.target.closest('[data-action=reuse-artist-design]');if(!control)return;event.preventDefault();const original=productById(control.dataset.id);if(!original)return;uploadId=null;openModal(t('Reuse this design'),artistListingForm({...original,id:null,review:null}));});
+document.addEventListener('click',event=>{const control=event.target.closest('[data-action=reuse-artist-design]');if(!control)return;event.preventDefault();const original=viewData?.products?.find(p=>p.id===control.dataset.id)||productById(control.dataset.id);if(!original)return;uploadId=null;openModal(t('Reuse this design'),artistListingForm({...original,id:null,source_product_id:original.id,review:null}));});
 
 function updateArtistChecklist(form){if(!form)return;const node=form.querySelector('.submission-checklist');if(!node)return;node.querySelector('[data-submit-check=art]').dataset.complete=String(!!(form.querySelector('[name=upload_id]')?.value||form.querySelector('.design-studio')?.dataset.artworkId||uploadId));node.querySelector('[data-submit-check=details]').dataset.complete=String(!!form.elements.title?.value.trim()&&!!form.elements.description?.value.trim());}
 document.addEventListener('input',event=>{if(event.target.closest('[data-form=artist-product],[data-form=artist-edit]'))updateArtistChecklist(event.target.closest('form'));});

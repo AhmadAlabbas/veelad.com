@@ -548,4 +548,12 @@ test('artists reuse one private original across atomic idempotent separately rev
  for(const p of items){assert.equal(p.upload_id,artId);assert.equal(p.status,'pending');assert.equal(p.price,0);assert.equal(p.stock,0);assert.deepEqual(p.print_formats,[p.category]);assert.equal((await success(buyer,'bootstrap')).products.some(publicProduct=>publicProduct.id===p.id),false);}
  assert.equal((await artist.call('artist-products-batch',{...request,title:'Changed retry'})).status,409);
  assert.equal((await artist.call('artist-products-batch',{...request,print_formats:['T-shirts','T-shirts']})).status,422);
+ // Originals supplied by an administrator remain reusable only through an owned source listing.
+ const adminFile=new FormData();adminFile.append('artwork',new Blob([await sharp({create:{width:220,height:240,channels:3,background:'teal'}}).png().toBuffer()],{type:'image/png'}),'admin-source.png');const assigned=await success(admin,'upload',adminFile),source=items[0];
+ await success(admin,'admin-product',{id:source.id,artist_id:source.artist_id,title:source.title,description:source.description,category:source.category,price:0,stock:0,status:'pending',variants:['Standard'],upload_id:assigned.upload_id});
+ const reuse={...request,request_key:'artist-batch-assigned',source_product_id:source.id,upload_id:assigned.upload_id,design_studio:{...request.design_studio,artwork_id:assigned.upload_id}};
+ assert.equal((await other.call('artist-products-batch',reuse)).status,403);assert.equal((await artist.call('artist-products-batch',{...reuse,source_product_id:undefined})).status,403);
+ const reused=await success(artist,'artist-products-batch',reuse);assert.equal(reused.ids.length,2);
+ await success(artist,'design-mockup',{id:source.id,upload_id:assigned.upload_id,category:'T-shirts',design_studio:reuse.design_studio});
+
 });

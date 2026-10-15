@@ -706,7 +706,7 @@ async function prepareDesignStudioSubmission(form, p) {
       "Preparing your product mockup...",
     );
     const result = await api("design-mockup", {
-      id: p.id,
+      id: p.id||p.source_product_id,
       upload_id: p.upload_id,
       category: p.category,
       design_studio: p.design_studio,
