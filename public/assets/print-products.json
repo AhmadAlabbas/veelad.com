@@ -1,5 +1,6 @@
 {
   "version": "veelad-generic-1",
+  "render_version": "veelad-photo-1",
   "status": "provisional",
   "dpi": 300,
   "safeInset": 0.05,

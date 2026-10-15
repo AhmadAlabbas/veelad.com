@@ -158,3 +158,110 @@ export function pointToUV(point, projection) {
   }
   return null;
 }
+
+// A pixel belongs to one surface point. Unlike overlapping clipped triangles,
+// this preserves translucent ink opacity and leaves no visible mesh seams.
+const surfaceMaps = [];
+export function projectTexture(
+  pixels,
+  textureWidth,
+  textureHeight,
+  projection,
+  width = projection.width,
+  height = projection.height,
+) {
+  let cached = surfaceMaps.find(
+    (item) =>
+      item.projection === projection &&
+      item.width === width &&
+      item.height === height,
+  );
+  if (!cached) {
+    const u = new Float32Array(width * height),
+      v = new Float32Array(width * height);
+    u.fill(-1);
+    for (const indices of projection.triangles) {
+      const points = indices.map((i) => projection.vertices[i]),
+        [a, b, c] = points.map((p) => [
+          (p[0] * width) / projection.width,
+          (p[1] * height) / projection.height,
+          p[2],
+          p[3],
+        ]);
+      const denominator =
+        (b[1] - c[1]) * (a[0] - c[0]) + (c[0] - b[0]) * (a[1] - c[1]);
+      if (Math.abs(denominator) < 1e-8) continue;
+      const left = Math.max(0, Math.floor(Math.min(a[0], b[0], c[0]))),
+        right = Math.min(width - 1, Math.ceil(Math.max(a[0], b[0], c[0]))),
+        top = Math.max(0, Math.floor(Math.min(a[1], b[1], c[1]))),
+        bottom = Math.min(height - 1, Math.ceil(Math.max(a[1], b[1], c[1])));
+      for (let y = top; y <= bottom; y++)
+        for (let x = left; x <= right; x++) {
+          const p =
+              ((b[1] - c[1]) * (x + 0.5 - c[0]) +
+                (c[0] - b[0]) * (y + 0.5 - c[1])) /
+              denominator,
+            q =
+              ((c[1] - a[1]) * (x + 0.5 - c[0]) +
+                (a[0] - c[0]) * (y + 0.5 - c[1])) /
+              denominator,
+            r = 1 - p - q;
+          if (p < -1e-6 || q < -1e-6 || r < -1e-6) continue;
+          const index = y * width + x;
+          u[index] = p * a[2] + q * b[2] + r * c[2];
+          v[index] = p * a[3] + q * b[3] + r * c[3];
+        }
+    }
+    cached = { projection, width, height, u, v };
+    surfaceMaps.unshift(cached);
+    if (surfaceMaps.length > 3) surfaceMaps.pop();
+  } else {
+    surfaceMaps.splice(surfaceMaps.indexOf(cached), 1);
+    surfaceMaps.unshift(cached);
+  }
+  const output = new Uint8ClampedArray(width * height * 4),
+    { u, v } = cached;
+  for (let i = 0; i < u.length; i++) {
+    if (u[i] < 0) continue;
+    const x = Math.max(
+        0,
+        Math.min(textureWidth - 1, u[i] * textureWidth - 0.5),
+      ),
+      y = Math.max(0, Math.min(textureHeight - 1, v[i] * textureHeight - 0.5)),
+      x0 = Math.floor(x),
+      y0 = Math.floor(y),
+      x1 = Math.min(textureWidth - 1, x0 + 1),
+      y1 = Math.min(textureHeight - 1, y0 + 1),
+      fx = x - x0,
+      fy = y - y0;
+    const o0 = (y0 * textureWidth + x0) * 4,
+      o1 = (y0 * textureWidth + x1) * 4,
+      o2 = (y1 * textureWidth + x0) * 4,
+      o3 = (y1 * textureWidth + x1) * 4;
+    const a0 = (1 - fx) * (1 - fy) * pixels[o0 + 3],
+      a1 = fx * (1 - fy) * pixels[o1 + 3],
+      a2 = (1 - fx) * fy * pixels[o2 + 3],
+      a3 = fx * fy * pixels[o3 + 3],
+      alpha = a0 + a1 + a2 + a3;
+    const red =
+        pixels[o0] * a0 + pixels[o1] * a1 + pixels[o2] * a2 + pixels[o3] * a3,
+      green =
+        pixels[o0 + 1] * a0 +
+        pixels[o1 + 1] * a1 +
+        pixels[o2 + 1] * a2 +
+        pixels[o3 + 1] * a3,
+      blue =
+        pixels[o0 + 2] * a0 +
+        pixels[o1 + 2] * a1 +
+        pixels[o2 + 2] * a2 +
+        pixels[o3 + 2] * a3;
+    const offset = i * 4;
+    if (alpha > 0) {
+      output[offset] = red / alpha;
+      output[offset + 1] = green / alpha;
+      output[offset + 2] = blue / alpha;
+      output[offset + 3] = alpha;
+    }
+  }
+  return output;
+}

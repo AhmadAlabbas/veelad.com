@@ -7,11 +7,13 @@ import {
   patternCenters,
   qualityEstimate,
   pointToUV,
+  projectTexture,
 } from "../public/assets/design-math.js";
 import {
   printProducts,
   validateDesignStudio,
   mockupId,
+  mockupMatches,
   productionPlan,
 } from "../src/design-studio.js";
 import { renderMockup } from "../src/mockup-renderer.js";
@@ -110,6 +112,16 @@ test("placement validation binds every layout to an original, bounds controls an
     mockupId("art-original", "T-shirts", valid),
   );
   const changed = structuredClone(valid);
+  const legacyId = mockupId("art-original", "T-shirts", valid, null);
+  assert.notEqual(legacyId, mockupId("art-original", "T-shirts", valid));
+  assert.equal(
+    mockupMatches(legacyId, "art-original", "T-shirts", valid),
+    true,
+  );
+  assert.equal(
+    mockupMatches(legacyId, "replacement", "T-shirts", valid),
+    false,
+  );
   changed.placements.shirt.rotation = 15;
   assert.notEqual(
     mockupId("art-original", "T-shirts", changed),
@@ -129,6 +141,34 @@ test("placement validation binds every layout to an original, bounds controls an
   assert.equal(plan.products[0].quality.dpi, null);
   assert.equal(plan.source_upload_id, "art-original");
 });
+test("surface projection preserves translucent ink without dark seams or opaque fringes", () => {
+  const projection = {
+    width: 8,
+    height: 8,
+    vertices: [
+      [0, 0, 0, 0],
+      [8, 0, 1, 0],
+      [8, 8, 1, 1],
+      [0, 8, 0, 1],
+      [4, 4, 0.5, 0.5],
+    ],
+    triangles: [
+      [0, 1, 4],
+      [1, 2, 4],
+      [2, 3, 4],
+      [3, 0, 4],
+    ],
+  };
+  const source = new Uint8ClampedArray(4 * 4 * 4);
+  for (let i = 0; i < source.length; i += 4) source.set([200, 80, 50, 128], i);
+  const result = projectTexture(source, 4, 4, projection);
+  for (let i = 0; i < result.length; i += 4)
+    assert.deepEqual([...result.slice(i, i + 4)], [200, 80, 50, 128]);
+  const transparent = new Uint8ClampedArray(source.length);
+  assert.ok(
+    projectTexture(transparent, 4, 4, projection).every((value) => value === 0),
+  );
+});
 test("every generic product renders a bounded mockup without changing source bytes or exporting a print proof", async () => {
   const source = await sharp({
       create: { width: 800, height: 1000, channels: 4, background: "#e66038" },
@@ -144,13 +184,39 @@ test("every generic product renders a bounded mockup without changing source byt
     assert.equal(metadata.height, 1000);
     assert.equal(metadata.format, "jpeg");
     assert.ok(result.length > 3000);
-    const diff = await sharp(result)
+    // Sharp stats reads its input, so materialize the crop before measuring it.
+    const crop = await sharp(result)
       .extract({ left: 350, top: 450, width: 300, height: 300 })
-      .stats();
+      .toBuffer();
+    const diff = await sharp(crop).stats();
     assert.ok(
       diff.channels[0].mean > diff.channels[2].mean + 8,
       p.id + " should show the colored artwork",
     );
   }
   assert.deepEqual(source, copy);
+});
+test("phone camera openings stay unprinted even when artwork fills the complete surface", async () => {
+  const source = await sharp({
+      create: { width: 1000, height: 1000, channels: 4, background: "#ed6831" },
+    })
+      .png()
+      .toBuffer(),
+    state = studio();
+  state.placements.phone.scale = 2;
+  const rendered = await renderMockup(source, "Phone cases", state),
+    base = await sharp(
+      new URL("../public/assets/mockups/phone.webp", import.meta.url).pathname,
+    ).toBuffer();
+  const pixel = async (bytes, left, top) =>
+    sharp(bytes).extract({ left, top, width: 1, height: 1 }).raw().toBuffer();
+  const actual = await pixel(rendered, 360, 160),
+    expected = await pixel(base, 360, 160);
+  for (let i = 0; i < 3; i++)
+    assert.ok(
+      Math.abs(actual[i] - expected[i]) < 12,
+      "Camera must retain the photographic base",
+    );
+  const ink = await pixel(rendered, 550, 500);
+  assert.ok(ink[0] > ink[2] + 80, "The case body should contain the artwork");
 });

@@ -1,5 +1,7 @@
-# Veelad generic preview assets
+# Photographic-style mockup bases — veelad-photo-1
 
-Original, unbranded procedural 3D products authored in `tools/render-mockups.py` for Veelad. No borrowed stock photographs or third-party product models. The paired WebP/projection JSON files are generated together. Blender is an optional development tool, not a runtime dependency. No paid image generation was used.
+Nine original AI-generated photographic-style blank product views were created with the built-in image generation tool for Veelad on 2026-10-15. The bases show generic products on a lavender studio backdrop; they are illustrations of products, not photographs of a verified supplier's goods. No customer/seller artwork is generated, redrawn or sent to the image model. Uploaded designs are applied locally by the deterministic renderer.
 
-All templates are provisional, generic visualizations. These are not supplier-certified products, print templates, device-fit specifications, or manufacturing artwork. See `docs/DESIGN-STUDIO.md` for limitations and regeneration instructions.
+WebP files are 1000×1000 at quality 95. `tools/photo-surfaces.json` records manually reviewed printable quadrilaterals, cloth displacement settings, cylinder mapping and camera/rounded-corner masks. `tools/prepare-photo-mockups.js` prepares these assets from a private JSON mapping of view names to the generated PNG masters. Master PNGs remain in the cloud session's `/workspace/generated_images/` directory; runtime deployments need only the committed WebP/JSON files. The preceding Blender generator is retained as historical prototype tooling and does not reproduce these photographic-style bases.
+
+All product geometry, physical print dimensions, device openings, materials and colors remain provisional until a supplier is selected and a physical sample is checked. These assets are not manufacturing files or supplier-certified photography. See `docs/DESIGN-STUDIO.md` for implementation and limitations.

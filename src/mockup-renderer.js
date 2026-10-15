@@ -4,10 +4,10 @@ import sharp from "sharp";
 import {
   imageLayout,
   patternCenters,
-  affineTriangle,
-  triangleClip,
+  projectTexture,
 } from "../public/assets/design-math.js";
-import { printProductFor } from "./design-studio.js";
+import { printProductFor, mockupId, mockupMatches } from "./design-studio.js";
+import { artworkRenderSource } from "./artwork.js";
 import { fail } from "./security.js";
 const assets = new URL("../public/assets/mockups/", import.meta.url);
 const baseCache = new Map();
@@ -76,34 +76,49 @@ export async function renderMockup(preview, category, studio) {
     .composite(overlays)
     .png()
     .toBuffer();
-  const { base, projection } = await template(placement.view),
-    definitions = [],
-    triangles = [];
-  for (const [i, indices] of projection.triangles.entries()) {
-    const points = indices.map((index) => projection.vertices[index]),
-      source = points.map((p) => [p[2] * cw, p[3] * ch]),
-      target = points.map((p) => [p[0], p[1]]),
-      matrix = affineTriangle(source, target);
-    if (!matrix) continue;
-    definitions.push(
-      `<clipPath id="c${i}"><polygon points="${triangleClip(target)
-        .map((p) => p.join(","))
-        .join(" ")}"/></clipPath>`,
-    );
-    triangles.push(
-      `<g clip-path="url(#c${i})"><use href="#design" transform="matrix(${matrix.join(" ")})"/></g>`,
-    );
-  }
-  const svg = Buffer.from(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${projection.width}" height="${projection.height}"><defs><image id="design" width="${cw}" height="${ch}" href="data:image/png;base64,${texture.toString("base64")}"/>${definitions.join("")}</defs>${triangles.join("")}</svg>`,
-  );
-  const warped = await sharp(svg, { limitInputPixels: 4000000 })
+  const { base, projection } = await template(placement.view);
+  const raw = await sharp(texture).ensureAlpha().raw().toBuffer(),
+    projected = projectTexture(raw, cw, ch, projection);
+  let warped = await sharp(projected, {
+    raw: { width: projection.width, height: projection.height, channels: 4 },
+  })
     .png()
     .toBuffer();
+  if (projection.clip_path) {
+    const mask = Buffer.from(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1000"><path fill="white" fill-rule="evenodd" d="${projection.clip_path}"/></svg>`,
+    );
+    warped = await sharp(warped)
+      .composite([{ input: mask, blend: "dest-in" }])
+      .png()
+      .toBuffer();
+  }
   return sharp(base)
     .composite([{ input: warped, blend: "multiply" }])
     .jpeg({ quality: 92, mozjpeg: true })
     .toBuffer();
+}
+// Called only after the caller has authorized this product/preview. Rebuild a
+// disposable derivative without changing listing IDs, placements or order history.
+export async function currentProductMockup(c, db, p) {
+  if (
+    !p?.design_studio ||
+    !mockupMatches(p.mockup_upload_id, p.upload_id, p.category, p.design_studio)
+  )
+    return null;
+  const id = mockupId(p.upload_id, p.category, p.design_studio);
+  const source = await db.one("SELECT * FROM uploads WHERE id=?", [
+    p.upload_id,
+  ]);
+  if (!source) return null;
+  await ensureMockup(c, db, id, source.user_id, async () =>
+    renderMockup(
+      await artworkRenderSource(c.uploadDir, source),
+      p.category,
+      p.design_studio,
+    ),
+  );
+  return db.one("SELECT * FROM uploads WHERE id=?", [id]);
 }
 // Single-flight rendering prevents concurrent saves producing duplicate uploads.
 export async function ensureMockup(c, db, id, owner, render) {

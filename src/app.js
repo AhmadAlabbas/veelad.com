@@ -12,10 +12,10 @@ import {ApiError,fail,uid,token,trackingToken,hash,equal,text,email,integer,pass
 import {operationsStatus,probeStorage,createBackup,backupReady,privateDirectory} from './operations.js';
 import {pageRoutes} from './pages.js';
 import {publicArtists,profileDetails,reviewedProducts,optionalTranslations} from './artists.js';
-import {artworkLimits,artworkPath,validateArtwork,artworkMetadata,artworkPreview,readArtwork} from './artwork.js';
+import {artworkLimits,artworkPath,validateArtwork,artworkMetadata,artworkPreview,artworkRenderSource,readArtwork} from './artwork.js';
 import {prepareArtworkArchive} from './artwork-archive.js';
-import {validateDesignStudio,mockupId,productionPlan} from './design-studio.js';
-import {renderMockup,ensureMockup} from './mockup-renderer.js';
+import {validateDesignStudio,mockupId,mockupMatches,productionPlan} from './design-studio.js';
+import {renderMockup,ensureMockup,currentProductMockup} from './mockup-renderer.js';
 import {queueMail,mailStatus,recipientAllowed,checkMail,safeMailError} from './mail.js';
 const publicDir=fileURLToPath(new URL('../public',import.meta.url));
 const categories=['T-shirts','Tote bags','Phone cases','Art prints','Mugs','Stickers','Notebooks'];
@@ -89,7 +89,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail) {
   const previous=json(old.data);
   for(const key of [...Object.keys(detailLimits),...Object.keys(translationLimits),'production_notes','print_formats','tags','tags_ar','gallery_upload_ids','design_studio','mockup_upload_id']) if(p[key]===undefined && previous[key]!==undefined) p[key]=previous[key];
   if(p.design_studio?.artwork_id!==(p.upload_id||null)){delete p.design_studio;delete p.mockup_upload_id;}
-  if(p.mockup_upload_id!==mockupId(p.upload_id,p.category,p.design_studio))delete p.mockup_upload_id;
+  if(!mockupMatches(p.mockup_upload_id,p.upload_id,p.category,p.design_studio))delete p.mockup_upload_id;
  }
  async function me(req,required=false,conn) {
   const u=req.session.user_id ? await one('SELECT * FROM users WHERE id=?',[req.session.user_id],conn) : null;
@@ -136,7 +136,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail) {
   if(v.mockup_upload_id===null)p.mockup_upload_id=null;
   if(v.mockup_upload_id){
    const id=text(v,'mockup_upload_id',64);
-   if(id!==mockupId(p.upload_id,p.category,p.design_studio)||!await one('SELECT id FROM uploads WHERE id=?',[id]))fail(422,'Refresh the product preview before saving.');
+   if(!mockupMatches(id,p.upload_id,p.category,p.design_studio)||!await one('SELECT id FROM uploads WHERE id=?',[id]))fail(422,'Refresh the product preview before saving.');
    p.mockup_upload_id=id;
   }
   if(v.gallery_upload_ids!==undefined) {
@@ -278,7 +278,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail) {
    if(u.role!=='admin'&&u.id!==image.user_id&&!assigned)fail(403,'Artwork unavailable.');
    const studio=validateDesignStudio(v.design_studio,image.id),category=text(v,'category',30),id=mockupId(image.id,category,studio);if(!id)fail(422,'Choose a product category.');
    await privateDirectory(c,c.uploadDir);
-   await ensureMockup(c,db,id,image.user_id,async()=>renderMockup(await artworkPreview(c.uploadDir,image),category,studio));
+   await ensureMockup(c,db,id,image.user_id,async()=>renderMockup(await artworkRenderSource(c.uploadDir,image),category,studio));
    return res.json({mockup_upload_id:id,source_upload_id:image.id});
   }
   if(method==='GET' && route==='image') {
@@ -288,6 +288,11 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail) {
    const visible=(await products()).some(containsImage)||(await publicArtists(db)).some(profile=>(profile.portfolio_upload_ids||[]).includes(a.id));
    const assigned=!visible&&u?.role==='artist'&&(await products(true,u.id)).some(containsImage);
    if(!visible&&!assigned&&(!u||(u.id!==a.user_id&&u.role!=='admin'))) fail(404,'Artwork not found.');
+   if(a.id.startsWith('mock-')){
+    const rows=await q('SELECT * FROM products WHERE data LIKE ?',['%'+a.id+'%']);
+    const p=rows.map(product).find(p=>p.mockup_upload_id===a.id);
+    if(p)try{const current=await currentProductMockup(c,db,p);if(current)return res.type('image/webp').set('Content-Disposition','inline').send(await artworkPreview(c.uploadDir,current));}catch(error){if(![404,503].includes(error.status))throw error;}
+   }
    return res.type('image/webp').set('Content-Disposition','inline').send(await artworkPreview(c.uploadDir,a));
   }
   if(method==='GET' && route==='artwork-metadata') {

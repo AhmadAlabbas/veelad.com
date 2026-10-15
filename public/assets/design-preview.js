@@ -103,34 +103,47 @@ function drawStudio(canvas, asset, texture, math, guides = false) {
   ctx.drawImage(asset.image, 0, 0, 1000, 1000);
   if (texture) {
     const warp = document.createElement("canvas");
-    warp.width = warp.height = 1000;
-    const layer = warp.getContext("2d");
-    layer.globalCompositeOperation = "source-over";
-    for (const indices of asset.projection.triangles) {
-      const v = indices.map((i) => asset.projection.vertices[i]),
-        target = v.map((p) => [p[0], p[1]]),
-        matrix = math.affineTriangle(
-          v.map((p) => [p[2] * texture.width, p[3] * texture.height]),
-          target,
-        );
-      if (!matrix) continue;
-      layer.save();
-      layer.beginPath();
-      const clip = math.triangleClip(target);
-      layer.moveTo(...clip[0]);
-      layer.lineTo(...clip[1]);
-      layer.lineTo(...clip[2]);
-      layer.closePath();
-      layer.clip();
-      layer.transform(...matrix);
-      layer.drawImage(texture, 0, 0);
-      layer.restore();
+    warp.width = canvas.width;
+    warp.height = canvas.height;
+    const layer = warp.getContext("2d"),
+      pixels = texture
+        .getContext("2d", { willReadFrequently: true })
+        .getImageData(0, 0, texture.width, texture.height);
+    layer.putImageData(
+      new ImageData(
+        math.projectTexture(
+          pixels.data,
+          texture.width,
+          texture.height,
+          asset.projection,
+          warp.width,
+          warp.height,
+        ),
+        warp.width,
+        warp.height,
+      ),
+      0,
+      0,
+    );
+    if (asset.projection.clip_path) {
+      const mask = document.createElement("canvas");
+      mask.width = warp.width;
+      mask.height = warp.height;
+      const m = mask.getContext("2d");
+      m.scale(warp.width / 1000, warp.height / 1000);
+      m.fillStyle = "white";
+      m.fill(new Path2D(asset.projection.clip_path), "evenodd");
+      layer.globalCompositeOperation = "destination-in";
+      layer.drawImage(mask, 0, 0);
     }
     ctx.globalCompositeOperation = "multiply";
-    ctx.drawImage(warp, 0, 0);
+    ctx.drawImage(warp, 0, 0, 1000, 1000);
     ctx.globalCompositeOperation = "source-over";
   }
   if (guides) {
+    ctx.save();
+    if (asset.projection.clip_path)
+      ctx.clip(new Path2D(asset.projection.clip_path), "evenodd");
     ctx.strokeStyle = "#7554bd";
     ctx.lineWidth = 2;
     ctx.setLineDash([7, 5]);
@@ -198,6 +211,7 @@ function drawStudio(canvas, asset, texture, math, guides = false) {
         } else start = true;
       }
     ctx.stroke();
+    ctx.restore();
   }
   ctx.restore();
 }
@@ -529,6 +543,18 @@ async function startDesignStudio(root) {
     const canvas = root.querySelector(".studio-canvas");
     const uv = (event) => {
       const rect = canvas.getBoundingClientRect();
+      if (
+        instance.asset?.projection.clip_path &&
+        !canvas
+          .getContext("2d")
+          .isPointInPath(
+            new Path2D(instance.asset.projection.clip_path),
+            ((event.clientX - rect.left) * 1000) / rect.width,
+            ((event.clientY - rect.top) * 1000) / rect.height,
+            "evenodd",
+          )
+      )
+        return null;
       return (
         instance.asset &&
         math.pointToUV(

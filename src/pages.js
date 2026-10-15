@@ -5,6 +5,7 @@ import {fileURLToPath} from 'node:url';
 import {product} from './security.js';
 import {publicArtists} from './artists.js';
 import {pageText,pageMoney} from './locales.js';
+import {currentProductMockup} from './mockup-renderer.js';
 const publicDir=fileURLToPath(new URL('../public',import.meta.url));
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const publicPaths=['/','/shop','/artists','/sell','/help','/policies'];
@@ -67,7 +68,8 @@ export function pageRoutes(app,c,db,schema) {
   const id=req.params.image?.replace(/\.png$/,'');
   if(/\/products\//.test(req.path)){item=await listing(id);if(!item)return res.status(404).end();a=await artist(item.artist_id);title=field(item,'title',language);subtitle=pageText(language,'shareDesignedBy',{artist:field(a,'name',language)||pageText(language,'independentArtist')});}
   if(/\/artists\//.test(req.path)){a=await artist(id);if(!a)return res.status(404).end();title=field(a,'name',language);subtitle=field(a,'bio',language);}
-  const imageId=item?.mockup_upload_id||item?.upload_id||a?.portfolio_upload_ids?.[0];
+  let currentImage; if(item?.mockup_upload_id)try{currentImage=await currentProductMockup(c,db,item);}catch(error){if(![404,503].includes(error.status))throw error;}
+  const imageId=currentImage?.id||item?.mockup_upload_id||item?.upload_id||a?.portfolio_upload_ids?.[0];
   if(imageId){const image=await db.one('SELECT path FROM uploads WHERE id=?',[imageId]);if(image&&/^[a-zA-Z0-9_-]+\.(png|jpg)$/.test(image.path))try{imageBytes=await fs.readFile(path.join(c.uploadDir,image.path));}catch{}}
   if(!imageBytes&&item&&!item.upload_id){const sheet=path.join(publicDir,'assets',item.sheet===1?'catalog-2.jpg':'catalog.jpg'),info=await sharp(sheet).metadata(),cell=Math.min(5,Math.max(0,Number(item.cell)||0)),width=Math.floor(info.width/3),height=Math.floor(info.height/2);imageBytes=await sharp(sheet).extract({left:(cell%3)*width,top:Math.floor(cell/3)*height,width,height}).toBuffer();}
   const words=title.split(/\s+/),lines=[''];for(const word of words){if((lines.at(-1)+' '+word).length>25&&lines.length<4)lines.push(word);else lines[lines.length-1]+=(lines.at(-1)?' ':'')+word;}

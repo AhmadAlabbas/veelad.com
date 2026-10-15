@@ -34,6 +34,12 @@ export async function artworkMetadata(directory,record) {
   print_width_cm_300dpi:Math.round(width/300*2.54*10)/10,print_height_cm_300dpi:Math.round(height/300*2.54*10)/10,
   resolution_guidance:'300 DPI dimensions are guidance only. Veelad must check the exact printing template, bleed, color and usable artwork before production.'};
 }
+// Lossless bounded input for compositing avoids repeated lossy encoding of art.
+export async function artworkRenderSource(directory,record) {
+ const bytes=await readArtwork(directory,record);
+ try{return await sharp(bytes,{limitInputPixels:artworkLimits.pixels,failOn:'warning'}).rotate().resize({width:artworkLimits.preview,height:artworkLimits.preview,fit:'inside',withoutEnlargement:true}).png().toBuffer();}
+ catch{fail(422,'Artwork preview unavailable. Contact the store team.');}
+}
 export async function artworkPreview(directory,record) {
  const file=artworkPath(directory,record);
  let version;
@@ -44,7 +50,7 @@ export async function artworkPreview(directory,record) {
  if(cached){previewCacheBytes-=cached.bytes.length;previews.delete(file);}
  const bytes=await readArtwork(directory,record);
  try {
-  const preview=await sharp(bytes,{limitInputPixels:artworkLimits.pixels,failOn:'warning'}).rotate().resize({width:artworkLimits.preview,height:artworkLimits.preview,fit:'inside',withoutEnlargement:true}).webp({quality:82}).toBuffer();
+  const preview=await sharp(bytes,{limitInputPixels:artworkLimits.pixels,failOn:'warning'}).rotate().resize({width:artworkLimits.preview,height:artworkLimits.preview,fit:'inside',withoutEnlargement:true}).webp({quality:90}).toBuffer();
   if(preview.length<=previewCacheLimit){
    const concurrent=previews.get(file);if(concurrent){previewCacheBytes-=concurrent.bytes.length;previews.delete(file);}
    while(previews.size&&(previewCacheBytes+preview.length>previewCacheLimit||previews.size>=32)){const oldest=previews.keys().next().value;previewCacheBytes-=previews.get(oldest).bytes.length;previews.delete(oldest);}

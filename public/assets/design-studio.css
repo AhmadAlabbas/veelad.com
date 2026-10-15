@@ -544,3 +544,7 @@ dialog:has(.design-studio) .modal-body {
     font-size: 12px;
   }
 }
+
+/* A finished product mockup already contains its studio backdrop. */
+.product-photo.custom.mockup{padding:0;background:#d6bee8}
+.product-photo.custom.mockup img{object-fit:cover;box-shadow:none}

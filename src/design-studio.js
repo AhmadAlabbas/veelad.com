@@ -80,7 +80,12 @@ export function validateDesignStudio(value, uploadId) {
 }
 export const printProductFor = (category) =>
   printProducts.products.find((p) => p.category === category);
-export function mockupId(uploadId, category, studio) {
+export function mockupId(
+  uploadId,
+  category,
+  studio,
+  renderVersion = printProducts.render_version,
+) {
   const product = printProductFor(category);
   if (!product || !studio?.placements?.[product.id]) return null;
   return (
@@ -89,6 +94,7 @@ export function mockupId(uploadId, category, studio) {
       .update(
         JSON.stringify({
           version: printProducts.version,
+          ...(renderVersion ? { render_version: renderVersion } : {}),
           source: uploadId,
           product: product.id,
           placement: studio.placements[product.id],
@@ -96,6 +102,15 @@ export function mockupId(uploadId, category, studio) {
       )
       .digest("hex")
       .slice(0, 40)
+  );
+}
+// The logical print placement is unchanged when a photographic base is upgraded.
+// Accept the original renderer's IDs, but never accept arbitrary upload pointers.
+export function mockupMatches(id, uploadId, category, studio) {
+  return (
+    !!id &&
+    (id === mockupId(uploadId, category, studio) ||
+      id === mockupId(uploadId, category, studio, null))
   );
 }
 export function productionPlan(product, metadata) {
