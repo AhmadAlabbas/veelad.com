@@ -49,7 +49,7 @@ function localDate(value, options = {}) {
   return new Intl.DateTimeFormat(localeCode(), { calendar: 'gregory', numberingSystem: numeralSystem(), ...options }).format(date);
 }
 const interfaceStatuses = Object.freeze({ draft: 'Draft', pending: 'Pending', changes_requested: 'Changes requested', active: 'Published', archived: 'Archived', awaiting_payment: 'Awaiting payment', new: 'Approved', processing: 'Printing', shipped: 'Shipped', delivered: 'Delivered', cancelled: 'Cancelled', resolved: 'Resolved', suspended: 'Suspended', paid: 'Paid', demo_unpaid: 'Unpaid demo' });
-function statusLabel(value) { return t(interfaceStatuses[value] || String(value ?? '').replaceAll('_', ' ')); }
+function statusLabel(value,context='product') {if(context==='account'&&value==='active')return t('Active');if(context==='message'&&value==='new')return t('New');return t(interfaceStatuses[value] || String(value ?? '').replaceAll('_', ' '));}
 function localizedError(message) {
   const source = String(message ?? 'Request failed.');
   const stock=source.match(/^There is not enough stock for (.+)\.$/);if(stock)return t('There is not enough stock for {title}.',{title:stock[1]});

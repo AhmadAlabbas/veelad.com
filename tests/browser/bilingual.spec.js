@@ -30,9 +30,9 @@ test('Arabic public screens and administrator tables render without overflow or 
   await page.goto('/'+lang+path);await expect(page.locator('#main')).toBeVisible();await noOverflow(page);await expect(page.locator('html')).toHaveAttribute('dir',lang==='ar'?'rtl':'ltr');
   expect(await page.locator('.product-photo img').evaluateAll(images=>images.every(img=>getComputedStyle(img).transform==='none'))).toBeTruthy();
  }
- await adminLogin(page);await toggle(page);await expect(page).toHaveURL(/\/ar\/admin/);
+ await adminLogin(page);await toggle(page);await expect(page).toHaveURL(/\/ar\/admin/);const messageSubject='Bilingual status '+Date.now();await page.evaluate(subject=>api('message',{type:'contact',name:'Language test',email:'language-test@example.test',subject,message:'Status label verification.'}),messageSubject);
  for(const tab of ['overview','products','orders','users','artists','messages','settings','system']){
-  await page.goto('/ar/admin?tab='+tab);await expect(page.locator('.admin-content')).toBeVisible();await noOverflow(page);await expect(page.locator('html')).toHaveAttribute('dir','rtl');
+  await page.goto('/ar/admin?tab='+tab);await expect(page.locator('.admin-content')).toBeVisible();await noOverflow(page);await expect(page.locator('html')).toHaveAttribute('dir','rtl');if(tab==='users')await expect(page.locator('tbody tr').first().locator('.pill')).toHaveText('نشط');if(tab==='messages')await expect(page.locator('.message').filter({hasText:messageSubject}).locator('.pill')).toHaveText('جديد');
  }
  await expect(page.getByRole('heading',{name:'موثوقية التشغيل',exact:true})).toBeVisible();await expect(page.getByRole('heading',{name:'الرسائل التلقائية',exact:true})).toBeVisible();const language=await page.evaluate(async()=>{const b=await (await fetch('/api.php?route=bootstrap')).json();return b.locale;});expect(language).toBe('ar');expect(errors).toEqual([]);
 });
