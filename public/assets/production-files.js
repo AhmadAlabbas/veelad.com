@@ -1,5 +1,11 @@
 /* Administrator-only access to unchanged originals, separate from storefront previews. */
 'use strict';
+function productionFileSize(value) {
+ const bytes=Number(value)||0;
+ if(bytes<1024)return t('{value} bytes',{value:localNumber(bytes)});
+ if(bytes<1024*1024)return t('{value} KB',{value:localNumber(bytes/1024,{maximumFractionDigits:1})});
+ return t('{value} MB',{value:localNumber(bytes/1024/1024,{maximumFractionDigits:2})});
+}
 function productFilesButton(p,cls='btn outline sm') {
  return button(t('Design files'),'product-files',`data-id="${esc(p.id)}" aria-label="${esc(t('Design files for {title}',{title:localField(p,'title')}))}"`,cls);
 }
@@ -15,9 +21,9 @@ async function openProductFiles(productId) {
   const complete=data.files.length&&data.files.every(file=>file.available);
   openModal(t('Design files'),`<section class="production-files"><h4>${esc(localField(data,'title'))}</h4><p class="small">${t('Download the original file for printing, not the smaller storefront preview.')}</p>
    ${!data.has_original?`<div class="notice">${t('No print original is attached to this product.')} ${t('Sample catalog pictures are previews, not print-ready design files. Upload the real original in the product editor.')}</div>`:''}
-   ${data.files.length?`<ul class="production-file-list">${data.files.map((file,index)=>`<li><div><strong>${t(file.primary?'Print original':'Additional image {number}',{number:localNumber(index+1)})}</strong><small>${file.available?`${esc(file.extension?.toUpperCase()||'')} · ${localNumber(file.size_bytes/1024/1024,{maximumFractionDigits:2})} MB`:t('Original file unavailable')}</small></div>${file.available?button(t('Download file'),'download-production-file',`data-id="${esc(file.id)}"`,'btn outline sm'):`<span class="pill gray">${t('Needs restoration')}</span>`}</li>`).join('')}</ul>`:''}
+   ${data.files.length?`<ul class="production-file-list">${data.files.map((file,index)=>`<li><div><strong>${t(file.primary?'Print original':'Additional image {number}',{number:localNumber(index+(data.has_original?0:1))})}</strong><small>${file.available?`${esc(file.extension?.toUpperCase()||'')} · ${productionFileSize(file.size_bytes)}`:t('Original file unavailable')}</small></div>${file.available?button(t('Download file'),'download-production-file',`data-id="${esc(file.id)}"`,'btn outline sm'):`<span class="pill gray">${t('Needs restoration')}</span>`}</li>`).join('')}</ul>`:''}
    ${data.files.some(file=>!file.available)?`<div class="notice error">${t('Some original files are missing. Restore them in System using the matching originals.')}</div>${link(t('Open System'),'admin','btn outline sm',{tab:'system'})}`:''}
-   ${data.files.length>1?button(t('Download all files (.zip)'),'download-production-archive',`data-id="${esc(productId)}" ${complete?'':'disabled'}`,'btn full'):''}
+   ${data.files.length>1?button(t('Download all files ({extension})',{extension:'<bdi dir="ltr">.zip</bdi>'}),'download-production-archive',`data-id="${esc(productId)}" ${complete?'':'disabled'}`,'btn full'):''}
    ${data.files.some(file=>!file.primary)?`<p class="small">${t('Additional images may be mockups or product photos. Confirm each file is suitable before sending it to print.')}</p>`:''}
    ${!data.has_original?button(t('Upload original'),'edit-product',`data-id="${esc(productId)}"`,'btn outline'):''}
   </section>`);

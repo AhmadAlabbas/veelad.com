@@ -980,5 +980,9 @@ window.VEELAD_LOCALES.en = Object.freeze({
   "Some original files are unavailable. Restore missing files in System before downloading all files.": "Some original files are unavailable. Restore missing files in System before downloading all files.",
   "Choose a product with uploaded files.": "Choose a product with uploaded files.",
   "Product not found.": "Product not found.",
-  "Too many product files.": "Too many product files."
+  "Too many product files.": "Too many product files.",
+  "{value} bytes": "{value} bytes",
+  "{value} KB": "{value} KB",
+  "{value} MB": "{value} MB",
+  "Download all files ({extension})": "Download all files ({extension})"
 });

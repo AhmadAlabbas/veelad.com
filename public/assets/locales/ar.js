@@ -980,5 +980,9 @@ window.VEELAD_LOCALES.ar = Object.freeze({
   "Some original files are unavailable. Restore missing files in System before downloading all files.": "بعض الملفات الأصلية غير متاحة. استعد الملفات المفقودة من قسم النظام قبل تنزيل جميع الملفات.",
   "Choose a product with uploaded files.": "اختر منتجًا يحتوي على ملفات مرفوعة.",
   "Product not found.": "المنتج غير موجود.",
-  "Too many product files.": "عدد ملفات المنتج أكبر من الحد المسموح."
+  "Too many product files.": "عدد ملفات المنتج أكبر من الحد المسموح.",
+  "{value} bytes": "{value} بايت",
+  "{value} KB": "{value} ك.ب",
+  "{value} MB": "{value} م.ب",
+  "Download all files ({extension})": "تنزيل جميع الملفات ({extension})"
 });

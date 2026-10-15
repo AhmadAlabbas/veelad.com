@@ -31,7 +31,7 @@ async function fixture(run) {
 }
 test('administrator downloads unchanged original files and a working multi-file ZIP from Products',async({page})=>fixture(async({prefix,originals,login})=>{
  await login(page);const productId=prefix+'-complete';await page.locator(`[data-action=product-files][data-id="${productId}"]`).click();await expect(page.locator('.production-file-list li')).toHaveCount(2);
- const url=page.url();for(const [index,bytes]of originals.entries()){
+ await expect(page.locator('.production-file-list')).not.toContainText('0 MB');await expect(page.locator('.production-file-list')).toContainText('bytes');const url=page.url();for(const [index,bytes]of originals.entries()){
   const waiting=page.waitForEvent('download');await page.locator('.production-file-list [data-action=download-production-file]').nth(index).click();const download=await waiting;expect((await fs.readFile(await download.path())).equals(bytes)).toBeTruthy();expect(await download.failure()).toBeNull();expect(download.suggestedFilename()).toMatch(index?/\.jpg$/:/\.png$/);expect(page.url()).toBe(url);
  }
  const waiting=page.waitForEvent('download');await page.locator('[data-action=download-production-archive]').click();const download=await waiting,zip=await fs.readFile(await download.path());expect(download.suggestedFilename()).toBe('veelad-'+productId+'-files.zip');expect(zip.readUInt32LE(zip.length-22)).toBe(0x06054b50);for(const bytes of originals)expect(zip.includes(bytes)).toBeTruthy();
