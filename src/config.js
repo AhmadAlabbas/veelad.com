@@ -14,9 +14,11 @@ export function config(env = process.env) {
   const secure = origin.startsWith('https://');
   const trustProxy = Number(env.TRUST_PROXY || 0);
   if (![0,1].includes(trustProxy)) throw Error('TRUST_PROXY must be 0 or 1');
+  const numberingSystem = env.NUMERAL_SYSTEM || 'latn';
+  if (!['latn','arab'].includes(numberingSystem)) throw Error('NUMERAL_SYSTEM must be latn or arab');
   let revision=env.DEPLOY_COMMIT||null;
   try {revision ||= JSON.parse(fs.readFileSync(new URL('../.release.json',import.meta.url),'utf8')).revision;} catch {}
-  return {mode, origin, secret, secure, trustProxy, revision, marketplaceEnabled:mode!=='production'||env.PRODUCTION_MARKETPLACE_ENABLED==='true',
+  return {mode, origin, secret, secure, trustProxy, revision, numberingSystem, marketplaceEnabled:mode!=='production'||env.PRODUCTION_MARKETPLACE_ENABLED==='true',
     port:Number(env.PORT || 3000), uploadDir:path.resolve(env.UPLOAD_DIR || 'var/uploads'),
     cookieName:secure ? '__Host-veelad_session' : 'veelad_session',
     db:{host:env.DB_HOST || '127.0.0.1', port:Number(env.DB_PORT || 3306), database:env.DB_NAME,

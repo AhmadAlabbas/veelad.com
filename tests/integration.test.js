@@ -78,7 +78,7 @@ test('uploads validate content, dimensions and ownership; private until approved
  productId=(await success(artist,'artist-product',data)).id;
  assert.equal((await success(buyer,'bootstrap')).products.some(p=>p.id===productId),false);
  assert.equal((await other.call('artist-product',{...data,id:productId})).status,403);
- const p=(await success(admin,'admin')).products.find(p=>p.id===productId);await success(admin,'admin-product',{...p,status:'active'});
+ const p=(await success(admin,'admin')).products.find(p=>p.id===productId);assert.equal(p.price,0);assert.equal(p.stock,0);await success(admin,'admin-product',{...p,status:'active',price:9900,stock:5});
  assert.equal((await buyer.call('image',undefined,{id:artId},true)).status,200);
  assert.equal((await success(artist,'studio')).products[0].id,productId);
  assert.equal((await fetch(base+'/uploads/'+artId+'.png')).status,404);
@@ -128,8 +128,8 @@ test('private drafts, previews, review feedback and artist portfolios preserve p
  const feedback=(await success(artist,'studio')).products.find(p=>p.id===draft.id);assert.equal(feedback.status,'changes_requested');assert.match(feedback.review.feedback,/contrast/);
  assert.equal((await success(buyer,'bootstrap')).products.some(p=>p.id===draft.id),false);
  await success(artist,'artist-product',{...details,action:'draft'});assert.match((await success(artist,'studio')).products.find(p=>p.id===draft.id).review.feedback,/contrast/);
- assert.equal((await admin.call('admin-product',{...pending,status:'active'})).status,409);
- await success(artist,'artist-product',{...details,rights:true});await success(admin,'admin-product',{...pending,status:'active'});
+ assert.equal((await admin.call('admin-product',{...pending,status:'active',price:5900,stock:5})).status,409);
+ await success(artist,'artist-product',{...details,rights:true});await success(admin,'admin-product',{...pending,status:'active',price:5900,stock:5});
  assert.equal((await fetch(base+'/products/'+draft.id)).status,200);
  await success(artist,'profile',{name:'Artist New',bio:'Independent test artist',location:'Riyadh',story:'My original story, not a supplied template.',portfolio_upload_ids:[artId]});
  const profile=(await success(buyer,'bootstrap')).artists.find(a=>a.id===pending.artist_id);assert.match(profile.story,/original story/);assert.deepEqual(profile.portfolio_upload_ids,[artId]);
@@ -150,6 +150,45 @@ test('administrator restores a missing original without changing ownership or ov
  assert.equal((await db.one('SELECT user_id FROM uploads WHERE id=?',[artId])).user_id,record.user_id);
  assert.equal((await admin.call('admin-artwork-restore',form(),{id:artId,confirm:'true'})).status,409);
  assert.equal((await success(admin,'admin-missing-artwork')).uploads.some(image=>image.id===artId),false);
+});
+test('bilingual designs persist safely while artists cannot set prices or stock and private production notes stay private',async()=>{
+ const design={title:'Bilingual original design',title_ar:'تصميم أصلي ثنائي اللغة',description:'An independent design for printing.',description_ar:'تصميم مستقل نطبعه على منتجاتك المفضلة.',category:'Mugs',upload_id:artId,rights:true,print_formats:['Mugs','T-shirts'],tags:['gift','original'],tags_ar:['هدية','تصميم أصلي'],production_notes:'PRIVATE-PRINT-NOTE: verify artwork template before printing.',materials_ar:'خامة تجريبية',dimensions_ar:'مقاس تجريبي',care_instructions_ar:'إرشادات العناية',size_guide_ar:'دليل المقاسات',price:1,stock:100000};
+ const submitted=await success(artist,'artist-product',design),pending=(await success(admin,'admin')).products.find(p=>p.id===submitted.id);
+ assert.equal(pending.price,0);assert.equal(pending.stock,0);assert.equal(pending.title_ar,design.title_ar);assert.deepEqual(pending.tags_ar,design.tags_ar);assert.deepEqual(pending.print_formats,design.print_formats);
+ assert.equal((await admin.call('admin-product',{...pending,status:'active'})).status,422,'A design cannot be published without a retail price.');
+ assert.equal((await artist.call('artist-product',{...design,title_ar:'ع'.repeat(101)})).status,422);
+ assert.equal((await artist.call('artist-product',{...design,tags_ar:['ع'.repeat(51)]})).status,422);
+ assert.equal((await artist.call('artist-product',{...design,print_formats:['Unsupported']})).status,422);
+ await success(admin,'admin-product',{...pending,price:7500,stock:12,variants:['Standard','Large'],status:'active'});
+ const legacy={id:submitted.id,title:design.title,description:design.description,category:design.category,upload_id:artId,rights:true,price:99999,stock:99999};
+ await success(artist,'artist-product',legacy);
+ const retained=(await success(admin,'admin')).products.find(p=>p.id===submitted.id);
+ assert.equal(retained.price,7500);assert.equal(retained.stock,12);assert.deepEqual(retained.variants,['Standard','Large']);assert.equal(retained.title_ar,design.title_ar);assert.equal(retained.production_notes,design.production_notes);assert.deepEqual(retained.tags,design.tags);assert.deepEqual(retained.tags_ar,design.tags_ar);
+ const adminLegacy={...retained,status:'active'};for(const key of ['title_ar','description_ar','materials_ar','dimensions_ar','care_instructions_ar','size_guide_ar','tags_ar','production_notes','print_formats'])delete adminLegacy[key];await success(admin,'admin-product',adminLegacy);
+ const publicProduct=(await success(buyer,'bootstrap')).products.find(p=>p.id===submitted.id);assert.equal(publicProduct.title_ar,design.title_ar);assert.equal(publicProduct.production_notes,undefined);assert.equal(publicProduct.materials_ar,design.materials_ar);
+ const page=await (await fetch(base+'/ar/products/'+submitted.id)).text();assert.equal(page.includes('PRIVATE-PRINT-NOTE'),false);
+ const guest=client();await success(guest,'bootstrap');const purchased=await success(guest,'checkout',{...checkout('bilingual-print-order',1,submitted.id),coupon:''});assert.equal(purchased.order.items[0].title_ar,design.title_ar);assert.equal(purchased.order.items[0].production_notes,undefined);
+ const draft=await success(artist,'artist-product',{title:'Protected draft',action:'draft',price:50000,stock:50000});const preview=await success(artist,'product-preview',undefined,{id:draft.id});assert.equal(preview.product.price,0);assert.equal(preview.product.stock,0);
+});
+test('Arabic profiles, policies and per-user language choices survive older requests and new sessions',async()=>{
+ const ar={name_ar:'الفنان المستقل',bio_ar:'فن أصلي',story_ar:'نبتكر تصاميم من تفاصيل حياتنا اليومية.',location_ar:'الرياض'};
+ await success(artist,'profile',{name:'Artist New',bio:'Independent test artist',location:'Riyadh',...ar});await success(artist,'profile',{name:'Artist New',bio:'Independent test artist',location:'Riyadh'});
+ const artistUser=(await success(artist,'bootstrap')).user,profile=(await success(buyer,'bootstrap')).artists.find(a=>a.id===artistUser.id);for(const [key,value] of Object.entries(ar))assert.equal(profile[key],value);
+ const settings=(await success(admin,'admin')).settings,policies={announcement_ar:'فن تحبه، ومنتجات تستخدمها.',delivery_estimate_ar:'نحدد مدة التوصيل لاحقًا.',returns_policy_ar:'سنضيف سياسة الإرجاع المعتمدة لاحقًا.'};
+ await success(admin,'admin-settings',{...settings,...policies});await success(admin,'admin-settings',settings);const visible=(await success(buyer,'bootstrap')).settings;for(const [key,value] of Object.entries(policies))assert.equal(visible[key],value);
+ const visitor=client();await success(visitor,'bootstrap');assert.equal((await visitor.call('language-preference',{locale:'ar'})).status,401);assert.equal((await artist.call('language-preference',{locale:'unsupported'})).status,422);
+ await success(artist,'language-preference',{locale:'ar'});const initial=await success(artist,'state');await success(artist,'state',{saved:['p1']});assert.equal((await success(artist,'bootstrap')).locale,'ar');assert.deepEqual((await success(artist,'state')).cart,initial.cart);
+ await Promise.all([success(artist,'language-preference',{locale:'ar'}),success(artist,'state',{cart:[{id:'p1',variant:'S',qty:2}],saved:['p2']})]);const concurrent=await success(artist,'state');assert.equal(concurrent.user_locale,'ar');assert.deepEqual(concurrent.saved,['p2']);assert.equal(concurrent.cart[0].qty,2);
+ const second=client();await success(second,'bootstrap');await success(second,'login',{email:'artist@example.test',password:pw});assert.equal((await success(second,'bootstrap')).locale,'ar');await success(artist,'language-preference',{locale:'en'});assert.equal((await success(second,'bootstrap')).locale,'en');
+});
+test('print originals retain exact bytes, only administrators can download them, and web previews are bounded',async()=>{
+ const bytes=await sharp({create:{width:3000,height:2400,channels:4,background:{r:24,g:100,b:180,alpha:0.75}}}).png().withMetadata({density:300}).toBuffer(),f=new FormData();f.append('artwork',new Blob([bytes],{type:'image/png'}),'high-resolution-original.png');
+ const uploaded=await success(artist,'upload',f),id=uploaded.upload_id,record=await db.one('SELECT * FROM uploads WHERE id=?',[id]);assert.deepEqual(await fs.readFile(path.join(c.uploadDir,record.path)),bytes);assert.equal((await fs.stat(path.join(c.uploadDir,record.path))).mode&0o777,0o600);
+ assert.equal(uploaded.artwork.width,3000);assert.equal(uploaded.artwork.height,2400);assert.equal(uploaded.artwork.size_bytes,bytes.length);assert.equal(uploaded.artwork.print_width_cm_300dpi,25.4);
+ assert.equal((await buyer.call('artwork-metadata',undefined,{id})).status,403);assert.equal((await other.call('artwork-metadata',undefined,{id})).status,404);assert.equal((await success(artist,'artwork-metadata',undefined,{id})).artwork.width,3000);
+ assert.equal((await artist.call('admin-artwork-original',undefined,{id})).status,403);assert.equal((await buyer.call('admin-artwork-original',undefined,{id})).status,403);const original=await admin.call('admin-artwork-original',undefined,{id},true);assert.equal(original.status,200);assert.deepEqual(Buffer.from(original.body),bytes);assert.match(original.headers.get('content-disposition'),/^attachment;/);
+ const p=(await success(admin,'admin')).products.find(p=>p.id===productId);await success(admin,'admin-product',{...p,upload_id:id,status:'active'});const response=await buyer.call('image',undefined,{id},true),preview=Buffer.from(response.body),info=await sharp(preview).metadata();assert.equal(response.status,200);assert.equal(response.headers.get('content-type'),'image/webp');assert.equal(info.format,'webp');assert.ok(info.width<=1600&&info.height<=1600);assert.equal(info.density,undefined);assert.notDeepEqual(preview,bytes);
+ const assigned=await success(artist,'artwork-metadata',undefined,{id});assert.equal(assigned.artwork.height,2400);assert.equal((await success(admin,'admin')).audit.some(a=>a.action==='artwork.original_download'&&a.target===id),true);
 });
 test('delivery and return information is administrator-managed and preserved by older settings requests',async()=>{
  const s=(await success(admin,'admin')).settings;

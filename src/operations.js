@@ -4,6 +4,7 @@ import crypto from 'node:crypto';
 import zlib from 'node:zlib';
 import {promisify} from 'node:util';
 import os from 'node:os';
+import {artworkLimits,validateArtwork} from './artwork.js';
 const gzip=promisify(zlib.gzip),gunzip=promisify(zlib.gunzip);
 export const backupTables=['users','artists','products','orders','settings','messages','rate_limits','uploads','customer_state','password_resets','mail_queue','mail_delivery','product_reviews','audit_log'];
 const namePattern=/^[a-zA-Z0-9_-]+\.(png|jpg)$/;
@@ -17,8 +18,8 @@ export async function recoverStagingArtwork(c,records,root=path.join(os.homedir(
   // Recover only an exact existing database filename from this staging website. Never infer ownership.
   for(const candidate of candidates){const source=path.join(candidate,record.path);try{
    const real=await fs.realpath(source),realRoot=await fs.realpath(root);if(!real.startsWith(realRoot+path.sep))continue;
-   const info=await fs.stat(real);if(!info.isFile()||info.size>8*1024*1024)continue;
-   const {default:sharp}=await import('sharp');const metadata=await sharp(real,{limitInputPixels:36000000}).metadata();if(!['png','jpeg'].includes(metadata.format)||metadata.width<100||metadata.height<100)continue;
+   const info=await fs.stat(real);if(!info.isFile()||info.size>artworkLimits.bytes)continue;
+   await validateArtwork(await fs.readFile(real),record.path.endsWith('.png')?'png':'jpeg');
    await fs.copyFile(real,target,fs.constants.COPYFILE_EXCL);await fs.chmod(target,0o600);recovered++;break;
   }catch{}}
  }
