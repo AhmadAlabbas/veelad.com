@@ -4,7 +4,7 @@ import sharp from 'sharp';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import {validateArtwork,artworkLimits,artworkPath,artworkPreview} from '../src/artwork.js';
+import {validateArtwork,artworkLimits,artworkPath,artworkPreview,artworkMetadata} from '../src/artwork.js';
 
 test('artwork rejects executable/vector formats, oversized files and image dimensions beyond the production limits',async()=>{
  for(const bytes of [Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1000"></svg>'),Buffer.from('%PDF-1.4'),Buffer.from('invalid'),Buffer.alloc(artworkLimits.bytes+1)]) await assert.rejects(()=>validateArtwork(bytes),{status:422});
@@ -25,4 +25,9 @@ test('cached previews honor original orientation and never outlive a missing ori
   assert.notDeepEqual(await artworkPreview(directory,record),preview);
   await fs.unlink(file);await assert.rejects(()=>artworkPreview(directory,record),{status:404});
  }finally{await fs.rm(directory,{recursive:true,force:true});}
+});
+
+test('opaque backgrounds are distinguished from genuine transparency even in RGBA PNG uploads',async()=>{
+ const directory=await fs.mkdtemp(path.join(os.tmpdir(),'veelad-opacity-'));
+ try{for(const [name,alpha,expected]of [['opaque',1,true],['transparent',.5,false]]){const bytes=await sharp({create:{width:120,height:120,channels:4,background:{r:80,g:50,b:120,alpha}}}).png().toBuffer(),file=name+'.png';await fs.writeFile(path.join(directory,file),bytes);const meta=await artworkMetadata(directory,{id:name,path:file});assert.equal(meta.has_alpha,true);assert.equal(meta.opaque,expected);}}finally{await fs.rm(directory,{recursive:true,force:true});}
 });

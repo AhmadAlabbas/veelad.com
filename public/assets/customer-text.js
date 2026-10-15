@@ -55,6 +55,7 @@ async function customerTextOverlay(instance, product) {
       canvas = document.createElement("canvas");
     canvas.width = 900;
     canvas.height = Math.round((900 * product.preview[1]) / product.preview[0]);
+    if(typeof updateStudioWarnings==='function')updateStudioWarnings(instance,glyphs);
     const ctx = canvas.getContext("2d");
     for (const layer of layers) {
       const image = glyphs.find((g) => g.id === layer.id)?.image;

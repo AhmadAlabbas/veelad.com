@@ -327,6 +327,7 @@ async function startDesignStudio(root) {
       q.dataset.level = quality.level;
       q.innerHTML = `<strong>${t(quality.level === "empty" ? "Add artwork to check quality" : quality.level === "template_required" ? "Supplier template required" : quality.level === "recommended" ? "Resolution estimate: good" : quality.level === "review" ? "Resolution estimate: review needed" : "Resolution estimate: too low")}</strong>${quality.dpi !== null ? `<span>${esc(t("About {dpi} DPI at this placement", { dpi: localNumber(quality.dpi) }))}</span>` : ""}<small>${t(quality.cropped ? "Artwork extends beyond the printable area and will be cropped." : quality.dense ? "The pattern is too dense. Increase its scale or use a single placement." : "Provisional dimensions. Supplier review is still required.")}</small>`;
       if(!instance.image&&instance.state.text_layers?.[product.id]?.some(layer=>layer.text.trim()))q.innerHTML=`<strong>${t('Text design')}</strong><small>${t('Text is rendered with the same fonts for preview and production. Supplier review is still required.')}</small>`;
+      if(typeof updateStudioWarnings==='function')updateStudioWarnings(instance);
       instance.persist();
       cancelAnimationFrame(instance.frame);
       instance.frame = requestAnimationFrame(() => instance.render());
@@ -353,6 +354,7 @@ async function startDesignStudio(root) {
           math,
           root.querySelector("[data-studio-guides]").checked,
         );
+        instance.drawAlignment?.();
         status.textContent = content
           ? ""
           : t("Upload artwork to see its placement");
@@ -599,6 +601,7 @@ async function startDesignStudio(root) {
       const p = drag.target||instance.state.placements[instance.product().id];
       p.x = Math.max(0, Math.min(1, drag.x + point.x - drag.point.x));
       p.y = Math.max(0, Math.min(1, drag.y + point.y - drag.point.y));
+      if(root.querySelector('[data-snap-center]')?.checked){for(const key of ['x','y'])if(Math.abs(p[key]-.5)<.015)p[key]=.5;}
       instance.update();
       if(!drag.target)for (const key of ["x", "y"])
         root.querySelector("[data-placement=" + key + "]").value = Math.round(
@@ -625,6 +628,7 @@ async function startDesignStudio(root) {
     });
     instance.syncControls();
     if(typeof mountCustomerTextTools==='function')mountCustomerTextTools(instance);
+    if(typeof mountStudioRefinements==='function')mountStudioRefinements(instance);
     instance.update();
     const source =
       root

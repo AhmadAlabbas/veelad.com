@@ -39,7 +39,13 @@ test('storage continuity is observed across releases and encrypted database/artw
   await assert.rejects(()=>restoreSnapshot({...rootConfig,mode:'production'},source,c.backupKey,'live_production',path.join(folder,'no')),/Restore requires/);
   await assert.rejects(()=>privateDirectory({...c,mode:'staging'},path.join(folder,'public_html','artwork')),/Private directory/);
   await fs.unlink(path.join(c.uploadDir,'.veelad-storage-proof'));assert.equal((await probeStorage(c,db)).continuity,'lost');assert.equal((await probeStorage(c,db)).ready,false);
-  await fs.unlink(path.join(c.uploadDir,'original.png'));assert.equal((await probeStorage(c,db)).missing_files,1);await assert.rejects(()=>createBackup(c,db),{code:'BACKUP_FAILED'});
+  await createBackup({...c,mode:'staging'},db);await fs.unlink(path.join(c.uploadDir,'original.png'));assert.equal((await probeStorage(c,db)).missing_files,1);const partial=await createBackup(c,db);assert.equal(partial.status,'partial');assert.equal(partial.missing_files,1);
+  const partialFile=path.join(c.backupDir,partial.file),partialSnapshot=await readBackup(partialFile,c.backupKey);assert.equal(partialSnapshot.tables.users.length,1);assert.equal(partialSnapshot.missing_artwork[0].path,'original.png');
+  await assert.rejects(()=>restoreSnapshot(rootConfig,partialFile,c.backupKey,'veelad_incomplete_test',path.join(folder,'incomplete')),/Incomplete backup/);
+  const partialTarget='veelad_partial_'+process.pid+'_test';try{const recovery=await restoreSnapshot(rootConfig,partialFile,c.backupKey,partialTarget,path.join(folder,'partial-restore'),true);assert.equal(recovery.complete,false);assert.equal(recovery.missing_files,1);}finally{await root.pool.query('DROP DATABASE IF EXISTS ??',[partialTarget]);}
+  // A prior authenticated complete snapshot can restore an exact missing original on staging.
+  assert.equal(await recoverStagingArtwork({...c,mode:'staging'},[{id:'ops-art',path:'original.png'}],path.join(folder,'no-retained-builds')),1);assert.deepEqual(await fs.readFile(path.join(c.uploadDir,'original.png')),bytes);await fs.unlink(path.join(c.uploadDir,'original.png'));
+
   const oldRoot=path.join(folder,'staging-site'),oldFolder=path.join(oldRoot,'hbuilds','versions','retained-version','nodejs','var','uploads');await fs.mkdir(oldFolder,{recursive:true});await fs.writeFile(path.join(oldFolder,'original.png'),bytes);
   assert.equal(await recoverStagingArtwork({...c,mode:'staging'},[{path:'original.png'}],oldRoot),1);assert.deepEqual(await fs.readFile(path.join(c.uploadDir,'original.png')),bytes);
   assert.equal(await recoverStagingArtwork({...c,mode:'staging'},[{path:'original.png'}],oldRoot),0);

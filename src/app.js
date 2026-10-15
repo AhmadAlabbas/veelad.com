@@ -17,6 +17,7 @@ import {prepareArtworkArchive} from './artwork-archive.js';
 import {validateDesignStudio,mockupId,mockupMatches,productionPlan,printProductFor} from './design-studio.js';
 import {renderMockup,renderDesignTexture,ensureMockup,currentProductMockup} from './mockup-renderer.js';
 import {hasText,validateTextLayers,renderTextGlyph} from './text-layers.js';
+import {productionRoute,customerOrder,assertProductionReady,productionState} from './production.js';
 import {customerDraftRoute} from './customer-drafts.js';
 import {queueMail,mailStatus,recipientAllowed,checkMail,safeMailError} from './mail.js';
 const publicDir=fileURLToPath(new URL('../public',import.meta.url));
@@ -258,24 +259,25 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail) {
     const code=typeof v.coupon==='string'?v.coupon.trim().toUpperCase():'';
     const discount=code && code===(s.coupon_code??'HELLOVEELAD') ? Math.round(subtotal*(s.coupon_percent??10)/100) : 0;
     const shipping=subtotal-discount>=s.free_shipping?0:Number(s.shipping),total=subtotal-discount+shipping;
-    const data={customer:details,items,subtotal,shipping,discount,payment_status:'awaiting_payment',tracking:'',note:'Order received. Awaiting payment; no charge has been made.'};
+    const data={...(items.some(item=>item.customer_customized)?{production:productionState({})}:{}),customer:details,items,subtotal,shipping,discount,payment_status:'awaiting_payment',tracking:'',note:'Order received. Awaiting payment; no charge has been made.'};
     await q('UPDATE orders SET total=?,data=? WHERE id=?',[total,JSON.stringify(data),id],conn);
     await queue(address,'Veelad order received: '+id,`Hello ${name},\n\nYour order ${id} has been received and is awaiting payment. No charge has been made.\n\n${items.map(item=>`${item.title} — ${item.variant} × ${item.qty}: SAR ${(item.price*item.qty/100).toFixed(2)}`).join('\n')}\n\nSubtotal: SAR ${(subtotal/100).toFixed(2)}\nDiscount: SAR ${(discount/100).toFixed(2)}\nDelivery: SAR ${(shipping/100).toFixed(2)}\nTotal: SAR ${(total/100).toFixed(2)}\n\nPrivate tracking: ${c.origin}/#/track?id=${id}&token=${guest}`,conn);
     if(u) {await q('SELECT id FROM users WHERE id=? FOR UPDATE',[u.id],conn);const st=await state(u.id,conn);st.cart=[];st.address=details;await putState(u.id,st,conn);}
-    return {order:order(await one('SELECT * FROM orders WHERE id=?',[id],conn)),guest_token:guest};
+    return {order:customerOrder(await one('SELECT * FROM orders WHERE id=?',[id],conn)),guest_token:guest};
    });}catch(e) {
     if(e.code!=='ER_DUP_ENTRY') throw e;
     const old=await one('SELECT * FROM orders WHERE request_key=?',[requestKey]);if(!old) throw e;
     // Deterministic secret-derived tokens let simultaneous retries recover the same private tracking code.
-    result={order:order(old),guest_token:guest};
+    result={order:customerOrder(old),guest_token:guest};
    }
    return res.json(result);
   }
-  if(method==='GET' && route==='orders') {const u=await me(req,true);return res.json({orders:(await q('SELECT * FROM orders WHERE user_id=? ORDER BY created_at DESC',[u.id])).map(order)});}
+  if(method==='GET' && route==='orders') {const u=await me(req,true);return res.json({orders:(await q('SELECT * FROM orders WHERE user_id=? ORDER BY created_at DESC',[u.id])).map(customerOrder)});}
   if(method==='GET' && route==='order') {
    const o=await one('SELECT * FROM orders WHERE id=?',[String(req.query.id||'')]),u=await me(req),t=String(req.query.token||'');
-   if(!o||!((u&&(u.id===o.user_id||u.role==='admin')) || (t && equal(o.guest_hash,hash(t))))) fail(404,'Order not found. Sign in or use your private tracking code.');return res.json({order:order(o)});
+   if(!o||!((u&&(u.id===o.user_id||u.role==='admin')) || (t && equal(o.guest_hash,hash(t))))) fail(404,'Order not found. Sign in or use your private tracking code.');return res.json({order:customerOrder(o)});
   }
+  if(['admin-production','order-proof-response','order-proof-image'].includes(route)){const u=await me(req);if(method==='POST')await throttle(req,'production-workflow',120);return productionRoute({route,method,v,req,res,u,db,c,audit});}
   if(method==='POST' && route==='upload') {
    const u=await me(req,true);await throttle(req,'upload',25);const f=req.file;
    if(!f) fail(422,'Upload a PNG or JPEG up to 25 MB.');
@@ -358,6 +360,24 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail) {
    if(!p||(u.role!=='admin'&&p.artist_id!==u.id)) fail(404,'Preview not found.');
    return res.json({product:product(p)});
   }
+  if(method==='POST' && route==='artist-products-batch') {
+   const u=await role(req,'artist');await throttle(req,'artist-batch',15);
+   if(v.id)fail(422,'Use a new submission to create multiple products.');
+   const formats=v.print_formats;if(!Array.isArray(formats)||formats.length<2||formats.length>7||new Set(formats).size!==formats.length||formats.some(format=>!categories.includes(format)))fail(422,'Choose two to seven product types.');
+   const draft=v.action==='draft';if(!draft&&v.rights!==true)fail(422,'Confirm that you have the rights to sell this artwork.');
+   const requestKey=text(v,'request_key',100),batchId=hash(u.id+'|'+requestKey),prepared=[];
+   for(const category of formats){
+    const p=await validProduct({...v,category,mockup_upload_id:null},req,draft,true);if(!p.upload_id)fail(422,'Upload your original artwork first.');
+    if(p.design_studio&&p.design_studio.listing_mockup!==false){const image=await one('SELECT * FROM uploads WHERE id=?',[p.upload_id]),id=mockupId(p.upload_id,category,p.design_studio);await privateDirectory(c,c.uploadDir);await ensureMockup(c,db,id,image.user_id,async()=>renderMockup(await artworkRenderSource(c.uploadDir,image),category,p.design_studio));p.mockup_upload_id=id;}
+    p.submission_group=batchId;p.print_formats=[category];prepared.push({id:'p-'+hash(batchId+'|'+category).slice(0,40),p});
+   }
+   const fingerprint=hash(JSON.stringify(prepared.map(item=>item.p)));
+   await db.tx(async conn=>{await one('SELECT id FROM users WHERE id=? FOR UPDATE',[u.id],conn);
+    const existing=await one('SELECT * FROM products WHERE id=?',[prepared[0].id],conn);if(existing){if(json(existing.data).submission_fingerprint!==fingerprint)fail(409,'This submission changed. Start a new submission.');return;}
+    for(const {id,p} of prepared){p.submission_fingerprint=fingerprint;await q('INSERT INTO products VALUES (?,?,?,?,?,?)',[id,u.id,draft?'draft':'pending',0,JSON.stringify(p),now()],conn);if(!draft)await q('INSERT INTO product_reviews VALUES (?,?)',[id,JSON.stringify({status:'pending',feedback:'',submitted_at:now()})],conn);}
+    await audit(u,'artist.batch_submit',batchId,conn);
+   });return res.json({ids:prepared.map(item=>item.id),status:draft?'draft':'pending'});
+  }
   if(method==='POST' && route==='artist-product') {
    const u=await role(req,'artist'),draft=v.action==='draft',p=await validProduct(v,req,draft,true);if(!draft&&v.rights!==true) fail(422,'Confirm that you have the rights to sell this artwork.');if(!draft&&!p.upload_id) fail(422,'Upload your original artwork first.');
    const id=v.id ? text(v,'id',64) : uid('p-');
@@ -434,7 +454,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail) {
    }
    if(method==='POST' && route==='admin-backup') {await throttle(req,'operations',5);if(!backupReady(c))fail(409,'Configure BACKUP_ENABLED, BACKUP_DIR, BACKUP_ENCRYPTION_KEY and BACKUP_INTERVAL_HOURS privately before backing up.');await audit(u,'backup.request','encrypted');const result=await createBackup(c,db);return res.json({ok:result.status==='success',backup:result});}
    if(method==='GET' && route==='admin-backup-key') {if(!backupReady(c))fail(409,'Backups are not configured.');await audit(u,'backup.key_download','private');return res.attachment('veelad-'+c.mode+'-backup-recovery-key.txt').type('text/plain').send(c.backupKey+'\n');}
-   if(method==='GET' && route==='admin-backup-download') {const record=await one('SELECT data FROM operational_status WHERE id=?',['backup']);const result=record?json(record.data):null;if(!c.backupDir||result?.status!=='success'||!/^veelad-[a-zA-Z0-9_-]+\.vbackup$/.test(result.file))fail(404,'Encrypted backup not available.');await audit(u,'backup.download','encrypted');return res.download(path.join(c.backupDir,result.file),result.file);}
+   if(method==='GET' && route==='admin-backup-download') {const record=await one('SELECT data FROM operational_status WHERE id=?',['backup']);const result=record?json(record.data):null;if(!c.backupDir||!['success','partial'].includes(result?.status)||!/^veelad-[a-zA-Z0-9_-]+\.vbackup$/.test(result.file))fail(404,'Encrypted backup not available.');await audit(u,'backup.download','encrypted');return res.download(path.join(c.backupDir,result.file),result.file);}
    if(method==='POST' && route==='admin-email') {
     await throttle(req,'admin-email',5);
     if(!['verify','test'].includes(v.action)) fail(422,'Choose a connection check or test email.');
@@ -474,6 +494,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail) {
      }else {
       const next=text(v,'status',30),allowed={awaiting_payment:['cancelled'],new:['cancelled'],processing:['shipped','cancelled'],shipped:['delivered'],delivered:[],cancelled:[]};
       if(next!==o.status && !allowed[o.status]?.includes(next)) fail(409,'This order status transition is not allowed.');
+      if(next==='shipped'&&d.production){assertProductionReady(d,'packed');if(d.production.stage!=='packed')fail(409,'Pack the order before shipping.');}
       d.tracking=text(v,'tracking',100,false);if(next==='cancelled'&&d.payment_status==='paid') d.payment_status='refund_required';
       await q('UPDATE orders SET status=?,data=? WHERE id=?',[next,JSON.stringify(d),o.id],conn);
       if(next==='cancelled'&&o.status!=='cancelled') for(const l of [...d.items].sort((a,b)=>a.id.localeCompare(b.id))) await q('UPDATE products SET stock=stock+? WHERE id=?',[l.qty,l.id],conn);

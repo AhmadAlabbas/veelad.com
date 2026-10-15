@@ -72,3 +72,13 @@ State/checkout cart lines accept optional `customization_id`. The server verifie
 - `GET admin-design-artwork&id=PRODUCT_ID&order=ORDER_ID&line=LINE_ID`: audited, administrator-only flat composed PNG from the immutable order-line snapshot (10 exports/IP/15 minutes). It contains image + text, not the product photograph; dimensions remain provisional. Existing `admin-design-plan` now includes text-layer instructions. Source bytes and rendering fonts are preserved independently.
 
 Customer design saves accept an optional title (80 Unicode characters) and `upload_id:null` for text-only layouts. Source-less preview IDs are scoped to their owner. Order lines include `design_title` when named and preserve text independently of later draft edits.
+
+## Production preparation and proofs
+
+- `POST admin-production`: administrator-only, order `id`, exact `revision`, `action=update` with `stage`, five boolean `checks` (`originals`, `placement`, `options`, `print_quality`, `packaging`), `internal_notes` and `customer_note`; or `action=proof` with exact `line_id`, administrator-owned original `upload_id`, optional `caption`. Returns the new revision. All writes are CSRF-protected and transactional.
+- `GET order-proof-image&id=...&proof=...`: private WebP preview, requires the owning signed-in customer, administrator, or the existing guest `token`.
+- `POST order-proof-response`: owning customer or guest token, order `id`, exact `revision`, latest pending `proof_id`, `decision=approved|changes_requested`; approval requires `confirm:true`, changes require `feedback`.
+- `GET orders` and `GET order` return customer-visible production stage, proofs, feedback and progress history. Internal notes, checklist and private original IDs in proof records are stripped. Checkout retry responses use the same safe projection.
+- `POST artist-products-batch`: artist-only, same fields as a new artist product plus stable `request_key` and two to seven distinct `print_formats`. Creates separate private/pending listings atomically, sharing the owned original. Repeated identical requests return the same IDs; changed retries conflict. Each category gets its own mockup when placement previews are enabled.
+
+No live payment or mail delivery is enabled by these routes. See [Production workflow](PRODUCTION-WORKFLOW.md) for gates and legacy compatibility.

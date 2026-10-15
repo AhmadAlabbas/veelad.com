@@ -55,7 +55,7 @@ function localizedError(message) {
   const stock=source.match(/^There is not enough stock for (.+)\.$/);if(stock)return t('There is not enough stock for {title}.',{title:stock[1]});
   const validation = source.match(/^Please check (.+)\.$/);
   if (validation) {
-    const fields = { title: 'Title (English)', title_ar: 'Title (Arabic)', description: 'Description (English)', description_ar: 'Description (Arabic)', tags: 'Tags (English, comma separated)', tags_ar: 'Tags (Arabic, comma separated)', name: 'Name', email: 'Email address', password: 'Password', price: 'Price', stock: 'Stock', category: 'Category', production_notes: 'Production notes', print_formats: 'Print products' };
+    const fields = { title: 'Title (English)', title_ar: 'Title (Arabic)', description: 'Description (English)', description_ar: 'Description (Arabic)', tags: 'Tags (English, comma separated)', tags_ar: 'Tags (Arabic, comma separated)', name: 'Name', email: 'Email address', password: 'Password', price: 'Price', stock: 'Stock', category: 'Category', production_notes: 'Production notes', internal_notes: 'Internal production notes', customer_note: 'Update visible to the customer', caption: 'Proof explanation', feedback: 'Feedback or requested changes', stage: 'Production stage', print_formats: 'Print products' };
     return t('Please check {field}.', { field: fields[validation[1]] ? t(fields[validation[1]]) : t('this field') });
   }
   return t(source);

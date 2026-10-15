@@ -498,3 +498,54 @@ test('customer text, autosaved drafts and library enforce revisions and ownershi
  await success(owner,'customer-draft',{action:'archive',id:saved.id,revision:3});assert.equal((await success(owner,'customer-library')).drafts.length,0);assert.equal((await owner.call('customer-draft',undefined,{id:saved.id})).status,404);
  assert.equal((await success(owner,'order',undefined,{id:o.id})).order.items[0].design_studio.text_layers.shirt[0].text,layer.text);
 });
+
+test('production proofs require exact customer approval, preserve privacy, prevent stale decisions and gate printing and shipping',async()=>{
+ await db.q('DELETE FROM rate_limits');const buyer=client();await success(buyer,'bootstrap');await success(buyer,'register',{name:'Production buyer',email:'production-buyer@example.test',password:pw});
+ const pid='p-production-proof';await success(admin,'admin-product',{id:pid,upload_id:artId,title:'Proof item',description:'Production test item',category:'T-shirts',price:7000,stock:10,variants:['Standard'],artist_id:(await db.one('SELECT id FROM artists ORDER BY id LIMIT 1')).id,status:'active'});
+ const result=await success(buyer,'checkout',{customer,cart:[{id:pid,variant:'Standard',qty:1}],consent:true,request_key:'production-proof-test'}),id=result.order.id,line=result.order.items[0].line_id;
+ const bytes=await sharp({create:{width:300,height:300,channels:3,background:'purple'}}).png().toBuffer(),form=new FormData();form.append('artwork',new Blob([bytes],{type:'image/png'}),'proof.png');const image=await success(admin,'upload',form);
+ const checks={originals:true,placement:true,options:true,print_quality:false,packaging:false};
+ assert.equal((await buyer.call('admin-production',{id,revision:0,action:'update',stage:'preparing',checks})).status,403);
+ let current=(await success(admin,'admin-production',{id,revision:0,action:'update',stage:'preparing',checks,internal_notes:'PRIVATE-INTERNAL-NOTE',customer_note:'We are checking your design.'})).order;
+ assert.equal((await success(buyer,'order',undefined,{id})).order.production.internal_notes,undefined);assert.equal((await success(buyer,'checkout',{customer,cart:[{id:pid,variant:'Standard',qty:1}],consent:true,request_key:'production-proof-test'})).order.production.internal_notes,undefined);
+ const publish=()=>admin.call('admin-production',{id,revision:current.production.revision,action:'proof',line_id:line,upload_id:image.upload_id,caption:'Please check this final layout.'});
+ current=(await publish()).body.order;const first=current.production.proofs.at(-1);assert.match(first.sha256,/^[a-f0-9]{64}$/);
+ assert.equal((await other.call('order-proof-image',undefined,{id,proof:first.id})).status,404);
+ assert.equal((await buyer.call('order-proof-image',undefined,{id,proof:first.id},true)).status,200);
+ const proofRecord=await db.one('SELECT path FROM uploads WHERE id=?',[image.upload_id]),proofPath=path.join(c.uploadDir,proofRecord.path);await fs.writeFile(proofPath,await sharp({create:{width:300,height:300,channels:3,background:'orange'}}).png().toBuffer());assert.equal((await buyer.call('order-proof-image',undefined,{id,proof:first.id})).status,409);await fs.writeFile(proofPath,bytes);
+ assert.equal((await admin.call('order-proof-response',{id,revision:current.production.revision,proof_id:first.id,decision:'approved',confirm:true})).status,403);
+ const response={id,revision:current.production.revision,proof_id:first.id,decision:'changes_requested',feedback:'Move the art down.'};
+ current=(await success(buyer,'order-proof-response',response)).order;assert.equal(current.production.stage,'preparing');
+ assert.equal((await buyer.call('order-proof-response',response)).status,409);
+ current=(await publish()).body.order;const proof=current.production.proofs.at(-1);
+ assert.equal((await buyer.call('order-proof-response',{...response,revision:current.production.revision})).status,409);
+ current=(await success(buyer,'order-proof-response',{id,revision:current.production.revision,proof_id:proof.id,decision:'approved',confirm:true})).order;
+ const move=async(stage,extra={})=>admin.call('admin-production',{id,revision:current.production.revision,action:'update',stage,checks,internal_notes:'PRIVATE-INTERNAL-NOTE',...extra});
+ current=(await move('ready')).body.order;
+ assert.equal((await move('printing')).status,409);
+ await success(admin,'admin-record-payment',{id,reference:'simulated-proof-payment'});
+ current=(await move('printing')).body.order;
+ assert.equal((await publish()).status,409);
+ assert.equal((await admin.call('admin-order',{id,status:'shipped',tracking:''})).status,409);
+ assert.equal((await move('quality_check')).status,409);checks.print_quality=true;current=(await move('quality_check')).body.order;
+ checks.packaging=true;current=(await move('packed')).body.order;
+ await success(admin,'admin-order',{id,status:'shipped',tracking:'TEST-ONLY-TRACKING'});
+ const mine=(await success(buyer,'orders')).orders.find(o=>o.id===id);assert.equal(mine.production.internal_notes,undefined);assert.equal(mine.production.checks,undefined);assert.equal(mine.production.proofs[0].upload_id,undefined);assert.equal(mine.tracking,'TEST-ONLY-TRACKING');
+ assert.equal((await buyer.call('order-proof-response',{id,revision:current.production.revision,proof_id:proof.id,decision:'approved',confirm:true})).status,409);
+ // Guest orders use the existing private tracking token, never an order ID alone.
+ const guest=client();await success(guest,'bootstrap');const g=await success(guest,'checkout',{customer,cart:[{id:pid,variant:'Standard',qty:1}],consent:true,request_key:'guest-production-proof-test'});
+ const gp=(await success(admin,'admin-production',{id:g.order.id,revision:0,action:'proof',line_id:g.order.items[0].line_id,upload_id:image.upload_id})).order.production;
+ assert.equal((await guest.call('order-proof-response',{id:g.order.id,revision:gp.revision,proof_id:gp.proofs[0].id,decision:'approved',confirm:true})).status,404);
+ await success(guest,'order-proof-response',{id:g.order.id,token:g.guest_token,revision:gp.revision,proof_id:gp.proofs[0].id,decision:'approved',confirm:true});
+});
+
+test('artists reuse one private original across atomic idempotent separately reviewed product listings',async()=>{
+ await db.q('DELETE FROM rate_limits');const buyer=client();await success(buyer,'bootstrap');await success(buyer,'register',{name:'Batch buyer',email:'batch-buyer@example.test',password:pw});const request={request_key:'artist-batch-unique',action:'submit',title:'One design many products',description:'Original artwork on multiple products',category:'T-shirts',print_formats:['T-shirts','Notebooks'],upload_id:artId,rights:true,design_studio:{version:1,template_version:'veelad-generic-1',artwork_id:artId,active_product:'shirt',placements:{}}};
+ assert.equal((await buyer.call('artist-products-batch',request)).status,403);
+ assert.equal((await other.call('artist-products-batch',request)).status,403);
+ const first=await success(artist,'artist-products-batch',request),second=await success(artist,'artist-products-batch',request);assert.deepEqual(second.ids,first.ids);assert.equal(first.ids.length,2);
+ const items=(await success(artist,'studio')).products.filter(p=>first.ids.includes(p.id));assert.equal(items.length,2);assert.deepEqual(items.map(p=>p.category).sort(),['Notebooks','T-shirts']);assert.equal(new Set(items.map(p=>p.mockup_upload_id)).size,2);
+ for(const p of items){assert.equal(p.upload_id,artId);assert.equal(p.status,'pending');assert.equal(p.price,0);assert.equal(p.stock,0);assert.deepEqual(p.print_formats,[p.category]);assert.equal((await success(buyer,'bootstrap')).products.some(publicProduct=>publicProduct.id===p.id),false);}
+ assert.equal((await artist.call('artist-products-batch',{...request,title:'Changed retry'})).status,409);
+ assert.equal((await artist.call('artist-products-batch',{...request,print_formats:['T-shirts','T-shirts']})).status,422);
+});

@@ -30,7 +30,7 @@ export async function readArtwork(directory,record) {
 export async function artworkMetadata(directory,record) {
  const bytes=await readArtwork(directory,record),info=await validateArtwork(bytes);
  const rotated=[5,6,7,8].includes(info.orientation),width=rotated?info.height:info.width,height=rotated?info.width:info.height;
- return {upload_id:record.id,width,height,size_bytes:bytes.length,format:info.format,has_alpha:!!info.hasAlpha,color_space:info.space,density:info.density||null,
+ return {upload_id:record.id,width,height,size_bytes:bytes.length,format:info.format,has_alpha:!!info.hasAlpha,opaque:!info.hasAlpha||(await sharp(bytes,{limitInputPixels:artworkLimits.pixels}).stats()).isOpaque,color_space:info.space,density:info.density||null,
   print_width_cm_300dpi:Math.round(width/300*2.54*10)/10,print_height_cm_300dpi:Math.round(height/300*2.54*10)/10,
   resolution_guidance:'300 DPI dimensions are guidance only. Veelad must check the exact printing template, bleed, color and usable artwork before production.'};
 }
