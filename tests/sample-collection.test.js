@@ -190,6 +190,22 @@ test('account matching normalizes the approved address but refuses ambiguous imp
  await db.q('DELETE FROM users WHERE id=?',['ambiguous-owner']);assert.equal((await install()).owner_linked,true);assert.equal((await db.one('SELECT role FROM users WHERE id=?',['collection-owner'])).role,'buyer');
 });
 
+test('installation, recovery and publication resolve the approved account across imported collations without SQL hashing or bound advisory locks',async()=>{
+ const column=await db.one("SHOW FULL COLUMNS FROM users LIKE 'email'");assert.match(column.Collation,/^[a-zA-Z0-9_]+$/);
+ const protect=method=>async(sql,args=[],conn)=>{
+  if(/\bSHA2\s*\(/i.test(sql))throw Object.assign(Error('Simulated imported expression collation conflict'),{code:'ER_CANT_AGGREGATE_2COLLATIONS'});
+  if(/\b(?:GET_LOCK|RELEASE_LOCK)\s*\(/i.test(sql)&&args.length)throw Object.assign(Error('Simulated unsupported bound lock expression'),{code:'ER_UNSUPPORTED_PS'});
+  return db[method](sql,args,conn);
+ },portable={...db,q:protect('q'),one:protect('one')};
+ try{
+  await db.q('ALTER TABLE users MODIFY email VARCHAR(190) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL');await owner();const address=' '+ownerEmail.toUpperCase();await db.q('UPDATE users SET email=? WHERE id=?',[address,'collection-owner']);
+  await db.q('INSERT INTO users VALUES (?,?,?,?,?,?,?)',['unrelated-active-owner','Different fixture','unrelated@example.test','private-test-hash','admin','active',new Date().toISOString()]);
+  const installed=await installSampleCollection(c,portable,{manifestFile,ownerFingerprint});assert.equal(installed.created_count,2);assert.equal((await db.one('SELECT role,email FROM users WHERE id=?',['collection-owner'])).role,'buyer');assert.equal((await db.one('SELECT email FROM users WHERE id=?',['collection-owner'])).email,address);
+  const source=await db.one("SELECT * FROM uploads WHERE mime='image/png'");await fs.unlink(path.join(c.uploadDir,source.path));const recovered=await installSampleCollection(c,portable,{manifestFile,ownerFingerprint});assert.equal(recovered.recovered_originals,1);assert.deepEqual(await fs.readFile(path.join(c.uploadDir,source.path)),artwork);
+  assert.equal((await publish(portable)).published_count,2);assert.ok((await db.q("SELECT artist_id FROM products WHERE id LIKE 'p-vld1-%'")).every(p=>p.artist_id==='collection-owner'));assert.equal((await counts()).mail_queue,0);
+ }finally{await db.q('ALTER TABLE users MODIFY email VARCHAR(190) CHARACTER SET utf8mb4 COLLATE '+column.Collation+' NOT NULL');}
+});
+
 test('publication waits for successful installation without adding or changing any catalogue records',async()=>{
  const before=await db.q('SELECT * FROM products ORDER BY id');assert.equal((await publish()).status,'pending_installation');assert.deepEqual(await db.q('SELECT * FROM products ORDER BY id'),before);assert.equal(await db.one('SELECT data FROM settings WHERE id=?',['sample_publish_v1']),null);
 });

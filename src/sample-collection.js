@@ -22,6 +22,19 @@ const digest=bytes=>createHash('sha256').update(bytes).digest('hex');
 const checked=(condition,code)=>{if(!condition)throw Object.assign(Error('Sample collection validation failed'),{code});};
 const nonempty=(value,limit)=>typeof value==='string'&&value.trim().length>0&&[...value].length<=limit;
 export const sampleProductId=id=>'p-vld1-'+digest(id).slice(0,32);
+const matchingOwner=(row,fingerprint)=>row?.status==='active'&&typeof row.email==='string'&&digest(row.email.trim().toLowerCase())===fingerprint;
+async function approvedActiveOwner(db,connection,fingerprint){
+ // Imported databases can use a different collation for email, connection text
+ // and SQL digest results. Normalize/hash privately in Node rather than comparing
+ // SHA2 expressions in MySQL. Emails never leave this lookup or enter logs.
+ const rows=await db.q("SELECT id,name,role,status,email FROM users WHERE status='active'",[],connection),matches=rows.filter(row=>matchingOwner(row,fingerprint));
+ checked(matches.length<=1,'COLLECTION_OWNER_AMBIGUOUS');if(!matches.length)return null;
+ const {id,name,role,status}=matches[0];return {id,name,role,status};
+}
+async function assertCurrentOwner(db,connection,id,fingerprint){
+ const current=await db.one('SELECT id,email,status FROM users WHERE id=? FOR UPDATE',[id],connection);
+ checked(matchingOwner(current,fingerprint),'COLLECTION_OWNER_CHANGED');
+}
 
 function validateManifest(manifest,ownerFingerprint) {
  checked(manifest?.version===1&&manifest.id===collectionId&&!Object.hasOwn(manifest,'owner_email')&&/^[a-f0-9]{64}$/.test(ownerFingerprint)&&manifest.owner_email_sha256===ownerFingerprint,'COLLECTION_MANIFEST_INVALID');
@@ -93,9 +106,8 @@ async function putCompletionMarker(db,record,connection){
 
 async function repairInstalledOriginals(c,db,manifest,manifestFile,ownerFingerprint,connection,stage){
  stage('readowner');
- const owners=await db.q("SELECT id FROM users WHERE SHA2(LOWER(TRIM(email)),256)=? AND status='active'",[ownerFingerprint],connection);
- checked(owners.length<=1,'COLLECTION_OWNER_AMBIGUOUS');if(!owners.length)return 0;
- const owner=owners[0],candidates=new Map();
+ const owner=await approvedActiveOwner(db,connection,ownerFingerprint);if(!owner)return 0;
+ const candidates=new Map();
  for(const item of manifest.products){
   const id='art-'+digest(collectionId+'|'+owner.id+'|'+item.artwork+'|'+item.artwork_sha256).slice(0,40),row=await db.one('SELECT artist_id,data FROM products WHERE id=?',[sampleProductId(item.id)],connection);
   if(!row||row.artist_id!==owner.id)continue;
@@ -145,7 +157,7 @@ async function installCollection(c,db,{manifestFile=defaultManifest,ownerFingerp
  const manifest=JSON.parse(manifestBytes);validateManifest(manifest,ownerFingerprint);
  stage('readowner');const fingerprint=digest(manifestBytes),connection=await db.pool.getConnection();let locked=false;
  try{
-  locked=!!(await db.one('SELECT GET_LOCK(?,0) AS acquired',['veelad_sample_collection_01'],connection))?.acquired;
+  locked=!!(await db.one("SELECT GET_LOCK('veelad_sample_collection_01',0) AS acquired",[],connection))?.acquired;
   if(!locked)return {status:'busy'};
   const marker=await db.one('SELECT data FROM operational_status WHERE id=?',['sample_collection'],connection),previous=marker?JSON.parse(marker.data):null;
   const journalRow=await db.one('SELECT data FROM settings WHERE id=?',[journalId],connection),journal=journalRow?JSON.parse(journalRow.data):null;
@@ -158,8 +170,7 @@ async function installCollection(c,db,{manifestFile=defaultManifest,ownerFingerp
    if(recovered||!journal||previous?.status!=='installed'||previous.manifest_sha256!==fingerprint){stage('transaction');await db.tx(conn=>putCompletionMarker(db,repaired,conn));}
    return {...repaired,skipped:true,recovered_originals:recovered};
   }
-  const owners=await db.q("SELECT id,name,role,status FROM users WHERE SHA2(LOWER(TRIM(email)),256)=? AND status='active'",[ownerFingerprint],connection);
-  checked(owners.length<=1,'COLLECTION_OWNER_AMBIGUOUS');const owner=owners[0];
+  const owner=await approvedActiveOwner(db,connection,ownerFingerprint);
   if(!owner){
    const pending={id:collectionId,status:'pending_account',owner_linked:false,total_count:manifest.products.length,checked_at:new Date().toISOString()};
    await putOperation(db,'sample_collection',pending);return pending;
@@ -186,8 +197,7 @@ async function installCollection(c,db,{manifestFile=defaultManifest,ownerFingerp
   stage('write_originals');const folder=await privateDirectory(c,c.uploadDir);
   for(const source of artworks.values())await writeOriginal(folder,source.name,source.bytes);
   stage('transaction');const installed=await db.tx(async conn=>{
-   const current=await db.one("SELECT id FROM users WHERE id=? AND SHA2(LOWER(TRIM(email)),256)=? AND status='active' FOR UPDATE",[owner.id,ownerFingerprint],conn);
-   checked(!!current,'COLLECTION_OWNER_CHANGED');
+   await assertCurrentOwner(db,conn,owner.id,ownerFingerprint);
    const created=prepared.filter(item=>!item.existing),now=new Date().toISOString();
    if(created.length){
     const profile={id:owner.id,name:owner.name,initials:[...owner.name].slice(0,2).join('').toUpperCase(),handle:owner.id,bio:'',bio_ar:'',location:'',color:'#d9d0ff'};
@@ -213,7 +223,7 @@ async function installCollection(c,db,{manifestFile=defaultManifest,ownerFingerp
   });
   return installed;
  }finally{
-  try{if(locked)await db.q('SELECT RELEASE_LOCK(?)',['veelad_sample_collection_01'],connection);}finally{connection.release();}
+  try{if(locked)await db.q("SELECT RELEASE_LOCK('veelad_sample_collection_01')",[],connection);}finally{connection.release();}
  }
 }
 
@@ -226,7 +236,7 @@ export async function publishSampleCollection(c,db,{manifestFile=defaultManifest
  const manifest=JSON.parse(manifestBytes);validateManifest(manifest,ownerFingerprint);
  const fingerprint=digest(manifestBytes),connection=await db.pool.getConnection();let locked=false;
  try{
-  locked=!!(await db.one('SELECT GET_LOCK(?,0) AS acquired',['veelad_sample_collection_01'],connection))?.acquired;
+  locked=!!(await db.one("SELECT GET_LOCK('veelad_sample_collection_01',0) AS acquired",[],connection))?.acquired;
   if(!locked)return {status:'busy'};
   const previous=await db.one('SELECT data FROM settings WHERE id=?',[publicationId],connection);
   if(previous){
@@ -236,11 +246,10 @@ export async function publishSampleCollection(c,db,{manifestFile=defaultManifest
   const installed=await db.one('SELECT data FROM settings WHERE id=?',[journalId],connection),completion=installed?JSON.parse(installed.data):null;
   if(!completion||completion.status!=='installed')return {status:'pending_installation'};
   checked(completion.id===collectionId&&completion.manifest_sha256===fingerprint,'COLLECTION_MANIFEST_CHANGED');
-  const owners=await db.q("SELECT id FROM users WHERE SHA2(LOWER(TRIM(email)),256)=? AND status='active'",[ownerFingerprint],connection);
-  checked(owners.length<=1,'COLLECTION_OWNER_AMBIGUOUS');if(!owners.length)return {status:'pending_account'};
-  const owner=owners[0],folder=await privateDirectory(c,c.uploadDir),originals=new Map();
+  const owner=await approvedActiveOwner(db,connection,ownerFingerprint);if(!owner)return {status:'pending_account'};
+  const folder=await privateDirectory(c,c.uploadDir),originals=new Map();
   return await db.tx(async conn=>{
-   checked(!!await db.one("SELECT id FROM users WHERE id=? AND SHA2(LOWER(TRIM(email)),256)=? AND status='active' FOR UPDATE",[owner.id,ownerFingerprint],conn),'COLLECTION_OWNER_CHANGED');
+   await assertCurrentOwner(db,conn,owner.id,ownerFingerprint);
    let published=0;const now=new Date().toISOString();
    for(const item of manifest.products){
     const row=await db.one('SELECT * FROM products WHERE id=? FOR UPDATE',[sampleProductId(item.id)],conn);if(!row||row.artist_id!==owner.id||row.status!=='pending'||Number(row.stock)!==0)continue;
@@ -268,5 +277,5 @@ export async function publishSampleCollection(c,db,{manifestFile=defaultManifest
    await db.q('INSERT IGNORE INTO audit_log VALUES (?,?,?,?,?)',['publication-'+digest(collectionId+'|'+owner.id).slice(0,40),owner.id,'sample_collection.publish',collectionId,now],conn);
    return result;
   });
- }finally{try{if(locked)await db.q('SELECT RELEASE_LOCK(?)',['veelad_sample_collection_01'],connection);}finally{connection.release();}}
+ }finally{try{if(locked)await db.q("SELECT RELEASE_LOCK('veelad_sample_collection_01')",[],connection);}finally{connection.release();}}
 }
