@@ -16,6 +16,7 @@ for(const language of ['en','ar'])test(`extended product pages connect real desi
  await expect(page.locator('.product-info h1')).toBeVisible();
  await expect(page.locator('.product-sample-pricing')).toContainText(language==='ar'?'سعر تجريبي · للمعاينة':'Sample price · Staging preview');
  await expect(page.locator('.product-sample-pricing')).toContainText(language==='ar'?'ما يتم تحصيل أي مبلغ':'No real payment is collected');
+ const sampleSchema=JSON.parse(await page.locator('script[data-page-schema]').textContent());expect(sampleSchema['@type']).toBe('Product');expect(sampleSchema.sku).toBe('p1');expect(sampleSchema).not.toHaveProperty('offers');
  await expect(page.locator('.product-story-copy')).toContainText(language==='ar'?'حكاية لون أزرق':'A sea of cobalt');
  await expect(page.locator('.product-story-copy img')).toHaveCount(0);
  await expect(page.locator('.product-format-link')).toHaveCount(2);
@@ -40,5 +41,6 @@ for(const language of ['en','ar'])test(`extended product pages connect real desi
  await page.goto(`/${language}/products/p2`);
  await expect(page.locator('.product-info h1')).toBeVisible();
  await expect(page.locator('.product-sample-pricing')).toHaveCount(0);
+ const regularSchema=JSON.parse(await page.locator('script[data-page-schema]').textContent());expect(regularSchema.sku).toBe('p2');expect(regularSchema.offers['@type']).toBe('Offer');expect(regularSchema.offers.priceCurrency).toBe('SAR');expect(Number(regularSchema.offers.price)).toBeGreaterThan(0);expect(regularSchema.offers.availability).toMatch(/^https:\/\/schema\.org\/(InStock|OutOfStock)$/);
  expect(errors).toEqual([]);
 });

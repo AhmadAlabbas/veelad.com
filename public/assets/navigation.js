@@ -52,7 +52,7 @@ function updatePageMetadata() {
  }
  const robots=document.querySelector('meta[name=robots]');if(robots)robots.content=location.hostname==='staging.veelad.com'||(route==='shop'&&params.size>0)||!['home','shop','artists','artist','product','sell','help','policies'].includes(route)?'noindex, nofollow':'index, follow';
  let schema=document.querySelector('script[data-page-schema]');
- const data=p?{'@context':'https://schema.org','@type':'Product',name:localField(p,'title'),description:localField(p,'description'),inLanguage:language,image,sku:p.id,offers:{'@type':'Offer',url:canonical,priceCurrency:'SAR',price:(p.price/100).toFixed(2),availability:'https://schema.org/'+(p.stock?'InStock':'OutOfStock')}}:a?{'@context':'https://schema.org','@type':'Person',name:localField(a,'name'),description:localField(a,'bio'),inLanguage:language,url:canonical,image}:null;
+ const data=p?{'@context':'https://schema.org','@type':'Product',name:localField(p,'title'),description:localField(p,'description'),inLanguage:language,image,sku:p.id,...(p.sample_pricing===true||p.stock_is_simulated===true?{}:{offers:{'@type':'Offer',url:canonical,priceCurrency:'SAR',price:(p.price/100).toFixed(2),availability:'https://schema.org/'+(p.stock?'InStock':'OutOfStock')}})}:a?{'@context':'https://schema.org','@type':'Person',name:localField(a,'name'),description:localField(a,'bio'),inLanguage:language,url:canonical,image}:null;
  if(data){if(!schema){schema=document.createElement('script');schema.type='application/ld+json';schema.dataset.pageSchema='';document.head.append(schema);}schema.textContent=JSON.stringify(data);}else schema?.remove();
 }
 document.addEventListener('click',event=>{

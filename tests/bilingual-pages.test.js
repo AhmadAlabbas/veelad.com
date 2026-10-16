@@ -12,8 +12,9 @@ const db={
  async one(query,values){return query.includes('FROM products')&&values[0]===product.id?{...product,data:JSON.stringify(product)}:null;},
  async q(query){if(query.includes('FROM artists'))return [{data:JSON.stringify(artist)}];if(query.includes('FROM products'))return [{id:product.id}];return [];}
 };
-async function withPages(mode,run){
- const app=express();pageRoutes(app,{mode,origin:'https://veelad.example',uploadDir:'/tmp',numberingSystem:'latn',revision:'f'.repeat(40)},db,{status:'ready'});
+async function withPages(mode,run,listing=product){
+ const pageDb={...db,async one(query,values){return query.includes('FROM products')&&values[0]===listing.id?{...listing,data:JSON.stringify(listing)}:null;}};
+ const app=express();pageRoutes(app,{mode,origin:'https://veelad.example',uploadDir:'/tmp',numberingSystem:'latn',revision:'f'.repeat(40)},pageDb,{status:'ready'});
  const server=app.listen(0,'127.0.0.1');await new Promise(resolve=>server.once('listening',resolve));
  try{await run('http://127.0.0.1:'+server.address().port);}finally{await new Promise(resolve=>server.close(resolve));}
 }
@@ -34,6 +35,14 @@ test('Arabic and English product pages share one SKU with localized metadata and
  const old=await (await fetch(base+'/products/design-1')).text();assert.match(old,/<h1>English design<\/h1>/);assert.ok(old.includes('canonical" href="https://veelad.example/en/products/design-1'));
  assert.equal((await fetch(base+'/ar/products/unpublished')).status,404);
 }));
+for(const sampleFlags of [{sample_pricing:true},{stock_is_simulated:true}])test(`sample product fallback labels illustrative pricing and omits offers for ${Object.keys(sampleFlags)[0]}`,async()=>withPages('staging',async base=>{
+ for(const language of ['en','ar']){
+  const response=await fetch(base+'/'+language+'/products/design-1'),html=await response.text(),body=html.match(/<noscript>(.*?)<\/noscript>/s)[1],schema=structured(html);
+  assert.equal(response.status,200);assert.ok(body.includes(pageTranslations[language].samplePrice));assert.ok(body.includes(pageTranslations[language].sampleListing));assert.ok(body.includes(pageTranslations[language].sampleDetails));assert.ok(body.includes(pageMoney(product.price,language)));
+  assert.equal(body.includes(pageTranslations[language].inStock),false);assert.equal(body.includes(pageTranslations[language].soldOut),false);
+  assert.equal(schema['@type'],'Product');assert.equal(schema.sku,product.id);assert.equal(schema.inLanguage,language);assert.equal(Object.hasOwn(schema,'offers'),false);assert.equal(JSON.stringify(schema).includes('InStock'),false);assert.ok(schema.image.includes('/share/'+language+'/products/design-1.png'));
+ }
+},{...product,...sampleFlags}));
 test('Arabic artist pages localize biographies and public sitemap contains only both-language public URLs',async()=>withPages('production',async base=>{
  const html=await (await fetch(base+'/ar/artists/artist-1')).text();assert.match(html,/<h1>الفنان العربي<\/h1>/);assert.ok(html.includes('قصة الفنان بالعربية'));assert.ok(html.includes('/ar/shop?artist=artist-1'));assert.equal(structured(html).inLanguage,'ar');
  for(const lang of ['en','ar']){const response=await fetch(base+'/'+lang+'/create');assert.equal(response.status,200);const body=await response.text();assert.ok(body.includes('noindex, nofollow'));assert.ok(body.includes(pageTranslations[lang].createTitle));assert.ok(body.includes('/assets/customer-studio.js'));}
