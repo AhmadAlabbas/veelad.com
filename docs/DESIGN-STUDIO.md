@@ -57,3 +57,13 @@ node tools/prepare-photo-mockups.js /private/path/photo-sources.json
 ```
 
 The source mapping is `{ "shirt": "/path/to/generated.png", ... }` for all nine view names. The original PNG masters are session artifacts; the committed WebP/projection pairs are the deployable source of truth. See `public/assets/mockups/README.md`. The Blender command above documents the historical prototype only, not the current photographic bases. No real payments or production branch changes are part of this staging update.
+
+## Customer product galleries (2026-10-16)
+
+Product galleries preserve the listing's main image and additional uploaded photographs. Listings with an original and a rendered mockup also offer a bounded original-artwork preview. Close-ups enlarge the same preview; they do not create additional printing detail. A compact horizontal thumbnail rail, labeled counter and keyboard/swipe navigation lead to a full-screen viewer with zoom, drag panning, reset and focus restoration. English and Arabic controls follow the page direction. Optional images arriving late preserve the selected image and viewer zoom; unavailable extras leave the original gallery usable.
+
+`GET /api.php?route=product-gallery&id=PRODUCT_ID` describes supported additional views. Current provisional templates support another angle of the same mug wrap and an **unprinted** opposite side of a T-shirt. The mug keeps the saved artwork, placement and text; the opposite shirt view never invents printing on a second side. Other categories retain their normal images, artwork previews and close-ups until additional templates exist.
+
+The metadata response provides a content signature and bounded preview URLs under `product-gallery-image`. Every metadata and image request checks current listing access; private listings require their assigned artist or an administrator, including cache hits. Stale signatures and unsupported views are rejected. Responses reveal no original file path or placement instructions and never provide print-original downloads. These remain in the existing authorized administrator/owner controls.
+
+Additional images are 1000 px WebP derivatives held in a disposable process cache of at most 16 entries / 16 MiB. Two rendering slots, a bounded queue and a limit on new render work protect the runtime. No product, upload, order, account or mail record is changed to display these views. A restart discards the cache and authorized requests regenerate it. No new dependency, secret, database migration or image-service account is required. Reverting the gallery release preserves original files, existing mockups and order instructions.

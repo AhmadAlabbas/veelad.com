@@ -105,30 +105,6 @@ function productDiscovery(p) {
  return `<section class="section product-discover" id="product-discover" tabindex="-1" aria-labelledby="product-discover-title"><div class="product-section-heading"><div><span class="eyebrow">${t('Find your next favourite')}</span><h2 id="product-discover-title">${t('Explore a little further.')}</h2><p>${t('More artwork and products with a similar mood.')}</p></div>${link(esc(t('Browse {category}',{category:t(p.category)}))+' '+icon('arrow'),'shop','text-link',{category:p.category})}</div>${related.length?grid(related):`<p>${t('Explore something new from our independent artists.')}</p>`}${localTags.length?`<div class="product-discovery-tags"><h3>${t('Explore similar ideas')}</h3><div>${localTags.slice(0,12).map(tag=>link(esc(tag),'shop','product-tag',{q:tag})).join('')}</div></div>`:''}</section>`;
 }
 
-function productViews(p) {
- const ids=Array.isArray(p.gallery_upload_ids)?p.gallery_upload_ids.filter(id=>typeof id==='string'&&id!==p.upload_id):[];
- const views=[{product:p,label:t(p.mockup_upload_id?'Product preview':p.upload_id?'Artwork':'Overview'),detail:false}];
- for(const [i,upload_id] of [...new Set(ids)].entries()) views.push({product:{...p,upload_id,mockup_upload_id:null},label:t('Photo {number}',{number:localNumber(i+1)}),detail:false});
- views.push({product:p,label:t('Close-up'),detail:true});
- return views;
-}
-function productGallery(p) {
- const views=productViews(p);
- return `<section class="product-gallery" aria-label="${esc(t('Product images'))}">
-  <div class="gallery-stage">${views.map((view,i)=>`<div class="gallery-panel" id="product-view-${i}" role="tabpanel" aria-labelledby="product-thumb-${i}" ${i?'hidden':''}>
-   <button type="button" class="gallery-enlarge ${view.detail?'gallery-detail':''}" data-action="gallery-zoom" data-id="${esc(p.id)}" data-index="${i}" aria-label="${esc(t('Enlarge {view} of {title}',{view:view.label.toLowerCase(),title:localField(p,'title')}))}">${photo(view.product)}<span class="gallery-zoom-label">${icon('plus')} ${t('Enlarge image')}</span></button>
-  </div>`).join('')}</div>
-  <div class="product-thumbs" role="tablist" aria-label="${esc(t('Choose a product image'))}">${views.map((view,i)=>`<button type="button" class="gallery-thumb ${i?'':'active'}" role="tab" id="product-thumb-${i}" aria-controls="product-view-${i}" aria-selected="${i===0}" tabindex="${i?'-1':'0'}" data-action="gallery-select" data-index="${i}">${photo(view.product)}<span>${esc(view.label)}</span></button>`).join('')}</div>
-  <p class="gallery-caption">${t(p.status==='draft'&&!p.upload_id?'No artwork has been added to this draft yet.':p.mockup_upload_id?'Product mockup. Artwork placement, colour and finished appearance are provisional until production specifications are approved.':p.upload_id?'Artwork preview. Product placement and finished appearance depend on the approved production specifications.':'Sample product photography. The close-up enlarges the same preview.')}</p>
- </section>`;
-}
-function selectProductView(index,focus=false) {
- const gallery=document.querySelector('.product-gallery');if(!gallery)return;
- const tabs=[...gallery.querySelectorAll('[role=tab]')];if(!tabs[index])return;
- tabs.forEach((tab,i)=>{tab.classList.toggle('active',i===index);tab.setAttribute('aria-selected',String(i===index));tab.tabIndex=i===index?0:-1;});
- gallery.querySelectorAll('.gallery-panel').forEach((panel,i)=>panel.hidden=i!==index);
- if(focus)tabs[index].focus();
-}
 function productInformation(p) {
  const rows=[['Product',t(p.category)],['Materials',localField(p,'materials')||t('Details not added yet.')],['Dimensions / fit',localField(p,'dimensions')||t('Details not added yet.')],['Available options',(p.variants||[]).map(value=>localVariant(p,value)).join(currentLanguage()==='ar'?'، ':', ')],['Care instructions',localField(p,'care_instructions')||t('Details not added yet.')]];
  return `<dl class="product-specs">${rows.map(([name,value])=>`<div><dt>${esc(t(name))}</dt><dd>${esc(value)}</dd></div>`).join('')}</dl>`;
@@ -170,23 +146,11 @@ function storeDeliveryFields() {
   <label class="field full">${t('Return policy (Arabic, optional)')}<textarea name="returns_policy_ar" maxlength="3000" dir="rtl" lang="ar">${esc(settings.returns_policy_ar||'')}</textarea></label>
  </div></fieldset>`;
 }
-document.addEventListener('keydown',event=>{
- const tab=event.target.closest('.product-gallery [role=tab]');if(!tab)return;
- const tabs=[...tab.closest('[role=tablist]').querySelectorAll('[role=tab]')],current=tabs.indexOf(tab);
- const forward=currentLanguage()==='ar'?'ArrowLeft':'ArrowRight',backward=currentLanguage()==='ar'?'ArrowRight':'ArrowLeft';
- const index=event.key===forward?(current+1)%tabs.length:event.key===backward?(current+tabs.length-1)%tabs.length:event.key==='Home'?0:event.key==='End'?tabs.length-1:null;
- if(index!==null){event.preventDefault();selectProductView(index,true);}
-});
 document.addEventListener('click',event=>{
  const target=event.target.closest('[data-action]');if(!target)return;
  if(target.dataset.action==='product-jump'){
   const section=document.getElementById(target.getAttribute('href').slice(1));if(!section)return;
   event.preventDefault();section.focus({preventScroll:true});section.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});
- }
- if(target.dataset.action==='gallery-select'){event.preventDefault();selectProductView(Number(target.dataset.index));}
- if(target.dataset.action==='gallery-zoom'){
-  const p=productById(target.dataset.id),view=p&&productViews(p)[Number(target.dataset.index)];if(!view)return;
-  openModal(t('Product image'),`<div class="gallery-lightbox ${view.detail?'gallery-detail':''}">${photo(view.product)}</div><p class="small gallery-caption">${esc(localField(p,'title'))} · ${esc(view.label)}</p>`);
  }
  if(target.dataset.action==='size-guide'){
   const p=productById(target.dataset.id);if(!p)return;

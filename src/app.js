@@ -22,6 +22,7 @@ import {hasText,validateTextLayers,renderTextGlyph} from './text-layers.js';
 import {productionRoute,customerOrder,assertProductionReady,productionState} from './production.js';
 import {customerDraftRoute} from './customer-drafts.js';
 import {queueMail,mailStatus,recipientAllowed,checkMail,safeMailError} from './mail.js';
+import {createProductGallery} from './product-gallery.js';
 const publicDir=fileURLToPath(new URL('../public',import.meta.url));
 const categories=['T-shirts','Tote bags','Phone cases','Art prints','Mugs','Stickers','Notebooks'];
 function readinessCode(error,fallback='DATABASE_UNAVAILABLE') {
@@ -30,6 +31,7 @@ function readinessCode(error,fallback='DATABASE_UNAVAILABLE') {
 }
 export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googleOptions={}) {
  const app=express(),googleProvider=createGoogleProvider(c,googleOptions);
+ const productGallery=createProductGallery(c,db);
  app.disable('x-powered-by');app.set('trust proxy',c.trustProxy);
  app.use(helmet({contentSecurityPolicy:{directives:{defaultSrc:["'self'"],scriptSrc:["'self'"],styleSrc:["'self'","'unsafe-inline'","https://fonts.googleapis.com"],imgSrc:["'self'",'data:','blob:'],fontSrc:["'self'","https://fonts.gstatic.com"],connectSrc:["'self'"],upgradeInsecureRequests:c.secure ? [] : null}},crossOriginEmbedderPolicy:false}));
  const store=new MySQLSessionStore(db);
@@ -391,6 +393,12 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
    const u=await role(req,'artist','admin'),p=await one('SELECT * FROM products WHERE id=?',[String(req.query.id||'')]);
    if(!p||(u.role!=='admin'&&p.artist_id!==u.id)) fail(404,'Preview not found.');
    return res.json({product:product(p)});
+  }
+  if(method==='GET' && ['product-gallery','product-gallery-image'].includes(route)) {
+   const u=await me(req),id=req.query.id;
+   if(route==='product-gallery')return res.json({gallery:await productGallery.metadata(id,u)});
+   const bytes=await productGallery.image(id,req.query.view,req.query.v,u,req.ip);
+   return res.type('image/webp').set('Content-Disposition','inline').send(bytes);
   }
   if(method==='POST' && route==='artist-products-batch') {
    const u=await role(req,'artist');await throttle(req,'artist-batch',15);
