@@ -76,20 +76,27 @@ const runSampleCollection=async()=>{
   if(!completed)await putOperation(db,'sample_collection',{id:'veelad-originals-01',status:'failed',error_code:code,cause_code:cause,stage,...(Number.isInteger(error.errno)&&error.errno>0&&error.errno<=65535?{database_errno:error.errno}:{}),checked_at:new Date().toISOString()}).catch(()=>{});
  }finally{collectionRunning=false;}
 };
+let maintenanceRunning=false;
+const runStagingMaintenance=async()=>{
+ if(maintenanceRunning)return;
+ maintenanceRunning=true;
+ try{await runSampleCollection();await runCatalogueCleanup();await runScalableEditions();await runOperations();}
+ finally{maintenanceRunning=false;}
+};
 console.log('Veelad startup: application created; registering HTTP listener.');
 const server=app.listen(c.port,'0.0.0.0',function(){console.log(`Veelad ${c.mode} listening on port ${this?.address?.()?.port ?? c.port}`);});
 // Repair the additive staging schema using the runtime's private environment.
 // Never delay listen(), seed legacy data, or migrate production implicitly.
 if(c.mode==='staging') {
  migrate(db).then(()=>{
-  schema.status='ready';runSampleCollection().then(runCatalogueCleanup).then(runScalableEditions).finally(runOperations);console.log('Veelad staging schema ready; existing records preserved.');
+  schema.status='ready';runStagingMaintenance();console.log('Veelad staging schema ready; existing records preserved.');
  }).catch(error=>{
   schema.status='failed';schema.error=error;
   console.error('Veelad staging schema initialization failed:',error.code||error.name);
  });
 }
 if(c.mode!=='staging'&&c.marketplaceEnabled)runOperations();
-let operationsTimer=setInterval(()=>{if(schema.status==='ready'&&c.marketplaceEnabled){runSampleCollection().then(runCatalogueCleanup).then(runScalableEditions).finally(runOperations);}},60000);
+let operationsTimer=setInterval(()=>{if(schema.status==='ready'&&c.marketplaceEnabled){if(c.mode==='staging')runStagingMaintenance();else runOperations();}},60000);
 let worker;
 if(mailStatus(c).ready) worker=setInterval(()=>{
  if(schema.status==='ready') work(c,db).catch(()=>console.error('Email worker failed; inspect provider configuration'));

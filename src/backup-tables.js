@@ -1,0 +1,1 @@
+export const backupTables=['users','account_emails','auth_identities','artists','products','orders','settings','messages','rate_limits','uploads','customer_state','customer_designs','customer_design_drafts','password_resets','mail_queue','mail_delivery','product_reviews','audit_log'];

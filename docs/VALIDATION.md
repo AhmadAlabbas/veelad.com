@@ -1,5 +1,13 @@
 # Validation and remaining deployment prerequisites
 
+## Customer starters, scalable sources and recovery (16 October 2026)
+
+The owner requested priorities 4 → 5 → 6 in order. Eight editable customer text layouts cover Arabic names, initials, birthdays, gifts and small milestones. The actual bundled text renderer verified all 112 template/language/product combinations with safe margins and no overlapping rows. Desktop/mobile journeys cover explicit application, replacement confirmation/cancel, preservation of original uploads and other-product layouts, undo, pending-render submission protection, autosave, reload, language switching and narrow-screen overflow.
+
+The owner explicitly selected newly drawn scalable editions. An isolated integration installed the actual six encrypted vector/native masters onto all twelve sample products, verified native dimensions and placement resolution, preserved all eighteen previous original/mockup files byte for byte, retained original upload records, and confirmed a total artwork size below the backup capacity. Focused backend checks cover exact staging guards, source validation, administrator-only SVG attachments, changed-record skips, transaction rollback, idempotence, missing-file repair and plan-integrity failures. Neither original PNG nor master SVG is plaintext in the public repository.
+
+Exact legacy recovery integration restored both missing JPEGs from the supplied archive without changing upload/account/product associations. It converted a partial encrypted snapshot to a complete one and restored all 18 backed-up tables and both artwork files into isolated targets, comparing every SQL value and file hash before removing the temporary targets. Additional checks cover a separate fresh restore database, partial-backup refusal, path/encoding validation, wrong keys, denied temporary-table privileges, preserved live records, proof reuse and failed/stale monitoring states. The full local backend suite passed 127 checks. These local results do not substitute for the live Hostinger deployment proof or an off-server disaster-recovery rehearsal; the staging rollout is checked separately.
+
 Current machine: Node.js 24.19.0, MySQL 8.4 in a localhost-bound Docker database, Express 5. Original seed data is fictional; no production export was imported.
 
 38 integration/configuration/startup/operations/monitoring checks and twenty-four desktop/mobile browser scenarios passed locally for the artist/discovery/SEO/operations update. Backup tests use a real isolated MySQL database and compare restored original artwork bytes.

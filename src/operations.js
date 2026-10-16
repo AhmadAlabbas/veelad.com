@@ -6,7 +6,12 @@ import {promisify} from 'node:util';
 import os from 'node:os';
 import {artworkLimits,validateArtwork} from './artwork.js';
 const gzip=promisify(zlib.gzip),gunzip=promisify(zlib.gunzip);
-export const backupTables=['users','account_emails','auth_identities','artists','products','orders','settings','messages','rate_limits','uploads','customer_state','customer_designs','customer_design_drafts','password_resets','mail_queue','mail_delivery','product_reviews','audit_log'];
+import {backupTables} from './backup-tables.js';
+export {backupTables} from './backup-tables.js';
+import {recoverLegacyOriginals} from './legacy-artwork-recovery.js';
+import {readBackup} from './backup-codec.js';
+export {readBackup} from './backup-codec.js';
+import {rehearseBackup} from './restore-rehearsal.js';
 const namePattern=/^[a-zA-Z0-9_-]+\.(png|jpg)$/;
 export async function recoverStagingArtwork(c,records,root=path.join(os.homedir(),'domains','staging.veelad.com')) {
  if(c.mode!=='staging')return 0;
@@ -46,7 +51,7 @@ export async function probeStorage(c,db) {
   const folder=await privateDirectory(c,c.uploadDir),file=path.join(folder,'.veelad-storage-proof'),previous=await db.one('SELECT data FROM operational_status WHERE id=?',['storage']),old=previous?JSON.parse(previous.data):null;
   let marker;try {marker=(await fs.readFile(file,'utf8')).trim();}catch(error){if(error.code!=='ENOENT')throw error;marker=crypto.randomUUID();try{await fs.writeFile(file,marker,{mode:0o600,flag:'wx'});}catch(writeError){if(writeError.code!=='EEXIST')throw writeError;marker=(await fs.readFile(file,'utf8')).trim();}}
   const temporary=path.join(folder,'.write-check-'+crypto.randomUUID());await fs.writeFile(temporary,'Veelad private storage check',{mode:0o600,flag:'wx'});await fs.unlink(temporary);
-  const records=await db.q('SELECT id,path FROM uploads');const recovered=await recoverStagingArtwork(c,records);
+  const records=await db.q('SELECT id,path FROM uploads');const retained=await recoverStagingArtwork(c,records),legacy=await recoverLegacyOriginals(c,db),recovered=retained+legacy.recovered_files;
   let missing=0;for(const upload of records) {if(!namePattern.test(upload.path)){missing++;continue;}try{await fs.access(path.join(folder,upload.path));}catch{missing++;}}
   const markerHash=crypto.createHash('sha256').update(marker).digest('hex'),preserved=!!old&&old.marker_hash===markerHash;
   const lost=old?.continuity==='lost'||(old?.marker_hash&&!preserved);
@@ -76,18 +81,11 @@ export async function createBackup(c,db) {
  }catch(error){await connection.rollback();await putOperation(db,'backup',{enabled:true,configured:backupReady(c),status:'failed',error_code:['ENOENT','EACCES','ENOSPC','ER_UNSUPPORTED_PS'].includes(error.code)?error.code:'BACKUP_FAILED',checked_at:new Date().toISOString()});throw Object.assign(Error('Backup failed; inspect private storage and configuration',{cause:error}),{code:'BACKUP_FAILED'});}
  finally{if(file)await fs.unlink(file).catch(()=>{});try{if(locked)await db.q("SELECT RELEASE_LOCK('veelad_backup')",[],connection);}finally{connection.release();}}
 }
-export async function readBackup(file,key) {
- const info=await fs.stat(file);if(info.size>160*1024*1024)throw Error('Snapshot exceeds the size limit');const bytes=await fs.readFile(file);if(bytes.subarray(0,4).toString()!=='VLD1'||bytes.length<33)throw Error('Invalid backup format');
- const decipher=crypto.createDecipheriv('aes-256-gcm',Buffer.from(key,'base64'),bytes.subarray(4,16));decipher.setAuthTag(bytes.subarray(16,32));
- const payload=JSON.parse((await gunzip(Buffer.concat([decipher.update(bytes.subarray(32)),decipher.final()]),{maxOutputLength:150*1024*1024})).toString());
- // Backups from before customer customization contain no customer designs.
- if(payload.tables)for(const name of ['customer_designs','customer_design_drafts','auth_identities','account_emails'])if(!Object.hasOwn(payload.tables,name))payload.tables[name]=[];
- if(payload.format!==1||!payload.tables||!payload.artwork||backupTables.some(name=>!Array.isArray(payload.tables[name])))throw Error('Invalid snapshot data');return payload;
-}
 export async function startOperations(c,db,cache) {
  cache.storage=await probeStorage(c,db);
  if(backupReady(c)) {const previous=await db.one('SELECT data FROM operational_status WHERE id=?',['backup']),last=previous?JSON.parse(previous.data):null;
   cache.backup=last;
-  if(!last?.created_at||Date.now()-Date.parse(last.created_at)>c.backupHours*3600000)try{cache.backup=await createBackup(c,db);}catch{cache.backup={status:'failed'};console.error('Veelad backup failed: BACKUP_FAILED');}
+  if(!last?.created_at||last.revision!==c.revision||(last.status==='partial'&&cache.storage?.ready)||Date.now()-Date.parse(last.created_at)>c.backupHours*3600000)try{cache.backup=await createBackup(c,db);}catch{cache.backup={status:'failed'};console.error('Veelad backup failed: BACKUP_FAILED');}
+  cache.restore=await rehearseBackup(c,db,cache.backup);
  }
 }

@@ -1,5 +1,17 @@
 # Storage, backups, restore, and monitoring
 
+## Exact recovery and full restore rehearsal — 16 October 2026
+
+The two previously missing legacy JPEG originals were located in the supplied migration archive and matched byte for byte against the retained original ZIP. A separate authenticated encrypted bundle now permits staging to restore only those two exact existing upload IDs, filenames, MIME types, native dimensions, byte lengths and SHA-256 values. It does not create or reassign upload/account records, overwrite existing files, or replace artwork with a preview. Originals remain low-resolution legacy originals; recovery does not improve their print quality. The live staging result must still be checked after deployment.
+
+After recovery, operations immediately replaces a partial backup with a complete one. Each staging release also creates a fresh encrypted snapshot. The automatic pipeline is serialized so collection upgrades and file recovery finish before that snapshot and its restore check. Manual administrator backups now update the in-process status immediately, avoiding a stale partial result in health responses.
+
+An actual complete encrypted staging artifact is decrypted and restored through the same row/file restoration helpers used by `npm run backup:restore`. All 18 backed-up tables are restored into randomly named, connection-local MySQL temporary tables, and every original file is restored into a new private temporary folder. The rehearsal compares all restored SQL values, preserves literal JSON text, compares every artwork SHA-256 and count, verifies deployed migration checksums, then removes the temporary targets and destroys the dedicated database session. The restored data never runs as an application and no mail worker starts. A denied `CREATE TEMPORARY TABLES` privilege, missing original, wrong key, corrupt source, schema mismatch or cleanup failure cannot report success.
+
+Proof records are tied to the artifact hash, deployed schema hash and release revision. Administrator **System → Backup restoration rehearsal** shows status and counts; public health exposes only a bounded result. Monitoring rejects failed, missing or stale restoration proof for a completed backup. The normal CLI restore now validates paths/manifests before creating targets and verifies every restored row and file, while retaining its fresh local/test database safeguards.
+
+This is a restoration rehearsal on the hosting server. It proves the actual snapshot can be restored into isolated targets there; it does **not** prove recovery after loss of that account/server. Keep a separate off-server encrypted copy and its independently stored key, and confirm Hostinger retention before production. Production configuration and data remain separate and unchanged.
+
 ## Private artwork and redeployment continuity
 
 The Node service checks that `UPLOAD_DIR` is writable and, in staging/production, outside public document roots and the application checkout. It checks every recorded artwork path for missing files. A private marker in that directory is compared with the database across revisions. `not_yet_observed` means one revision was checked; `observed_across_releases` means the same marker survived a later revision; `lost` or missing files requires investigation. The status is visible in Admin → System and a limited readiness summary. No filesystem paths or keys are public.

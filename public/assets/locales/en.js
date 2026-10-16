@@ -2,6 +2,13 @@
 'use strict';
 window.VEELAD_LOCALES = window.VEELAD_LOCALES || {};
 window.VEELAD_LOCALES.en = Object.freeze({
+  "Backup restoration rehearsal": "Backup restoration rehearsal",
+  "Complete snapshot restored and verified": "Complete snapshot restored and verified",
+  "Restore verification needs attention": "Restore verification needs attention",
+  "A complete backup is required first": "A complete backup is required first",
+  "{tables} tables and {files} artwork files restored into temporary targets, compared, and removed.": "{tables} tables and {files} artwork files restored into temporary targets, compared, and removed.",
+  "This checks the actual encrypted snapshot on this server. Keep a separate off-server backup and its recovery key; provider retention and disaster recovery still need confirmation.": "This checks the actual encrypted snapshot on this server. Keep a separate off-server backup and its recovery key; provider retention and disaster recovery still need confirmation.",
+
   "Native original: {width} × {height} px": "Native original: {width} × {height} px",
   "At 300 DPI: about {width} × {height} cm before cropping. Supplier dimensions, bleed and a physical sample still need review.": "At 300 DPI: about {width} × {height} cm before cropping. Supplier dimensions, bleed and a physical sample still need review.",
   "New vector-drawn edition. The SVG master stays sharp at larger sizes; this does not certify a supplier template.": "New vector-drawn edition. The SVG master stays sharp at larger sizes; this does not certify a supplier template.",

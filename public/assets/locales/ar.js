@@ -2,6 +2,13 @@
 'use strict';
 window.VEELAD_LOCALES = window.VEELAD_LOCALES || {};
 window.VEELAD_LOCALES.ar = Object.freeze({
+  "Backup restoration rehearsal": "تجربة استعادة النسخة الاحتياطية",
+  "Complete snapshot restored and verified": "اكتملت استعادة النسخة والتحقق منها",
+  "Restore verification needs attention": "تجربة الاستعادة تحتاج مراجعة",
+  "A complete backup is required first": "نحتاج نسخة احتياطية مكتملة أولًا",
+  "{tables} tables and {files} artwork files restored into temporary targets, compared, and removed.": "استعدنا {tables} جدول و{files} ملف تصميم في مساحة مؤقتة، وطابقنا البيانات والملفات ثم حذفنا المساحة المؤقتة.",
+  "This checks the actual encrypted snapshot on this server. Keep a separate off-server backup and its recovery key; provider retention and disaster recovery still need confirmation.": "التجربة تفحص النسخة المشفّرة الفعلية على هذا الخادم. احتفظ بنسخة خارج الاستضافة ومفتاح استعادتها بشكل منفصل؛ ضمان الاحتفاظ والتعافي من الأعطال يحتاج تأكيد من مزوّد الاستضافة.",
+
   "Native original: {width} × {height} px": "أبعاد الملف الأصلي: {width} × {height} بكسل",
   "At 300 DPI: about {width} × {height} cm before cropping. Supplier dimensions, bleed and a physical sample still need review.": "عند دقة 300 DPI: حوالي {width} × {height} سم قبل القص. لازم نراجع مقاسات المطبعة وهوامش القص وعيّنة فعلية قبل الطباعة.",
   "New vector-drawn edition. The SVG master stays sharp at larger sizes; this does not certify a supplier template.": "نسخة جديدة مرسومة بخطوط قابلة للتكبير. ملف SVG يحافظ على وضوحه مع الأحجام الكبيرة، ويحتاج مراجعة قالب المطبعة قبل الإنتاج.",
