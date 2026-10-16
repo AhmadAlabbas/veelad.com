@@ -1,9 +1,18 @@
 /* Shopping controls shared by the mobile layout and desktop storefront. */
 'use strict';
 const productSelections=new Map();
+function selectedProductOption(p) {
+ return p.variants.includes(productSelections.get(p.id))?productSelections.get(p.id):p.variants[0];
+}
+function productChoiceLabel(p,value=selectedProductOption(p)) {
+ return t(p.category==='T-shirts'?'Size: {option}':'Option: {option}',{option:localVariant(p,value)});
+}
 function productOptionFields(p) {
- const selected=p.variants.includes(productSelections.get(p.id))?productSelections.get(p.id):p.variants[0];
+ const selected=selectedProductOption(p);
  return `<fieldset class="product-options"><legend>${t(p.category==='T-shirts'?'Choose your size':'Choose your option')}</legend><div class="option-buttons">${p.variants.map(value=>`<label class="product-option"><input type="radio" name="variant" value="${esc(value)}" ${value===selected?'checked':''} required><span>${esc(localVariant(p,value))}</span></label>`).join('')}</div></fieldset>`;
+}
+function productChoiceSummary(p) {
+ return `<div class="product-choice-summary" role="status" aria-live="polite" aria-atomic="true"><span data-product-choice>${esc(productChoiceLabel(p))}</span><span>${money(p.price)} <small>${t('Per item')}</small></span></div>`;
 }
 function mobileNavigation() {
  if(['admin','studio'].includes(route))return '';
@@ -48,11 +57,20 @@ function openShopFilters() {
  openShoppingSheet(t('Filters & sort'),form.outerHTML);
 }
 document.addEventListener('change',event=>{
- if(event.target.matches('.product-option input'))productSelections.set(event.target.closest('form').querySelector('[name=id]').value,event.target.value);
+ if(event.target.matches('.product-option input')){
+  const form=event.target.closest('form'),p=productById(form.querySelector('[name=id]').value);if(!p||!p.variants.includes(event.target.value))return;
+  productSelections.set(p.id,event.target.value);
+  for(const label of form.querySelectorAll('[data-product-choice]'))label.textContent=productChoiceLabel(p,event.target.value);
+ }
 });
 document.addEventListener('click',event=>{
  const control=event.target.closest('[data-action]');if(!control)return;
  const action=control.dataset.action;
+ if(action==='product-options-jump'){
+  const form=control.closest('form'),selected=form?.querySelector('[name=variant]:checked');if(!selected)return;
+  event.preventDefault();selected.focus({preventScroll:true});
+  form.querySelector('.product-options').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'center'});
+ }
  if(action==='open-filters')openShopFilters();
  if(action==='remove-shop-filter'){
   const values=Object.fromEntries(params);delete values[control.dataset.key];go('shop',values);

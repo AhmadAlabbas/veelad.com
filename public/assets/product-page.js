@@ -47,6 +47,11 @@ translations.ar=Object.freeze({...translations.ar,
  'You might also like':'قد يعجبك أيضًا',
  'Current product':'المنتج الحالي',
  'Published products':'المنتجات المتاحة'
+ ,'Size: {option}':'المقاس: {option}'
+ ,'Option: {option}':'اختيارك: {option}'
+ ,'Edit options':'عدّل اختيارك'
+ ,'About this design':'عن التصميم'
+ ,'No real payment is collected.':'ما يتم تحصيل أي مبلغ.'
 });
 
 function productSamplePriceNotice(p) {
