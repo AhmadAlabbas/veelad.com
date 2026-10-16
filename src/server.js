@@ -6,7 +6,7 @@ import {work} from '../scripts/worker.js';
 import {migrate} from '../scripts/migrate.js';
 import {startOperations,putOperation} from './operations.js';
 import {mailStatus} from './mail.js';
-import {installSampleCollection} from './sample-collection.js';
+import {installSampleCollection,publishSampleCollection} from './sample-collection.js';
 console.log('Veelad startup: dependencies loaded; validating settings.');
 let c;
 try {c=config();} catch(error) {console.error('Veelad startup settings validation failed:',error.message);throw error;}
@@ -22,15 +22,28 @@ const runSampleCollection=async()=>{
  collectionRunning=true;
  try{
   const result=await installSampleCollection(c,db);
-  collectionComplete=['installed','disabled','not_packaged'].includes(result.status);
-  if(result.status==='installed')console.log(`Veelad staging sample collection ready: ${result.total_count} products awaiting review; existing listings preserved.`);
+  if(result.status==='not_packaged')throw Object.assign(Error('Collection manifest missing from deployment'),{code:'COLLECTION_MANIFEST_MISSING',collection_stage:'manifest'});
+  collectionComplete=result.status==='disabled';
+  if(result.status==='installed'){
+   try{
+    const publication=await publishSampleCollection(c,db);collectionComplete=publication.status==='published';
+    if(collectionComplete)console.log(`Veelad staging sample collection ready: ${publication.published_count} illustrative sample listings published; existing edits preserved.`);
+   }catch(error){
+    const allowed=['ENOENT','EPERM','EINVAL','ENOSYS','ENOTSUP','EOPNOTSUPP','EACCES','EXDEV','EDQUOT','EROFS','ENOSPC','ER_DATA_TOO_LONG','ER_BAD_FIELD_ERROR','ER_WRONG_VALUE_COUNT_ON_ROW','ER_DUP_ENTRY','ER_LOCK_WAIT_TIMEOUT','COLLECTION_MANIFEST_CHANGED','COLLECTION_ARTWORK_COLLISION','COLLECTION_ARTWORK_INTEGRITY','COLLECTION_OWNER_CHANGED','COLLECTION_OWNER_AMBIGUOUS'];
+    const cause=allowed.includes(error.code)?error.code:'Error';console.error('Veelad staging sample publication failed:',cause);
+    await putOperation(db,'sample_publication',{id:'veelad-originals-01',status:'failed',error_code:'COLLECTION_PUBLICATION_FAILED',cause_code:cause,stage:'transaction',checked_at:new Date().toISOString()}).catch(()=>{});
+   }
+  }
  }catch(error){
-  const code=['COLLECTION_MANIFEST_INVALID','COLLECTION_ARTWORK_INVALID','COLLECTION_ARTWORK_ENCRYPTION','COLLECTION_ARTWORK_INTEGRITY','COLLECTION_ARTWORK_COLLISION','COLLECTION_PRODUCT_COLLISION','COLLECTION_OWNER_CHANGED','COLLECTION_OWNER_AMBIGUOUS','COLLECTION_MANIFEST_CHANGED','PUBLIC_STORAGE_PATH','EACCES','ENOSPC'].includes(error.code)?error.code:'COLLECTION_INSTALL_FAILED';
+  const code=['COLLECTION_MANIFEST_MISSING','COLLECTION_MANIFEST_INVALID','COLLECTION_ARTWORK_INVALID','COLLECTION_ARTWORK_ENCRYPTION','COLLECTION_ARTWORK_INTEGRITY','COLLECTION_ARTWORK_COLLISION','COLLECTION_PRODUCT_COLLISION','COLLECTION_OWNER_CHANGED','COLLECTION_OWNER_AMBIGUOUS','COLLECTION_MANIFEST_CHANGED','PUBLIC_STORAGE_PATH','EACCES','ENOSPC'].includes(error.code)?error.code:'COLLECTION_INSTALL_FAILED';
+  const causes=['ENOENT','EPERM','EINVAL','ENOSYS','ENOTSUP','EOPNOTSUPP','EACCES','EXDEV','EDQUOT','EROFS','ENOSPC','ENOTDIR','EMFILE','ERR_MODULE_NOT_FOUND','ERR_DLOPEN_FAILED','ER_DATA_TOO_LONG','ER_BAD_FIELD_ERROR','ER_WRONG_VALUE_COUNT_ON_ROW','ER_TRUNCATED_WRONG_VALUE_FOR_FIELD','ER_INCORRECT_STRING_VALUE','ER_DUP_ENTRY','ER_LOCK_WAIT_TIMEOUT','ER_MAX_PREPARED_STMT_COUNT_REACHED'];
+  const cause=causes.includes(error.code)?error.code:['RangeError','SyntaxError','ApiError'].includes(error.name)?error.name:'Error';
+  const stage=['manifest','readowner','decrypt','render','write_originals','transaction'].includes(error.collection_stage)?error.collection_stage:'unknown';
   console.error('Veelad staging sample collection was not installed:',code);
   const previous=await db.one('SELECT data FROM operational_status WHERE id=?',['sample_collection']).catch(()=>null);
   // Preserve the immutable completion marker if a changed bundle is rejected.
   let completed=false;try{completed=JSON.parse(previous?.data||'{}').status==='installed';}catch{}
-  if(!completed)await putOperation(db,'sample_collection',{id:'veelad-originals-01',status:'failed',error_code:code,checked_at:new Date().toISOString()}).catch(()=>{});
+  if(!completed)await putOperation(db,'sample_collection',{id:'veelad-originals-01',status:'failed',error_code:code,cause_code:cause,stage,checked_at:new Date().toISOString()}).catch(()=>{});
  }finally{collectionRunning=false;}
 };
 console.log('Veelad startup: application created; registering HTTP listener.');

@@ -50,3 +50,24 @@ test('editorial home uses real catalogue destinations and campaign images in Eng
  expect(errors).toEqual([]);
  expect(consoleErrors).toEqual([]);
 });
+
+test('sample price labels appear only on explicitly marked listings in both languages',async({page})=>{
+ let sampleId,regularId;
+ await page.route('**/api.php?route=bootstrap',async route=>{
+  const response=await route.fetch(),data=await response.json();
+  const [sample,regular]=data.products;
+  sampleId=sample.id;regularId=regular.id;
+  sample.sample_pricing=true;sample.badge='Sample';regular.sample_pricing=false;regular.badge='New';
+  await route.fulfill({response,json:data});
+ });
+ for(const language of ['en','ar']){
+  await page.goto('/'+language+'/shop');
+  await expect(page.locator('.product-card').first()).toBeVisible();
+  const sample=page.locator('.product-card').filter({has:page.locator(`[data-action=save][data-id="${sampleId}"]`)});
+  const regular=page.locator('.product-card').filter({has:page.locator(`[data-action=save][data-id="${regularId}"]`)});
+  await expect(sample.locator('.sample-price-label')).toHaveText(language==='ar'?'سعر تجريبي':'Sample price');
+  await expect(sample.locator('.badge')).toHaveText(language==='ar'?'تجريبي':'Sample');
+  await expect(regular).toBeVisible();await expect(regular.locator('.sample-price-label')).toHaveCount(0);await expect(regular).not.toHaveClass(/sample-product/);await expect(regular.locator('.badge')).not.toHaveText(language==='ar'?'تجريبي':'Sample');
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBeTruthy();
+ }
+});

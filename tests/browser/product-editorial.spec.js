@@ -6,7 +6,7 @@ for(const language of ['en','ar'])test(`extended product pages connect real desi
  await page.route('**/api.php?route=bootstrap',async route=>{
   const response=await route.fetch(),data=await response.json();
   const original=data.products.find(product=>product.id==='p1');
-  Object.assign(original,{upload_id:'art-editorial-original',design_group:'editorial-browser-fixture',story:'A sea of cobalt shapes. <img src=x onerror=1>',story_ar:'حكاية لون أزرق وبحر هادئ. <img src=x onerror=1>'});
+  Object.assign(original,{sample_pricing:true,upload_id:'art-editorial-original',design_group:'editorial-browser-fixture',story:'A sea of cobalt shapes. <img src=x onerror=1>',story_ar:'حكاية لون أزرق وبحر هادئ. <img src=x onerror=1>'});
   data.products.push({...original,id:'editorial-notebook',category:'Notebooks',title:'Sea Notes',title_ar:'دفتر البحر',variants:['Standard'],variants_ar:['عادي']});
   data.products.push({...original,id:'editorial-other-artist',artist_id:'artist-2',title:'A different artist',title_ar:'تصميم لمبدع آخر'});
   data.products.push({...original,id:'editorial-replaced-artwork',upload_id:'art-editorial-replaced',title:'Replaced artwork',title_ar:'تصميم أصلي مختلف'});
@@ -14,6 +14,8 @@ for(const language of ['en','ar'])test(`extended product pages connect real desi
  });
  await page.goto(`/${language}/products/p1`);
  await expect(page.locator('.product-info h1')).toBeVisible();
+ await expect(page.locator('.product-sample-pricing')).toContainText(language==='ar'?'سعر تجريبي · للمعاينة':'Sample price · Staging preview');
+ await expect(page.locator('.product-sample-pricing')).toContainText(language==='ar'?'ما يتم تحصيل أي مبلغ':'No real payment is collected');
  await expect(page.locator('.product-story-copy')).toContainText(language==='ar'?'حكاية لون أزرق':'A sea of cobalt');
  await expect(page.locator('.product-story-copy img')).toHaveCount(0);
  await expect(page.locator('.product-format-link')).toHaveCount(2);
@@ -35,5 +37,8 @@ for(const language of ['en','ar'])test(`extended product pages connect real desi
  await expect(page.locator('#modal')).toBeVisible();
  await page.locator('#modal [data-action=close-modal]').first().click();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBeTruthy();
+ await page.goto(`/${language}/products/p2`);
+ await expect(page.locator('.product-info h1')).toBeVisible();
+ await expect(page.locator('.product-sample-pricing')).toHaveCount(0);
  expect(errors).toEqual([]);
 });

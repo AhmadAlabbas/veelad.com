@@ -6,7 +6,7 @@ import os from 'node:os';
 import {createHash,createCipheriv,hkdfSync,randomBytes} from 'node:crypto';
 import sharp from 'sharp';
 import {googleApp} from './helpers/google-app.js';
-import {installSampleCollection,sampleProductId} from '../src/sample-collection.js';
+import {installSampleCollection,publishSampleCollection,sampleProductId} from '../src/sample-collection.js';
 import {mockupMatches} from '../src/design-studio.js';
 import {passwordHash} from '../src/security.js';
 import {backupTables} from '../src/operations.js';
@@ -16,6 +16,7 @@ const ownerEmail='collection-owner@example.test';
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
 const ownerFingerprint=sha(ownerEmail);
 const install=options=>installSampleCollection(c,db,{manifestFile,ownerFingerprint,...options});
+const publish=(target=db)=>publishSampleCollection(c,target,{manifestFile,ownerFingerprint});
 async function writeManifest(){await fs.writeFile(manifestFile,JSON.stringify(manifest));}
 async function writeEncryptedArtwork(name='original.enc'){
  const salt=randomBytes(16),iv=randomBytes(12),key=Buffer.from(hkdfSync('sha256',c.secret,salt,'Veelad sample artwork v1:veelad-originals-01',32)),cipher=createCipheriv('aes-256-gcm',key,iv);
@@ -39,6 +40,7 @@ before(async()=>{
 beforeEach(async()=>{
  for(const table of ['uploads','product_reviews','operational_status','audit_log','mail_delivery','mail_queue','account_emails','auth_identities','users'])await db.q('DELETE FROM '+table);
  await db.q('DELETE FROM settings WHERE id=?',['sample_collection:veelad-originals-01']);
+ await db.q('DELETE FROM settings WHERE id=?',['sample_publish_v1']);
  await db.q('DELETE FROM products WHERE id LIKE ?',['p-vld1-%']);
  await db.q('DELETE FROM artists WHERE id=?',['collection-owner']);
  await fs.rm(c.uploadDir,{recursive:true,force:true});
@@ -51,7 +53,10 @@ after(async()=>{if(fixture)await fixture.close();if(folder)await fs.rm(folder,{r
 
 test('bundled collection cannot run in production, local, test or a different origin',async()=>{
  const poison={pool:{getConnection(){throw Error('Database must not be accessed');}}};
- for(const override of [{mode:'production'},{mode:'local'},{mode:'test'},{origin:'https://veelad.com'}])assert.deepEqual(await installSampleCollection({...c,...override},poison,{manifestFile:'/not/read'}),{status:'disabled'});
+ for(const override of [{mode:'production'},{mode:'local'},{mode:'test'},{origin:'https://veelad.com'}]){
+  assert.deepEqual(await installSampleCollection({...c,...override},poison,{manifestFile:'/not/read'}),{status:'disabled'});
+  assert.deepEqual(await publishSampleCollection({...c,...override},poison,{manifestFile:'/not/read'}),{status:'disabled'});
+ }
 });
 
 test('missing or suspended owner stays pending without creating accounts and retries after activation',async()=>{
@@ -66,7 +71,7 @@ test('missing or suspended owner stays pending without creating accounts and ret
 test('encrypted bundles reject the wrong key, tampering, renamed ciphertext and oversized envelopes without writing originals',async()=>{
  await owner();assert.equal(JSON.stringify(manifest).includes(ownerEmail),false);
  const encrypted=path.join(folder,'artwork','original.enc'),packaged=await fs.readFile(encrypted);assert.equal(packaged.includes(artwork),false);
- await assert.rejects(()=>installSampleCollection({...c,secret:'different-test-secret-never-used-by-the-real-site'},db,{manifestFile,ownerFingerprint}),{code:'COLLECTION_ARTWORK_ENCRYPTION'});
+ await assert.rejects(()=>installSampleCollection({...c,secret:'different-test-secret-never-used-by-the-real-site'},db,{manifestFile,ownerFingerprint}),{code:'COLLECTION_ARTWORK_ENCRYPTION',collection_stage:'decrypt'});
  let envelope=JSON.parse(packaged),tag=Buffer.from(envelope.tag,'base64');tag[0]^=1;envelope.tag=tag.toString('base64');await fs.writeFile(encrypted,JSON.stringify(envelope));await assert.rejects(install,{code:'COLLECTION_ARTWORK_ENCRYPTION'});
  await fs.writeFile(encrypted,packaged);await fs.copyFile(encrypted,path.join(folder,'artwork','renamed.enc'));manifest.products[0].artwork='renamed.enc';await writeManifest();await assert.rejects(install,{code:'COLLECTION_ARTWORK_ENCRYPTION'});
  manifest.products[0].artwork='original.png';await writeManifest();await assert.rejects(install,{code:'COLLECTION_ARTWORK_INVALID'});
@@ -101,7 +106,7 @@ test('collection links exact originals and product-specific mockups to the exist
 
 test('catalogue inserts roll back together on failure and a retry creates a complete collection',async()=>{
  await owner();const second=sampleProductId(manifest.products[1].id),faulty={...db,q:async(sql,args,conn)=>{if(sql==='INSERT INTO products VALUES (?,?,?,?,?,?)'&&args[0]===second)throw Object.assign(Error('Simulated write failure'),{code:'FIXTURE_FAILURE'});return db.q(sql,args,conn);}};
- await assert.rejects(()=>installSampleCollection(c,faulty,{manifestFile,ownerFingerprint}),/Simulated write failure/);
+ await assert.rejects(()=>installSampleCollection(c,faulty,{manifestFile,ownerFingerprint}),{code:'FIXTURE_FAILURE',collection_stage:'transaction'});
  assert.equal((await db.one('SELECT COUNT(*) n FROM products WHERE id LIKE ?',['p-vld1-%'])).n,0);assert.equal((await counts()).uploads,0);assert.equal((await counts()).product_reviews,0);assert.equal(await db.one('SELECT * FROM artists WHERE id=?',['collection-owner']),null);assert.equal(await db.one('SELECT * FROM operational_status WHERE id=?',['sample_collection']),null);
  assert.equal(await db.one('SELECT data FROM settings WHERE id=?',['sample_collection:veelad-originals-01']),null);
  assert.equal((await install()).created_count,2);assert.equal((await counts()).uploads,3);
@@ -112,7 +117,7 @@ test('partial original write failure cannot publish a corrupt final file and a r
   const handle=await actualOpen(file,...args);if(typeof file!=='string'||!file.includes('.partial-'))return handle;
   return {async writeFile(bytes){await handle.writeFile(bytes.subarray(0,50));throw Object.assign(Error('Simulated full disk after a partial write'),{code:'ENOSPC'});},sync:()=>handle.sync(),close:()=>handle.close()};
  });
- await assert.rejects(install,{code:'ENOSPC'});mocked.mock.restore();
+ await assert.rejects(install,{code:'ENOSPC',collection_stage:'write_originals'});mocked.mock.restore();
  assert.deepEqual(await fs.readdir(c.uploadDir),[]);assert.equal((await counts()).uploads,0);assert.equal((await db.one('SELECT COUNT(*) n FROM products WHERE id LIKE ?',['p-vld1-%'])).n,0);assert.equal(await db.one('SELECT data FROM settings WHERE id=?',['sample_collection:veelad-originals-01']),null);
  assert.equal((await install()).created_count,2);const original=await db.one("SELECT * FROM uploads WHERE mime='image/png'");assert.deepEqual(await fs.readFile(path.join(c.uploadDir,original.path)),artwork);assert.equal((await fs.readdir(c.uploadDir)).some(name=>name.includes('.partial-')),false);
 });
@@ -183,4 +188,40 @@ test('account matching normalizes the approved address but refuses ambiguous imp
  await db.q('INSERT INTO users VALUES (?,?,?,?,?,?,?)',['ambiguous-owner','Different fixture',ownerEmail,'unchanged-second-fixture-hash','admin','active',new Date().toISOString()]);
  await assert.rejects(install,{code:'COLLECTION_OWNER_AMBIGUOUS'});assert.equal((await db.one('SELECT COUNT(*) n FROM products WHERE id LIKE ?',['p-vld1-%'])).n,0);
  await db.q('DELETE FROM users WHERE id=?',['ambiguous-owner']);assert.equal((await install()).owner_linked,true);assert.equal((await db.one('SELECT role FROM users WHERE id=?',['collection-owner'])).role,'buyer');
+});
+
+test('publication waits for successful installation without adding or changing any catalogue records',async()=>{
+ const before=await db.q('SELECT * FROM products ORDER BY id');assert.equal((await publish()).status,'pending_installation');assert.deepEqual(await db.q('SELECT * FROM products ORDER BY id'),before);assert.equal(await db.one('SELECT data FROM settings WHERE id=?',['sample_publish_v1']),null);
+});
+
+test('approved staging publication uses clearly marked sample prices for every category and is one-time across edits and restores',async()=>{
+ const prices={'T-shirts':9900,'Mugs':4900,'Tote bags':6900,'Notebooks':3900,'Art prints':5900,'Phone cases':5900,'Stickers':1200},common=manifest.products[0];manifest.products=Object.keys(prices).map((category,index)=>({...common,id:'price-category-'+index,category}));await writeManifest();await owner();await install();
+ const reorder=value=>Array.isArray(value)?value.map(reorder):value&&typeof value==='object'?Object.fromEntries(Object.keys(value).sort().map(key=>[key,reorder(value[key])])):value,firstId=sampleProductId(manifest.products[0].id),firstData=JSON.parse((await db.one('SELECT data FROM products WHERE id=?',[firstId])).data);await db.q('UPDATE products SET data=? WHERE id=?',[JSON.stringify(reorder(firstData)),firstId]);
+ const user=await db.one('SELECT * FROM users WHERE id=?',['collection-owner']),installed=await db.one('SELECT data FROM settings WHERE id=?',['sample_collection:veelad-originals-01']),existing=await db.q("SELECT * FROM products WHERE id NOT LIKE 'p-vld1-%' ORDER BY id");
+ const result=await publish();assert.equal(result.status,'published');assert.equal(result.published_count,7);assert.equal(result.skipped_count,0);
+ const rows=await db.q("SELECT * FROM products WHERE id LIKE 'p-vld1-%' ORDER BY id");assert.equal(rows.length,7);
+ for(const row of rows){const p=JSON.parse(row.data);assert.equal(row.status,'active');assert.equal(row.stock,25);assert.equal(p.stock,25);assert.equal(p.price,prices[p.category]);assert.equal(p.badge,'Sample');assert.equal(p.sample_pricing,true);assert.equal(p.stock_is_simulated,true);assert.deepEqual(p.variants,['Standard']);assert.match(p.production_notes,/not a physical-stock, supplier or fulfillment commitment/);}
+ assert.deepEqual(await db.one('SELECT * FROM users WHERE id=?',[user.id]),user);assert.deepEqual(await db.one('SELECT data FROM settings WHERE id=?',['sample_collection:veelad-originals-01']),installed);assert.deepEqual(await db.q("SELECT * FROM products WHERE id NOT LIKE 'p-vld1-%' ORDER BY id"),existing);assert.equal((await counts()).mail_queue,0);assert.equal((await counts()).audit_log,2);
+ const visible=await fetch(fixture.origin+'/api.php?route=bootstrap').then(response=>response.json());assert.equal(visible.products.filter(p=>p.collection_id===manifest.id&&p.sample_pricing===true).length,7);
+ const first=rows[0],edited=JSON.parse(first.data);edited.title='Owner kept this edit';edited.price=15300;await db.q('UPDATE products SET data=?,status=? WHERE id=?',[JSON.stringify(edited),'archived',first.id]);await db.q('DELETE FROM products WHERE id=?',[rows[1].id]);const preserved=await db.q('SELECT * FROM products ORDER BY id');
+ assert.equal((await publish()).skipped,true);await db.q('DELETE FROM operational_status');assert.equal((await publish()).skipped,true);assert.deepEqual(await db.q('SELECT * FROM products ORDER BY id'),preserved);assert.equal((await counts()).audit_log,2);assert.equal(JSON.parse((await db.one('SELECT data FROM operational_status WHERE id=?',['sample_publication'])).data).published_count,7);
+});
+
+test('publication leaves edited, deleted, archived, reassigned and feedback-bearing submissions unchanged',async()=>{
+ const common=manifest.products[0];manifest.products=Array.from({length:8},(_,index)=>({...common,id:'guarded-'+index}));await writeManifest();await owner();await install();
+ const ids=manifest.products.map(p=>sampleProductId(p.id)),edit=async(index,change)=>{const row=await db.one('SELECT * FROM products WHERE id=?',[ids[index]]),p=JSON.parse(row.data);await db.q('UPDATE products SET data=? WHERE id=?',[JSON.stringify({...p,...change}),ids[index]]);};
+ await edit(1,{price:3210});await edit(2,{title:'Artist changed this title'});await db.q('UPDATE products SET status=? WHERE id=?',['archived',ids[3]]);await db.q('DELETE FROM products WHERE id=?',[ids[4]]);await db.q('UPDATE products SET artist_id=? WHERE id=?',['artist-1',ids[5]]);await edit(6,{upload_id:'another-owner-original'});await db.q('UPDATE product_reviews SET data=? WHERE id=?',[JSON.stringify({status:'pending',feedback:'Owner asked to wait for review.'}),ids[7]]);
+ const before=await db.q('SELECT * FROM products ORDER BY id'),reviews=await db.q('SELECT * FROM product_reviews ORDER BY id'),result=await publish();assert.equal(result.published_count,1);assert.equal(result.skipped_count,7);
+ assert.equal((await db.one('SELECT status FROM products WHERE id=?',[ids[0]])).status,'active');for(const row of before.filter(row=>row.id!==ids[0]))assert.deepEqual(await db.one('SELECT * FROM products WHERE id=?',[row.id]),row);for(const row of reviews.filter(row=>row.id!==ids[0]))assert.deepEqual(await db.one('SELECT * FROM product_reviews WHERE id=?',[row.id]),row);assert.equal(await db.one('SELECT * FROM products WHERE id=?',[ids[4]]),null);
+});
+
+test('publication transaction rolls back all sample listings on failure and can retry safely',async()=>{
+ await owner();await install();const second=sampleProductId(manifest.products[1].id),before=await db.q('SELECT * FROM products ORDER BY id'),reviews=await db.q('SELECT * FROM product_reviews ORDER BY id'),faulty={...db,q:async(sql,args,conn)=>{if(sql==='UPDATE product_reviews SET data=? WHERE id=?'&&args[1]===second)throw Object.assign(Error('Simulated publication write failure'),{code:'PUBLICATION_FIXTURE_FAILURE'});return db.q(sql,args,conn);}};
+ await assert.rejects(()=>publish(faulty),{code:'PUBLICATION_FIXTURE_FAILURE'});assert.deepEqual(await db.q('SELECT * FROM products ORDER BY id'),before);assert.deepEqual(await db.q('SELECT * FROM product_reviews ORDER BY id'),reviews);assert.equal(await db.one('SELECT data FROM settings WHERE id=?',['sample_publish_v1']),null);assert.equal(await db.one('SELECT data FROM operational_status WHERE id=?',['sample_publication']),null);assert.equal((await counts()).audit_log,1);
+ assert.equal((await publish()).published_count,2);assert.equal((await counts()).audit_log,2);
+});
+
+test('publication refuses originals with the wrong owner or changed bytes before making products visible',async()=>{
+ await owner();await install();const source=await db.one("SELECT * FROM uploads WHERE mime='image/png'"),before=await db.q('SELECT * FROM products ORDER BY id');await db.q('UPDATE uploads SET user_id=? WHERE id=?',['different-owner',source.id]);
+ await assert.rejects(publish,{code:'COLLECTION_ARTWORK_COLLISION'});assert.deepEqual(await db.q('SELECT * FROM products ORDER BY id'),before);await db.q('UPDATE uploads SET user_id=? WHERE id=?',['collection-owner',source.id]);await fs.writeFile(path.join(c.uploadDir,source.path),'Changed outside Veelad');await assert.rejects(publish,{code:'COLLECTION_ARTWORK_INTEGRITY'});assert.deepEqual(await db.q('SELECT * FROM products ORDER BY id'),before);assert.equal(await db.one('SELECT data FROM settings WHERE id=?',['sample_publish_v1']),null);
 });

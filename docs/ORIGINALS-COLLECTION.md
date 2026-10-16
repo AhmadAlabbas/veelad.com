@@ -17,7 +17,21 @@ The Redbubble reference informed the gallery, design-family links, artist sectio
 
 After staging migrations, the runtime reads `data/collections/veelad-originals-01.json` and matches its approved email fingerprint against an existing active account. It never creates an account, resets a password, changes a role or claims an unverified email. A missing or suspended account leaves installation pending and is checked again on the normal operations interval. Production and local startup do not install this collection.
 
-The twelve listings enter **pending review**, with price and availability unset (`0`). They are excluded from the public catalogue. In **Administrator → Products**, use **Review the collection** to see the new records. Each has a full-page **Preview**, editable bilingual listing details, and the existing private original-file controls. Review price, stock/availability, variants and confirmed production specifications before publishing. No automatic artist update emails are sent by installation.
+The twelve listings are first created **pending review**, with price and availability unset (`0`). The owner then explicitly approved showing the collection publicly **on staging with sample prices**. A separate, one-time staging publisher checks the exact unedited initial records, account ownership, original files and review state, then publishes eligible entries with `sample_pricing: true` and `stock_is_simulated: true`. It leaves edited, deleted, reassigned or already reviewed records alone. Its completion journal is also included in existing backups. No automatic artist update emails are sent by installation or sample publication.
+
+In **Administrator → Products**, the collection banner links to all twelve records. Each has a full-page **Preview**, editable bilingual listing details, and private original-file controls. Public cards, product pages and the mobile purchase bar identify sample prices. Product pages say **Sample listing**, without implying confirmed physical stock. The twenty-five virtual units per listing are for testing staging carts only.
+
+| Category | Illustrative price (SAR) |
+| --- | ---: |
+| T-shirts | 99 |
+| Mugs | 49 |
+| Tote bags | 69 |
+| Notebooks | 39 |
+| Art prints | 59 |
+| Phone cases | 59 |
+| Stickers | 12 |
+
+These are test prices, not supplier quotations or commitments. Real payment collection remains disabled. Review actual pricing, variants, availability and production specifications before any production release. Production startup never installs or publishes this collection.
 
 The installer has deterministic product identifiers, an advisory lock and an atomic database transaction. A completion marker in backed-up settings prevents repeat deployments and restored snapshots from creating duplicates or replacing administrator edits. Its operational-status copy is available through the authenticated system endpoint. A new staging process can recover a missing original from this collection's encrypted bundle after checking its existing product and upload ownership. It never replaces a changed file, recreates a deleted listing or repairs unrelated artwork. Original files are fully written and synced in private temporary files, then published atomically without overwriting an existing destination. Staging health exposes only a coarse setup status, without account identifiers or product counts.
 
@@ -25,7 +39,7 @@ The installer has deterministic product identifiers, an advisory lock and an ato
 
 The repository is public. Original PNG files are therefore bundled as authenticated AES-256-GCM ciphertext under `data/collections/artwork/`, outside the web root. A separate key is derived for this bundle from the already configured staging environment secret using HKDF, per-file random salts and collection-specific context. No key or original PNG is committed. The existing staging secret was checked privately before packaging.
 
-Staging verifies the envelope, authenticated filename, plaintext checksum, actual image format and size before writing originals into the existing private artwork directory. The runtime applies each exact artwork to the existing category-specific mockup renderer; product previews are derivatives. Public image requests return bounded WebP previews. Original downloads continue to require the existing owner or administrator authorization.
+Staging verifies the envelope, authenticated filename, plaintext checksum, actual image format and size before writing originals into the existing private artwork directory. The runtime applies each exact artwork to the existing category-specific mockup renderer; product previews are derivatives. Public image requests return bounded WebP previews. Original downloads continue to require the existing owner or administrator authorization. Staging health can report a sanitized installer error code, cause enum and stage to diagnose hosting failures without exposing environment values, account details or filesystem paths; store readiness remains independent.
 
 Retain a private backup of the originals and the appropriate recovery keys. If the staging environment secret is rotated before installing this bundle, repackage the ciphertext privately with the new secret. Do not put old or new secrets into GitHub. An unreadable bundle does not take down store readiness and does not partially publish products. Existing encrypted backup/restore remains the recovery path for deployed data and original files.
 

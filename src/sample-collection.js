@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {isDeepStrictEqual} from 'node:util';
 import {createHash,createDecipheriv,hkdfSync,randomBytes} from 'node:crypto';
 import sharp from 'sharp';
 import {validateArtwork,artworkLimits} from './artwork.js';
@@ -11,6 +12,8 @@ import {renderMockup,ensureMockup} from './mockup-renderer.js';
 
 const collectionId='veelad-originals-01';
 const journalId='sample_collection:'+collectionId;
+const publicationId='sample_publish_v1';
+const samplePrices={'T-shirts':9900,'Mugs':4900,'Tote bags':6900,'Notebooks':3900,'Art prints':5900,'Phone cases':5900,'Stickers':1200};
 // Only the fingerprint of the explicitly authorized account belongs in this
 // public repository. It cannot authenticate, promote or create an account.
 const authorizedOwnerFingerprint='1995cdd0014d8eb5cd0df3801a7a16f9f61f45c57b4ab9b9e79668ab442427ea';
@@ -35,9 +38,18 @@ function validateManifest(manifest,ownerFingerprint) {
  }
 }
 
+const nativeArtwork=metadata=>({width:metadata.width,height:metadata.height,original_not_upscaled:true,print_width_cm_300dpi:Math.round(metadata.width/300*2.54*10)/10,print_height_cm_300dpi:Math.round(metadata.height/300*2.54*10)/10});
+function initialProductData(item,uploadId,native){
+ const type=printProductFor(item.category),studio=validateDesignStudio({version:1,template_version:printProducts.version,artwork_id:uploadId,active_product:type.id,listing_mockup:true,placements:{[type.id]:{...defaultPlacement(type),...(item.placement||{})}}},uploadId),mockId=mockupId(uploadId,item.category,studio);
+ const productionNotes=`Native original: ${native.width} × ${native.height} px, not upscaled. At 300 DPI this is approximately ${native.print_width_cm_300dpi} × ${native.print_height_cm_300dpi} cm before cropping, bleed or supplier requirements. These figures are resolution guidance, not print-ready certification. Obtain a higher-resolution original if the final print size requires it. Product previews are provisional. Confirm supplier templates, material, dimensions, colour and a physical sample before production. Set a reviewed price and availability before publishing.`;
+ const data={title:item.title,title_ar:item.title_ar,description:item.description,description_ar:item.description_ar,category:item.category,price:0,stock:0,variants:item.variants||['Standard'],royalty_percent:20,badge:'New',sheet:0,cell:0,upload_id:uploadId,mockup_upload_id:mockId,design_studio:studio,print_formats:[item.category],collection_id:collectionId,artwork_metadata:native,production_notes:productionNotes};
+ for(const key of ['tags','tags_ar','design_group','story','story_ar','artwork_attribution'])if(item[key]!==undefined)data[key]=item[key];
+ return data;
+}
+
 function envelopeBytes(value,maximum,exact=null){
- checked(typeof value==='string'&&value.length<=4*Math.ceil(maximum/3)&&/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(value),'COLLECTION_ARTWORK_ENCRYPTION');
- const bytes=Buffer.from(value,'base64');checked(bytes.length>0&&bytes.length<=maximum&&(exact===null||bytes.length===exact),'COLLECTION_ARTWORK_ENCRYPTION');return bytes;
+ checked(typeof value==='string'&&value.length<=4*Math.ceil(maximum/3)&&value.length%4===0&&/^[A-Za-z0-9+/]*={0,2}$/.test(value),'COLLECTION_ARTWORK_ENCRYPTION');
+ const bytes=Buffer.from(value,'base64');checked(bytes.length>0&&bytes.length<=maximum&&(exact===null||bytes.length===exact)&&bytes.toString('base64')===value,'COLLECTION_ARTWORK_ENCRYPTION');return bytes;
 }
 async function decryptBundledArtwork(file,item,secret){
  const info=await fs.stat(file);checked(info.isFile()&&info.size<=4*Math.ceil(artworkLimits.bytes/3)+1024,'COLLECTION_ARTWORK_ENCRYPTION');
@@ -79,7 +91,8 @@ async function putCompletionMarker(db,record,connection){
  await db.q('INSERT INTO operational_status VALUES (?,?,?) ON DUPLICATE KEY UPDATE data=VALUES(data),updated_at=VALUES(updated_at)',['sample_collection',data,now],connection);
 }
 
-async function repairInstalledOriginals(c,db,manifest,manifestFile,ownerFingerprint,connection){
+async function repairInstalledOriginals(c,db,manifest,manifestFile,ownerFingerprint,connection,stage){
+ stage('readowner');
  const owners=await db.q("SELECT id FROM users WHERE SHA2(LOWER(TRIM(email)),256)=? AND status='active'",[ownerFingerprint],connection);
  checked(owners.length<=1,'COLLECTION_OWNER_AMBIGUOUS');if(!owners.length)return 0;
  const owner=owners[0],candidates=new Map();
@@ -97,7 +110,7 @@ async function repairInstalledOriginals(c,db,manifest,manifestFile,ownerFingerpr
   candidates.set(id,{item,name});
  }
  if(!candidates.size)return 0;
- const folder=await privateDirectory(c,c.uploadDir),missing=[];
+ stage('write_originals');const folder=await privateDirectory(c,c.uploadDir),missing=[];
  for(const source of candidates.values()){
   try{
    const info=await fs.lstat(path.join(folder,source.name));
@@ -109,22 +122,28 @@ async function repairInstalledOriginals(c,db,manifest,manifestFile,ownerFingerpr
  const sourceRoot=await fs.realpath(path.join(path.dirname(manifestFile),'artwork'));
  // Authenticate every missing original before writing any recovered files.
  for(const source of missing){
+  stage('decrypt');
   const real=await fs.realpath(path.join(sourceRoot,source.item.artwork));checked(real.startsWith(sourceRoot+path.sep),'COLLECTION_ARTWORK_INVALID');
   source.bytes=await decryptBundledArtwork(real,source.item,c.secret);checked(digest(source.bytes)===source.item.artwork_sha256,'COLLECTION_ARTWORK_INTEGRITY');
   await validateArtwork(source.bytes,source.item.artwork_format);
  }
- for(const source of missing)await writeOriginal(folder,source.name,source.bytes);
+ stage('write_originals');for(const source of missing)await writeOriginal(folder,source.name,source.bytes);
  return missing.length;
 }
 
 // There is deliberately no public installation endpoint. Only the staging runtime
 // can install this reviewed, bundled collection after its normal schema migration.
-export async function installSampleCollection(c,db,{manifestFile=defaultManifest,ownerFingerprint=authorizedOwnerFingerprint}={}) {
+export async function installSampleCollection(c,db,options={}){
+ let current='manifest';
+ try{return await installCollection(c,db,options,value=>{current=value;});}
+ catch(error){error.collection_stage=current;throw error;}
+}
+async function installCollection(c,db,{manifestFile=defaultManifest,ownerFingerprint=authorizedOwnerFingerprint},stage) {
  if(c.mode!=='staging'||c.origin!=='https://staging.veelad.com')return {status:'disabled'};
  let manifestBytes;
  try{manifestBytes=await fs.readFile(manifestFile);}catch(error){if(error.code==='ENOENT')return {status:'not_packaged'};throw error;}
  const manifest=JSON.parse(manifestBytes);validateManifest(manifest,ownerFingerprint);
- const fingerprint=digest(manifestBytes),connection=await db.pool.getConnection();let locked=false;
+ stage('readowner');const fingerprint=digest(manifestBytes),connection=await db.pool.getConnection();let locked=false;
  try{
   locked=!!(await db.one('SELECT GET_LOCK(?,0) AS acquired',['veelad_sample_collection_01'],connection))?.acquired;
   if(!locked)return {status:'busy'};
@@ -134,9 +153,9 @@ export async function installSampleCollection(c,db,{manifestFile=defaultManifest
   if(!journal&&previous?.status==='installed')checked(previous.id===collectionId&&previous.manifest_sha256===fingerprint,'COLLECTION_MANIFEST_CHANGED');
   const completed=journal||(previous?.status==='installed'?previous:null);
   if(completed){
-   const recovered=await repairInstalledOriginals(c,db,manifest,manifestFile,ownerFingerprint,connection);
+   const recovered=await repairInstalledOriginals(c,db,manifest,manifestFile,ownerFingerprint,connection,stage);
    const repaired=recovered?{...completed,recovered_originals_total:(completed.recovered_originals_total||0)+recovered,last_repair_at:new Date().toISOString()}:completed;
-   if(recovered||!journal||previous?.status!=='installed'||previous.manifest_sha256!==fingerprint)await db.tx(conn=>putCompletionMarker(db,repaired,conn));
+   if(recovered||!journal||previous?.status!=='installed'||previous.manifest_sha256!==fingerprint){stage('transaction');await db.tx(conn=>putCompletionMarker(db,repaired,conn));}
    return {...repaired,skipped:true,recovered_originals:recovered};
   }
   const owners=await db.q("SELECT id,name,role,status FROM users WHERE SHA2(LOWER(TRIM(email)),256)=? AND status='active'",[ownerFingerprint],connection);
@@ -151,24 +170,22 @@ export async function installSampleCollection(c,db,{manifestFile=defaultManifest
    if(prior){checked(prior.artist_id===owner.id&&JSON.parse(prior.data).collection_id===collectionId,'COLLECTION_PRODUCT_COLLISION');prepared.push({existing:true,id:sampleProductId(item.id)});continue;}
    let source=artworks.get(item.artwork);
    if(!source){
+    stage('decrypt');
     const real=await fs.realpath(path.join(sourceRoot,item.artwork));checked(real.startsWith(sourceRoot+path.sep),'COLLECTION_ARTWORK_INVALID');
     const bytes=await decryptBundledArtwork(real,item,c.secret);checked(digest(bytes)===item.artwork_sha256,'COLLECTION_ARTWORK_INTEGRITY');
     const metadata=await validateArtwork(bytes,item.artwork_format),id='art-'+digest(collectionId+'|'+owner.id+'|'+item.artwork+'|'+item.artwork_sha256).slice(0,40);
-    const artworkMetadata={width:metadata.width,height:metadata.height,original_not_upscaled:true,print_width_cm_300dpi:Math.round(metadata.width/300*2.54*10)/10,print_height_cm_300dpi:Math.round(metadata.height/300*2.54*10)/10};
-    source={id,name:id+(metadata.format==='png'?'.png':'.jpg'),mime:metadata.format==='png'?'image/png':'image/jpeg',format:metadata.format,bytes,sha256:item.artwork_sha256,artworkMetadata,preview:await sharp(bytes).rotate().resize({width:1600,height:1600,fit:'inside',withoutEnlargement:true}).png().toBuffer()};
+    const artworkMetadata=nativeArtwork(metadata);
+    stage('render');source={id,name:id+(metadata.format==='png'?'.png':'.jpg'),mime:metadata.format==='png'?'image/png':'image/jpeg',format:metadata.format,bytes,sha256:item.artwork_sha256,artworkMetadata,preview:await sharp(bytes).rotate().resize({width:1600,height:1600,fit:'inside',withoutEnlargement:true}).png().toBuffer()};
     artworks.set(item.artwork,source);
    }
    checked(source.sha256===item.artwork_sha256&&source.format===item.artwork_format,'COLLECTION_ARTWORK_INTEGRITY');
-   const type=printProductFor(item.category),studio=validateDesignStudio({version:1,template_version:printProducts.version,artwork_id:source.id,active_product:type.id,listing_mockup:true,placements:{[type.id]:{...defaultPlacement(type),...(item.placement||{})}}},source.id);
-   const mockId=mockupId(source.id,item.category,studio),mockup=await renderMockup(source.preview,item.category,studio);
-   const native=source.artworkMetadata,productionNotes=`Native original: ${native.width} × ${native.height} px, not upscaled. At 300 DPI this is approximately ${native.print_width_cm_300dpi} × ${native.print_height_cm_300dpi} cm before cropping, bleed or supplier requirements. These figures are resolution guidance, not print-ready certification. Obtain a higher-resolution original if the final print size requires it. Product previews are provisional. Confirm supplier templates, material, dimensions, colour and a physical sample before production. Set a reviewed price and availability before publishing.`;
-   const data={title:item.title,title_ar:item.title_ar,description:item.description,description_ar:item.description_ar,category:item.category,price:0,stock:0,variants:item.variants||['Standard'],royalty_percent:20,badge:'New',sheet:0,cell:0,upload_id:source.id,mockup_upload_id:mockId,design_studio:studio,print_formats:[item.category],collection_id:collectionId,artwork_metadata:native,production_notes:productionNotes};
-   for(const key of ['tags','tags_ar','design_group','story','story_ar','artwork_attribution'])if(item[key]!==undefined)data[key]=item[key];
+   const data=initialProductData(item,source.id,source.artworkMetadata),mockId=data.mockup_upload_id;
+   stage('render');const mockup=await renderMockup(source.preview,item.category,data.design_studio);
    prepared.push({id:sampleProductId(item.id),data,source,mockId,mockup});
   }
-  const folder=await privateDirectory(c,c.uploadDir);
+  stage('write_originals');const folder=await privateDirectory(c,c.uploadDir);
   for(const source of artworks.values())await writeOriginal(folder,source.name,source.bytes);
-  const installed=await db.tx(async conn=>{
+  stage('transaction');const installed=await db.tx(async conn=>{
    const current=await db.one("SELECT id FROM users WHERE id=? AND SHA2(LOWER(TRIM(email)),256)=? AND status='active' FOR UPDATE",[owner.id,ownerFingerprint],conn);
    checked(!!current,'COLLECTION_OWNER_CHANGED');
    const created=prepared.filter(item=>!item.existing),now=new Date().toISOString();
@@ -198,4 +215,58 @@ export async function installSampleCollection(c,db,{manifestFile=defaultManifest
  }finally{
   try{if(locked)await db.q('SELECT RELEASE_LOCK(?)',['veelad_sample_collection_01'],connection);}finally{connection.release();}
  }
+}
+
+// Explicit owner approval authorizes this separate staging publication. Prices
+// and inventory below are illustrative; this never changes production or records
+// real supplier availability. Its backed-up journal makes publication one-time.
+export async function publishSampleCollection(c,db,{manifestFile=defaultManifest,ownerFingerprint=authorizedOwnerFingerprint}={}){
+ if(c.mode!=='staging'||c.origin!=='https://staging.veelad.com')return {status:'disabled'};
+ let manifestBytes;try{manifestBytes=await fs.readFile(manifestFile);}catch(error){if(error.code==='ENOENT')return {status:'not_packaged'};throw error;}
+ const manifest=JSON.parse(manifestBytes);validateManifest(manifest,ownerFingerprint);
+ const fingerprint=digest(manifestBytes),connection=await db.pool.getConnection();let locked=false;
+ try{
+  locked=!!(await db.one('SELECT GET_LOCK(?,0) AS acquired',['veelad_sample_collection_01'],connection))?.acquired;
+  if(!locked)return {status:'busy'};
+  const previous=await db.one('SELECT data FROM settings WHERE id=?',[publicationId],connection);
+  if(previous){
+   const result=JSON.parse(previous.data);checked(result.id===collectionId&&result.status==='published'&&result.manifest_sha256===fingerprint,'COLLECTION_MANIFEST_CHANGED');
+   await putOperation(db,'sample_publication',result);return {...result,skipped:true};
+  }
+  const installed=await db.one('SELECT data FROM settings WHERE id=?',[journalId],connection),completion=installed?JSON.parse(installed.data):null;
+  if(!completion||completion.status!=='installed')return {status:'pending_installation'};
+  checked(completion.id===collectionId&&completion.manifest_sha256===fingerprint,'COLLECTION_MANIFEST_CHANGED');
+  const owners=await db.q("SELECT id FROM users WHERE SHA2(LOWER(TRIM(email)),256)=? AND status='active'",[ownerFingerprint],connection);
+  checked(owners.length<=1,'COLLECTION_OWNER_AMBIGUOUS');if(!owners.length)return {status:'pending_account'};
+  const owner=owners[0],folder=await privateDirectory(c,c.uploadDir),originals=new Map();
+  return await db.tx(async conn=>{
+   checked(!!await db.one("SELECT id FROM users WHERE id=? AND SHA2(LOWER(TRIM(email)),256)=? AND status='active' FOR UPDATE",[owner.id,ownerFingerprint],conn),'COLLECTION_OWNER_CHANGED');
+   let published=0;const now=new Date().toISOString();
+   for(const item of manifest.products){
+    const row=await db.one('SELECT * FROM products WHERE id=? FOR UPDATE',[sampleProductId(item.id)],conn);if(!row||row.artist_id!==owner.id||row.status!=='pending'||Number(row.stock)!==0)continue;
+    const data=JSON.parse(row.data),sourceId='art-'+digest(collectionId+'|'+owner.id+'|'+item.artwork+'|'+item.artwork_sha256).slice(0,40);
+    if(data.collection_id!==collectionId||data.upload_id!==sourceId||data.category!==item.category||data.price!==0||data.stock!==0)continue;
+    const review=await db.one('SELECT data FROM product_reviews WHERE id=? FOR UPDATE',[row.id],conn),feedback=review?JSON.parse(review.data):null;
+    if(!feedback||feedback.status!=='pending'||feedback.feedback!=='')continue;
+    let native=originals.get(sourceId);
+    if(!native){
+     const record=await db.one('SELECT * FROM uploads WHERE id=?',[sourceId],conn),name=sourceId+(item.artwork_format==='png'?'.png':'.jpg'),mime=item.artwork_format==='png'?'image/png':'image/jpeg';
+     checked(record&&record.user_id===owner.id&&record.path===name&&record.mime===mime,'COLLECTION_ARTWORK_COLLISION');
+     const file=path.join(folder,name),info=await fs.lstat(file);checked(info.isFile()&&info.size<=artworkLimits.bytes,'COLLECTION_ARTWORK_COLLISION');
+     const bytes=await fs.readFile(file);checked(digest(bytes)===item.artwork_sha256,'COLLECTION_ARTWORK_INTEGRITY');native=nativeArtwork(await validateArtwork(bytes,item.artwork_format));originals.set(sourceId,native);
+    }
+    // Require the complete initial record, including text, placement and notes.
+    // Any owner edit, deletion or reassignment is left for their own review.
+    if(!isDeepStrictEqual(data,initialProductData(item,sourceId,native)))continue;
+    const next={...data,price:samplePrices[item.category],stock:25,badge:'Sample',sample_pricing:true,stock_is_simulated:true,production_notes:'Staging sample only: price and inventory are illustrative. This is not a physical-stock, supplier or fulfillment commitment. '+data.production_notes};
+    await db.q("UPDATE products SET status='active',stock=?,data=? WHERE id=?",[25,JSON.stringify(next),row.id],conn);
+    await db.q('UPDATE product_reviews SET data=? WHERE id=?',[JSON.stringify({status:'active',feedback:'Published as an explicitly approved staging sample. Prices and inventory are illustrative.',reviewed_at:now,sample_pricing:true}),row.id],conn);published++;
+   }
+   const result={id:collectionId,status:'published',owner_linked:true,published_count:published,skipped_count:manifest.products.length-published,total_count:manifest.products.length,manifest_sha256:fingerprint,revision:c.revision,completed_at:now};
+   await db.q('INSERT INTO settings VALUES (?,?)',[publicationId,JSON.stringify(result)],conn);
+   await db.q('INSERT INTO operational_status VALUES (?,?,?) ON DUPLICATE KEY UPDATE data=VALUES(data),updated_at=VALUES(updated_at)',['sample_publication',JSON.stringify(result),now],conn);
+   await db.q('INSERT IGNORE INTO audit_log VALUES (?,?,?,?,?)',['publication-'+digest(collectionId+'|'+owner.id).slice(0,40),owner.id,'sample_collection.publish',collectionId,now],conn);
+   return result;
+  });
+ }finally{try{if(locked)await db.q('SELECT RELEASE_LOCK(?)',['veelad_sample_collection_01'],connection);}finally{connection.release();}}
 }

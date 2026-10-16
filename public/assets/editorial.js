@@ -43,10 +43,17 @@ translations.ar=Object.freeze({...translations.ar,
  'Your new collection is ready to review.':'مجموعتك الجديدة جاهزة للمراجعة.',
  '{count} original collection listings are linked to the requested account. Unpublished listings need a reviewed price, availability and final product specifications before release.':'عدد منتجات المجموعة المرتبطة بالحساب المطلوب: {count}. المنتجات غير المنشورة تحتاج مراجعة السعر والتوفّر ومواصفات المنتج النهائية قبل طرحها.',
  'Review the collection':'راجع المجموعة',
- 'Show all products':'عرض كل المنتجات'
+ 'Show all products':'عرض كل المنتجات',
+ 'Sample':'تجريبي',
+ 'Sample price':'سعر تجريبي',
+ 'Your sample collection is live on staging.':'مجموعتك التجريبية منشورة في النسخة التجريبية.',
+ '{count} sample listings are linked to the requested account and visible on staging with clearly marked sample prices. Final pricing and specifications still need confirmation. No online payment is collected.':'عدد منتجات المجموعة المرتبطة بالحساب المطلوب: {count}. المنتجات ظاهرة في النسخة التجريبية بأسعار موضّحة كتجريبية. السعر النهائي والمواصفات تحتاج تأكيد. لا يُحصّل أي مبلغ إلكترونيًا.',
+ 'View the sample collection':'شوف المجموعة التجريبية'
 });
 function sampleCollectionReviewNotice(ps){
  const collection=ps.filter(p=>p.collection_id==='veelad-originals-01');if(!collection.length)return '';
- const selected=params.get('collection')==='veelad-originals-01';
- return `<aside class="notice sample-collection-notice"><div><strong>${t('Your new collection is ready to review.')}</strong><p>${esc(t('{count} original collection listings are linked to the requested account. Unpublished listings need a reviewed price, availability and final product specifications before release.',{count:localNumber(collection.length)}))}</p></div>${link(t(selected?'Show all products':'Review the collection'),route,'btn outline sm',{tab:'products',...(selected?{}:{collection:'veelad-originals-01'})})}</aside>`;
+ const selected=params.get('collection')==='veelad-originals-01',published=collection.every(p=>p.status==='active'&&p.sample_pricing===true);
+ const heading=published?'Your sample collection is live on staging.':'Your new collection is ready to review.';
+ const explanation=published?'{count} sample listings are linked to the requested account and visible on staging with clearly marked sample prices. Final pricing and specifications still need confirmation. No online payment is collected.':'{count} original collection listings are linked to the requested account. Unpublished listings need a reviewed price, availability and final product specifications before release.';
+ return `<aside class="notice sample-collection-notice"><div><strong>${t(heading)}</strong><p>${esc(t(explanation,{count:localNumber(collection.length)}))}</p></div>${link(t(selected?'Show all products':published?'View the sample collection':'Review the collection'),route,'btn outline sm',{tab:'products',...(selected?{}:{collection:'veelad-originals-01'})})}</aside>`;
 }

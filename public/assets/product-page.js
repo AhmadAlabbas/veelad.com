@@ -4,6 +4,10 @@
 translations.ar=Object.freeze({...translations.ar,
  'A closer look':'خلّنا نقرّب التفاصيل',
  'A closer look at the artwork':'تفاصيل التصميم، عن قرب.',
+ 'Sample price · Staging preview':'سعر تجريبي · للمعاينة',
+ 'Sample price':'سعر تجريبي',
+ 'Sample listing':'منتج تجريبي',
+ 'This is a sample listing with an illustrative price and provisional product details. No real payment is collected.':'هذا منتج تجريبي بسعر للتوضيح وتفاصيل مبدئية. ما يتم تحصيل أي مبلغ.',
  'The design story':'حكاية التصميم',
  'ONE IDEA. MORE WAYS TO MAKE IT YOURS.':'تصميم واحد، وأكثر من طريقة تختاره',
  'This design, on other things.':'نفس التصميم، على أشياء ثانية.',
@@ -44,6 +48,11 @@ translations.ar=Object.freeze({...translations.ar,
  'Current product':'المنتج الحالي',
  'Published products':'المنتجات المتاحة'
 });
+
+function productSamplePriceNotice(p) {
+ if(p.sample_pricing!==true)return '';
+ return `<aside class="product-sample-pricing" aria-label="${esc(t('Sample price · Staging preview'))}"><strong>${t('Sample price · Staging preview')}</strong><p>${t('This is a sample listing with an illustrative price and provisional product details. No real payment is collected.')}</p></aside>`;
+}
 
 function productDesignFamily(p) {
  const key=typeof p.design_group==='string'&&p.design_group.trim()?'design_group':typeof p.submission_group==='string'&&p.submission_group.trim()?'submission_group':null;

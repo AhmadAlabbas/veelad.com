@@ -63,6 +63,9 @@ dialog:has(.gallery-lightbox) { width: 800px; }
 /* A full product story, without interrupting the purchase controls above. */
 .product-page .product-layout { padding-bottom: 44px; }
 .product-page .product-description { font-size: 14px; }
+.product-sample-pricing { margin: 0 0 20px; padding: 14px 16px; border: 1px solid #dfd3ed; border-radius: 9px; background: #f7f2fc; color: #604375; }
+.product-sample-pricing strong { display: block; margin-bottom: 5px; font-size: 12px; }
+.product-sample-pricing p { margin: 0; font-size: 12px; line-height: 1.8; }
 .product-format-picker { margin: 22px 0; }
 .product-format-label { display: block; margin-bottom: 10px; font-size: 12px; font-weight: 600; }
 .product-format-options { display: flex; flex-wrap: wrap; gap: 8px; }

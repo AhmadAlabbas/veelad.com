@@ -51,12 +51,21 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
    if(!row) throw new ApiError(503,'Store provisioning is required.');
    JSON.parse(row.data);
    await db.q('SELECT session_id FROM sessions LIMIT 1');
-   let collectionStatus;
+   let collectionStatus,collectionDiagnostic,publicationStatus,publicationDiagnostic;
    if(c.mode==='staging'){
     collectionStatus='unavailable';
-    try{const collection=await db.one('SELECT data FROM operational_status WHERE id=?',['sample_collection']),status=collection?JSON.parse(collection.data).status:null;collectionStatus=status==='installed'?'installed':status==='pending_account'?'pending':'unavailable';}catch{}
+    try{const collection=await db.one('SELECT data FROM operational_status WHERE id=?',['sample_collection']),record=collection?JSON.parse(collection.data):null,status=record?.status;collectionStatus=status==='installed'?'installed':status==='pending_account'?'pending':'unavailable';if(status==='failed'){
+     const codes=['COLLECTION_MANIFEST_MISSING','COLLECTION_MANIFEST_INVALID','COLLECTION_ARTWORK_INVALID','COLLECTION_ARTWORK_ENCRYPTION','COLLECTION_ARTWORK_INTEGRITY','COLLECTION_ARTWORK_COLLISION','COLLECTION_PRODUCT_COLLISION','COLLECTION_OWNER_CHANGED','COLLECTION_OWNER_AMBIGUOUS','COLLECTION_MANIFEST_CHANGED','COLLECTION_INSTALL_FAILED','PUBLIC_STORAGE_PATH','EACCES','ENOSPC'];
+     const causes=['ENOENT','EPERM','EINVAL','ENOSYS','ENOTSUP','EOPNOTSUPP','EACCES','EXDEV','EDQUOT','EROFS','ENOSPC','ENOTDIR','EMFILE','ERR_MODULE_NOT_FOUND','ERR_DLOPEN_FAILED','ER_DATA_TOO_LONG','ER_BAD_FIELD_ERROR','ER_WRONG_VALUE_COUNT_ON_ROW','ER_TRUNCATED_WRONG_VALUE_FOR_FIELD','ER_INCORRECT_STRING_VALUE','ER_DUP_ENTRY','ER_LOCK_WAIT_TIMEOUT','ER_MAX_PREPARED_STMT_COUNT_REACHED','RangeError','SyntaxError','ApiError','Error'];
+     collectionDiagnostic={code:codes.includes(record.error_code)?record.error_code:'COLLECTION_INSTALL_FAILED',cause:causes.includes(record.cause_code)?record.cause_code:'Error',stage:['manifest','readowner','decrypt','render','write_originals','transaction'].includes(record.stage)?record.stage:'unknown'};
+    }}catch{}
+    publicationStatus='pending';
+    try{const publication=await db.one('SELECT data FROM operational_status WHERE id=?',['sample_publication']),record=publication?JSON.parse(publication.data):null;publicationStatus=record?.status==='published'?'published':record?.status==='failed'?'unavailable':'pending';if(record?.status==='failed'){
+     const causes=['ENOENT','EPERM','EINVAL','ENOSYS','ENOTSUP','EOPNOTSUPP','EACCES','EXDEV','EDQUOT','EROFS','ENOSPC','ER_DATA_TOO_LONG','ER_BAD_FIELD_ERROR','ER_WRONG_VALUE_COUNT_ON_ROW','ER_DUP_ENTRY','ER_LOCK_WAIT_TIMEOUT','COLLECTION_MANIFEST_CHANGED','COLLECTION_ARTWORK_COLLISION','COLLECTION_ARTWORK_INTEGRITY','COLLECTION_OWNER_CHANGED','COLLECTION_OWNER_AMBIGUOUS'];
+     publicationDiagnostic={code:'COLLECTION_PUBLICATION_FAILED',cause:causes.includes(record.cause_code)?record.cause_code:'Error',stage:'transaction'};
+    }}catch{}
    }
-   res.json({ok:true,version:'3.0.0',environment:c.mode,revision:c.revision,marketplace_enabled:true,...(collectionStatus?{sample_collection_status:collectionStatus}:{}),...(app.locals.operations?.storage?{storage:{ready:app.locals.operations.storage.ready,continuity:app.locals.operations.storage.continuity,missing_files:app.locals.operations.storage.missing_files},backup:app.locals.operations.backup?{status:app.locals.operations.backup.status,created_at:app.locals.operations.backup.created_at}:null}:{})});
+   res.json({ok:true,version:'3.0.0',environment:c.mode,revision:c.revision,marketplace_enabled:true,...(collectionStatus?{sample_collection_status:collectionStatus}:{}),...(collectionDiagnostic?{sample_collection_diagnostic:collectionDiagnostic}:{}),...(publicationStatus?{sample_publication_status:publicationStatus}:{}),...(publicationDiagnostic?{sample_publication_diagnostic:publicationDiagnostic}:{}),...(app.locals.operations?.storage?{storage:{ready:app.locals.operations.storage.ready,continuity:app.locals.operations.storage.continuity,missing_files:app.locals.operations.storage.missing_files},backup:app.locals.operations.backup?{status:app.locals.operations.backup.status,created_at:app.locals.operations.backup.created_at}:null}:{})});
   } catch(e) {
    console.error('Veelad readiness failed:',e.code||e.name);
    const databaseError=readinessCode(e);
@@ -97,7 +106,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
  function preserveDetails(p,old) {
   if(!old) return;
   const previous=json(old.data);
-  for(const key of [...Object.keys(detailLimits),...Object.keys(translationLimits),'production_notes','print_formats','tags','tags_ar','gallery_upload_ids','design_studio','mockup_upload_id','customer_customizable','collection_id','design_group','story','story_ar','artwork_attribution']) if(p[key]===undefined && previous[key]!==undefined) p[key]=previous[key];
+  for(const key of [...Object.keys(detailLimits),...Object.keys(translationLimits),'production_notes','print_formats','tags','tags_ar','gallery_upload_ids','design_studio','mockup_upload_id','customer_customizable','collection_id','design_group','story','story_ar','artwork_attribution','sample_pricing','stock_is_simulated']) if(p[key]===undefined && previous[key]!==undefined) p[key]=previous[key];
   if(previous.upload_id===p.upload_id&&previous.artwork_metadata!==undefined)p.artwork_metadata=previous.artwork_metadata;
   if(p.design_studio?.artwork_id!==(p.upload_id||null)){delete p.design_studio;delete p.mockup_upload_id;}
   if(!mockupMatches(p.mockup_upload_id,p.upload_id,p.category,p.design_studio))delete p.mockup_upload_id;
