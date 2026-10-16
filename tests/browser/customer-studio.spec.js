@@ -189,7 +189,16 @@ test("customers customize two products with one private original, switch languag
     await expect(form.locator("[name=preview_accepted]")).not.toBeChecked();
     await expect(form.locator("#upload-preview img")).toBeVisible();
     await form.locator("[name=preview_accepted]").check();
+    const reviewedState = await form.locator("[name=design_studio]").inputValue();
+    await page.evaluate(() => refreshArtworkMetadata(uploadId));
+    await expect(form.locator("[name=design_studio]")).toHaveValue(reviewedState);
+    await expect(form.locator("[name=preview_accepted]")).toBeChecked();
+    await form.locator("[data-placement=rotation]").fill("7");
+    await form.locator("[data-placement=rotation]").dispatchEvent("input");
+    await expect(form.locator("[name=preview_accepted]")).not.toBeChecked();
+    await form.locator("[name=preview_accepted]").check();
     await form.locator("[type=submit]").click();
+    await expect(page.locator("#modal")).toBeVisible();
     await expect(page.locator("#modal")).toContainText(
       "Your design is in your bag.",
     );

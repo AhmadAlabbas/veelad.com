@@ -266,8 +266,12 @@ async function startDesignStudio(root) {
       instance.state.listing_mockup = root.querySelector(
         "[name=use_mockup_preview]",
       ).checked;
-      hidden.value = JSON.stringify(instance.state);
-      root.dispatchEvent(new CustomEvent('design-studio-change', {bubbles:true}));
+      const serialized = JSON.stringify(instance.state);
+      const changed = hidden.value !== serialized;
+      hidden.value = serialized;
+      // Metadata refreshes and redraws do not change the design the customer reviewed.
+      if (changed)
+        root.dispatchEvent(new CustomEvent('design-studio-change', {bubbles:true}));
     };
     instance.syncControls = () => {
       root.querySelector("[name=use_mockup_preview]").checked =
