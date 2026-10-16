@@ -51,8 +51,8 @@ function validateManifest(manifest,ownerFingerprint) {
  }
 }
 
-const nativeArtwork=metadata=>({width:metadata.width,height:metadata.height,original_not_upscaled:true,print_width_cm_300dpi:Math.round(metadata.width/300*2.54*10)/10,print_height_cm_300dpi:Math.round(metadata.height/300*2.54*10)/10});
-function initialProductData(item,uploadId,native){
+export const nativeArtwork=metadata=>({width:metadata.width,height:metadata.height,original_not_upscaled:true,print_width_cm_300dpi:Math.round(metadata.width/300*2.54*10)/10,print_height_cm_300dpi:Math.round(metadata.height/300*2.54*10)/10});
+export function initialProductData(item,uploadId,native){
  const type=printProductFor(item.category),studio=validateDesignStudio({version:1,template_version:printProducts.version,artwork_id:uploadId,active_product:type.id,listing_mockup:true,placements:{[type.id]:{...defaultPlacement(type),...(item.placement||{})}}},uploadId),mockId=mockupId(uploadId,item.category,studio);
  const productionNotes=`Native original: ${native.width} × ${native.height} px, not upscaled. At 300 DPI this is approximately ${native.print_width_cm_300dpi} × ${native.print_height_cm_300dpi} cm before cropping, bleed or supplier requirements. These figures are resolution guidance, not print-ready certification. Obtain a higher-resolution original if the final print size requires it. Product previews are provisional. Confirm supplier templates, material, dimensions, colour and a physical sample before production. Set a reviewed price and availability before publishing.`;
  const data={title:item.title,title_ar:item.title_ar,description:item.description,description_ar:item.description_ar,category:item.category,price:0,stock:0,variants:item.variants||['Standard'],royalty_percent:20,badge:'New',sheet:0,cell:0,upload_id:uploadId,mockup_upload_id:mockId,design_studio:studio,print_formats:[item.category],collection_id:collectionId,artwork_metadata:native,production_notes:productionNotes};

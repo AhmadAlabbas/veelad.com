@@ -2,6 +2,11 @@
 'use strict';
 window.VEELAD_LOCALES = window.VEELAD_LOCALES || {};
 window.VEELAD_LOCALES.ar = Object.freeze({
+  "Native original: {width} × {height} px": "أبعاد الملف الأصلي: {width} × {height} بكسل",
+  "At 300 DPI: about {width} × {height} cm before cropping. Supplier dimensions, bleed and a physical sample still need review.": "عند دقة 300 DPI: حوالي {width} × {height} سم قبل القص. لازم نراجع مقاسات المطبعة وهوامش القص وعيّنة فعلية قبل الطباعة.",
+  "New vector-drawn edition. The SVG master stays sharp at larger sizes; this does not certify a supplier template.": "نسخة جديدة مرسومة بخطوط قابلة للتكبير. ملف SVG يحافظ على وضوحه مع الأحجام الكبيرة، ويحتاج مراجعة قالب المطبعة قبل الإنتاج.",
+  "Download scalable master (.svg)": "تحميل الملف القابل للتكبير (.svg)",
+
   // Customer starter layouts.
   "Wait for your starter layout to finish before adding this item to your bag.": "انتظر لين تجهز الفكرة قبل ما تضيف المنتج للسلة.",
   "A STARTING POINT / YOUR FINISHING TOUCH": "فكرة البداية علينا / واللمسة لمستك",

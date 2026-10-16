@@ -1,0 +1,79 @@
+{
+  "version": 1,
+  "id": "veelad-scalable-01",
+  "owner_email_sha256": "1995cdd0014d8eb5cd0df3801a7a16f9f61f45c57b4ab9b9e79668ab442427ea",
+  "sources": [
+    {
+      "design_group": "desert-afterglow",
+      "bundle": "desert-afterglow.enc",
+      "png_sha256": "bf4784531146222a262e7b5b9495975ec9a78569b1e9f1fe3a716d9796addea2",
+      "svg_sha256": "c47c5f76aff3f15fba62f4cc7f31526517c1f18c137833dc22ace25ea86d1cd0",
+      "width": 4560,
+      "height": 6840,
+      "story": "A new vector-drawn edition of Desert Afterglow: terracotta dunes, a cobalt sky, a glowing sun and a distant caravan. Fine contours add detail at every size. The previous raster edition remains archived separately.",
+      "story_ar": "وهج الصحراء بنسخة جديدة مرسومة بخطوط قابلة للتكبير: كثبان دافئة، سما زرقاء وشمس تميل للغروب، وقافلة بعيدة تكمل المشهد. خطوط الرمل الدقيقة تبان أكثر كل ما كبر التصميم. النسخة السابقة محفوظة لوحدها.",
+      "description": "A warm desert landscape, drawn anew with crisp curves, terracotta dunes and a distant caravan. This scalable edition brings a quiet travel-poster mood to your everyday. Product previews and sample prices remain provisional.",
+      "description_ar": "مشهد من هدوء الصحراء، برسم جديد وخطوط واضحة: كثبان دافئة وقافلة تمشي على مهل. نسخة قابلة للتكبير، تضيف لمسة من أجواء السفر ليومك. صور المنتج والأسعار المعروضة للتجربة."
+    },
+    {
+      "design_group": "wild-bloom",
+      "bundle": "wild-bloom.enc",
+      "png_sha256": "d28c0cff8ac696e672ae233fa8d81897f4452f10ed01570f6b48d5929041b55d",
+      "svg_sha256": "cf6470e356491fc3a96f454a33a4ef28cb4b2806f3f8320944485580826eaefb",
+      "width": 4560,
+      "height": 6840,
+      "story": "Original vector-drawn poppies, flowing stems and blue-green foliage. This new edition keeps the warm botanical palette while introducing fine petal and leaf linework that stays sharp when enlarged.",
+      "story_ar": "زهور مرسومة من جديد، بسيقان منحنية وأوراق بين الأزرق والأخضر. ألوان دافئة وتفاصيل دقيقة في البتلات والأوراق، تحافظ على وضوحها مع التكبير.",
+      "description": "Coral poppies and sweeping blue-green leaves, composed as a fresh botanical illustration. The new scalable edition keeps its fine lines at larger sizes. Product previews and sample prices remain provisional.",
+      "description_ar": "زهور بلون المرجان وأوراق زرقاء وخضراء، في رسمة نباتية جديدة ومريحة للعين. نسخة قابلة للتكبير تحافظ على تفاصيل خطوطها. صور المنتج والأسعار المعروضة للتجربة."
+    },
+    {
+      "design_group": "midnight-orbit",
+      "bundle": "midnight-orbit.enc",
+      "png_sha256": "45e334f51c0c52e87611757cf206cf738e7c70b0e81364ef3a675d6f04476656",
+      "svg_sha256": "10589fd977ab7b24824b578530ea45d1a034d90a716682aac5c12fa4c8c36afe",
+      "width": 6000,
+      "height": 6000,
+      "story": "A lavender crescent, ringed planet and delicate orbital paths against a deep midnight sky. All shapes and star details are newly drawn as vectors; the original raster source is preserved.",
+      "story_ar": "هلال بلون اللافندر، وكوكب تحيطه حلقة، ومدارات خفيفة وسط زرقة الليل. كل النجوم والأشكال مرسومة من جديد بخطوط قابلة للتكبير، والنسخة السابقة محفوظة.",
+      "description": "A little night sky for your everyday: a lavender crescent, a ringed planet and quiet constellations. A new scalable illustration for those who always look up. Product previews and sample prices remain provisional.",
+      "description_ar": "قطعة من سما الليل ليومك: هلال لافندر وكوكب بحلقاته ونجوم هادية. رسمة جديدة قابلة للتكبير للي يحبون يرفعون نظرهم للسما. صور المنتج والأسعار المعروضة للتجربة."
+    },
+    {
+      "design_group": "red-sea-drift",
+      "bundle": "red-sea-drift.enc",
+      "png_sha256": "6205807f3d7f4a339239162bcb2089d0dbe1547a8601b9f81f08bab621a90e34",
+      "svg_sha256": "8b5d455c995b1806918a5aab3201dd3860b4d6b4a7cf88edf560b8da19449eec",
+      "width": 6000,
+      "height": 6000,
+      "story": "A newly drawn sea turtle moves through flowing blue currents, coral branches and small golden fish. Geometric shell panels and fine water lines make this a detailed scalable marine edition.",
+      "story_ar": "سلحفاة بحرية تمر بين تيارات زرقاء وأغصان مرجان وأسماك ذهبية صغيرة. رسمة جديدة، بتفاصيل هندسية في الصدفة وخطوط مائية دقيقة، قابلة للتكبير بدون فقدان وضوحها.",
+      "description": "Take the slower current. A detailed sea turtle, warm coral and little golden fish bring a calm marine scene to this new scalable edition. Product previews and sample prices remain provisional.",
+      "description_ar": "خذها على مهل، مثل موج البحر. سلحفاة بتفاصيل دقيقة ومرجان دافئ وأسماك صغيرة، في رسمة بحرية جديدة قابلة للتكبير. صور المنتج والأسعار المعروضة للتجربة."
+    },
+    {
+      "design_group": "slow-sunday",
+      "bundle": "slow-sunday.enc",
+      "png_sha256": "988e4697dd397cbd0912e20a4055c6afb138d1bcb021300306285e45f4995cff",
+      "svg_sha256": "a93ccc0cbbe92e41e048bc027f4e319933ab376d7e3d24d8b727552459300eed",
+      "width": 6000,
+      "height": 6000,
+      "story": "An original vector-drawn tabby rests on a stack of books beside a blue coffee cup. Warm cream, terracotta and deep blue turn a slow morning into a scalable illustration full of small details.",
+      "story_ar": "قطوة مسترخية فوق كومة كتب، وجنبها فنجان قهوة أزرق. رسمة جديدة بدرجات كريمية ودافئة، تحوّل صباح على رواق لتفاصيل تقدر تكبرها وتستمتع فيها.",
+      "description": "Books, coffee and a very unhurried cat. This new scalable edition celebrates the small rituals that make a morning yours. Product previews and sample prices remain provisional.",
+      "description_ar": "كتب، وقهوة، وقطوة ما عندها أي موعد. نسخة جديدة قابلة للتكبير، تحتفل بالتفاصيل الصغيرة اللي تخلي الصباح على ذوقك. صور المنتج والأسعار المعروضة للتجربة."
+    },
+    {
+      "design_group": "courtyard-rhythm",
+      "bundle": "courtyard-rhythm.enc",
+      "png_sha256": "21d7961a6fcb37ff4c190759a6e6de776ab51988adda0c612ccf92d026ad2701",
+      "svg_sha256": "37daf07d1fa423da1acd7f65c6bcd48c96abf9f8d3b45ece996c9d52260afdad",
+      "width": 4560,
+      "height": 6840,
+      "story": "Warm arches, deep-blue doorways, a palm and a tiled pool form a newly drawn architectural composition. Clean vector geometry and fine tile details give this courtyard edition room to grow.",
+      "story_ar": "أقواس دافئة، ومداخل زرقاء، ونخلة وحوض مبلّط، في تكوين معماري مرسوم من جديد. هندسة واضحة وتفاصيل بلاط دقيقة تعطي هالفناء حضور أجمل مع كل حجم.",
+      "description": "A quiet courtyard in warm clay and cool blue: arches, a palm and patterned tiles, newly composed as scalable artwork. Product previews and sample prices remain provisional.",
+      "description_ar": "فناء هادي يجمع لون الطين الدافئ والأزرق البارد: أقواس ونخلة وبلاط بتفاصيل مرتبة، في رسمة جديدة قابلة للتكبير. صور المنتج والأسعار المعروضة للتجربة."
+    }
+  ]
+}

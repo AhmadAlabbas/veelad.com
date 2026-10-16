@@ -1,5 +1,17 @@
 # Veelad Originals — First Edit
 
+## Scalable editions — 16 October 2026
+
+The owner approved newly drawn scalable editions of all six themes. These are new vector compositions, not enlargements or recovered detail from the earlier raster images. Portrait PNG originals are rendered directly from their SVG sources at **4560 × 6840 pixels**; square originals are **6000 × 6000 pixels**. The SVGs contain original geometry, without embedded raster pictures, font dependencies or external resources. The PNG remains compatible with the existing private artwork and placement workflow.
+
+The new editions are packaged separately in `veelad-scalable-01.json` and authenticated encrypted bundles. The original collection manifest, ciphertext, upload records, bytes and historical order snapshots remain unchanged. Installation requires the exact staging environment/origin, the approved existing account, and each complete unedited original sample record, including its private notes and placement. Edited, archived, reassigned, deleted or commercially changed listings are skipped. Only matching future listings receive the new source, correctly regenerated mockup, provenance and matching bilingual description/story. Sample prices and simulated stock remain explicitly labeled.
+
+An immutable completion journal in backed-up settings prevents replaying the upgrade over later edits. Each changed product has its own before/after journal. Each SVG master is compressed into its own private settings record below the existing SQL TEXT limit; encrypted database backups therefore retain the actual editable vector source along with PNG files. No plaintext master or secret enters the public repository. Existing source rows can recover their exact missing PNG from the authenticated new bundle; conflicting files are never overwritten.
+
+Administrators open **Products → Design files** to download the native PNG or **Download scalable master (.svg)**. SVG downloads require administrator authorization, are audited, and use attachment/octet-stream with a sandbox policy. They are never served as inline artwork or public previews. The same dialog shows byte-derived native dimensions and a 300 DPI size estimate. Larger native dimensions and scalable geometry do not confirm supplier dimensions, bleed, colour handling or a physical sample. Phone/notebook dimensions remain provisional. Real payments remain disabled.
+
+For data rollback, compare the current product to the per-product journal's after-state before restoring its before-state, preserving subsequent administrator changes. Do not delete either edition's source rows/files or remove SVG master settings while any order may reference them. A code rollback alone does not undo data edits. Preserve the new administrator source-download implementation for fulfilling orders that use the scalable edition.
+
 This staging-only collection was requested by the store owner on 16 October 2026. It contains twelve new product concepts using six original AI-assisted artworks, with separate English and Arabic names, descriptions, design stories and search tags.
 
 | Artwork | Arabic name | Products |

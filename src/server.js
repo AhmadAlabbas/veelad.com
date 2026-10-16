@@ -8,6 +8,7 @@ import {startOperations,putOperation} from './operations.js';
 import {mailStatus} from './mail.js';
 import {installSampleCollection,publishSampleCollection} from './sample-collection.js';
 import {cleanupCatalogue} from './catalogue-cleanup.js';
+import {installScalableEditions} from './scalable-editions.js';
 console.log('Veelad startup: dependencies loaded; validating settings.');
 let c;
 try {c=config();} catch(error) {console.error('Veelad startup settings validation failed:',error.message);throw error;}
@@ -17,6 +18,17 @@ const schema={status:c.mode==='staging'?'pending':'ready',error:null};
 const app=createApp(c,db,schema);
 app.locals.operations={storage:null,backup:null};
 const runOperations=()=>startOperations(c,db,app.locals.operations).catch(()=>console.error('Veelad operations check failed; inspect private configuration.'));
+let scalableRunning=false;
+const runScalableEditions=async()=>{
+ if(c.mode!=='staging'||scalableRunning)return;
+ scalableRunning=true;
+ try{await installScalableEditions(c,db);}
+ catch(error){
+  const code=/^(?:SCALABLE_[A-Z0-9_]{1,60}|PRIVATE_[A-Z0-9_]{1,60}|ER_[A-Z0-9_]{1,60}|EACCES|ENOSPC)$/.test(error.code||'')?error.code:'SCALABLE_EDITION_FAILED';
+  await putOperation(db,'scalable_editions',{status:'failed',error_code:code,checked_at:new Date().toISOString()}).catch(()=>{});
+  console.error('Veelad scalable staging editions:',code);
+ }finally{scalableRunning=false;}
+};
 let collectionComplete=false,collectionRunning=false;
 let catalogueCleanupComplete=false,catalogueCleanupRunning=false;
 const runCatalogueCleanup=async()=>{
@@ -70,14 +82,14 @@ const server=app.listen(c.port,'0.0.0.0',function(){console.log(`Veelad ${c.mode
 // Never delay listen(), seed legacy data, or migrate production implicitly.
 if(c.mode==='staging') {
  migrate(db).then(()=>{
-  schema.status='ready';runSampleCollection().then(runCatalogueCleanup).finally(runOperations);console.log('Veelad staging schema ready; existing records preserved.');
+  schema.status='ready';runSampleCollection().then(runCatalogueCleanup).then(runScalableEditions).finally(runOperations);console.log('Veelad staging schema ready; existing records preserved.');
  }).catch(error=>{
   schema.status='failed';schema.error=error;
   console.error('Veelad staging schema initialization failed:',error.code||error.name);
  });
 }
 if(c.mode!=='staging'&&c.marketplaceEnabled)runOperations();
-let operationsTimer=setInterval(()=>{if(schema.status==='ready'&&c.marketplaceEnabled){runSampleCollection().then(runCatalogueCleanup);runOperations();}},60000);
+let operationsTimer=setInterval(()=>{if(schema.status==='ready'&&c.marketplaceEnabled){runSampleCollection().then(runCatalogueCleanup).then(runScalableEditions).finally(runOperations);}},60000);
 let worker;
 if(mailStatus(c).ready) worker=setInterval(()=>{
  if(schema.status==='ready') work(c,db).catch(()=>console.error('Email worker failed; inspect provider configuration'));

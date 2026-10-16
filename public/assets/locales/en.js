@@ -2,6 +2,11 @@
 'use strict';
 window.VEELAD_LOCALES = window.VEELAD_LOCALES || {};
 window.VEELAD_LOCALES.en = Object.freeze({
+  "Native original: {width} × {height} px": "Native original: {width} × {height} px",
+  "At 300 DPI: about {width} × {height} cm before cropping. Supplier dimensions, bleed and a physical sample still need review.": "At 300 DPI: about {width} × {height} cm before cropping. Supplier dimensions, bleed and a physical sample still need review.",
+  "New vector-drawn edition. The SVG master stays sharp at larger sizes; this does not certify a supplier template.": "New vector-drawn edition. The SVG master stays sharp at larger sizes; this does not certify a supplier template.",
+  "Download scalable master (.svg)": "Download scalable master (.svg)",
+
   // Customer starter layouts.
   "Wait for your starter layout to finish before adding this item to your bag.": "Wait for your starter layout to finish before adding this item to your bag.",
   "A STARTING POINT / YOUR FINISHING TOUCH": "A STARTING POINT / YOUR FINISHING TOUCH",

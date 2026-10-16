@@ -1,3 +1,5 @@
+import {readScalableMaster} from './scalable-editions.js';
+import {fileHash} from './private-bundle.js';
 import express from 'express';
 import {queueVerification,consumeVerification,requireVerifiedEmail,markEmailVerified,recoveryMessage} from './email-verification.js';
 import {createGoogleProvider,googleRoute,googleStatus,authenticationStatus,hasLocalPassword} from './google-auth.js';
@@ -460,7 +462,10 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
       try{const info=await fs.stat(artworkPath(c.uploadDir,record));available=info.isFile()&&info.size>0&&info.size<=artworkLimits.bytes;if(available)bytes=info.size;}catch{}
       return {id:record.id,primary:record.primary,available,size_bytes:bytes,extension:record.mime==='image/png'?'png':record.mime==='image/jpeg'?'jpg':null};
      }));
-     return res.json({product_id:p.id,title:p.title,title_ar:p.title_ar||'',has_original:!!p.upload_id,has_design_plan:!!p.design_studio,files});
+     const master=p.upload_id?await readScalableMaster(db,p.upload_id):null;
+     const primary=records.find(record=>record.primary);let resolution=null;
+     if(primary&&files.find(file=>file.primary)?.available)resolution=await artworkMetadata(c.uploadDir,primary);
+     return res.json({product_id:p.id,title:p.title,title_ar:p.title_ar||'',has_original:!!p.upload_id,has_design_plan:!!p.design_studio,files,resolution,scalable_master:master?{upload_id:p.upload_id,width:master.width,height:master.height,format:'svg'}:null});
     }
     const archive=await prepareArtworkArchive(c.uploadDir,records);
     try{
@@ -469,6 +474,13 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
      await pipeline(Readable.from(archive.stream),res);
     }finally{await archive.close();}
     return;
+   }
+   if(method==='GET' && route==='admin-artwork-master') {
+    const image=await one('SELECT * FROM uploads WHERE id=?',[String(req.query.id||'')]);if(!image)fail(404,'Artwork not found.');
+    const master=await readScalableMaster(db,image.id);if(!master)fail(404,'Scalable master not found.');
+    const original=await readArtwork(c.uploadDir,image);if(fileHash(original)!==master.png_sha256)fail(409,'The original changed. Review the source before printing.');
+    await audit(u,'artwork.master_download',image.id);
+    return res.attachment(image.id+'-master.svg').type('application/octet-stream').set('Content-Security-Policy',"default-src 'none'; sandbox").send(Buffer.from(master.svg));
    }
    if(method==='GET' && route==='admin-artwork-original') {
     const image=await one('SELECT * FROM uploads WHERE id=?',[String(req.query.id||'')]);if(!image)fail(404,'Artwork not found.');

@@ -24,6 +24,8 @@ async function openProductFiles(productId) {
    ${data.files.length?`<ul class="production-file-list">${data.files.map((file,index)=>`<li><div><strong>${t(file.primary?'Print original':'Additional image {number}',{number:localNumber(index+(data.has_original?0:1))})}</strong><small>${file.available?`${esc(file.extension?.toUpperCase()||'')} · ${productionFileSize(file.size_bytes)}`:t('Original file unavailable')}</small></div>${file.available?button(t('Download file'),'download-production-file',`data-id="${esc(file.id)}"`,'btn outline sm'):`<span class="pill gray">${t('Needs restoration')}</span>`}</li>`).join('')}</ul>`:''}
    ${data.files.some(file=>!file.available)?`<div class="notice error">${t('Some original files are missing. Restore them in System using the matching originals.')}</div>${link(t('Open System'),'admin','btn outline sm',{tab:'system'})}`:''}
    ${data.files.length>1?button(t('Download all files ({extension})',{extension:'<bdi dir="ltr">.zip</bdi>'}),'download-production-archive',`data-id="${esc(productId)}" ${complete?'':'disabled'}`,'btn full'):''}
+   ${data.resolution?`<section class="notice"><strong>${esc(t('Native original: {width} × {height} px',{width:localNumber(data.resolution.width),height:localNumber(data.resolution.height)}))}</strong><p class="small">${esc(t('At 300 DPI: about {width} × {height} cm before cropping. Supplier dimensions, bleed and a physical sample still need review.',{width:localNumber(data.resolution.print_width_cm_300dpi),height:localNumber(data.resolution.print_height_cm_300dpi)}))}</p></section>`:''}
+   ${data.scalable_master?`<p class="small">${esc(t('New vector-drawn edition. The SVG master stays sharp at larger sizes; this does not certify a supplier template.'))}</p>${button(t('Download scalable master (.svg)'),'download-artwork-master',`data-id="${esc(data.scalable_master.upload_id)}"`,'btn outline full')}`:''}
    ${data.has_design_plan?button(t('Download placement plan (.json)'),'download-design-plan',`data-id="${esc(productId)}"`,'btn outline full'):''}
    ${data.files.some(file=>!file.primary)?`<p class="small">${t('Additional images may be mockups or product photos. Confirm each file is suitable before sending it to print.')}</p>`:''}
    ${!data.has_original?button(t('Upload original'),'edit-product',`data-id="${esc(productId)}"`,'btn outline'):''}
@@ -33,12 +35,12 @@ async function openProductFiles(productId) {
 async function downloadProductionFile(control,archive=false) {
  if(control.disabled)return;control.disabled=true;
  try {
-  const plan=control.dataset.action==='download-design-plan',composed=control.dataset.action==='download-design-artwork';
-  const route=composed?'admin-design-artwork':plan?'admin-design-plan':archive?'admin-product-files-download':'admin-artwork-original';
+  const plan=control.dataset.action==='download-design-plan',composed=control.dataset.action==='download-design-artwork',master=control.dataset.action==='download-artwork-master';
+  const route=master?'admin-artwork-master':composed?'admin-design-artwork':plan?'admin-design-plan':archive?'admin-product-files-download':'admin-artwork-original';
   const response=await fetch('/api.php?'+new URLSearchParams({route,id:control.dataset.id,...((plan||composed)&&control.dataset.order?{order:control.dataset.order,...(control.dataset.line?{line:control.dataset.line}:{})}:{})}),{credentials:'same-origin'});
   if(!response.ok){let error;try{error=(await response.json()).error;}catch{}throw Error(error||'Download failed. Please try again.');}
   const type=response.headers.get('content-type')||'';
-  if(!(plan?type.startsWith('application/json'):archive?type.startsWith('application/zip'):/^image\/(png|jpeg)/.test(type)))throw Error('The server returned an unexpected response. Check the server configuration.');
+  if(!(master?type.startsWith('application/octet-stream'):plan?type.startsWith('application/json'):archive?type.startsWith('application/zip'):/^image\/(png|jpeg)/.test(type)))throw Error('The server returned an unexpected response. Check the server configuration.');
   const blob=await response.blob(),objectUrl=URL.createObjectURL(blob),anchor=document.createElement('a');
   const filename=response.headers.get('content-disposition')?.match(/filename=(?:"([^"]+)"|([^;]+))/i);
   anchor.href=objectUrl;anchor.download=(filename?.[1]||filename?.[2])?.trim()||(archive?'veelad-design-files.zip':'veelad-design.png');
@@ -48,5 +50,5 @@ async function downloadProductionFile(control,archive=false) {
 document.addEventListener('click',async event=>{
  const control=event.target.closest('[data-action]');if(!control)return;
  if(control.dataset.action==='product-files'){event.preventDefault();await openProductFiles(control.dataset.id);}
- if(['download-production-file','download-production-archive','download-design-plan','download-design-artwork'].includes(control.dataset.action)){event.preventDefault();await downloadProductionFile(control,control.dataset.action==='download-production-archive');}
+ if(['download-production-file','download-production-archive','download-design-plan','download-design-artwork','download-artwork-master'].includes(control.dataset.action)){event.preventDefault();await downloadProductionFile(control,control.dataset.action==='download-production-archive');}
 });
