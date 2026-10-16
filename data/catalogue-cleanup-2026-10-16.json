@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "id": "catalogue-cleanup-2026-10-16",
+  "products": [
+    {
+      "id": "p-00ad0243a689a17e00ba614cdc660bea176128be",
+      "expected_sha256": "4e1c7604842d7debb064825205c24874d745d06c3fda169d787f2b57475a4dbe"
+    },
+    {
+      "id": "p-16134533a6be95b04aaf2f05401c8bc7461f295c",
+      "expected_sha256": "c4cdf8f9da9069d1a158e614f635231d5cef2bb8f95542ce7cdd8c780f0e01ba"
+    },
+    {
+      "id": "p-c3710e70dad6d60671963db1",
+      "expected_sha256": "c05d5cf47904b3301991844f80a34afa3dc0a87439da6843c52c8d84c079f9b8"
+    },
+    {
+      "id": "p-ecd6f47535fdbd5c90c8cff0",
+      "expected_sha256": "941ff014cd16b5781c47acd717fa7fa469f457f19bb58a9b83e34f46172ac067"
+    }
+  ],
+  "artist": {
+    "id": "user-f561735a876d7b30c1021b41",
+    "expected_sha256": "ff2dd9675df5fe6387d27f3f8b8956f23aa1617419d17a7a49034cd2acb61a1b",
+    "changes": {
+      "name": "Veelad Studio",
+      "name_ar": "استوديو فيلاد",
+      "initials": "VS",
+      "bio": "Veelad’s original design collection, bringing color to everyday things.",
+      "bio_ar": "مجموعة فيلاد الأصلية. تصاميم تضيف لون للأشياء اللي نستخدمها كل يوم."
+    }
+  }
+}

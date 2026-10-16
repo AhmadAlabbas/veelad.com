@@ -7,6 +7,7 @@ import {migrate} from '../scripts/migrate.js';
 import {startOperations,putOperation} from './operations.js';
 import {mailStatus} from './mail.js';
 import {installSampleCollection,publishSampleCollection} from './sample-collection.js';
+import {cleanupCatalogue} from './catalogue-cleanup.js';
 console.log('Veelad startup: dependencies loaded; validating settings.');
 let c;
 try {c=config();} catch(error) {console.error('Veelad startup settings validation failed:',error.message);throw error;}
@@ -17,6 +18,23 @@ const app=createApp(c,db,schema);
 app.locals.operations={storage:null,backup:null};
 const runOperations=()=>startOperations(c,db,app.locals.operations).catch(()=>console.error('Veelad operations check failed; inspect private configuration.'));
 let collectionComplete=false,collectionRunning=false;
+let catalogueCleanupComplete=false,catalogueCleanupRunning=false;
+const runCatalogueCleanup=async()=>{
+ if(c.mode!=='staging'||catalogueCleanupComplete||catalogueCleanupRunning)return;
+ catalogueCleanupRunning=true;
+ try{
+  const result=await cleanupCatalogue(c,db);
+  catalogueCleanupComplete=['complete','skipped','disabled'].includes(result.status);
+  if(catalogueCleanupComplete&&result.status!=='disabled'){
+   await putOperation(db,'catalogue_cleanup',{status:'complete',archived_count:result.archived_count,profile_updated:result.profile_updated,skipped_product_count:result.skipped_product_count,completed_at:result.completed_at,revision:c.revision});
+   console.log(`Veelad staging catalogue cleanup ready: ${result.archived_count} placeholder listings archived; public shop profile reviewed.`);
+  }
+ }catch(error){
+  const code=/^(?:CATALOGUE_[A-Z0-9_]{1,60}|ER_[A-Z0-9_]{1,80})$/.test(error.code||'')?error.code:'CATALOGUE_CLEANUP_FAILED';
+  console.error('Veelad staging catalogue cleanup failed:',code);
+  await putOperation(db,'catalogue_cleanup',{status:'failed',error_code:code,checked_at:new Date().toISOString()}).catch(()=>{});
+ }finally{catalogueCleanupRunning=false;}
+};
 const runSampleCollection=async()=>{
  if(c.mode!=='staging'||collectionComplete||collectionRunning)return;
  collectionRunning=true;
@@ -52,14 +70,14 @@ const server=app.listen(c.port,'0.0.0.0',function(){console.log(`Veelad ${c.mode
 // Never delay listen(), seed legacy data, or migrate production implicitly.
 if(c.mode==='staging') {
  migrate(db).then(()=>{
-  schema.status='ready';runSampleCollection().finally(runOperations);console.log('Veelad staging schema ready; existing records preserved.');
+  schema.status='ready';runSampleCollection().then(runCatalogueCleanup).finally(runOperations);console.log('Veelad staging schema ready; existing records preserved.');
  }).catch(error=>{
   schema.status='failed';schema.error=error;
   console.error('Veelad staging schema initialization failed:',error.code||error.name);
  });
 }
 if(c.mode!=='staging'&&c.marketplaceEnabled)runOperations();
-let operationsTimer=setInterval(()=>{if(schema.status==='ready'&&c.marketplaceEnabled){runSampleCollection();runOperations();}},60000);
+let operationsTimer=setInterval(()=>{if(schema.status==='ready'&&c.marketplaceEnabled){runSampleCollection().then(runCatalogueCleanup);runOperations();}},60000);
 let worker;
 if(mailStatus(c).ready) worker=setInterval(()=>{
  if(schema.status==='ready') work(c,db).catch(()=>console.error('Email worker failed; inspect provider configuration'));
