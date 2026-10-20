@@ -1,5 +1,13 @@
 # Validation and remaining deployment prerequisites
 
+## Seven-category customer designer — 20 October 2026
+
+The visual customer chooser covers T-shirts, tote bags, mugs, notebooks, phone cases, art prints and stickers in English/Arabic. Six isolated MySQL checks cover the exact staging/origin guard, seven reviewed fingerprint-based opt-ins, unchanged prices/stock/options/artwork and protected account/order/mail data, owner-edit/explicit-disable preservation, absent-row waiting, rollback/retry, and completion-journal replay protection.
+
+Four new desktop/phone browser journeys cover all seven cards and sample-price labels, a selected category surviving sign-in → registration, reuse of one private original, seven independently retained placements and bag entries, Arabic/English switching, autosave/reload, cleared preview approval after a product change, disabled/sold-out categories and 320 px overflow. Existing customer studio, text/draft library, starter-layout and Google-authentication journeys provide regression coverage for the shared editor and account return path. Local verification passed all 133 backend checks and 14 selected desktop/mobile journeys; the GitHub validation workflow runs the complete release suite.
+
+The page retains actual product/variant/stock and server price enforcement. Staging opt-in changes only seven existing sample customization flags, with a backed-up completion journal. It does not add source files or alter existing orders, public artwork, commercial values, email or payment settings. Previews and sample options remain provisional. Real-device Safari, supplier templates and physical printing still require their own validation.
+
 ## Customer starters, scalable sources and recovery (16 October 2026)
 
 The owner requested priorities 4 → 5 → 6 in order. Eight editable customer text layouts cover Arabic names, initials, birthdays, gifts and small milestones. The actual bundled text renderer verified all 112 template/language/product combinations with safe margins and no overlapping rows. Desktop/mobile journeys cover explicit application, replacement confirmation/cancel, preservation of original uploads and other-product layouts, undo, pending-render submission protection, autosave, reload, language switching and narrow-screen overflow.

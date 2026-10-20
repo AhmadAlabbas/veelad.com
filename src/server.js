@@ -9,6 +9,7 @@ import {mailStatus} from './mail.js';
 import {installSampleCollection,publishSampleCollection} from './sample-collection.js';
 import {cleanupCatalogue} from './catalogue-cleanup.js';
 import {installScalableEditions} from './scalable-editions.js';
+import {enableCustomerCatalogue} from './customer-catalogue.js';
 console.log('Veelad startup: dependencies loaded; validating settings.');
 let c;
 try {c=config();} catch(error) {console.error('Veelad startup settings validation failed:',error.message);throw error;}
@@ -77,10 +78,23 @@ const runSampleCollection=async()=>{
  }finally{collectionRunning=false;}
 };
 let maintenanceRunning=false;
+let customerCatalogueComplete=false;
+const runCustomerCatalogue=async()=>{
+ if(customerCatalogueComplete||c.mode!=='staging')return;
+ try{
+  const result=await enableCustomerCatalogue(c,db);
+  customerCatalogueComplete=['complete','skipped','disabled'].includes(result.status);
+  if(customerCatalogueComplete&&result.status!=='disabled')await putOperation(db,'customer_catalogue',{...result,revision:c.revision});
+ }catch(error){
+  const code=/^(?:CUSTOMER_CATALOGUE_[A-Z0-9_]{1,60}|ER_[A-Z0-9_]{1,60}|EACCES|ENOSPC)$/.test(error.code||'')?error.code:'CUSTOMER_CATALOGUE_FAILED';
+  console.error('Veelad customer catalogue:',code);
+  await putOperation(db,'customer_catalogue',{status:'failed',error_code:code}).catch(()=>{});
+ }
+};
 const runStagingMaintenance=async()=>{
  if(maintenanceRunning)return;
  maintenanceRunning=true;
- try{await runSampleCollection();await runCatalogueCleanup();await runScalableEditions();await runOperations();}
+ try{await runSampleCollection();await runCatalogueCleanup();await runScalableEditions();await runCustomerCatalogue();await runOperations();}
  finally{maintenanceRunning=false;}
 };
 console.log('Veelad startup: application created; registering HTTP listener.');

@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "id": "customer-catalogue-2026-10-20",
+  "products": [
+    {
+      "id": "p-vld1-b349d3ae8c645f54daa705c27636890f",
+      "category": "T-shirts",
+      "expected_sha256": "c38e20c67fa16f52ec9ea020420aeb211ea4351dc05d58ad51b967ce6f771772"
+    },
+    {
+      "id": "p-vld1-c5dc804cb2b25f2ef1ce7017e9903a9c",
+      "category": "Tote bags",
+      "expected_sha256": "69d01c9b7f90ac34da6764318f094d2372f1089f3ad93b5d2b55e8ef19859f43"
+    },
+    {
+      "id": "p-vld1-0a6fd11233fc1c0310d26cd4b929abd9",
+      "category": "Mugs",
+      "expected_sha256": "b6fe9771d7bbb9eb17883b51aa7133df4f8e64676bbd4c76b7742c655017c152"
+    },
+    {
+      "id": "p-vld1-9af6e985922470f5b9a937464ea3a139",
+      "category": "Notebooks",
+      "expected_sha256": "63f47c3dae0e42dbbd49f7d453627ee3828ae556bec0021be6e0275fc9f188b5"
+    },
+    {
+      "id": "p-vld1-d8aeadd39125ae8c38e103c05a93e423",
+      "category": "Phone cases",
+      "expected_sha256": "7bf467e46c3458944bc463d6fbffdcf95894eea60397aeec30143a44ce6ffdef"
+    },
+    {
+      "id": "p-vld1-31c85d4e8d965de21f2a9f24ed072f0c",
+      "category": "Art prints",
+      "expected_sha256": "2eae677385d3566b896631ced10edc0afafe8f531c3635e9ecb3f3fbcddcbc36"
+    },
+    {
+      "id": "p-vld1-08efe90d4c4817d484cfe3b0eeed70a8",
+      "category": "Stickers",
+      "expected_sha256": "72529fa3497cad1278f9c1783600717ffee66c938984f43f90e2bc032879294f"
+    }
+  ]
+}
