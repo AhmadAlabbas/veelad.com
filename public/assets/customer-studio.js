@@ -25,7 +25,10 @@ function recalledCustomerChoice() {
   try { return sessionStorage.getItem("veelad-create-product"); } catch { return null; }
 }
 function customerCategoryProducts(category, available = customizableProducts()) {
-  return available.filter((p) => p.category === category && p.customer_customizable === true && p.stock > 0);
+  const eligibleIds = new Set(customizableProducts().map((p) => p.id));
+  // A retained draft may refer to a retired listing. Keep it editable without
+  // presenting that private base product as currently available for ordering.
+  return available.filter((p) => p.category === category && eligibleIds.has(p.id));
 }
 function customerCategoryPicker(selected = null, available = customizableProducts()) {
   return `<section class="customer-categories" id="customer-items" aria-labelledby="customer-items-title"><div class="customer-section-heading"><div><span class="eyebrow">${t("01 / PICK YOUR CANVAS")}</span><h2 id="customer-items-title">${t("What will you make yours?")}</h2><p>${t("One design can become more than one thing. Start with an item below.")}</p></div><span class="customer-seven">${t("7 ways to make it yours")}</span></div><div class="customer-category-grid" role="group" aria-label="${esc(t("Choose your item"))}">${studioTypes.map(([type, category, label]) => {

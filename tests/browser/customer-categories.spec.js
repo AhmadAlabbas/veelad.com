@@ -20,6 +20,9 @@ async function fits(page){await page.evaluate(()=>document.fonts.ready);expect(a
 test('seven visual categories preserve a sign-in choice, one original and distinct placements across languages, reload and bag saves',async({page},info)=>{
  test.setTimeout(180000);page.setDefaultTimeout(15000);const fixture=await catalogue(info);const {ids,stamp}=fixture;const errors=[];page.on('pageerror',e=>errors.push(e.message));
  try{
+  await page.route('**/api.php?route=bootstrap',async route=>{
+   const response=await route.fetch(),body=await response.json();body.products=body.products.filter(p=>Object.values(ids).includes(p.id));await route.fulfill({response,json:body});
+  });
   await page.goto('/en/create');
   await expect(page.locator('.customer-category-grid>.customer-category')).toHaveCount(7);
   await expect(page.locator('.customer-category-grid a')).toHaveCount(7);
@@ -70,6 +73,13 @@ test('seven visual categories preserve a sign-in choice, one original and distin
   const state=JSON.parse(await form.locator('[name=design_studio]').inputValue());for(const [type,placement]of Object.entries(savedPlacements))expect(state.placements[type]).toEqual(placement);
   await expect(form.locator('[name=preview_accepted]')).not.toBeChecked();
   const bag=await page.evaluate(async()=>await api('state'));const lines=bag.cart.filter(line=>line.id.startsWith('seven-'));expect(lines).toHaveLength(7);expect(new Set(lines.map(line=>line.customization.category)).size).toBe(7);expect(lines.every(line=>line.customization.upload_id===source)).toBe(true);
+  // A formerly published product can remain in a saved draft. It is still
+  // editable, but must not make its category appear available for a new order.
+  await fixture.db.q("UPDATE products SET status='pending' WHERE id=?",[ids.shirt]);
+  await page.reload();form=page.locator('[data-form=customer-design]');await expect(form.locator('.design-studio')).toHaveAttribute('data-ready','true');
+  await expect(form.locator('[data-customer-unavailable]')).toBeVisible();await expect(form.locator('[data-customer-order]')).toBeDisabled();
+  await expect(form.locator('[data-customer-category-card=shirt] input')).toBeDisabled();
+  await form.locator('[data-customer-category-card=mug]').click();await expect(form.locator('[name=product_id]')).toHaveValue(ids.mug);await expect(form.locator('[data-customer-order]')).toBeEnabled();await expect(form.locator('[name=upload_id]')).toHaveValue(source);
   expect(errors).toEqual([]);
  }finally{await fixture.close();}
 });
