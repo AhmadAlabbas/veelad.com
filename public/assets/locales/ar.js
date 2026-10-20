@@ -1438,5 +1438,6 @@ window.VEELAD_LOCALES.ar = Object.freeze({
   "Give your ideas a place that feels like you.": "دفتر يشبه أفكارك، من الغلاف لأول صفحة.",
   "Make the thing you carry every day feel personal.": "خلّ غطاء جوالك يحمل لمستك وين ما رحت.",
   "Turn your own artwork into something worth a wall.": "حوّل تصميمك لمطبوعة تعطي ركنك روح.",
-  "Little details, with a lot of you in them.": "ملصقات صغيرة، وتفاصيل تقول كثير عنك."
+  "Little details, with a lot of you in them.": "ملصقات صغيرة، وتفاصيل تقول كثير عنك.",
+  "Sample price": "سعر تجريبي"
 });

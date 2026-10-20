@@ -1438,5 +1438,6 @@ window.VEELAD_LOCALES.en = Object.freeze({
   "Give your ideas a place that feels like you.": "Give your ideas a place that feels like you.",
   "Make the thing you carry every day feel personal.": "Make the thing you carry every day feel personal.",
   "Turn your own artwork into something worth a wall.": "Turn your own artwork into something worth a wall.",
-  "Little details, with a lot of you in them.": "Little details, with a lot of you in them."
+  "Little details, with a lot of you in them.": "Little details, with a lot of you in them.",
+  "Sample price": "Sample price"
 });
