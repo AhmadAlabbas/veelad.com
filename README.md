@@ -43,6 +43,7 @@ npm run check
 - [Product photos, specifications, delivery and returns editing](docs/PRODUCT-PAGES.md)
 - [Mobile navigation, filtering, options and cart controls](docs/MOBILE-SHOPPING.md)
 - [Artist drafts, feedback, profiles, discovery and normal page URLs](docs/ARTISTS-DISCOVERY-SEO.md)
+- [Guided designer, editable collections, print job sheets and launch rehearsal](docs/EXPERIENCE-REFINEMENTS.md)
 - [Private storage, encrypted backups, recovery and monitoring](docs/OPERATIONS.md)
 - [Transactional email setup](docs/EMAIL.md)
 

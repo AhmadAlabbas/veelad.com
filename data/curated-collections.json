@@ -1,0 +1,6 @@
+[
+  {"id":"personal-gifts","title":"Gifts with your name","title_ar":"هدايا باسمك","description":"A name, a shared memory, a little message. Start with an item and make the gift personal.","description_ar":"اسم تحبّه، ذكرى تجمعكم، أو كلمة من القلب. اختر القطعة وأضف لمستك.","categories":["Mugs","Notebooks","T-shirts","Tote bags"],"tone":"lilac","personalize":true},
+  {"id":"desk-edit","title":"A desk that feels like you","title_ar":"لمكتبك","description":"Fresh pages, coffee breaks, and a little art for the place where ideas begin.","description_ar":"دفتر لأفكارك، كوب لقهوة الصباح، وتصميم يغيّر جوّ المكان.","categories":["Notebooks","Mugs","Art prints","Stickers"],"tone":"sage"},
+  {"id":"colour-edit","title":"A little colour, a lot of joy","title_ar":"ألوان وبهجة","description":"Artist-made pieces to bring a brighter note to your everyday.","description_ar":"اختيارات من تصاميم فنانينا، تضيف لون وتفتح النفس.","categories":["Art prints","T-shirts","Phone cases","Stickers"],"tone":"peach"},
+  {"id":"everyday-favourites","title":"Everyday favourites","title_ar":"قطع ترافق يومك","description":"From the bag you take everywhere to your favourite daily cup. Find your kind of useful.","description_ar":"من الشنطة اللي ترافقك، للكوب اللي تبدأ فيه يومك. قطع تستخدمها وتحبّها.","categories":["Tote bags","T-shirts","Mugs","Phone cases"],"tone":"sand"}
+]

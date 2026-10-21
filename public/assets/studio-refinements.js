@@ -6,7 +6,9 @@ function mountStudioRefinements(instance) {
     toolbar = document.createElement("div");
   toolbar.className = "studio-refinement-toolbar";
   toolbar.innerHTML = `<div class="row"><button type="button" class="btn outline sm" data-studio-undo>${t("Undo")}</button><button type="button" class="btn outline sm" data-studio-redo>${t("Redo")}</button><label>${t("Preview zoom")}<select data-studio-zoom dir="ltr"><option value="1">100%</option><option value="1.5">150%</option><option value="2">200%</option></select></label></div><div class="studio-nudge" role="group" aria-label="${t("Move selected artwork or text")}"><button type="button" data-nudge="left" aria-label="${t("Move left")}">←</button><button type="button" data-nudge="up" aria-label="${t("Move up")}">↑</button><button type="button" data-nudge="down" aria-label="${t("Move down")}">↓</button><button type="button" data-nudge="right" aria-label="${t("Move right")}">→</button><button type="button" data-nudge="center">${t("Center selected")}</button></div><label class="check"><input type="checkbox" data-alignment-guides checked>${t("Center alignment guides")}</label><label class="check"><input type="checkbox" data-snap-center checked>${t("Snap to center")}</label><p class="small">${t("Zoom changes only the preview. Use arrows for precise placement; physical artwork is never mirrored.")}</p>`;
-  root.querySelector(".studio-visual").append(toolbar);
+  // Customer controls scroll below the compact pinned preview on a phone.
+  // Keep shared editing actions out of that preview so it cannot grow taller than the screen.
+  (root.closest("[data-form=customer-design]") ? root.querySelector(".studio-controls") : root.querySelector(".studio-visual")).append(toolbar);
   const viewport = document.createElement("div");
   viewport.className = "studio-zoom-viewport";
   canvas.before(viewport);

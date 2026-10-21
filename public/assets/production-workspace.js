@@ -75,7 +75,7 @@ function productionOrderPanel(o) {
       proofs: [],
     },
     closed = ["cancelled", "delivered", "shipped"].includes(o.status);
-  return `<section class="production-order"><h3>${t("Production workspace")}</h3><p class="small">${t("Proof approval does not confirm payment. Templates remain provisional until supplier specifications are checked.")}</p>${productionProofs(o)}${
+  return `<section class="production-order"><h3>${t("Production workspace")}</h3><p class="small">${t("Proof approval does not confirm payment. Templates remain provisional until supplier specifications are checked.")}</p>${printJobSummary(o)}${productionProofs(o)}${
     closed
       ? `<p>${t("This order is closed for production changes.")}</p>`
       : `<form data-production-form="update" class="panel stack"><input type="hidden" name="id" value="${esc(o.id)}"><input type="hidden" name="revision" value="${p.revision}"><label class="field">${t("Production stage")}<select name="stage">${Object.entries(

@@ -25,6 +25,7 @@ import {productionRoute,customerOrder,assertProductionReady,productionState} fro
 import {customerDraftRoute} from './customer-drafts.js';
 import {queueMail,mailStatus,recipientAllowed,checkMail,safeMailError} from './mail.js';
 import {createProductGallery} from './product-gallery.js';
+import {collectionSettings,validateCollections} from './curated-collections.js';
 const publicDir=fileURLToPath(new URL('../public',import.meta.url));
 const categories=['T-shirts','Tote bags','Phone cases','Art prints','Mugs','Stickers','Notebooks'];
 function readinessCode(error,fallback='DATABASE_UNAVAILABLE') {
@@ -192,7 +193,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
  }
  api.all('/',async (req,res)=>{
   const route=req.baseUrl==='/auth/google/callback'?'google-callback':String(req.query.route||'bootstrap'),method=req.method,v=payload(req);
-  if(method==='GET' && route==='bootstrap') {const u=await me(req),locale=u?(await state(u.id)).user_locale:null,googleReturn=req.session.google_login_complete===true;delete req.session.google_login_complete;return res.json({mode:'server',authentication:await authenticationStatus(c,db,u),auth_event:googleReturn?'google-login':null,csrf:req.session.csrf,user:u ? safeUser(u) : null,locale:['ar','en'].includes(locale)?locale:null,products:await products(),artists:await publicArtists(db),settings:await settings(),email_delivery:{available:mailStatus(c).ready,staging_restricted:c.mode==='staging'}});}
+  if(method==='GET' && route==='bootstrap') {const u=await me(req),locale=u?(await state(u.id)).user_locale:null,googleReturn=req.session.google_login_complete===true;delete req.session.google_login_complete;return res.json({mode:'server',authentication:await authenticationStatus(c,db,u),auth_event:googleReturn?'google-login':null,csrf:req.session.csrf,user:u ? safeUser(u) : null,locale:['ar','en'].includes(locale)?locale:null,products:await products(),artists:await publicArtists(db),settings:collectionSettings(await settings(),await products(),{publicOnly:true}),email_delivery:{available:mailStatus(c).ready,staging_restricted:c.mode==='staging'}});}
   if(method==='POST' && route==='language-preference') {
    const u=await me(req,true);if(!['ar','en'].includes(v.locale))fail(422,'Choose Arabic or English.');
    await db.tx(async conn=>{await q('SELECT id FROM users WHERE id=? FOR UPDATE',[u.id],conn);const s=await state(u.id,conn);s.user_locale=v.locale;await putState(u.id,s,conn);});return res.json({ok:true,locale:v.locale});
@@ -486,7 +487,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
     const image=await one('SELECT * FROM uploads WHERE id=?',[String(req.query.id||'')]);if(!image)fail(404,'Artwork not found.');
     const bytes=await readArtwork(c.uploadDir,image);await audit(u,'artwork.original_download',image.id);return res.attachment(image.id+(image.mime==='image/png'?'.png':'.jpg')).type(image.mime).send(bytes);
    }
-   if(method==='GET' && route==='admin') return res.json({products:await reviewedProducts(db,await products(true)),users:(await q('SELECT * FROM users ORDER BY created_at DESC')).map(safeUser),orders:(await q('SELECT * FROM orders ORDER BY created_at DESC')).map(order),messages:(await q('SELECT * FROM messages ORDER BY created_at DESC')).map(({data,...r})=>({...json(data),...r})),settings:await settings(),audit:await q('SELECT * FROM audit_log ORDER BY created_at DESC LIMIT 30')});
+   if(method==='GET' && route==='admin') return res.json({products:await reviewedProducts(db,await products(true)),users:(await q('SELECT * FROM users ORDER BY created_at DESC')).map(safeUser),orders:(await q('SELECT * FROM orders ORDER BY created_at DESC')).map(order),messages:(await q('SELECT * FROM messages ORDER BY created_at DESC')).map(({data,...r})=>({...json(data),...r})),settings:collectionSettings(await settings(),await products(true)),audit:await q('SELECT * FROM audit_log ORDER BY created_at DESC LIMIT 30')});
    if(method==='GET' && route==='admin-system') {
     const counts=Object.fromEntries((await q("SELECT CASE WHEN m.status='queued' AND d.id IS NULL THEN 'held' ELSE m.status END AS delivery_status,COUNT(*) AS n FROM mail_queue m LEFT JOIN mail_delivery d ON d.id=m.id GROUP BY delivery_status")).map(r=>[r.delivery_status,Number(r.n)]));
     return res.json({version:'3.0.0',database:'mysql',operations:await operationsStatus(c,db),google:googleStatus(c),email_verification_required:c.emailVerificationRequired,mail_enabled:c.mailEnabled,email:mailStatus(c),queued_emails:counts.queued||0,failed_emails:counts.failed||0,held_emails:counts.held||0,sending_emails:counts.sending||0,expired_emails:counts.expired||0,paid_orders:(await q('SELECT data FROM orders')).filter(o=>json(o.data).payment_status==='paid').length});
@@ -561,9 +562,17 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
     await db.tx(async conn=>{await q('UPDATE users SET status=? WHERE id=?',[status,id],conn);await audit(u,'user.'+status,id,conn);});return res.json({ok:true});
    }
    if(method==='POST' && route==='admin-message') {await db.tx(async conn=>{await q('UPDATE messages SET status=? WHERE id=?',['resolved',text(v,'id',64)],conn);await audit(u,'message.resolve',v.id,conn);});return res.json({ok:true});}
+   if(method==='POST' && route==='admin-collections') {
+    await db.tx(async conn=>{
+     const row=await one('SELECT data FROM settings WHERE id=? FOR UPDATE',['store'],conn),s=json(row.data);
+     if(v.revision!==(s.collections_revision||0))fail(409,'Collections changed in another tab. Reload before saving.');
+     s.curated_collections=validateCollections(v.collections,await products(true,null,conn));s.collections_revision=(s.collections_revision||0)+1;
+     await q('UPDATE settings SET data=? WHERE id=?',[JSON.stringify(s),'store'],conn);await audit(u,'collections.save','store',conn);
+    });return res.json({ok:true});
+   }
    if(method==='POST' && route==='admin-settings') {
-    const s=await settings();Object.assign(s,{announcement:text(v,'announcement',150),support_email:email(v,'support_email'),shipping:integer(v.shipping,0,100000,'shipping'),free_shipping:integer(v.free_shipping,0,100000,'free shipping'),checkout_enabled:v.checkout_enabled===true,coupon_code:text(v,'coupon_code',30,false).toUpperCase(),coupon_percent:integer(v.coupon_percent??0,0,70,'discount')},optionalDetails(v,{delivery_estimate:300,returns_policy:3000}),optionalTranslations(v,{announcement_ar:150,delivery_estimate_ar:300,returns_policy_ar:3000}));
-    await db.tx(async conn=>{await q('UPDATE settings SET data=? WHERE id=?',[JSON.stringify(s),'store'],conn);await audit(u,'settings.save','store',conn);});return res.json({ok:true});
+    await db.tx(async conn=>{const row=await one('SELECT data FROM settings WHERE id=? FOR UPDATE',['store'],conn),s=json(row.data);Object.assign(s,{announcement:text(v,'announcement',150),support_email:email(v,'support_email'),shipping:integer(v.shipping,0,100000,'shipping'),free_shipping:integer(v.free_shipping,0,100000,'free shipping'),checkout_enabled:v.checkout_enabled===true,coupon_code:text(v,'coupon_code',30,false).toUpperCase(),coupon_percent:integer(v.coupon_percent??0,0,70,'discount')},optionalDetails(v,{delivery_estimate:300,returns_policy:3000}),optionalTranslations(v,{announcement_ar:150,delivery_estimate_ar:300,returns_policy_ar:3000}));
+    await q('UPDATE settings SET data=? WHERE id=?',[JSON.stringify(s),'store'],conn);await audit(u,'settings.save','store',conn);});return res.json({ok:true});
    }
   }
   fail(404,'Endpoint not found.');
