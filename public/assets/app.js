@@ -48,7 +48,7 @@ function heroMarkup(){
  const everyday=products.find(p=>p.category==='Mugs')||products.find(p=>p.category==='Notebooks')||products[0];
  const slides=[
   {tag:'ART FOR EVERY SIDE OF YOU',h:`${t("Art for your kind")}<br>${t("of everyday.")}`,p:'Find your next favorite thing. Original designs by independent artists, made to be part of your world.',cta:'Discover your thing',route:'shop',image:'everyday-people',alt:'An illustrative everyday scene with people and artist-inspired accessories',bg:'#e8e1d6'},
-  {tag:'THE LITTLE THINGS EDIT',h:t('Small things. Big personality.'),p:'A coffee break, a fresh page, a corner of your room. Find a design that makes it feel like you.',cta:everyday?t(everyday.category):t('Explore all'),route:'shop',to:everyday?{category:everyday.category}:{},product:everyday,bg:'#e6e7d5'},
+  {tag:'THE LITTLE THINGS EDIT',h:t('Small things. Big personality.'),p:'A coffee break, a fresh page, a corner of your room. Find a design that makes it feel like you.',cta:everyday?t(everyday.category):t('Explore all'),route:'shop',to:everyday?{category:everyday.category}:{},product:everyday,image:'creative-studio',alt:'An illustrative creative studio scene with people exploring design ideas',bg:'#e6e7d5'},
   {tag:'YOUR IDEAS, YOUR EVERYDAY',h:t('Your ideas deserve a canvas.'),p:'Add your own design, try it on a product, and make something only you could imagine.',cta:'Create your own',route:'create',image:'creative-studio',alt:'An illustrative creative studio scene with people exploring design ideas',bg:'#e3dcf2'}
  ];
  const s=slides[slide%slides.length];

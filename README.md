@@ -37,6 +37,7 @@ npm run check
 ## Deployment and compatibility
 
 - [Hostinger/GitHub deployment and release gates](docs/DEPLOYMENT.md)
+- [Initialize production with an empty catalogue](docs/EMPTY-PRODUCTION-STORE.md)
 - [API contracts and schema](docs/API.md)
 - [Database import, migrations and rollback](docs/DATABASE.md)
 - [Validation and known limitations](docs/VALIDATION.md)

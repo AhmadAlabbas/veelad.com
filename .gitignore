@@ -7,6 +7,7 @@ node_modules/
 var/
 uploads/
 *.sql
+!docs/sql/empty-store.sql
 *.sql.gz
 *.log
 config.php
