@@ -68,7 +68,7 @@ function homeStartingPoints(){
 function collectionCover(c){
  const p=products.find(p=>p.id===c.cover_product_id)||products.find(p=>c.product_ids.includes(p.id));
  if(!p)return '';
- if(c.personalize){const type=studioTypes.find(([,category])=>category===p.category)?.[0];if(type)return `<img src="/assets/mockups/${type}.webp" width="1000" height="1000" loading="lazy" alt="${esc(t('Provisional preview'))}">`;}
+ if(c.personalize){const type=studioTypes.find(([,category])=>category===p.category)?.[0];if(type)return `<img src="/assets/mockups/${type}.webp?v=${storefrontMediaVersion}" width="1000" height="1000" loading="lazy" alt="${esc(t('Provisional preview'))}">`;}
  return photo(p);
 }
 function homeCollections(){
@@ -77,7 +77,7 @@ function homeCollections(){
 }
 function collectionPersonalCard(p){
  const type=studioTypes.find(([,category])=>category===p.category)?.[0],available=p.customer_customizable===true&&p.stock>0;
- return `<article class="personal-collection-card"><img src="/assets/mockups/${type||'print'}.webp" alt="${esc(t(p.category))}" loading="lazy" width="1000" height="1000"><h3>${esc(t(p.category))}</h3><p>${esc(localField(p,'title'))}</p><strong>${money(p.price)}</strong>${p.sample_pricing?`<span class="sample-price-label">${t('Sample price')}</span>`:''}${available?link(t('Personalize this item')+' '+icon('arrow'),'create','btn outline',{product:p.id}):`<span class="pill">${t('Unavailable for customization')}</span>`}<small>${t('Provisional preview')}</small></article>`;
+ return `<article class="personal-collection-card"><img src="/assets/mockups/${type||'print'}.webp?v=${storefrontMediaVersion}" alt="${esc(t(p.category))}" loading="lazy" width="1000" height="1000"><h3>${esc(t(p.category))}</h3><p>${esc(localField(p,'title'))}</p><strong>${money(p.price)}</strong>${p.sample_pricing?`<span class="sample-price-label">${t('Sample price')}</span>`:''}${available?link(t('Personalize this item')+' '+icon('arrow'),'create','btn outline',{product:p.id}):`<span class="pill">${t('Unavailable for customization')}</span>`}<small>${t('Provisional preview')}</small></article>`;
 }
 function collectionShopPage(c){
  if(!c)return `<main id="main" class="container section">${empty(t('This collection is taking a break.'),t('Explore the other edits or browse all products.'),link(t('Explore all products'),'shop','btn'))}${homeCollections()}</main>`;

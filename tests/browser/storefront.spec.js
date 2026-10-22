@@ -66,6 +66,7 @@ test('back-print listings start with the displayed side selected without exposin
 
 test('customer editor keeps print-side choices, placement controls and bilingual review in agreement',async({page})=>{
  test.setTimeout(60000);const fixture=await storefrontApp(),errors=[];page.on('pageerror',error=>errors.push(error.stack));
+ const media=[];page.on('request',request=>{const url=new URL(request.url());if(url.pathname.startsWith('/assets/mockups/')||url.pathname==='/assets/print-products.json')media.push(url);});
  try{
   const row=await fixture.db.one('SELECT data FROM products WHERE id=?',['p1']),product=JSON.parse(row.data);product.customer_customizable=true;await fixture.db.q('UPDATE products SET data=? WHERE id=?',[JSON.stringify(product),'p1']);
   const bootstrap=await (await page.request.get(fixture.origin+'/api.php?route=bootstrap')).json();
@@ -74,6 +75,7 @@ test('customer editor keeps print-side choices, placement controls and bilingual
   await form.locator('[name=choice_side][value=back]').check();await expect.poll(async()=>JSON.parse(await form.locator('[name=design_studio]').inputValue()).placements.shirt.view).toBe('shirt-back');await expect(form.locator('[data-customer-review-summary]')).toContainText('Back');
   await form.locator('[data-studio-view=shirt]').click();await expect(form.locator('[name=choice_side][value=front]')).toBeChecked();await expect(form.locator('[data-customer-review-summary]')).toContainText('Front');
   await form.locator('[name=choice_side][value=back]').check();await page.locator('[data-action=language-switch]').first().click();await expect(form.locator('.design-studio')).toHaveAttribute('data-ready','true');await expect(form.locator('[name=choice_side][value=back]')).toBeChecked();await expect(form.locator('[data-customer-review-summary]')).toContainText('الخلف');
+  expect(media.some(url=>url.pathname.endsWith('/shirt.json'))).toBe(true);expect(media.some(url=>url.pathname.endsWith('/shirt.webp'))).toBe(true);expect(media.every(url=>url.searchParams.get('v')==='veelad-neutral-2')).toBe(true);
   expect(errors).toEqual([]);
  }finally{await page.goto('about:blank').catch(()=>{});await fixture.close();}
 });

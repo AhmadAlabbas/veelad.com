@@ -140,3 +140,9 @@ html[lang=ar] .global-nav .wordmark{font-family:Manrope,sans-serif;letter-spacin
  .discovery-page .shop-intro h1{font-size:30px}
  .discovery-page .shop-style-nav{margin-inline:-18px;padding-inline:18px;max-width:calc(100% + 36px);margin-bottom:8px}
 }
+
+/* Explicit versions also refresh images held in browser and CDN caches. */
+.product-photo.sheet0{background-image:url('/assets/catalog.jpg?v=veelad-neutral-2')}
+.product-photo.sheet1{background-image:url('/assets/catalog-2.jpg?v=veelad-neutral-2')}
+.hero-image.catalog-shot::before{background-image:url('/assets/catalog-2.jpg?v=veelad-neutral-2')}
+.hero-image.flower-shot::before{background-image:url('/assets/catalog.jpg?v=veelad-neutral-2')}

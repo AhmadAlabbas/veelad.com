@@ -86,7 +86,7 @@ function homeProductTypes(){
  const typeFor=category=>({'T-shirts':'shirt','Tote bags':'tote','Mugs':'mug','Notebooks':'notebook','Phone cases':'phone','Art prints':'print','Stickers':'sticker'})[category];
  return `<section class="container section home-categories home-product-types" aria-labelledby="home-product-types-title">${title(t('Good art. Your favourite things.'),t('Find the design you love. Choose the thing you’ll love using.'))}<div class="category-grid">${cats.map(category=>{
   const p=products.find(p=>p.category===category),count=products.filter(p=>p.category===category).length;
-  return link(`<span class="category-type-visual">${p?photo(p):`<img src="/assets/mockups/${typeFor(category)}.webp" width="1000" height="1000" loading="lazy" alt="${esc(t(category))}">`}</span><span>${esc(t(category))}</span><small>${count?t('{count} finds',{count:localNumber(count)}):t('Coming soon')}</small>`,'shop','category-card',{category});
+  return link(`<span class="category-type-visual">${p?photo(p):`<img src="/assets/mockups/${typeFor(category)}.webp?v=${storefrontMediaVersion}" width="1000" height="1000" loading="lazy" alt="${esc(t(category))}">`}</span><span>${esc(t(category))}</span><small>${count?t('{count} finds',{count:localNumber(count)}):t('Coming soon')}</small>`,'shop','category-card',{category});
  }).join('')}</div></section>`;
 }
 
@@ -95,7 +95,7 @@ function homeEverydayEdit(){
   ['Mugs','mug','Your morning, with character.','A favourite design for your favourite ritual.','sage'],
   ['Notebooks','notebook','Give your ideas a good home.','A cover with a story. Pages waiting for yours.','lilac'],
   ['Art prints','print','A wall that feels like you.','Make space for art you want to look at every day.','peach']
- ].map(([category,type,heading,copy,tone])=>link(`<div class="everyday-edit-scene ${tone}"><img src="/assets/mockups/${type}.webp" alt="${esc(t(category))}" width="1000" height="1000" loading="lazy"><span>${t('Find your favourite')} ${icon('arrow')}</span></div><div><span class="eyebrow">${t(category)}</span><h3>${t(heading)}</h3><p>${t(copy)}</p></div>`,'shop','everyday-edit-card',{category})).join('')}</div></div></section>`;
+ ].map(([category,type,heading,copy,tone])=>link(`<div class="everyday-edit-scene ${tone}"><img src="/assets/mockups/${type}.webp?v=${storefrontMediaVersion}" alt="${esc(t(category))}" width="1000" height="1000" loading="lazy"><span>${t('Find your favourite')} ${icon('arrow')}</span></div><div><span class="eyebrow">${t(category)}</span><h3>${t(heading)}</h3><p>${t(copy)}</p></div>`,'shop','everyday-edit-card',{category})).join('')}</div></div></section>`;
 }
 
 function homeLaunchQuestions(){

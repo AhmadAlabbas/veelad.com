@@ -283,7 +283,7 @@ function customerLibraryPage(data = {}) {
             : d.mockup_upload_id
               ? "/api.php?" +
                 new URLSearchParams({ route: "image", id: d.mockup_upload_id })
-              : "/assets/mockups/" + type + ".webp";
+              : "/assets/mockups/" + type + ".webp?v=" + storefrontMediaVersion;
         return `<article class="customer-library-card" data-library-id="${esc(d.id)}"><a href="${esc(url("create", draft ? { draft: d.id } : { copy: d.id }))}"><img src="${esc(src)}" loading="lazy" alt="${esc(d.title || t("Your personal design"))}"></a><div><span class="eyebrow">${t(draft ? "Draft" : "Saved design")} · ${t(d.category)}</span><h3>${esc(d.title || t("Untitled design"))}</h3><p class="small">${localDate(d.updated_at || d.created_at, { dateStyle: "medium" })}</p><div class="customer-library-actions">${link(t(draft ? "Continue editing" : "Use this design"), "create", "btn sm", draft ? { draft: d.id } : { copy: d.id })}${draft ? link(t("Make a copy"), "create", "text-link", { duplicate: d.id }) + button(t("Remove from library"), "archive-customer-draft", `data-id="${esc(d.id)}" data-revision="${d.revision}"`, "text-link") : ""}</div></div></article>`;
       })
       .join("");
