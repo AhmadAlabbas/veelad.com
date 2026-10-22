@@ -9,10 +9,10 @@ function productChoiceLabel(p,value=selectedProductOption(p)) {
 }
 function productOptionFields(p) {
  const selected=selectedProductOption(p);
- return `<fieldset class="product-options"><legend>${t(p.category==='T-shirts'?'Choose your size':'Choose your option')}</legend><div class="option-buttons">${p.variants.map(value=>`<label class="product-option"><input type="radio" name="variant" value="${esc(value)}" ${value===selected?'checked':''} required><span>${esc(localVariant(p,value))}</span></label>`).join('')}</div></fieldset>`;
+ return `<fieldset class="product-options"><legend>${t(p.category==='T-shirts'?'Choose your size':'Choose your option')}</legend><div class="option-buttons">${p.variants.map(value=>`<label class="product-option"><input type="radio" name="variant" value="${esc(value)}" ${value===selected?'checked':''} required><span>${esc(localVariant(p,value))}</span></label>`).join('')}</div></fieldset>${purchaseChoiceFields(p)}`;
 }
 function productChoiceSummary(p) {
- return `<div class="product-choice-summary" role="status" aria-live="polite" aria-atomic="true"><span data-product-choice>${esc(productChoiceLabel(p))}</span><span>${money(p.price)} <small>${t('Per item')}</small></span></div>`;
+ return `<div class="product-choice-summary" role="status" aria-live="polite" aria-atomic="true"><span data-product-choice>${esc(productChoiceLabel(p))}</span><span data-selected-purchase-choices></span><span>${money(p.price)} <small>${t('Per item')}</small></span></div>`;
 }
 function mobileNavigation() {
  if(['admin','studio'].includes(route))return '';

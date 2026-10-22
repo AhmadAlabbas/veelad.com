@@ -55,3 +55,5 @@ Staging also runs the additive migration automatically after opening HTTP, using
 Runtime choice: Node's [official release schedule](https://nodejs.org/en/about/previous-releases) identifies Node.js 24 as the LTS line. Express 5 requires Node 18 or newer ([official installation documentation](https://expressjs.com/en/starter/installing.html)). The application is tested with Node 24.19.0. Do not select an unpinned “latest” runtime. Hostinger documentation requests were blocked from this machine, so the user confirmed Node 24 in hPanel, while live deployment capabilities still require account configuration.
 
 For design-style discovery, the expanded homepage, owner-managed prices and disabled Moyasar preparation, see [Catalogue launch](docs/CATALOGUE-LAUNCH.md).
+
+For the global storefront, neutral mockups, model galleries, confirmed product choices and delivery-country controls, see [Global storefront](docs/GLOBAL-STOREFRONT.md).

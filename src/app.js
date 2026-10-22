@@ -28,6 +28,7 @@ import {createProductGallery} from './product-gallery.js';
 import {collectionSettings,validateCollections} from './curated-collections.js';
 import {designStyles,validateDesignStyles,categoryPricing,validateCategoryPricing,publicStoreSettings} from './catalogue.js';
 import {moyasarStatus,checkMoyasar} from './moyasar.js';
+import {deliveryCountries,deliveryCountry,validatePurchaseOptions,resolvePurchaseOptions} from './storefront-options.js';
 const publicDir=fileURLToPath(new URL('../public',import.meta.url));
 const categories=['T-shirts','Tote bags','Phone cases','Art prints','Mugs','Stickers','Notebooks'];
 function readinessCode(error,fallback='DATABASE_UNAVAILABLE') {
@@ -112,8 +113,9 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
  }
  function preserveDetails(p,old) {
   if(!old) return;
-  const previous=json(old.data);
-  for(const key of [...Object.keys(detailLimits),...Object.keys(translationLimits),'production_notes','print_formats','tags','tags_ar','design_styles','price_is_placeholder','gallery_upload_ids','design_studio','mockup_upload_id','customer_customizable','collection_id','design_group','story','story_ar','artwork_attribution','sample_pricing','stock_is_simulated']) if(p[key]===undefined && previous[key]!==undefined) p[key]=previous[key];
+  const previous=json(old.data),optionsSupplied=p.purchase_options!==undefined;
+  for(const key of [...Object.keys(detailLimits),...Object.keys(translationLimits),'production_notes','print_formats','tags','tags_ar','design_styles','price_is_placeholder','purchase_options','gallery_upload_ids','design_studio','mockup_upload_id','customer_customizable','collection_id','design_group','story','story_ar','artwork_attribution','sample_pricing','stock_is_simulated']) if(p[key]===undefined && previous[key]!==undefined) p[key]=previous[key];
+  if(!optionsSupplied&&(previous.upload_id!==p.upload_id||previous.category!==p.category)){if(p.purchase_options)p.purchase_options={...p.purchase_options,confirmed:false};}
   if(previous.upload_id===p.upload_id&&previous.artwork_metadata!==undefined)p.artwork_metadata=previous.artwork_metadata;
   if(p.design_studio?.artwork_id!==(p.upload_id||null)){delete p.design_studio;delete p.mockup_upload_id;}
   if(!mockupMatches(p.mockup_upload_id,p.upload_id,p.category,p.design_studio))delete p.mockup_upload_id;
@@ -182,6 +184,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
    const existingIds=new Set([previous.upload_id,...(Array.isArray(previous.gallery_upload_ids)?previous.gallery_upload_ids:[])].filter(Boolean));
    for(const id of imageIds) {const image=await one('SELECT * FROM uploads WHERE id=?',[id]);if(!image||(image.user_id!==u.id&&u.role!=='admin'&&!existingIds.has(id))) fail(403,'Artwork unavailable.');}
   }
+  if(!artistSubmission&&v.purchase_options!==undefined)p.purchase_options=validatePurchaseOptions(v.purchase_options,p);
   if(draft&&!p.title)p.title='Untitled draft';
   return p;
  }
@@ -210,8 +213,9 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
     if(v.cart!==undefined) {if(!Array.isArray(v.cart)||v.cart.length>50) fail(422,'Invalid cart.');s.cart=[];for(const l of v.cart) {
      const p=await one('SELECT * FROM products WHERE id=?',[text(l,'id',64)],conn);if(!p) fail(422,'Invalid cart item.');
      const variant=text(l,'variant',50);if(!product(p).variants.includes(variant)) fail(422,'Invalid option.');
-     const design=await customerDesign(l,product(p),u,conn);
-     s.cart.push({id:p.id,key:p.id+'::'+variant+(design?'::'+design.customization_id:''),variant,qty:integer(l.qty,1,20,'quantity'),...(design?{customization_id:design.customization_id,customization:design}:{})});
+     const design=await customerDesign(l,product(p),u,conn),selection=resolvePurchaseOptions(product(p),l.choices),refs=selection?Object.fromEntries(['color','fit','side'].filter(key=>selection[key]).map(key=>[key,key==='side'?selection[key]:selection[key].id])):null;
+     const suffix=refs?'::'+['color','fit','side'].map(key=>refs[key]||'').join(':'):'';
+     s.cart.push({id:p.id,key:p.id+'::'+variant+suffix+(design?'::'+design.customization_id:''),variant,qty:integer(l.qty,1,20,'quantity'),...(selection?{choices:refs,choice_snapshot:selection}:{}),...(design?{customization_id:design.customization_id,customization:design}:{})});
     }}
     if(v.saved!==undefined) {if(!Array.isArray(v.saved)||v.saved.length>500) fail(422,'Too many saved products.');s.saved=[];for(const id of [...new Set(v.saved)]) {if(typeof id!=='string') fail(422,'Invalid saved product.');if(await one('SELECT id FROM products WHERE id=?',[id],conn)) s.saved.push(id);}}
     await putState(u.id,s,conn);
@@ -277,6 +281,9 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
    await throttle(req,'checkout',15);const s=await settings();if(!s.checkout_enabled) fail(409,'Checkout is temporarily paused.');
    const customer=v.customer??{},address=email(customer), name=text(customer,'name',100);
    const details={name,email:address,address:text(customer,'address',250),city:text(customer,'city',80),postal:text(customer,'postal',20),phone:text(customer,'phone',30),country:text(customer,'country',80)};
+   if(v.customer?.country_code!==undefined)deliveryCountry(v.customer.country_code,details.country);
+   if((s.shipping_countries||[]).length){const allowed=deliveryCountries(s.shipping_countries);const region=allowed.find(code=>{try{return deliveryCountry(code,details.country);}catch{return false;}});if(!region)fail(409,'Delivery is not available to this destination.');}
+   else if(c.mode==='production')fail(409,'Delivery coverage is not confirmed yet.');
    if(v.consent!==true) fail(422,'Please accept the order terms.');
    if(!Array.isArray(v.cart)||v.cart.length<1||v.cart.length>50) fail(422,'Your bag needs 1–50 items.');
    const requestKey=hash(req.sessionID+'|'+text(v,'request_key',100)),guest=trackingToken(requestKey,c.secret),id=uid('VLD-'),u=await me(req);
@@ -293,16 +300,19 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
      const qty=integer(l.qty,1,20,'quantity');if(!r) fail(422,'A bag item is unavailable.');
      const p=product(r),variant=text(l,'variant',50);if(p.price_is_placeholder===true)fail(409,'This item is awaiting its final selling price.');if(!p.variants.includes(variant)) fail(422,'Choose a valid product option.');
      if((await q('UPDATE products SET stock=stock-? WHERE id=? AND stock>=?',[qty,p.id,qty],conn)).affectedRows!==1) fail(409,'There is not enough stock for '+p.title+'.');
-     const design=await customerDesign(l,p,u,conn);
+     const design=await customerDesign(l,p,u,conn),selection=resolvePurchaseOptions(p,l.choices);
+     const selectedStudio=structuredClone(design?.design_studio||p.design_studio||null);
+     if(selection?.side&&selectedStudio?.placements?.shirt)selectedStudio.placements.shirt.view=selection.side==='back'?'shirt-back':'shirt';
+     const selectedPhoto=selection?.color?.image_id||selection?.fit?.image_id;
      if(design?.upload_id){const source=await one('SELECT * FROM uploads WHERE id=?',[design.upload_id],conn);if(!source)fail(409,'Personal artwork unavailable.');await readArtwork(c.uploadDir,source);}
-     items.push({id:p.id,line_id:uid('line-'),title:p.title,...(p.title_ar?{title_ar:p.title_ar}:{}),category:p.category,artist_id:design?null:p.artist_id,variant,qty,price:p.price,sheet:p.sheet??0,cell:p.cell??0,upload_id:design?design.upload_id:p.upload_id??null,mockup_upload_id:design?.mockup_upload_id??p.mockup_upload_id??null,...((design?.design_studio||p.design_studio)?{design_studio:design?.design_studio||p.design_studio}:{}),...(design?{customization_id:design.customization_id,customer_customized:true,...(design.title?{design_title:design.title}:{})}:{}),royalty_percent:design?0:p.royalty_percent??20});subtotal+=p.price*qty;
+     items.push({id:p.id,line_id:uid('line-'),title:p.title,...(p.title_ar?{title_ar:p.title_ar}:{}),category:p.category,artist_id:design?null:p.artist_id,variant,qty,price:p.price,sheet:p.sheet??0,cell:p.cell??0,upload_id:design?design.upload_id:p.upload_id??null,mockup_upload_id:selection?.side?null:selectedPhoto||design?.mockup_upload_id||p.mockup_upload_id||null,...(selection?{purchase_choices:selection}:{}),...(selectedStudio?{design_studio:selectedStudio}:{}),...(design?{customization_id:design.customization_id,customer_customized:true,...(design.title?{design_title:design.title}:{})}:{}),royalty_percent:design?0:p.royalty_percent??20});subtotal+=p.price*qty;
     }
     const code=typeof v.coupon==='string'?v.coupon.trim().toUpperCase():'';
     const discount=code && code===(s.coupon_code??'HELLOVEELAD') ? Math.round(subtotal*(s.coupon_percent??10)/100) : 0;
     const shipping=subtotal-discount>=s.free_shipping?0:Number(s.shipping),total=subtotal-discount+shipping;
-    const data={...(items.some(item=>item.customer_customized)?{production:productionState({})}:{}),customer:details,items,subtotal,shipping,discount,payment_status:'awaiting_payment',tracking:'',note:'Order received. Awaiting payment; no charge has been made.'};
+    const data={...(items.some(item=>item.customer_customized||item.purchase_choices)?{production:productionState({})}:{}),customer:details,items,subtotal,shipping,discount,payment_status:'awaiting_payment',tracking:'',note:'Order received. Awaiting payment; no charge has been made.'};
     await q('UPDATE orders SET total=?,data=? WHERE id=?',[total,JSON.stringify(data),id],conn);
-    await queue(address,'Veelad order received: '+id,`Hello ${name},\n\nYour order ${id} has been received and is awaiting payment. No charge has been made.\n\n${items.map(item=>`${item.title} — ${item.variant} × ${item.qty}: SAR ${(item.price*item.qty/100).toFixed(2)}`).join('\n')}\n\nSubtotal: SAR ${(subtotal/100).toFixed(2)}\nDiscount: SAR ${(discount/100).toFixed(2)}\nDelivery: SAR ${(shipping/100).toFixed(2)}\nTotal: SAR ${(total/100).toFixed(2)}\n\nPrivate tracking: ${c.origin}/#/track?id=${id}&token=${guest}`,conn);
+    await queue(address,'Veelad order received: '+id,`Hello ${name},\n\nYour order ${id} has been received and is awaiting payment. No charge has been made.\n\n${items.map(item=>`${item.title} — ${[item.variant,item.purchase_choices?.color?.label,item.purchase_choices?.fit?.label,item.purchase_choices?.side].filter(Boolean).join(' · ')} × ${item.qty}: SAR ${(item.price*item.qty/100).toFixed(2)}`).join('\n')}\n\nSubtotal: SAR ${(subtotal/100).toFixed(2)}\nDiscount: SAR ${(discount/100).toFixed(2)}\nDelivery: SAR ${(shipping/100).toFixed(2)}\nTotal: SAR ${(total/100).toFixed(2)}\n\nPrivate tracking: ${c.origin}/#/track?id=${id}&token=${guest}`,conn);
     if(u) {await q('SELECT id FROM users WHERE id=? FOR UPDATE',[u.id],conn);const st=await state(u.id,conn);st.cart=[];st.address=details;await putState(u.id,st,conn);}
     return {order:customerOrder(await one('SELECT * FROM orders WHERE id=?',[id],conn)),guest_token:guest};
    });}catch(e) {
@@ -541,6 +551,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
     await db.tx(async conn=>{
      const old=await one('SELECT * FROM products WHERE id=? FOR UPDATE',[id],conn);
      preserveDetails(p,old);
+     if(p.purchase_options)p.purchase_options=validatePurchaseOptions(p.purchase_options,p);
      if(status==='active'&&p.price_is_placeholder===true)fail(422,'Replace the placeholder with a reviewed selling price before publishing.');
      if(artist===u.id)await q('INSERT IGNORE INTO artists VALUES (?,?)',[u.id,JSON.stringify({id:u.id,name:u.name,initials:[...u.name].slice(0,2).join('').toUpperCase(),handle:u.id,bio:'',location:'',color:'#ded5fb'})],conn);
      await q('INSERT INTO products VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE artist_id=?,status=?,stock=?,data=?',[id,artist,status,p.stock,JSON.stringify(p),now(),artist,status,p.stock,JSON.stringify(p)],conn);await audit(u,'product.save',id,conn);
@@ -590,7 +601,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
     });return res.json({ok:true});
    }
    if(method==='POST' && route==='admin-settings') {
-    await db.tx(async conn=>{const row=await one('SELECT data FROM settings WHERE id=? FOR UPDATE',['store'],conn),s=json(row.data);Object.assign(s,{announcement:text(v,'announcement',150),support_email:email(v,'support_email'),shipping:integer(v.shipping,0,100000,'shipping'),free_shipping:integer(v.free_shipping,0,100000,'free shipping'),checkout_enabled:v.checkout_enabled===true,coupon_code:text(v,'coupon_code',30,false).toUpperCase(),coupon_percent:integer(v.coupon_percent??0,0,70,'discount')},optionalDetails(v,{delivery_estimate:300,returns_policy:3000}),optionalTranslations(v,{announcement_ar:150,delivery_estimate_ar:300,returns_policy_ar:3000}));
+    await db.tx(async conn=>{const row=await one('SELECT data FROM settings WHERE id=? FOR UPDATE',['store'],conn),s=json(row.data);Object.assign(s,{announcement:text(v,'announcement',150),support_email:email(v,'support_email'),shipping:integer(v.shipping,0,100000,'shipping'),free_shipping:integer(v.free_shipping,0,100000,'free shipping'),checkout_enabled:v.checkout_enabled===true,coupon_code:text(v,'coupon_code',30,false).toUpperCase(),coupon_percent:integer(v.coupon_percent??0,0,70,'discount')},optionalDetails(v,{delivery_estimate:300,returns_policy:3000}),optionalTranslations(v,{announcement_ar:150,delivery_estimate_ar:300,returns_policy_ar:3000}),...(v.shipping_countries!==undefined?[{shipping_countries:deliveryCountries(v.shipping_countries)}]:[]));
     await q('UPDATE settings SET data=? WHERE id=?',[JSON.stringify(s),'store'],conn);await audit(u,'settings.save','store',conn);});return res.json({ok:true});
    }
   }

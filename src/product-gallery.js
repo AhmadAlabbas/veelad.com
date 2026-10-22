@@ -5,10 +5,10 @@ import {printProducts,printProductFor,validateDesignStudio,mockupMatches} from '
 import {renderMockup} from './mockup-renderer.js';
 import {ApiError,fail,hash,product} from './security.js';
 
-const galleryVersion='veelad-gallery-1';
-// These are the only extra photographic views we can represent accurately with
-// the current provisional templates. Shirt views are distinct print sides;
-// showing the artwork on both sides would invent a second printing instruction.
+const galleryVersion='veelad-gallery-neutral-2';
+// Alternate angles and illustrative model views use the saved artwork placement.
+// An opposite-side view stays unprinted unless an approved print-side choice
+// explicitly requests a printed preview. Gallery browsing never changes an order.
 const blankShirts={shirt:new URL('../public/assets/mockups/shirt.webp',import.meta.url),'shirt-back':new URL('../public/assets/mockups/shirt-back.webp',import.meta.url)};
 const maxEntries=16,maxBytes=16*1024*1024,maxRenders=2,maxQueue=6;
 
@@ -34,9 +34,12 @@ export function createProductGallery(c,db,dependencies={}) {
   if(!info.isFile()||info.size<1||info.size>artworkLimits.bytes)return {gallery:empty};
   const selected=studio.placements[type.id].view,other=type.views.find(view=>view!==selected);
   if(!other||(type.id==='shirt'&&!blankShirts[other]))return {gallery:empty};
-  const signature=hash(JSON.stringify({version:galleryVersion,renderer:printProducts.render_version,product:p.id,category:p.category,original:original.id,path:original.path,bytes:info.size,mtime:info.mtimeMs,studio,mockup:p.mockup_upload_id}));
+  const signature=hash(JSON.stringify({version:galleryVersion,renderer:printProducts.render_version,product:p.id,category:p.category,original:original.id,path:original.path,bytes:info.size,mtime:info.mtimeMs,studio,choices:p.purchase_options,mockup:p.mockup_upload_id}));
   const view={key:'reverse',label_key:type.id==='shirt'?'gallery_shirt_opposite_unprinted':'gallery_mug_reverse',src:'/api.php?route=product-gallery-image&id='+encodeURIComponent(p.id)+'&view=reverse&v='+signature,kind:'product'};
-  return {gallery:{product_id:p.id,signature,provisional:true,views:[view]},p,studio,type,other,original};
+  const views=[view];
+  if(type.id==='shirt'&&selected==='shirt')for(const key of ['model-one','model-two'])views.push({key,label_key:'gallery_shirt_'+key.replace('-','_'),src:'/api.php?route=product-gallery-image&id='+encodeURIComponent(p.id)+'&view='+key+'&v='+signature,kind:'product'});
+  if(type.id==='shirt'&&p.purchase_options?.confirmed)for(const side of p.purchase_options.sides||[])views.push({key:'print-'+side,label_key:'gallery_print_'+side,src:'/api.php?route=product-gallery-image&id='+encodeURIComponent(p.id)+'&view=print-'+side+'&v='+signature,kind:'product'});
+  return {gallery:{product_id:p.id,signature,provisional:true,views},p,studio,type,other,original};
  }
  function remember(key,bytes) {
   if(bytes.length>maxBytes)return;
@@ -58,11 +61,11 @@ export function createProductGallery(c,db,dependencies={}) {
  return {
   async metadata(id,user){return (await describe(id,user)).gallery;},
   async image(id,view,signature,user,ip) {
-   if(view!=='reverse'||typeof signature!=='string'||!/^[a-f0-9]{64}$/.test(signature))unavailable();
+   if(!['reverse','model-one','model-two','print-front','print-back'].includes(view)||typeof signature!=='string'||!/^[a-f0-9]{64}$/.test(signature))unavailable();
    // Re-read and authorize before every cache hit, including unpublished items.
    const description=await describe(id,user);
-   if(!description.gallery.views.length||description.gallery.signature!==signature)unavailable();
-   const key=signature+'|reverse',cached=images.get(key);
+   if(!description.gallery.views.some(item=>item.key===view)||description.gallery.signature!==signature)unavailable();
+   const key=signature+'|'+view,cached=images.get(key);
    if(cached){images.delete(key);images.set(key,cached);return cached;}
    if(pending.has(key))return pending.get(key);
    limit(ip);
@@ -71,9 +74,9 @@ export function createProductGallery(c,db,dependencies={}) {
     try {
      const {p,studio,type,other,original}=description;
      let bytes;
-     if(type.id==='shirt')bytes=await fs.readFile(blankShirts[other]);
+     if(type.id==='shirt'&&view==='reverse')bytes=await fs.readFile(blankShirts[other]);
      else {
-      const next=structuredClone(studio);next.placements[type.id].view=other;
+      const next=structuredClone(studio);next.placements[type.id].view=view.startsWith('model-')?'shirt-'+view:view.startsWith('print-')?(view==='print-back'?'shirt-back':'shirt'):other;
       bytes=await render(await source(c.uploadDir,original),p.category,next);
      }
      const image=await sharp(bytes,{limitInputPixels:artworkLimits.pixels}).rotate().resize({width:1000,height:1000,fit:'inside',withoutEnlargement:true}).webp({quality:92}).toBuffer();

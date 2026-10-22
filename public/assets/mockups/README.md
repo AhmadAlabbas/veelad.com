@@ -1,6 +1,6 @@
-# Photographic-style mockup bases — veelad-photo-1
+# Photographic-style mockup bases — veelad-neutral-2
 
-Nine original AI-generated photographic-style blank product views were created with the built-in image generation tool for Veelad on 2026-10-15. The bases show generic products on a lavender studio backdrop; they are illustrations of products, not photographs of a verified supplier's goods. No customer/seller artwork is generated, redrawn or sent to the image model. Uploaded designs are applied locally by the deterministic renderer.
+Nine original AI-generated photographic-style blank product views were created with the built-in image generation tool for Veelad on 2026-10-15. On 2026-10-22 the tool edited the studio backdrops to neutral grey and added two diverse adult front-facing model templates. They are illustrations of generic products, not photographs of a verified supplier's goods. No customer/seller artwork is generated, redrawn or sent to the image model. Uploaded designs are applied locally by the deterministic renderer.
 
 WebP files are 1000×1000 at quality 95. `tools/photo-surfaces.json` records manually reviewed printable quadrilaterals, cloth displacement settings, cylinder mapping and camera/rounded-corner masks. `tools/prepare-photo-mockups.js` prepares these assets from a private JSON mapping of view names to the generated PNG masters. Master PNGs remain in the cloud session's `/workspace/generated_images/` directory; runtime deployments need only the committed WebP/JSON files. The preceding Blender generator is retained as historical prototype tooling and does not reproduce these photographic-style bases.
 

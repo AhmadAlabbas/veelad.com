@@ -1,0 +1,41 @@
+# Global storefront redesign
+
+This development release uses a global visual identity and keeps Arabic and English. It changes presentation and adds explicit, validated product choices and delivery coverage. It creates no hosted products, does not change selling prices, and does not activate payments. Promote the tested release to staging first; production remains a separate release.
+
+## Visual system and discovery
+
+`public/assets/storefront.css` defines the public shop's neutral product stage, ink, accent colours, spacing, cards, controls, focus states and responsive layouts. The header separates artwork themes from physical product types, with original illustrated SVG icons. The search field offers catalogue, artist and style suggestions, category scoping, keyboard selection and Escape dismissal. Suggestions rank title prefixes before substring matches. They use the loaded public catalogue; no search text is sent to a third-party service.
+
+General discovery and the homepage favour distinct originals rather than putting several formats of the same artwork beside each other. Grouping respects the artist and original upload; product-category pages continue showing individual listings. Product cards link to other formats where published siblings exist. Quick add sits below the image. Product pages retain their actual specifications, artist and related work; the repeated generic lifestyle block was removed. Arabic direction and translated controls use the same components.
+
+## Neutral mockups and model views
+
+Nine blank product views were edited with the image-generation tool to replace the lavender backdrop with neutral grey while retaining the product composition. Two new, diverse adult model views and three international campaign scenes were generated. These are illustrative assets, not supplier photography or customer testimonials. Captions preserve that distinction. Original uploaded artwork is applied locally by the deterministic renderer; it is never sent to the image model.
+
+`tools/photo-surfaces.json` records the printable surfaces. `tools/prepare-photo-mockups.js` prepares WebP bases and meshes. The renderer version is `veelad-neutral-2`. Logical print placement and template version remain unchanged. `mockupMatches` also recognises the prior `veelad-photo-1` and original renderer IDs. When a listing preview is requested, the existing upgrade path creates a fresh derivative with the current renderer. It does not overwrite native originals, old derivative files, saved placements, prices or order records. Backups may therefore contain additional generated derivatives after the first visits.
+
+Model previews currently represent front-print white T-shirts. The opposite-side view remains unprinted for ordinary listings. Confirmed front/back choices add explicitly printed views of the corresponding side. Galleries remain bounded, authorised and cached with the existing queue limits; unpublished listings remain private. Model fit, print scale and garment dimensions remain provisional until a supplier's product and physical sample are approved.
+
+## Confirmed product choices
+
+Open **Administrator → Products → Edit product → Confirmed product choices**. Add bilingual colour and fit names, colour swatches, and the matching photo from the listing's additional photos. Every additional sellable colour or fit needs an attached photo. The first option may use the main preview. Choose front/back print locations for T-shirts with an original and a saved placement. Enable **Supplier options confirmed** only after reviewing actual fulfilment capability. Existing listings are not assigned invented colour or fit options during deployment.
+
+The `purchase_options` product field is additive JSON. The server validates groups, references, bounded text, swatches, ownership through the gallery list, and supported print locations. Artists cannot change these administrator-confirmed sale options. Changing an original or category through a legacy/artist edit removes confirmation; the administrator must review the new listing.
+
+Customers select only confirmed choices. A matching uploaded option photo is selected when available, and changing a print side selects its corresponding rendered preview. When a combined colour/fit/side selection has no matching photo, the gallery shows the artwork and an explicit notice instead of claiming an exact product preview. Single fixed colours or fits appear as labelled values; multi-option groups use buttons and swatches. Browsing other gallery views does not change the purchase selection. Colour, fit and side are included in the bag key so combinations stay separate. The server resolves the selected identifiers against current product data, rejects unavailable or incomplete choices, and snapshots trusted labels into the order. A selected print side also updates the order's saved placement. The bag, production order and printable/JSON job sheets show the choices. A later product edit cannot rewrite a past order's choices. Prices and stock remain per listing; there are no option surcharges or separate SKU inventories in this release.
+
+Personalised items carry the same confirmed choices through their bag lines. Their editor draft continues to save artwork and placement; physical choices are retained in the current browser selection and bag rather than added to the draft schema. Review them before adding a reopened draft to the bag.
+
+## Destination, language and shipping
+
+The destination selector includes 249 ISO country/territory entries with English and Arabic names. It remembers a manual choice in local browser storage. Saudi Arabia is the initial destination, not a claim that the customer was geolocated. The selector never requests GPS permission, performs IP geolocation, changes language, or converts currency. Prices remain Saudi riyals, explicitly identified in the destination dialog and footer. A visible country name accompanies its self-hosted flag. The 249 small WebP flags are raster exports from MIT-licensed `flag-icons` 7.5.0; source and licence are included in `public/assets/flags`.
+
+Changing destination preserves a partly completed checkout. Country name/code pairs are validated when supplied. Checkout uses the selected country, and the administrator controls actual service coverage under **Store settings → Confirmed delivery countries**. Empty coverage means delivery has not been confirmed. Product pages show that status rather than invented dates or free delivery. Configured coverage uses the store's existing flat shipping charge/free-shipping threshold and entered delivery estimate; there is no carrier quote integration or per-country rate table. Unsupported destinations are rejected before stock changes. Production checkout also refuses an empty coverage configuration. Staging can still create unpaid demonstration orders while coverage is being prepared, with estimated totals clearly labelled.
+
+Country selection is a localisation control, not evidence of transaction security or worldwide delivery. Confirm business policies, tax handling, costs, supported destinations and actual delivery estimates before enabling production orders.
+
+## Verification and release
+
+Run `npm run check`, `npm test`, and the browser suite. New checks exercise international destination validation, exact choice snapshots, separate bag lines, forged/missing options, unavailable delivery without stock loss, keyboard suggestions, country/language independence, preservation of checkout fields, actual model rendering, front/back selection, deduplication and mobile layout. Review screenshots at desktop and iPhone widths in both languages. No database schema migration or new deployment secret is required.
+
+Rollback by deploying the previous tested application revision. Keep originals and the database backup. Disable newly configured product choices before running older code: an older checkout cannot enforce or snapshot them, and old editing code can discard their metadata. Do not delete old originals or derivatives as part of a presentation rollback. Production payment activation and supplier approval remain separate steps.

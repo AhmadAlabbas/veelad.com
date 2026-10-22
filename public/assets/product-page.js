@@ -109,9 +109,8 @@ function productInformation(p) {
  const rows=[['Product',t(p.category)],['Materials',localField(p,'materials')||t('Details not added yet.')],['Dimensions / fit',localField(p,'dimensions')||t('Details not added yet.')],['Available options',(p.variants||[]).map(value=>localVariant(p,value)).join(currentLanguage()==='ar'?'، ':', ')],['Care instructions',localField(p,'care_instructions')||t('Details not added yet.')]];
  return `<dl class="product-specs">${rows.map(([name,value])=>`<div><dt>${esc(t(name))}</dt><dd>${esc(value)}</dd></div>`).join('')}</dl>`;
 }
-function deliveryInformation() {
- return `<section class="product-delivery" aria-label="${esc(t('Delivery information'))}"><div class="delivery-icon">${icon('truck')}</div><div><h2>${t('Delivery')}</h2><p>${Number(settings.shipping)===0||Number(settings.free_shipping)===0?t('Delivery is included.'):esc(t('{shipping} delivery · Included on orders from {threshold}.',{shipping:money(settings.shipping),threshold:money(settings.free_shipping)}))}</p><p class="muted">${esc(localField(settings,'delivery_estimate')||t('Delivery times have not been added yet. Ask us before ordering.'))}</p></div></section>`;
-}
+function deliveryInformation(){return destinationDeliveryInformation();}
+
 function productDetailsFields(p={}) {
  return `<fieldset class="listing-details"><legend>${t('Materials, sizing & care')}</legend><p class="small muted">${t('Optional. Add confirmed specifications only; leave unknown details blank.')}</p><div class="form-grid">
   ${field(t('Materials (English)'),'materials',p.materials||'','text','maxlength="300" dir="ltr" lang="en"')}
@@ -158,7 +157,7 @@ document.addEventListener('click',event=>{
  }
  if(target.dataset.action==='gallery-remove'){
   const editor=target.closest('.gallery-editor'),form=editor.closest('form');if(form.dataset.galleryBusy)return;
-  const field=editor.querySelector('[name=gallery_upload_ids]');const ids=JSON.parse(field.value).filter(id=>id!==target.dataset.id);field.value=JSON.stringify(ids);
+  const field=editor.querySelector('[name=gallery_upload_ids]');const ids=JSON.parse(field.value).filter(id=>id!==target.dataset.id);field.value=JSON.stringify(ids);document.dispatchEvent(new CustomEvent('veelad:gallery-updated',{detail:{form}}));
   editor.querySelector('.gallery-upload-list').innerHTML=galleryUploadList(ids);editor.querySelector('.gallery-upload-status').textContent=attachedPhotoMessage(ids.length);
  }
 });
@@ -183,5 +182,5 @@ document.addEventListener('change',async event=>{
   }
   status.textContent=attachedPhotoMessage(ids.length)+' '+t('Save the listing to apply them.');
  }catch(error){status.textContent=error.message;toast(error.message);}
- finally{field.value=JSON.stringify(ids);editor.querySelector('.gallery-upload-list').innerHTML=galleryUploadList(ids);delete form.dataset.galleryBusy;input.disabled=false;input.value='';}
+ finally{field.value=JSON.stringify(ids);document.dispatchEvent(new CustomEvent('veelad:gallery-updated',{detail:{form}}));editor.querySelector('.gallery-upload-list').innerHTML=galleryUploadList(ids);delete form.dataset.galleryBusy;input.disabled=false;input.value='';}
 });

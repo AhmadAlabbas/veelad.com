@@ -78,7 +78,7 @@ for (const [view, spec] of Object.entries(surfaces)) {
     JSON.stringify({
       width: size,
       height: size,
-      render_version: "veelad-photo-1",
+      render_version: "veelad-neutral-2",
       vertices,
       triangles,
       ...(spec.clip ? { clip_path: spec.clip } : {}),

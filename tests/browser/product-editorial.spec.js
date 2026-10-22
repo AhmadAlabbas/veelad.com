@@ -27,7 +27,8 @@ for(const language of ['en','ar'])test(`extended product pages connect real desi
  await expect(page.locator('#same-design a[href$="/editorial-replaced-artwork"]')).toHaveCount(0);
  await expect(page.locator('#product-artist .product-card')).not.toHaveCount(0);
  await expect(page.locator('#product-discover .product-card')).not.toHaveCount(0);
- await expect(page.locator('.product-everyday-editorial figcaption')).toContainText(language==='ar'?'الذكاء الاصطناعي':'AI-generated');
+ await expect(page.locator('.product-everyday-editorial')).toHaveCount(0);
+ expect(await page.locator('#same-design').evaluate(el=>!!(el.compareDocumentPosition(document.getElementById('product-story'))&Node.DOCUMENT_POSITION_FOLLOWING))).toBe(true);
  await page.locator('.product-section-nav a[href="#same-design"]').focus();
  await page.keyboard.press('Enter');
  await expect(page.locator('#same-design')).toBeFocused();

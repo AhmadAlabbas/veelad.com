@@ -35,9 +35,9 @@ window.VeeladProductGallery=(()=>{
  }
  function panels(state){return state.views.map((view,index)=>`<div class="gallery-panel ${view.detail?'gallery-detail':''}" id="product-view-${index}" role="tabpanel" aria-labelledby="product-thumb-${index}" ${index!==state.index?'hidden':''}><button type="button" class="gallery-enlarge" data-action="gallery-zoom" data-index="${index}" aria-label="${esc(t('Enlarge {view} of {title}',{view:view.label.toLowerCase(),title:localField(state.product,'title')}))}">${visual(view,index===0)}<span class="gallery-zoom-label">${icon('plus')} ${t('Enlarge image')}</span></button><p class="gallery-image-error" role="status" hidden>${t('This image could not load. Choose another view.')}</p></div>`).join('');}
  function thumbs(state){return state.views.map((view,index)=>`<button type="button" class="gallery-thumb ${view.detail?'gallery-detail ':''}${index===state.index?'active':''}" role="tab" id="product-thumb-${index}" aria-controls="product-view-${index}" aria-label="${esc(view.label)}" aria-selected="${index===state.index}" tabindex="${index===state.index?0:-1}" data-action="gallery-select" data-index="${index}" data-view-key="${esc(view.key)}">${visual(view)}<span class="visually-hidden">${esc(view.label)}</span></button>`).join('');}
- function caption(state){const view=state.views[state.index];return state.product.status==='draft'&&!state.product.upload_id&&!state.product.mockup_upload_id?t('No artwork has been added to this draft yet.'):view.artwork?t('Bounded artwork preview. The print original stays private.'):view.detail?t('Zoomed preview of the same image; no additional print detail is created.'):state.product.mockup_upload_id?t('Product previews are provisional; final colours, placement and finish depend on approved production specifications.'):t(state.product.upload_id?'Artwork preview. Product placement and finished appearance depend on the approved production specifications.':'Sample product photography. The close-up enlarges the same preview.');}
+ function caption(state){const view=state.views[state.index];if(view.key.startsWith('model-'))return t('AI-generated lifestyle preview. Garment and fit are not supplier verified.')+' '+t('White T-shirt · front print. Use the option previews for other choices.');return state.product.status==='draft'&&!state.product.upload_id&&!state.product.mockup_upload_id?t('No artwork has been added to this draft yet.'):view.artwork?t('Bounded artwork preview. The print original stays private.'):view.detail?t('Zoomed preview of the same image; no additional print detail is created.'):state.product.mockup_upload_id?t('Product previews are provisional; final colours, placement and finish depend on approved production specifications.'):t(state.product.upload_id?'Artwork preview. Product placement and finished appearance depend on the approved production specifications.':'Sample product photography. The close-up enlarges the same preview.');}
  function purposes(state){
-  const groups=[['primary','Product view'],['artwork','Artwork view'],['closeup','Detail view'],['photo-0','Additional photos']];
+  const groups=[['primary','Product view'],['artwork','Artwork view'],['closeup','Detail view'],['photo-0','Additional photos'],['model-one','On a model']];
   return `<div class="gallery-purpose-nav" role="group" aria-label="${t('Product and artwork views')}">${groups.filter(([key])=>state.views.some(view=>view.key===key)).map(([key,label])=>`<button type="button" data-action="gallery-purpose" data-view="${key}" aria-pressed="${state.views[state.index].key===key}">${t(label)}</button>`).join('')}</div>`;
  }
  function markup(product){
@@ -60,9 +60,9 @@ window.VeeladProductGallery=(()=>{
  }
  function select(gallery,index,focus=false){const state=states.get(gallery);if(!state)return;state.index=(index+state.views.length)%state.views.length;update(gallery,state,focus);}
  function validExtra(view,product,signature){
-  const labels={gallery_mug_reverse:'Other mug angle',gallery_shirt_opposite_unprinted:'Opposite side preview (unprinted)'};
-  if(!view||view.key!=='reverse'||!labels[view.label_key]||view.kind!=='product'||typeof view.src!=='string')return null;
-  try{const src=new URL(view.src,location.origin);if(src.origin!==location.origin||src.pathname!=='/api.php'||src.searchParams.get('route')!=='product-gallery-image'||src.searchParams.get('id')!==product.id||src.searchParams.get('view')!=='reverse'||src.searchParams.get('v')!==signature)return null;return {...view,src:src.pathname+src.search,label:t(labels[view.label_key])};}catch{return null;}
+  const labels={gallery_mug_reverse:'Other mug angle',gallery_shirt_opposite_unprinted:'Opposite side preview (unprinted)',gallery_shirt_model_one:'On a model · 1',gallery_shirt_model_two:'On a model · 2',gallery_print_front:'Front print',gallery_print_back:'Back print'};
+  if(!view||!['reverse','model-one','model-two','print-front','print-back'].includes(view.key)||!labels[view.label_key]||view.kind!=='product'||typeof view.src!=='string')return null;
+  try{const src=new URL(view.src,location.origin);if(src.origin!==location.origin||src.pathname!=='/api.php'||src.searchParams.get('route')!=='product-gallery-image'||src.searchParams.get('id')!==product.id||src.searchParams.get('view')!==view.key||src.searchParams.get('v')!==signature)return null;return {...view,src:src.pathname+src.search,label:t(labels[view.label_key])};}catch{return null;}
  }
  async function init(){
   if(viewer&&!document.contains(viewer.gallery))document.getElementById('modal')?.close();
@@ -73,12 +73,13 @@ window.VeeladProductGallery=(()=>{
   try{
    const result=await api('product-gallery',null,{id:product.id}),value=result?.gallery;
    if(!document.contains(gallery)||states.get(gallery)!==state||value?.product_id!==product.id||value.provisional!==true||!/^[a-f0-9]{64}$/.test(value.signature)||!Array.isArray(value.views))return;
-   const additions=value.views.slice(0,1).map(view=>validExtra(view,product,value.signature)).filter(Boolean);
+   const additions=value.views.slice(0,5).map(view=>validExtra(view,product,value.signature)).filter(Boolean);
    if(!additions.length)return;
    /* Do not disturb the selected image when a slow preview finishes loading. */
    const selected=state.views[state.index].key,focused=gallery.contains(document.activeElement)&&document.activeElement.matches('[role=tab]'),insert=state.views.findIndex(view=>view.artwork||view.detail);
    state.views.splice(insert,0,...additions);state.index=state.views.findIndex(view=>view.key===selected);
-   gallery.querySelector('.gallery-panels').innerHTML=panels(state);gallery.querySelector('.product-thumbs').innerHTML=thumbs(state);update(gallery,state,focused);
+   gallery.querySelector('.gallery-panels').innerHTML=panels(state);gallery.querySelector('.product-thumbs').innerHTML=thumbs(state);gallery.querySelector('.gallery-purpose-nav').outerHTML=purposes(state);update(gallery,state,focused);
+   const selectedOptions=typeof purchaseSelections==='undefined'?null:purchaseSelections.get(product.id);if(selectedOptions&&selected==='primary')selectChoices(product,clientPurchaseChoices(product,selectedOptions));
    if(viewer?.gallery===gallery)document.querySelector('#modal .gallery-viewer-counter').textContent=count(state.index,state.views.length);
   }catch{/* Optional angles must never prevent the existing product image from working. */}
  }
@@ -151,5 +152,14 @@ window.VeeladProductGallery=(()=>{
   const panel=image.closest('.gallery-panel,.gallery-viewer-viewport');if(panel){panel.classList.add('has-image-error');const message=panel.querySelector('.gallery-image-error');if(message)message.hidden=false;}
  },true);
  window.addEventListener('resize',()=>{if(viewer)applyZoom();});
- return {markup,init};
+ function selectChoices(product,choices){
+  const gallery=document.querySelector('.product-gallery');const state=gallery&&states.get(gallery);if(!state||state.product.id!==product.id)return;
+  const image=choices?.color?.image_id||choices?.fit?.image_id;
+  const shown=product.design_studio?.placements?.shirt?.view==='shirt-back'?'back':'front';
+  const unavailable=!!(image&&choices?.side&&choices.side!==shown||choices?.color?.image_id&&choices?.fit?.image_id&&choices.color.image_id!==choices.fit.image_id);
+  let notice=gallery.querySelector('.gallery-choice-notice');if(!notice){notice=document.createElement('p');notice.className='gallery-choice-notice notice small';notice.setAttribute('role','status');gallery.append(notice);}notice.hidden=!unavailable;notice.textContent=unavailable?t('An exact preview for this combination is not available. The artwork is shown; your selected options remain listed below.'):'';
+  let key=unavailable?'artwork':image?'photo-'+(product.gallery_upload_ids||[]).indexOf(image):choices?.side&&choices.side!==shown?'print-'+choices.side:'primary';
+  const index=state.views.findIndex(view=>view.key===key);if(index>=0)select(gallery,index);
+ }
+ return {markup,init,selectChoices};
 })();

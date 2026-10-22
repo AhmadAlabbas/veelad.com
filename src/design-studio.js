@@ -114,6 +114,7 @@ export function mockupMatches(id, uploadId, category, studio) {
   return (
     !!id &&
     (id === mockupId(uploadId, category, studio) ||
+      id === mockupId(uploadId, category, studio, "veelad-photo-1") ||
       id === mockupId(uploadId, category, studio, null))
   );
 }
