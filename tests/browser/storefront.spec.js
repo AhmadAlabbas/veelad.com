@@ -62,3 +62,18 @@ test('back-print listings start with the displayed side selected without exposin
   await page.locator('[name=choice_side][value=back]').check();await expect(page.locator('[data-view-key=primary]')).toHaveAttribute('aria-selected','true');
  }finally{await page.goto('about:blank').catch(()=>{});await fixture.close();}
 });
+
+
+test('customer editor keeps print-side choices, placement controls and bilingual review in agreement',async({page})=>{
+ test.setTimeout(60000);const fixture=await storefrontApp(),errors=[];page.on('pageerror',error=>errors.push(error.stack));
+ try{
+  const row=await fixture.db.one('SELECT data FROM products WHERE id=?',['p1']),product=JSON.parse(row.data);product.customer_customizable=true;await fixture.db.q('UPDATE products SET data=? WHERE id=?',[JSON.stringify(product),'p1']);
+  const bootstrap=await (await page.request.get(fixture.origin+'/api.php?route=bootstrap')).json();
+  const registered=await page.request.post(fixture.origin+'/api.php?route=register',{headers:{'X-CSRF-Token':bootstrap.csrf},data:{name:'Disposable creator',email:'creator-options@example.test',password:'Disposable creator password 123'}});expect(registered.ok()).toBe(true);
+  await page.goto(fixture.origin+'/en/create?product=p1');const form=page.locator('[data-form=customer-design]');await expect(form.locator('.design-studio')).toHaveAttribute('data-ready','true');
+  await form.locator('[name=choice_side][value=back]').check();await expect.poll(async()=>JSON.parse(await form.locator('[name=design_studio]').inputValue()).placements.shirt.view).toBe('shirt-back');await expect(form.locator('[data-customer-review-summary]')).toContainText('Back');
+  await form.locator('[data-studio-view=shirt]').click();await expect(form.locator('[name=choice_side][value=front]')).toBeChecked();await expect(form.locator('[data-customer-review-summary]')).toContainText('Front');
+  await form.locator('[name=choice_side][value=back]').check();await page.locator('[data-action=language-switch]').first().click();await expect(form.locator('.design-studio')).toHaveAttribute('data-ready','true');await expect(form.locator('[name=choice_side][value=back]')).toBeChecked();await expect(form.locator('[data-customer-review-summary]')).toContainText('الخلف');
+  expect(errors).toEqual([]);
+ }finally{await page.goto('about:blank').catch(()=>{});await fixture.close();}
+});

@@ -68,7 +68,7 @@ function customerCreatePage() {
   if (intended) { try { sessionStorage.removeItem("veelad-create-product"); } catch {} }
   const draft = customerDraft ? { upload_id: customerDraft.upload_id, design_studio: customerDraft.design_studio, category: p.category } : { category: p.category };
   uploadId = draft.upload_id || null;
-  return `<main id="main" class="container customer-create">${intro}<form data-form="customer-design">${customerJourneyNav()}${customerCategoryPicker(p, available)}<section class="customer-product-choice"><div class="customer-selected-item"><span class="eyebrow">${t("YOUR CANVAS")}</span><h3 data-customer-selected-label>${esc(t(studioTypes.find((type) => type[1] === p.category)?.[2] || p.category))}</h3><p data-customer-category-description>${t(customerCategoryCopy[studioTypes.find((type) => type[1] === p.category)?.[0]]?.[1] || "Make it yours")}</p><span class="customer-sample-notice" data-customer-sample ${p.sample_pricing === true || p.stock_is_simulated === true ? "" : "hidden"}>${t("Staging sample price · no real payment")}</span></div><label class="field">${t("Choose your item")}<select name="product_id" required>${available.map((item) => `<option value="${esc(item.id)}" ${item.id === p.id ? "selected" : ""}>${esc(t(item.category))} — ${esc(localField(item, "title"))} · ${money(item.price)}</option>`).join("")}</select></label><input type="hidden" name="category" value="${esc(p.category)}"><input type="hidden" name="upload_id" value="${esc(draft.upload_id || "")}"><label class="field">${t("Choose an option")}<select name="variant" required>${p.variants.map((v) => `<option value="${esc(v)}" ${customerDraft?.variant === v ? "selected" : ""}>${esc(localVariant(p, v))}</option>`).join("")}</select></label><div data-customer-purchase-choices>${purchaseChoiceFields(p)}</div><div class="customer-price"><span>${t("Per item")}</span><strong data-customer-price>${money(p.price)}</strong><button type="button" class="text-link" data-customer-jump="review">${t("Review your item")} ↓</button></div></section><section class="customer-draft-bar" id="customer-artwork">${field(t("Design name"), "design_name", customerDraft?.title || "", "text", 'maxlength="80" dir="auto"')}<div class="customer-draft-actions"><span role="status" aria-live="polite" data-customer-save-status>${t(customerDraft?.conflict ? "This draft changed in another tab. Reload it or save a copy." : "Your progress saves automatically")}</span><div><button type="button" class="btn outline sm" data-save-customer-draft>${t("Save draft now")}</button><button type="button" class="text-link" data-copy-customer-draft>${t("Save a copy")}</button><button type="button" class="text-link" data-reload-customer-draft ${customerDraft?.conflict ? "" : "hidden"}>${t("Reload saved version")}</button>${link(t("My Designs"), "my-designs", "text-link")}</div></div></section>${customerStarterTemplates(draft)}${designArtworkUpload(draft).replace(t("Start with your best original."), t("Upload artwork or start with text.")).replace(t("Your original stays private until the listing is approved."), t("Your artwork is private. Only you and the Veelad production team can access it."))}<p class="small customer-text-hint">${t("Artwork is optional. You can design with text only.")} <button type="button" class="text-link" data-start-with-text>${t("Start with text")}</button></p>${button(t("Remove uploaded artwork"), "remove-customer-artwork", "", "text-link")}${designPlacementPreview(draft).replace(t('Visual preview — not a print file or a physical product sample'),t('Provisional preview')).replace('class="design-placement design-studio"','class="design-placement design-studio" id="customer-editor"')}<section class="customer-review" id="customer-review" tabindex="-1"><p class="notice" data-customer-unavailable hidden>${t("This product is unavailable for ordering. You can keep editing your draft or choose another item.")}</p><div><span class="eyebrow">${t("03 / REVIEW YOUR ITEM")}</span><h2>${t("Ready to make it real?")}</h2><p>${t("Check the product, option, crop and placement. This is a provisional visual preview; our team must confirm the printable area and quality before production.")}</p></div><div class="customer-review-summary" aria-live="polite" data-customer-review-summary></div><label class="check"><input type="checkbox" name="rights" required ${customerDraft?.rights ? "checked" : ""}>${t("I own this artwork or have permission to print it.")}</label><label class="check"><input type="checkbox" name="preview_accepted" required>${t("I reviewed my design and understand the preview is provisional.")}</label><div class="customer-submit"><p>${t("Delivery is calculated in your bag. No payment is collected online.")}</p><button type="submit" class="btn" data-customer-order>${t("Save design and add to bag")} ${icon("bag")}</button></div></section></form>${customerJourneyBar()}${customerCreateHelp()}</main>`;
+  return `<main id="main" class="container customer-create">${intro}<form data-form="customer-design">${customerJourneyNav()}${customerCategoryPicker(p, available)}<section class="customer-product-choice"><div class="customer-selected-item"><span class="eyebrow">${t("YOUR CANVAS")}</span><h3 data-customer-selected-label>${esc(t(studioTypes.find((type) => type[1] === p.category)?.[2] || p.category))}</h3><p data-customer-category-description>${t(customerCategoryCopy[studioTypes.find((type) => type[1] === p.category)?.[0]]?.[1] || "Make it yours")}</p><span class="customer-sample-notice" data-customer-sample ${p.sample_pricing === true || p.stock_is_simulated === true ? "" : "hidden"}>${t("Staging sample price · no real payment")}</span></div><label class="field">${t("Choose your item")}<select name="product_id" required>${available.map((item) => `<option value="${esc(item.id)}" ${item.id === p.id ? "selected" : ""}>${esc(t(item.category))} — ${esc(localField(item, "title"))} · ${money(item.price)}</option>`).join("")}</select></label><input type="hidden" name="category" value="${esc(p.category)}"><input type="hidden" name="upload_id" value="${esc(draft.upload_id || "")}"><label class="field">${t("Choose an option")}<select name="variant" required>${p.variants.map((v) => `<option value="${esc(v)}" ${customerDraft?.variant === v ? "selected" : ""}>${esc(localVariant(p, v))}</option>`).join("")}</select></label><div data-customer-purchase-choices>${purchaseChoiceFields(p)}${p.purchase_options?.confirmed?`<p class="small">${t("This editor previews placement on a generic template. Your colour and fit choices are listed in the summary and order.")}</p>`:""}</div><div class="customer-price"><span>${t("Per item")}</span><strong data-customer-price>${money(p.price)}</strong><button type="button" class="text-link" data-customer-jump="review">${t("Review your item")} ↓</button></div></section><section class="customer-draft-bar" id="customer-artwork">${field(t("Design name"), "design_name", customerDraft?.title || "", "text", 'maxlength="80" dir="auto"')}<div class="customer-draft-actions"><span role="status" aria-live="polite" data-customer-save-status>${t(customerDraft?.conflict ? "This draft changed in another tab. Reload it or save a copy." : "Your progress saves automatically")}</span><div><button type="button" class="btn outline sm" data-save-customer-draft>${t("Save draft now")}</button><button type="button" class="text-link" data-copy-customer-draft>${t("Save a copy")}</button><button type="button" class="text-link" data-reload-customer-draft ${customerDraft?.conflict ? "" : "hidden"}>${t("Reload saved version")}</button>${link(t("My Designs"), "my-designs", "text-link")}</div></div></section>${customerStarterTemplates(draft)}${designArtworkUpload(draft).replace(t("Start with your best original."), t("Upload artwork or start with text.")).replace(t("Your original stays private until the listing is approved."), t("Your artwork is private. Only you and the Veelad production team can access it."))}<p class="small customer-text-hint">${t("Artwork is optional. You can design with text only.")} <button type="button" class="text-link" data-start-with-text>${t("Start with text")}</button></p>${button(t("Remove uploaded artwork"), "remove-customer-artwork", "", "text-link")}${designPlacementPreview(draft).replace(t('Visual preview — not a print file or a physical product sample'),t('Provisional preview')).replace('class="design-placement design-studio"','class="design-placement design-studio" id="customer-editor"')}<section class="customer-review" id="customer-review" tabindex="-1"><p class="notice" data-customer-unavailable hidden>${t("This product is unavailable for ordering. You can keep editing your draft or choose another item.")}</p><div><span class="eyebrow">${t("03 / REVIEW YOUR ITEM")}</span><h2>${t("Ready to make it real?")}</h2><p>${t("Check the product, option, crop and placement. This is a provisional visual preview; our team must confirm the printable area and quality before production.")}</p></div><div class="customer-review-summary" aria-live="polite" data-customer-review-summary></div><label class="check"><input type="checkbox" name="rights" required ${customerDraft?.rights ? "checked" : ""}>${t("I own this artwork or have permission to print it.")}</label><label class="check"><input type="checkbox" name="preview_accepted" required>${t("I reviewed my design and understand the preview is provisional.")}</label><div class="customer-submit"><p>${t("Delivery is calculated in your bag. No payment is collected online.")}</p><button type="submit" class="btn" data-customer-order>${t("Save design and add to bag")} ${icon("bag")}</button></div></section></form>${customerJourneyBar()}${customerCreateHelp()}</main>`;
 }
 function rememberCustomerDraft(form) {
   if (!form || !user || !form.isConnected) return;
@@ -103,7 +103,26 @@ function updateCustomerSelection(form, p) {
   form.querySelector("[data-customer-category-description]").textContent = t(customerCategoryCopy[type?.[0]]?.[1] || "Make it yours");
   form.querySelector("[data-customer-sample]").hidden = p.sample_pricing !== true && p.stock_is_simulated !== true;
   const summary = form.querySelector("[data-customer-review-summary]");
-  summary.innerHTML = `<img src="/assets/mockups/${type?.[0] || "print"}.webp" alt=""><div><strong>${esc(t(type?.[2] || p.category))}</strong><span>${esc(localVariant(p, form.elements.variant.value))}</span></div><strong>${money(p.price)}</strong>`;
+  summary.innerHTML = `<img src="/assets/mockups/${type?.[0] || "print"}.webp" alt=""><div><strong>${esc(t(type?.[2] || p.category))}</strong><span>${esc([localVariant(p, form.elements.variant.value),purchaseChoiceText(clientPurchaseChoices(p,choicesFromForm(form)))].filter(Boolean).join(" · "))}</span></div><strong>${money(p.price)}</strong>`;
+}
+function syncCustomerPurchaseChoices(form, p, {fromEditor = false} = {}) {
+  if (!p) return;
+  const instance = studioInstances.get(form.querySelector(".design-studio")), sides = p.purchase_options?.confirmed ? p.purchase_options.sides || [] : [];
+  if (p.category === "T-shirts" && sides.length && instance?.state?.placements?.shirt) {
+    const placement = instance.state.placements.shirt, shown = placement.view === "shirt-back" ? "back" : "front";
+    let side = choicesFromForm(form).side || sides[0];
+    if (fromEditor && sides.includes(shown)) side = shown;
+    const radio = form.querySelector(`[name=choice_side][value=${side}]`); if (radio) radio.checked = true;
+    purchaseSelections.set(p.id, choicesFromForm(form));
+    const view = side === "back" ? "shirt-back" : "shirt";
+    if (placement.view !== view && !form.dataset.syncingPurchaseChoices) {
+      form.dataset.syncingPurchaseChoices = "true";
+      try { placement.view = view; instance.syncControls(); instance.update(); }
+      finally { delete form.dataset.syncingPurchaseChoices; }
+    }
+    for (const button of form.querySelectorAll("[data-studio-view]")) button.disabled = !sides.includes(button.dataset.studioView === "shirt-back" ? "back" : "front");
+  }
+  updateCustomerSelection(form, p);
 }
 function syncCustomerProduct(form, {selectionChanged = false} = {}) {
   if (!form) return;
@@ -124,7 +143,7 @@ function syncCustomerProduct(form, {selectionChanged = false} = {}) {
     )
     .join("");
   form.querySelector("[data-customer-price]").textContent = money(p.price);
-  const choices=form.querySelector("[data-customer-purchase-choices]");if(choices)choices.innerHTML=purchaseChoiceFields(p);
+  const choices=form.querySelector("[data-customer-purchase-choices]");if(choices)choices.innerHTML=purchaseChoiceFields(p)+(p.purchase_options?.confirmed?`<p class="small">${t("This editor previews placement on a generic template. Your colour and fit choices are listed in the summary and order.")}</p>`:"");
   updateCustomerSelection(form, p);
   if (selectionChanged) {
     params.set("product", p.id);
@@ -132,9 +151,12 @@ function syncCustomerProduct(form, {selectionChanged = false} = {}) {
   }
   if (instance?.state) {
     instance.state.active_product = type[0];
+    const side = choicesFromForm(form).side;
+    if (type[0] === "shirt" && p.purchase_options?.confirmed && p.purchase_options.sides?.includes(side)) instance.state.placements.shirt.view = side === "back" ? "shirt-back" : "shirt";
     instance.syncControls();
     instance.update();
   } else root.dataset.category = p.category;
+  syncCustomerPurchaseChoices(form, p);
   root.querySelector(".design-preview-format").disabled = true;
   // The customer selects a real purchasable product above, not a requested seller format.
   root.querySelector(".studio-heading h3").textContent = t("Make it yours");
@@ -264,6 +286,7 @@ document.addEventListener("change", (event) => {
     form.elements.preview_accepted.checked = false;
   }
   if (event.target.name === "variant") updateCustomerSelection(form, customerEditorProducts().find((p) => p.id === form.elements.product_id.value));
+  if (event.target.name?.startsWith("choice_")) syncCustomerPurchaseChoices(form, customerEditorProducts().find((p) => p.id === form.elements.product_id.value));
   rememberCustomerDraft(form);
 });
 document.addEventListener("input", (event) => {
@@ -276,6 +299,7 @@ document.addEventListener("input", (event) => {
 document.addEventListener("design-studio-change", (event) => {
   const form = event.target.closest("[data-form=customer-design]");
   if (!form) return;
+  if (form.dataset.customerReady && !form.dataset.syncingPurchaseChoices) syncCustomerPurchaseChoices(form, customerEditorProducts().find((p) => p.id === form.elements.product_id.value), {fromEditor:true});
   form.elements.preview_accepted.checked = false;
   rememberCustomerDraft(form);
 });
