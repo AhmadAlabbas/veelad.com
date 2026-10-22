@@ -51,6 +51,11 @@ translations.ar=Object.freeze({...translations.ar,
  'Pricing defaults saved.':'حفظنا الأسعار الأساسية.',
  'Prices changed in another tab. Reload before saving.':'الأسعار تغيّرت في صفحة ثانية. حدّث الصفحة قبل الحفظ.',
  'Set one pricing row for each product type.':'حدّد صفّ أسعار واحد لكل نوع منتج.',
+ 'Placeholder price':'سعر مؤقّت',
+ 'These temporary prices are for preparing listings. Replace them with your reviewed selling prices before publishing.':'هذي أسعار مؤقّتة لتجهيز المنتجات. بدّلها بأسعار البيع اللي تعتمدها قبل النشر.',
+ 'Replace the placeholder with a reviewed selling price before publishing.':'بدّل السعر المؤقّت بسعر بيع معتمد قبل نشر المنتج.',
+ 'This item is awaiting its final selling price.':'هالمنتج بانتظار تحديد سعره النهائي.',
+ 'Please check the price placeholder status.':'راجع حالة السعر المؤقّت.',
  'My own designs':'تصاميمي',
  'This style is taking shape.':'تصاميم جديدة من هالنوع، في الطريق.',
  'New designs will appear here as they are published. Explore another style in the meantime.':'بتلقى التصاميم هنا أول ما ننشرها. تقدر تكتشف الأنواع الثانية في هالوقت.',
@@ -108,7 +113,10 @@ function productDesignStyleLinks(p){
  return list.length?`<nav class="product-style-links" aria-label="${t('Design styles')}">${list.map(style=>link(esc(localField(style,'title')),'shop','chip',{style:style.id})).join('')}</nav>`:'';
 }
 
-function defaultListingPrice(p){const value=p?.price??viewData?.settings?.category_pricing?.find(row=>row.category===cats[0])?.price;return value==null?'':(value/100).toFixed(2);}
+function configuredCategoryPrices(){return viewData?.category_pricing||viewData?.settings?.category_pricing||seed.launch_pricing||[];}
+function defaultListingPrice(p){const value=p?.price??configuredCategoryPrices().find(row=>row.category===cats[0])?.price;return value==null?'':(value/100).toFixed(2);}
+function defaultListingPlaceholder(p){return p?.id?p.price_is_placeholder===true:configuredCategoryPrices().find(row=>row.category===cats[0])?.placeholder===true;}
+function listingPriceNotice(p){return `<p class="notice small" data-price-placeholder-note ${defaultListingPlaceholder(p)?'':'hidden'}>${t('These temporary prices are for preparing listings. Replace them with your reviewed selling prices before publishing.')}</p>`;}
 
 function designStyleFields(p){
  return `<fieldset class="design-style-fields full"><legend>${t('Design styles')}</legend><p class="small">${t('Choose up to three styles. These help shoppers find the same design across different products.')}</p><div>${designStyles.map(style=>`<label class="style-choice"><input type="checkbox" name="design_styles" value="${esc(style.id)}" ${(p?.design_styles||[]).includes(style.id)?'checked':''}><span>${esc(localField(style,'title'))}</span></label>`).join('')}</div><small class="style-choice-count" role="status"></small></fieldset>`;
@@ -138,8 +146,8 @@ function cataloguePagination(list,options={}){
 }
 
 function pricingWorkspace(data){
- const rows=data.settings.category_pricing||cats.map(category=>({category,price:null}));
- return `<div class="admin-title"><div><h1>${t('Product pricing')}</h1><p>${t('Set your selling prices once, then use them as the starting point for new listings.')}</p></div></div><section class="panel"><form data-form="category-pricing" data-revision="${data.settings.pricing_revision||0}"><p class="notice">${t('Leave a price empty until you decide. Saving defaults never changes existing listings or past orders.')}</p><div class="pricing-grid">${rows.map(row=>`<label class="pricing-row"><span><strong>${esc(t(row.category))}</strong><small>${t('Default selling price')}</small></span><span class="price-input"><span aria-hidden="true">\u20c1</span><input name="${esc(row.category)}" type="number" min="1" max="1000" step="0.01" value="${row.price===null?'':esc((row.price/100).toFixed(2))}" aria-label="${esc(t('Selling price for {category} in Saudi riyals',{category:t(row.category)}))}" placeholder="${esc(t('Not set'))}"></span></label>`).join('')}</div><p class="small">${t('Prices are stored in halalas. Supplier costs, delivery charges, taxes and Moyasar fees still need your review before checkout is enabled.')}</p><p role="alert" class="pricing-error notice error" hidden></p><button type="submit" class="btn">${t('Save pricing defaults')}</button><p data-pricing-saved role="status"></p></form></section>`;
+ const rows=data.category_pricing||data.settings.category_pricing||seed.launch_pricing||cats.map(category=>({category,price:null}));
+ return `<div class="admin-title"><div><h1>${t('Product pricing')}</h1><p>${t('Set your selling prices once, then use them as the starting point for new listings.')}</p></div></div><section class="panel"><form data-form="category-pricing" data-revision="${data.settings.pricing_revision||0}"><p class="notice">${t(rows.some(row=>row.placeholder)?'These temporary prices are for preparing listings. Replace them with your reviewed selling prices before publishing.':'Leave a price empty until you decide. Saving defaults never changes existing listings or past orders.')}</p><div class="pricing-grid">${rows.map(row=>`<label class="pricing-row"><span><strong>${esc(t(row.category))}</strong><small>${t('Default selling price')}</small><small class="pricing-placeholder-badge" ${row.placeholder?'':'hidden'}>${t('Placeholder price')}</small></span><span class="price-input"><span aria-hidden="true">\u20c1</span><input name="${esc(row.category)}" data-placeholder="${row.placeholder===true}" type="number" min="1" max="1000" step="0.01" value="${row.price===null?'':esc((row.price/100).toFixed(2))}" aria-label="${esc(t('Selling price for {category} in Saudi riyals',{category:t(row.category)}))}" placeholder="${esc(t('Not set'))}"></span></label>`).join('')}</div><p class="small">${t('Prices are stored in halalas. Supplier costs, delivery charges, taxes and Moyasar fees still need your review before checkout is enabled.')}</p><p role="alert" class="pricing-error notice error" hidden></p><button type="submit" class="btn">${t('Save pricing defaults')}</button><p data-pricing-saved role="status"></p></form></section>`;
 }
 
 document.addEventListener('change',event=>{
@@ -150,10 +158,13 @@ document.addEventListener('change',event=>{
  }
  if(event.target.name==='category'&&event.target.closest('[data-form=admin-product]')){
   const form=event.target.form,price=form.elements.price;
-  if(!form.elements.id&&!price.dataset.ownerEdited){const row=viewData?.settings?.category_pricing?.find(row=>row.category===event.target.value);price.value=row?.price==null?'':(row.price/100).toFixed(2);}
+  if(!form.elements.id&&!price.dataset.ownerEdited){const row=configuredCategoryPrices().find(row=>row.category===event.target.value);price.value=row?.price==null?'':(row.price/100).toFixed(2);price.dataset.placeholder=String(row?.placeholder===true);form.querySelector('[data-price-placeholder-note]').hidden=!row?.placeholder;}
  }
 });
-document.addEventListener('input',event=>{if(event.target.name==='price'&&event.target.closest('[data-form=admin-product]'))event.target.dataset.ownerEdited='true';});
+document.addEventListener('input',event=>{
+ if(event.target.name==='price'&&event.target.closest('[data-form=admin-product]')){event.target.dataset.ownerEdited='true';event.target.dataset.placeholder='false';event.target.form.querySelector('[data-price-placeholder-note]').hidden=true;}
+ if(event.target.closest('[data-form=category-pricing]')&&event.target.matches('input')){event.target.dataset.placeholder='false';event.target.closest('.pricing-row').querySelector('.pricing-placeholder-badge').hidden=true;}
+});
 document.addEventListener('submit',async event=>{
  const form=event.target;
  if(form.dataset.form==='moyasar-check'){
@@ -164,7 +175,7 @@ document.addEventListener('submit',async event=>{
  event.preventDefault();event.stopImmediatePropagation();if(form.dataset.saving||!form.reportValidity())return;
  const error=form.querySelector('.pricing-error'),button=form.querySelector('[type=submit]');error.hidden=true;button.disabled=true;form.dataset.saving='true';
  try{
-  const prices=cats.map(category=>{const value=form.elements.namedItem(category).value;return {category,price:value===''?null:Math.round(Number(value)*100)};});
+  const prices=cats.map(category=>{const input=form.elements.namedItem(category),value=input.value;return {category,price:value===''?null:Math.round(Number(value)*100),placeholder:input.dataset.placeholder==='true'};});
   await api('admin-category-pricing',{revision:Number(form.dataset.revision),prices});await refreshData();await render({preserveScroll:true});document.querySelector('[data-pricing-saved]').textContent=t('Pricing defaults saved.');
  }catch(e){error.hidden=false;error.textContent=localizedError(e.message);}finally{delete form.dataset.saving;button.disabled=false;}
 });

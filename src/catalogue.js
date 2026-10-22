@@ -1,4 +1,5 @@
 import styles from '../public/assets/design-styles.json' with {type:'json'};
+import placeholderPrices from '../public/assets/launch-pricing.json' with {type:'json'};
 import {fail,integer} from './security.js';
 
 export const designStyles=Object.freeze(styles.map((row,index)=>Object.freeze({...row,index})));
@@ -13,7 +14,10 @@ export function validateDesignStyles(value){
 
 export function categoryPricing(settings){
  const rows=Array.isArray(settings.category_pricing)?settings.category_pricing:[];
- return productCategories.map(category=>({category,price:rows.find(row=>row.category===category)?.price??null}));
+ return productCategories.map(category=>{
+  const row=rows.find(row=>row.category===category)||placeholderPrices.find(row=>row.category===category);
+  return {category,price:row.price??null,placeholder:row.placeholder===true};
+ });
 }
 
 export function validateCategoryPricing(rows){
@@ -22,7 +26,8 @@ export function validateCategoryPricing(rows){
  return productCategories.map(category=>{
   const row=rows.find(item=>item?.category===category);
   if(!row)fail(422,'Choose a valid product category.');
-  return {category,price:row.price===null?null:integer(row.price,100,100000,'price')};
+  if(row.placeholder!==undefined&&typeof row.placeholder!=='boolean')fail(422,'Please check the price placeholder status.');
+  return {category,price:row.price===null?null:integer(row.price,100,100000,'price'),...(row.placeholder!==undefined?{placeholder:row.placeholder}:{})};
  });
 }
 

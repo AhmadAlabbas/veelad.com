@@ -26,7 +26,7 @@ import {customerDraftRoute} from './customer-drafts.js';
 import {queueMail,mailStatus,recipientAllowed,checkMail,safeMailError} from './mail.js';
 import {createProductGallery} from './product-gallery.js';
 import {collectionSettings,validateCollections} from './curated-collections.js';
-import {designStyles,validateDesignStyles,validateCategoryPricing,publicStoreSettings} from './catalogue.js';
+import {designStyles,validateDesignStyles,categoryPricing,validateCategoryPricing,publicStoreSettings} from './catalogue.js';
 import {moyasarStatus,checkMoyasar} from './moyasar.js';
 const publicDir=fileURLToPath(new URL('../public',import.meta.url));
 const categories=['T-shirts','Tote bags','Phone cases','Art prints','Mugs','Stickers','Notebooks'];
@@ -113,7 +113,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
  function preserveDetails(p,old) {
   if(!old) return;
   const previous=json(old.data);
-  for(const key of [...Object.keys(detailLimits),...Object.keys(translationLimits),'production_notes','print_formats','tags','tags_ar','design_styles','gallery_upload_ids','design_studio','mockup_upload_id','customer_customizable','collection_id','design_group','story','story_ar','artwork_attribution','sample_pricing','stock_is_simulated']) if(p[key]===undefined && previous[key]!==undefined) p[key]=previous[key];
+  for(const key of [...Object.keys(detailLimits),...Object.keys(translationLimits),'production_notes','print_formats','tags','tags_ar','design_styles','price_is_placeholder','gallery_upload_ids','design_studio','mockup_upload_id','customer_customizable','collection_id','design_group','story','story_ar','artwork_attribution','sample_pricing','stock_is_simulated']) if(p[key]===undefined && previous[key]!==undefined) p[key]=previous[key];
   if(previous.upload_id===p.upload_id&&previous.artwork_metadata!==undefined)p.artwork_metadata=previous.artwork_metadata;
   if(p.design_studio?.artwork_id!==(p.upload_id||null)){delete p.design_studio;delete p.mockup_upload_id;}
   if(!mockupMatches(p.mockup_upload_id,p.upload_id,p.category,p.design_studio))delete p.mockup_upload_id;
@@ -149,6 +149,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
   const options=[...new Set(variants.map(x=>text({option:x},'option',50)))];
   const p={title:text(v,'title',100,!draft),category,price:artistSubmission?0:integer(v.price,draft||v.status&&v.status!=='active'?0:100,100000,'price'),stock:artistSubmission?0:integer(v.stock??50,0,100000,'stock'),description:text(v,'description',2000,!draft),variants:options,royalty_percent:20,badge:'New',sheet:integer(v.sheet??0,0,1,'sheet'),cell:integer(v.cell??0,0,5,'cell')};
   if(!artistSubmission&&v.customer_customizable!==undefined){if(typeof v.customer_customizable!=='boolean')fail(422,'Please check customer customization.');p.customer_customizable=v.customer_customizable;}
+  if(!artistSubmission&&v.price_is_placeholder!==undefined){if(typeof v.price_is_placeholder!=='boolean')fail(422,'Please check the price placeholder status.');p.price_is_placeholder=v.price_is_placeholder;}
   Object.assign(p,optionalDetails(v,detailLimits));
   if(v.design_styles!==undefined)p.design_styles=validateDesignStyles(v.design_styles);
   Object.assign(p,optionalTranslations(v,{...translationLimits,production_notes:2000}));
@@ -290,7 +291,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
     for(const l of cart) {
      const r=await one('SELECT * FROM products WHERE id=? AND status=? FOR UPDATE',[text(l,'id',64),'active'],conn);
      const qty=integer(l.qty,1,20,'quantity');if(!r) fail(422,'A bag item is unavailable.');
-     const p=product(r),variant=text(l,'variant',50);if(!p.variants.includes(variant)) fail(422,'Choose a valid product option.');
+     const p=product(r),variant=text(l,'variant',50);if(p.price_is_placeholder===true)fail(409,'This item is awaiting its final selling price.');if(!p.variants.includes(variant)) fail(422,'Choose a valid product option.');
      if((await q('UPDATE products SET stock=stock-? WHERE id=? AND stock>=?',[qty,p.id,qty],conn)).affectedRows!==1) fail(409,'There is not enough stock for '+p.title+'.');
      const design=await customerDesign(l,p,u,conn);
      if(design?.upload_id){const source=await one('SELECT * FROM uploads WHERE id=?',[design.upload_id],conn);if(!source)fail(409,'Personal artwork unavailable.');await readArtwork(c.uploadDir,source);}
@@ -490,7 +491,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
     const image=await one('SELECT * FROM uploads WHERE id=?',[String(req.query.id||'')]);if(!image)fail(404,'Artwork not found.');
     const bytes=await readArtwork(c.uploadDir,image);await audit(u,'artwork.original_download',image.id);return res.attachment(image.id+(image.mime==='image/png'?'.png':'.jpg')).type(image.mime).send(bytes);
    }
-   if(method==='GET' && route==='admin') return res.json({products:await reviewedProducts(db,await products(true)),users:(await q('SELECT * FROM users ORDER BY created_at DESC')).map(safeUser),orders:(await q('SELECT * FROM orders ORDER BY created_at DESC')).map(order),messages:(await q('SELECT * FROM messages ORDER BY created_at DESC')).map(({data,...r})=>({...json(data),...r})),settings:collectionSettings(await settings(),await products(true)),audit:await q('SELECT * FROM audit_log ORDER BY created_at DESC LIMIT 30')});
+   if(method==='GET' && route==='admin') return res.json({products:await reviewedProducts(db,await products(true)),users:(await q('SELECT * FROM users ORDER BY created_at DESC')).map(safeUser),orders:(await q('SELECT * FROM orders ORDER BY created_at DESC')).map(order),messages:(await q('SELECT * FROM messages ORDER BY created_at DESC')).map(({data,...r})=>({...json(data),...r})),settings:collectionSettings(await settings(),await products(true)),category_pricing:categoryPricing(await settings()),audit:await q('SELECT * FROM audit_log ORDER BY created_at DESC LIMIT 30')});
    if(method==='GET' && route==='admin-system') {
     const counts=Object.fromEntries((await q("SELECT CASE WHEN m.status='queued' AND d.id IS NULL THEN 'held' ELSE m.status END AS delivery_status,COUNT(*) AS n FROM mail_queue m LEFT JOIN mail_delivery d ON d.id=m.id GROUP BY delivery_status")).map(r=>[r.delivery_status,Number(r.n)]));
     return res.json({version:'3.0.0',database:'mysql',operations:await operationsStatus(c,db),google:googleStatus(c),moyasar:moyasarStatus(c),email_verification_required:c.emailVerificationRequired,mail_enabled:c.mailEnabled,email:mailStatus(c),queued_emails:counts.queued||0,failed_emails:counts.failed||0,held_emails:counts.held||0,sending_emails:counts.sending||0,expired_emails:counts.expired||0,paid_orders:(await q('SELECT data FROM orders')).filter(o=>json(o.data).payment_status==='paid').length});
@@ -540,6 +541,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
     await db.tx(async conn=>{
      const old=await one('SELECT * FROM products WHERE id=? FOR UPDATE',[id],conn);
      preserveDetails(p,old);
+     if(status==='active'&&p.price_is_placeholder===true)fail(422,'Replace the placeholder with a reviewed selling price before publishing.');
      if(artist===u.id)await q('INSERT IGNORE INTO artists VALUES (?,?)',[u.id,JSON.stringify({id:u.id,name:u.name,initials:[...u.name].slice(0,2).join('').toUpperCase(),handle:u.id,bio:'',location:'',color:'#ded5fb'})],conn);
      await q('INSERT INTO products VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE artist_id=?,status=?,stock=?,data=?',[id,artist,status,p.stock,JSON.stringify(p),now(),artist,status,p.stock,JSON.stringify(p)],conn);await audit(u,'product.save',id,conn);
      const feedback=text(v,'review_feedback',2000,false);

@@ -1,0 +1,9 @@
+[
+  {"category":"T-shirts","price":9900,"placeholder":true},
+  {"category":"Tote bags","price":5900,"placeholder":true},
+  {"category":"Phone cases","price":6900,"placeholder":true},
+  {"category":"Art prints","price":7900,"placeholder":true},
+  {"category":"Mugs","price":4900,"placeholder":true},
+  {"category":"Stickers","price":1200,"placeholder":true},
+  {"category":"Notebooks","price":3900,"placeholder":true}
+]

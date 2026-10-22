@@ -94,7 +94,7 @@ test('owner saves exact pricing defaults and can prepare a first classified list
   await fixture.db.q('UPDATE users SET role=? WHERE id=?',['admin',owner.id]);
   await page.goto(fixture.origin+'/en/admin?tab=pricing');
   await expect(page.locator('.pricing-row')).toHaveCount(7);
-  const firstPrice=page.locator('[data-form=category-pricing] input[name="T-shirts"]');await expect(firstPrice).toHaveValue('');
+  const firstPrice=page.locator('[data-form=category-pricing] input[name="T-shirts"]');await expect(firstPrice).toHaveValue('99.00');await expect(firstPrice).toHaveAttribute('data-placeholder','true');
   await firstPrice.fill('123.45');await page.locator('[data-form=category-pricing] button[type=submit]').click();
   await expect(page.locator('[data-pricing-saved]')).toHaveText('Pricing defaults saved.');
   expect(JSON.parse((await fixture.db.one('SELECT data FROM settings WHERE id=?',['store'])).data).category_pricing.find(row=>row.category==='T-shirts').price).toBe(12345);
@@ -113,5 +113,36 @@ test('owner saves exact pricing defaults and can prepare a first classified list
   await page.goto(fixture.origin+'/en/admin?tab=system');
   await expect(page.locator('.moyasar-panel')).toContainText('Online payments remain disabled.');
   await expect(page.locator('.moyasar-panel button')).toBeDisabled();
+ }finally{await page.goto('about:blank').catch(()=>{});await fixture.close();}
+});
+
+test('placeholder defaults prepare a draft but require an entered final price before publishing',async({page})=>{
+ test.setTimeout(90000);const fixture=await googleApp();
+ try{
+  for(const table of ['products','artists'])await fixture.db.q('DELETE FROM '+table);
+  const boot=await (await page.request.get(fixture.origin+'/api.php?route=bootstrap')).json();
+  const response=await page.request.post(fixture.origin+'/api.php?route=register',{headers:{'X-CSRF-Token':boot.csrf},data:{name:'Placeholder Owner',email:'placeholder-ui@example.test',password:'Local-only placeholder owner password 123'}}),owner=(await response.json()).user;
+  await fixture.db.q('UPDATE users SET role=? WHERE id=?',['admin',owner.id]);
+  await page.goto(fixture.origin+'/en/admin?tab=products');
+  await page.locator('[data-action=edit-product]').first().click();
+  await expect(page.locator('#modal [name=price]')).toHaveValue('99.00');
+  await expect(page.locator('#modal [name=price]')).toHaveAttribute('data-placeholder','true');
+  await expect(page.locator('#modal [data-price-placeholder-note]')).toBeVisible();
+  await page.locator('#modal [name=category]').selectOption('Mugs');
+  await expect(page.locator('#modal [name=price]')).toHaveValue('49.00');
+  await page.locator('#modal [name=title]').fill('A draft with a provisional price');
+  await page.locator('#modal [name=description]').fill('This is an isolated test draft with a provisional price.');
+  await page.locator('#modal [data-form=admin-product] button[type=submit]').click();
+  await expect(page.locator('#modal')).not.toBeVisible();
+  const row=await fixture.db.one('SELECT * FROM products WHERE artist_id=?',[owner.id]);expect(row.status).toBe('pending');expect(JSON.parse(row.data).price).toBe(4900);expect(JSON.parse(row.data).price_is_placeholder).toBe(true);
+  await page.locator('[data-action=edit-product][data-id="'+row.id+'"]').click();
+  await page.locator('#modal [name=status]').selectOption('active');
+  await page.locator('#modal [data-form=admin-product] button[type=submit]').click();
+  await expect(page.locator('#modal .form-error')).toHaveText('Replace the placeholder with a reviewed selling price before publishing.');
+  await page.locator('#modal [name=price]').fill('55.00');
+  await expect(page.locator('#modal [name=price]')).toHaveAttribute('data-placeholder','false');
+  await page.locator('#modal [data-form=admin-product] button[type=submit]').click();
+  await expect(page.locator('#modal')).not.toBeVisible();
+  const saved=await fixture.db.one('SELECT * FROM products WHERE id=?',[row.id]);expect(saved.status).toBe('active');expect(JSON.parse(saved.data).price).toBe(5500);expect(JSON.parse(saved.data).price_is_placeholder).toBe(false);
  }finally{await page.goto('about:blank').catch(()=>{});await fixture.close();}
 });

@@ -1,6 +1,6 @@
 # Catalogue launch: styles, prices, homepage and payment preparation
 
-This release prepares the empty production shop for the owner's first real collection. It does not import artwork, create product listings, change selling prices, enable checkout, or turn on payment processing. Development goes to staging first; releasing to production remains deliberate.
+This release prepares the empty production shop for the owner's first real collection. It does not import artwork, create product listings, change existing selling prices, enable checkout, or turn on payment processing. The owner authorised temporary setup prices; those are explicitly marked as placeholders. Development goes to staging first; releasing to production remains deliberate.
 
 ## Browse by artwork style
 
@@ -22,9 +22,9 @@ Server storefronts no longer show the development-style workspace banner. Anonym
 
 ## Set selling prices
 
-Open **Administrator → Product pricing**. Enter the owner's prices for the seven product types in Saudi riyals, or leave an undecided price blank. No launch prices were assumed. Exact integer halalas are stored as `settings.category_pricing`; concurrent edits use `pricing_revision` and reject stale saves. Price defaults and their revision are omitted from public settings.
+Open **Administrator → Product pricing**. The owner requested temporary editable setup prices. Unconfigured categories show the following provisional defaults from `public/assets/launch-pricing.json`: T-shirts 99 SAR, tote bags 59 SAR, mugs 49 SAR, notebooks 39 SAR, phone cases 69 SAR, art prints 79 SAR and stickers 12 SAR. They are labelled **Placeholder price**, are not cost or market estimates, and do not replace any previously saved prices. Enter the owner's reviewed prices, or leave an undecided price blank. Exact integer halalas are stored as `settings.category_pricing`; concurrent edits use `pricing_revision` and reject stale saves. Saved price defaults and their revision are omitted from public settings; the static provisional examples themselves are not private information.
 
-These are defaults for new administrator listings. Saving them never rewrites existing product prices or historical order snapshots. A new listing starts with the relevant default; changing the category follows defaults until the owner manually edits its price. Existing listings retain their own price. New listings start pending, with zero availability, and an unset price can remain zero while pending. Publishing still requires a valid selling price. Review supplier costs, shipping, taxes, artist shares and the merchant's final payment fees before enabling checkout.
+These are defaults for new administrator listings. Saving them never rewrites existing product prices or historical order snapshots. A new listing starts with the relevant default; changing the category follows defaults until the owner manually edits its price. Existing listings retain their own price. New listings start pending with zero availability. Placeholder defaults carry a `price_is_placeholder` flag into new drafts. Entering a reviewed price clears that flag; publication and checkout reject it while it is still set. Legacy edits and artist resubmission preserve it. An unset price can remain zero while pending; publishing still requires a valid selling price. Review supplier costs, shipping, taxes, artist shares and the merchant's final payment fees before enabling checkout.
 
 Visible prices use the Saudi riyal sign at **U+20C1** in both languages, including when Arabic numerals are selected. A self-hosted symbol-only font fallback provides the glyph on systems that lack it. Monetary text is directionally isolated; calculations and structured-data `priceCurrency: SAR` are unchanged. See `public/assets/fonts/SAUDI-RIYAL-SOURCE.md` and its bundled licence.
 
@@ -60,7 +60,7 @@ Before a future payment release: confirm the signed agreement and enabled method
 
 ## Deployment, validation and rollback
 
-No database schema migration is needed. Styles are additive product JSON fields; price defaults are additive settings fields. Existing orders and private files are not rewritten. Backups already include these products and settings records.
+No database schema migration is needed. Styles and the placeholder-price marker are additive product JSON fields; saved price defaults are additive settings fields. Existing orders and private files are not rewritten. Backups already include these products and settings records.
 
 Run `npm run check`, the Node tests and affected desktop/mobile browser workflows. Browser checks include an empty store, style links, Arabic direction, the five actual payment image files, exact price saving, the owner's first listing and a 500-product discovery fixture. Use `PLAYWRIGHT_BASE_URL` to choose a separate local server port if necessary. Review the homepage and footer screenshots before promotion. Deploy the tested commit to staging and verify the exact revision; keep production's catalogue and credentials separate.
 

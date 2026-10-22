@@ -130,3 +130,5 @@ html[lang=ar] .style-card-copy>strong{letter-spacing:0}
 @media(prefers-reduced-motion:reduce){.style-artwork,.everyday-edit-scene img,.home-product-types img,.home-product-types .product-photo{transition:none}}
 
 .moyasar-panel{margin-top:25px}.moyasar-panel h2{font-size:22px}.moyasar-panel>p{margin-block:15px}.moyasar-panel ol{padding-inline-start:23px;color:#666;line-height:1.9}.moyasar-panel code{display:block;overflow-wrap:anywhere;margin-block:15px}.moyasar-panel form{margin-top:20px}.moyasar-panel [role=status]{margin-top:12px;font-size:13px}
+
+.pricing-row .pricing-placeholder-badge{color:#92601c;font-size:10px;font-weight:700}.pricing-row .pricing-placeholder-badge[hidden]{display:none}[data-price-placeholder-note][hidden]{display:none}

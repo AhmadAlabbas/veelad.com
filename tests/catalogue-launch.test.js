@@ -12,8 +12,8 @@ test('design classification is bilingual, stable and independent of the seven pr
  for(const value of [null,'vintage-travel',['T-shirts'],['vintage-travel','vintage-travel'],['saudi-nostalgia','vintage-travel','cinematic','playful-everyday'],['<script>']])assert.throws(()=>validateDesignStyles(value),e=>e.status===422);
 });
 
-test('unconfigured category prices stay unset and integer halalas are validated without guessed defaults',()=>{
- const initial=categoryPricing({});assert.equal(initial.length,7);assert.ok(initial.every(row=>row.price===null));
+test('temporary category defaults are explicit placeholders and integer halalas preserve owner choices',()=>{
+ const initial=categoryPricing({});assert.equal(initial.length,7);assert.ok(initial.every(row=>row.placeholder===true&&Number.isInteger(row.price)));assert.equal(initial.find(row=>row.category==='T-shirts').price,9900);assert.equal(categoryPricing({category_pricing:[{category:'T-shirts',price:null}]})[0].price,null);
  const rows=structuredClone(initial);rows[0].price=12345;
  assert.deepEqual(validateCategoryPricing(rows),rows);assert.equal(categoryPricing({category_pricing:rows})[0].price,12345);
  for(const mutation of [r=>r.pop(),r=>r[1].category=r[0].category,r=>r[0].price='12345',r=>r[0].price=123.45,r=>r[0].price=0,r=>r[0].price=100001]){
@@ -73,4 +73,21 @@ test('owner can prepare a first listing without an existing artist profile, and 
  const before=await fixture.db.one('SELECT COUNT(*) AS n FROM artists');
  assert.equal((await call('admin-product',{...draft,artist_id:'not-an-account'})).status,422);
  assert.equal((await fixture.db.one('SELECT COUNT(*) AS n FROM artists')).n,before.n);
+});
+
+test('placeholder-priced drafts cannot be published or ordered until an administrator enters a reviewed price',async()=>{
+ const pending={title:'A provisional price',description:'A local fixture with a clearly provisional selling price.',category:'Mugs',price:4900,price_is_placeholder:true,stock:5,artist_id:owner.id,status:'pending',variants:['Standard']};
+ assert.equal((await call('admin-product',pending)).status,200);
+ const rows=await fixture.db.q('SELECT * FROM products WHERE artist_id=?',[owner.id]),row=rows.find(row=>JSON.parse(row.data).title===pending.title);
+ assert.ok(row);const {price_is_placeholder,...legacy}=pending;
+ assert.equal((await call('admin-product',{...legacy,id:row.id,status:'active'})).status,422);
+ assert.equal((await fixture.db.one('SELECT status FROM products WHERE id=?',[row.id])).status,'pending');
+ // Guard imported or manually changed records as well as normal publication.
+ await fixture.db.q('UPDATE products SET status=? WHERE id=?',['active',row.id]);
+ const settings=JSON.parse((await fixture.db.one('SELECT data FROM settings WHERE id=?',['store'])).data);
+ await fixture.db.q('UPDATE settings SET data=? WHERE id=?',[JSON.stringify({...settings,checkout_enabled:true}),'store']);
+ const result=await call('checkout',{request_key:'placeholder-must-not-order',consent:true,cart:[{id:row.id,variant:'Standard',qty:1}],customer:{name:'Local owner',email:'catalogue-owner@example.test',address:'Local test address',city:'Riyadh',postal:'12345',phone:'+966500000000',country:'Saudi Arabia'}});
+ assert.equal(result.status,409);assert.equal((await fixture.db.one('SELECT stock FROM products WHERE id=?',[row.id])).stock,5);assert.equal((await fixture.db.one('SELECT COUNT(*) AS n FROM orders')).n,0);
+ assert.equal((await call('admin-product',{...pending,id:row.id,status:'active',price:5500,price_is_placeholder:false})).status,200);
+ const saved=JSON.parse((await fixture.db.one('SELECT data FROM products WHERE id=?',[row.id])).data);assert.equal(saved.price,5500);assert.equal(saved.price_is_placeholder,false);
 });
