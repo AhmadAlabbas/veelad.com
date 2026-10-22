@@ -102,8 +102,7 @@ html[lang=ar] body,html[lang=ar] input,html[lang=ar] select,html[lang=ar] textar
 .footer-payments strong{font-size:14px}.footer-payments p{font-size:11px;margin-top:6px;color:#aaa;max-width:400px}
 .footer-payments ul{list-style:none;padding:0;margin:0;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .footer-payments li{height:42px;min-width:65px;background:#fff;border-radius:4px;display:grid;place-items:center;padding:7px 11px}
-.footer-payments img{width:48px;height:27px;object-fit:contain}
-.footer-payments li:first-child{padding:0}.footer-payments li:first-child img{width:65px;height:42px}
+.footer-payments img{width:48px;height:27px;object-fit:contain;filter:grayscale(1) brightness(0)}
 html[dir=rtl] .style-card-copy .icon,html[dir=rtl] .home-questions .text-link .icon,html[dir=rtl] .everyday-edit-scene .icon{transform:scaleX(-1)}
 html[lang=ar] .home-editorial .hero-copy h1{letter-spacing:0;line-height:1.4;font-size:clamp(42px,4.6vw,63px)}
 html[lang=ar] .home-editorial .section-title h2,html[lang=ar] .home-questions h2,html[lang=ar] .home-editorial .home-creative-copy h2{letter-spacing:0;line-height:1.45}
@@ -123,7 +122,7 @@ html[lang=ar] .style-card-copy>strong{letter-spacing:0}
  .home-questions{grid-template-columns:1fr;gap:35px}.home-questions h2{font-size:30px;max-width:300px}.home-questions .text-link{margin-top:19px}.home-questions .eyebrow{font-size:9px}.home-questions summary{font-size:13px;line-height:1.7}.home-questions details p{font-size:12px}.home-questions details{padding-block:18px}
  .shop-intro.has-design-style{grid-template-columns:1fr 80px;gap:15px}.shop-intro.has-design-style .style-artwork{width:80px}.shop-intro.has-design-style h1{font-size:29px}.shop-style-nav{margin-inline:-20px;padding-inline:20px;max-width:calc(100% + 40px)}
  .catalogue-pagination{flex-direction:column;align-items:center;gap:20px}.catalogue-pagination>div{gap:4px}.catalogue-pagination>div>a:not(.btn){min-height:36px;min-width:32px}.catalogue-pagination .btn{padding-inline:10px}
- .footer-payments{display:block;padding-block:25px}.footer-payments ul{margin-top:18px;gap:7px}.footer-payments li{min-width:55px;padding-inline:9px;height:38px}.footer-payments img{width:39px;height:24px}.footer-payments li:first-child img{width:56px;height:38px}
+ .footer-payments{display:block;padding-block:25px}.footer-payments ul{margin-top:18px;gap:7px}.footer-payments li{min-width:55px;padding-inline:9px;height:38px}.footer-payments img{width:39px;height:24px}
  .pricing-row{gap:15px}.price-input{width:125px}.pricing-row strong{font-size:13px}
  html[lang=ar] .home-editorial .hero-copy h1{font-size:39px;line-height:1.5}html[lang=ar] .home-editorial .section-title h2{font-size:28px}
 }
