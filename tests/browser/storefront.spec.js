@@ -8,7 +8,8 @@ test('destination selection survives reload and language switching without chang
  try{
   await page.goto(fixture.origin+'/ar');await page.locator('[data-action=delivery-destination]').first().click();
   await expect(page.locator('#modal select[name=destination] option')).toHaveCount(249);
-  await page.locator('#modal select[name=destination]').selectOption('US');await page.locator('#modal [type=submit]').click();
+  await page.locator('#modal [data-destination-search]').fill('zzzzzz');await expect(page.locator('#modal [type=submit]')).toBeDisabled();
+  await page.locator('#modal [data-destination-search]').fill('United States');await expect(page.locator('#modal select[name=destination] option')).toHaveCount(1);await page.locator('#modal select[name=destination]').selectOption('US');await page.locator('#modal [type=submit]').click();
   await expect(page.locator('.destination-control')).toContainText('الولايات المتحدة');await expect(page.locator('html')).toHaveAttribute('lang','ar');
   await page.locator('[data-action=language-switch]').first().click();await expect(page.locator('.destination-control')).toContainText('United States');
   await page.reload();await expect(page.locator('.destination-control')).toContainText('United States');

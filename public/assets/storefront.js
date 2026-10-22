@@ -4,7 +4,7 @@ const purchaseSelections=new Map();
 let deliveryRegions=[{code:'SA',name:'Saudi Arabia',name_ar:'السعودية'},{code:'US',name:'United States',name_ar:'الولايات المتحدة'},{code:'GB',name:'United Kingdom',name_ar:'المملكة المتحدة'}];
 const deliveryRegionsReady=fetch('/assets/delivery-countries.json').then(response=>response.ok?response.json():[]).then(rows=>{if(Array.isArray(rows)&&rows.length)deliveryRegions=rows;}).catch(()=>{});
 translations.ar=Object.freeze({...translations.ar,
- 'Deliver to':'التوصيل إلى','Change destination':'تغيير وجهة التوصيل','Delivery destination':'وجهة التوصيل','Choose your destination':'اختر وجهة التوصيل','Search countries':'ابحث عن دولة','Save destination':'حفظ الوجهة',
+ 'Deliver to':'التوصيل إلى','Change destination':'تغيير وجهة التوصيل','Delivery destination':'وجهة التوصيل','Choose your destination':'اختر وجهة التوصيل','Search countries':'ابحث عن دولة','No countries found.':'ما لقينا دولة بهالاسم.','Save destination':'حفظ الوجهة',
  'Your destination is saved on this device. It is separate from your language.':'نحفظ الوجهة على جهازك، وتقدر تغيّرها بدون تغيير اللغة.',
  'Shipping availability and estimates will be confirmed before checkout.':'نوضّح توفّر التوصيل ومدته قبل إتمام الطلب.',
  'Delivery to this destination is not available yet. You can still explore the collection.':'التوصيل لهالوجهة غير متاح حاليًا. وتقدر تتصفّح التصاميم وتختار اللي يعجبك.',
@@ -142,7 +142,7 @@ document.addEventListener('focusin',event=>{if(event.target.matches('.global-sea
 document.addEventListener('input',event=>{
  if(event.target.matches('.global-search input[name=q]'))updateSearchSuggestions(event.target);
  if(event.target.matches('[data-coverage-search]')){const query=searchText(event.target.value);for(const row of event.target.closest('fieldset').querySelectorAll('[data-coverage-country]'))row.hidden=!row.dataset.coverageCountry.includes(query);}
- if(event.target.matches('[data-destination-search]')){const select=event.target.form.elements.destination,needle=searchText(event.target.value);for(const option of select.options)option.hidden=!searchText(option.textContent+' '+option.value).includes(needle);}
+ if(event.target.matches('[data-destination-search]')){const select=event.target.form.elements.destination,chosen=select.value,needle=searchText(event.target.value),matches=deliveryRegions.filter(row=>searchText(row.name+' '+row.name_ar+' '+row.code).includes(needle));select.innerHTML=matches.map(row=>`<option value="${row.code}" ${row.code===chosen?'selected':''}>${esc(localField(row,'name'))}</option>`).join('')||`<option value="" disabled>${t('No countries found.')}</option>`;event.target.form.querySelector('[type=submit]').disabled=!matches.length;}
 });
 document.addEventListener('keydown',event=>{
  const input=event.target;if(!input.matches('.global-search input[name=q]'))return;const panel=input.form.querySelector('.global-search-results');
