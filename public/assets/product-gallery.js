@@ -155,7 +155,7 @@ window.VeeladProductGallery=(()=>{
  function selectChoices(product,choices){
   const gallery=document.querySelector('.product-gallery');const state=gallery&&states.get(gallery);if(!state||state.product.id!==product.id)return;
   const image=choices?.color?.image_id||choices?.fit?.image_id;
-  const shown=product.design_studio?.placements?.shirt?.view==='shirt-back'?'back':'front';
+  const shown=product.preview_print_side==='back'||product.design_studio?.placements?.shirt?.view==='shirt-back'?'back':'front';
   const unavailable=!!(image&&choices?.side&&choices.side!==shown||choices?.color?.image_id&&choices?.fit?.image_id&&choices.color.image_id!==choices.fit.image_id);
   let notice=gallery.querySelector('.gallery-choice-notice');if(!notice){notice=document.createElement('p');notice.className='gallery-choice-notice notice small';notice.setAttribute('role','status');gallery.append(notice);}notice.hidden=!unavailable;notice.textContent=unavailable?t('An exact preview for this combination is not available. The artwork is shown; your selected options remain listed below.'):'';
   let key=unavailable?'artwork':image?'photo-'+(product.gallery_upload_ids||[]).indexOf(image):choices?.side&&choices.side!==shown?'print-'+choices.side:'primary';

@@ -51,3 +51,13 @@ test('neutral galleries show the actual artwork on models and print sides while 
   expect(errors).toEqual([]);
  }finally{await page.goto('about:blank').catch(()=>{});await fixture.close();}
 });
+
+
+test('back-print listings start with the displayed side selected without exposing private placement data',async({page})=>{
+ test.setTimeout(60000);const fixture=await storefrontApp({shirtView:'shirt-back'});
+ try{
+  await page.goto(fixture.origin+'/ar/products/p1');await expect(page.locator('[name=choice_side][value=back]')).toBeChecked();
+  await page.locator('[name=choice_side][value=front]').check();await expect(page.locator('[data-view-key=print-front]')).toHaveAttribute('aria-selected','true');
+  await page.locator('[name=choice_side][value=back]').check();await expect(page.locator('[data-view-key=primary]')).toHaveAttribute('aria-selected','true');
+ }finally{await page.goto('about:blank').catch(()=>{});await fixture.close();}
+});

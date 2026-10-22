@@ -96,7 +96,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
  api.use((req,res,next)=>req.method==='POST' && ['upload','admin-artwork-restore'].includes(req.query.route) ? upload.single('artwork')(req,res,next) : next());
  const q=db.q, one=db.one;
  const settings=async conn=> {const r=await one('SELECT data FROM settings WHERE id=?',['store'],conn);if(!r) fail(503,'Store provisioning is required.');return json(r.data);};
- const products=async (all=false,artist=null,conn)=> (await q('SELECT * FROM products'+(!all ? " WHERE status='active'" : artist ? ' WHERE artist_id=?' : '')+' ORDER BY created_at DESC,id', all&&artist ? [artist] : [],conn)).map(row=>{const p=product(row);if(!all){delete p.production_notes;delete p.design_studio;}return p;});
+ const products=async (all=false,artist=null,conn)=> (await q('SELECT * FROM products'+(!all ? " WHERE status='active'" : artist ? ' WHERE artist_id=?' : '')+' ORDER BY created_at DESC,id', all&&artist ? [artist] : [],conn)).map(row=>{const p=product(row);if(!all){if(p.category==='T-shirts'&&p.design_studio)p.preview_print_side=p.design_studio.placements?.shirt?.view==='shirt-back'?'back':'front';delete p.production_notes;delete p.design_studio;}return p;});
  const queue=(address,subject,body,conn,options)=>queueMail(c,db,address,subject,body,conn,options);
  const audit=async (u,action,target,conn)=>q('INSERT INTO audit_log VALUES (?,?,?,?,?)',[uid(),u.id,action,String(target),now()],conn);
  const state=async (id,conn)=> {const r=await one('SELECT data FROM customer_state WHERE id=?',[id],conn);return r ? json(r.data) : {cart:[],saved:[],address:[]};};

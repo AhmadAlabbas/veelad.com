@@ -52,6 +52,7 @@ test('cart state preserves separate option combinations and checkout snapshots e
  assert.equal((await fixture.db.one('SELECT stock FROM products WHERE id=?',['p1'])).stock,18);
  const edited=structuredClone(listing);edited.purchase_options.colors[1].label='Charcoal';assert.equal((await call('admin-product',edited)).status,200);
  const saved=JSON.parse((await fixture.db.one('SELECT data FROM orders WHERE id=?',[order.id])).data);assert.equal(saved.items.find(item=>item.purchase_choices.side==='back').purchase_choices.color.label,'Black');
+ edited.design_studio.placements.shirt.view='shirt-back';assert.equal((await call('admin-product',edited)).status,200);const publicListing=(await call('bootstrap')).body.products.find(row=>row.id==='p1');assert.equal(publicListing.preview_print_side,'back');assert.equal(publicListing.design_studio,undefined);
 });
 test('configured shipping coverage rejects unsupported destinations without consuming stock',async()=>{
  const settings=JSON.parse((await fixture.db.one('SELECT data FROM settings WHERE id=?',['store'])).data);settings.shipping_countries=['US'];await fixture.db.q('UPDATE settings SET data=? WHERE id=?',[JSON.stringify(settings),'store']);
