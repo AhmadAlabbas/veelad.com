@@ -40,6 +40,7 @@ test('neutral galleries show the actual artwork on models and print sides while 
   for(const language of ['en','ar']){
    await page.goto(fixture.origin+'/'+language+'/products/p1');
    await expect(page.locator('[data-view-key=model-one]')).toBeVisible();await expect(page.locator('[data-view-key=model-two]')).toBeVisible();
+   if(info.project.name==='mobile')expect((await page.locator('.gallery-stage').boundingBox()).y).toBeLessThan(550);
    await page.locator('[data-view-key=model-one]').click();const image=page.locator('.gallery-panel:not([hidden]) img');await expect.poll(()=>image.evaluate(el=>el.complete&&el.naturalWidth===1000)).toBe(true);
    await expect(page.locator('.gallery-caption')).toContainText(language==='ar'?'غير معتمدة':'not supplier verified');
    await page.locator('[name=choice_side][value=front]').check();await page.locator('[name=choice_side][value=back]').check();await expect(page.locator('[data-view-key=print-back]')).toHaveAttribute('aria-selected','true');

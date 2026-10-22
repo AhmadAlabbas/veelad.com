@@ -61,7 +61,7 @@ test('five hundred products are paginated and style filters survive sorting, cat
    await page.locator('.shop-style-nav a[href*="style=vintage-travel"]').click();
    expect(new URL(page.url()).searchParams.has('page')).toBe(false);
    await expect(page.locator('.catalogue-pagination')).toContainText('250');
-   await page.locator('.chips a[href*="category=Mugs"]').click();
+   await page.locator((info.project.name==='mobile'?'.chips':'.product-navigation')+' a[href*="category=Mugs"]').click();
    expect(new URL(page.url()).searchParams.get('style')).toBe('vintage-travel');
    expect(new URL(page.url()).searchParams.get('category')).toBe('Mugs');
    for(const label of await page.locator('.product-card .category-label').allTextContents())expect(label).toBe(language==='ar'?'أكواب':'Mugs');

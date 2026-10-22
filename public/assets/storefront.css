@@ -117,3 +117,26 @@ html[lang=ar] .global-nav .wordmark{font-family:Manrope,sans-serif;letter-spacin
 @media(min-width:1201px){.global-categories .illustrated-navigation{font-size:11px}.global-categories .navigation-heading{font-size:11px}.navigation-art{width:37px;height:37px}.navigation-more{font-size:10px}}
 
 @media(max-width:760px){.destination-flag{width:21px;height:16px}}
+
+/* Keep browsing controls compact and show the product before gallery shortcuts. */
+.discovery-page{padding-top:24px}
+.discovery-page>.breadcrumb{padding-block:8px}
+.discovery-page .shop-intro{padding-block:16px 22px}
+.discovery-page .shop-intro h1{font-size:36px}
+.discovery-page .shop-style-nav{padding-block:8px 12px;margin-bottom:4px}
+@media(min-width:761px){.discovery-page>.chips{display:none}}
+@media(max-width:760px){
+ .product-page .breadcrumb{padding-block:0;margin-block:12px;line-height:1.5}
+ .product-page .product-layout{gap:18px}
+ .product-page .product-identity h1{margin-block:8px}
+ .product-page .product-price{margin-block:9px 4px}
+ .product-gallery{display:flex;flex-direction:column}
+ .product-gallery .gallery-stage{order:0}
+ .product-gallery .product-thumbs{order:1}
+ .product-gallery .gallery-purpose-nav{order:2;margin-block:10px 0}
+ .product-gallery .gallery-caption{order:3}
+ .discovery-page{padding-top:15px}
+ .discovery-page .shop-intro{padding-block:12px 18px}
+ .discovery-page .shop-intro h1{font-size:30px}
+ .discovery-page .shop-style-nav{margin-inline:-18px;padding-inline:18px;max-width:calc(100% + 36px);margin-bottom:8px}
+}

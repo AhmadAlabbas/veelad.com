@@ -24,9 +24,9 @@ test('shopping navigation and filters preserve search, category and gift selecti
  await form.locator('[name=artist]').selectOption('artist-1');await form.locator('[name=max]').selectOption('150');await form.locator('[name=sort]').selectOption('low');
  await form.locator('[type=submit]').click();await expect(page.locator('#modal')).not.toBeVisible();
  await expect(page).toHaveURL(/artist=artist-1/);await expect(page).toHaveURL(/tag=gifts/);
- await page.locator('.chips').getByRole('link',{name:'Art prints',exact:true}).click();
+ await page.locator(mobile(page)?'.chips':'.product-navigation').getByRole('link',{name:'Art prints',exact:true}).click();
  await expect(page).toHaveURL(/category=Art\+prints/);await expect(page).toHaveURL(/artist=artist-1/);await expect(page).toHaveURL(/max=150/);await expect(page).toHaveURL(/q=Sun/);await expect(page).toHaveURL(/tag=gifts/);
- await page.locator('.chips').getByRole('link',{name:'T-shirts',exact:true}).click();await expect(page.locator('.product-card')).toHaveCount(1);
+ await page.locator(mobile(page)?'.chips':'.product-navigation').getByRole('link',{name:'T-shirts',exact:true}).click();await expect(page.locator('.product-card')).toHaveCount(1);
  await page.getByRole('button',{name:'Remove Mira Studio filter',exact:true}).click();await expect(page).not.toHaveURL(/artist=/);await expect(page).toHaveURL(/max=150/);
  await page.getByRole('button',{name:'Clear filters',exact:true}).click();await expect(page).not.toHaveURL(/category=|max=|tag=/);await expect(page).toHaveURL(/q=Sun/);await noOverflow(page);
 });
