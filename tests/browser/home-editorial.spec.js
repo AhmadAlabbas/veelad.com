@@ -32,7 +32,7 @@ test('editorial home uses real catalogue destinations and campaign images in Eng
    const image=page.locator(selector);
    await image.scrollIntoViewIfNeeded();
    await expect.poll(()=>image.evaluate(element=>element.complete&&element.naturalWidth>=1000&&element.naturalHeight>=600)).toBeTruthy();
-   await expect(image).toHaveAttribute('src',/^\/assets\/lifestyle\/(everyday-people|creative-studio|homepage-editorial)\.webp$/);
+   await expect(image).toHaveAttribute('src',/^\/assets\/lifestyle\/(everyday-people|creative-studio|homepage-editorial)\.webp\?v=veelad-neutral-2$/);
    await expect(image.locator('..').locator('figcaption')).toContainText(language==='ar'?'الذكاء الاصطناعي':'AI-generated');
   }
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBeTruthy();
