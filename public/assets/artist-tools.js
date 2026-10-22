@@ -16,7 +16,7 @@ function artistListingForm(p=null) {
  <p class="small full">${t('Add up to 12 tags per language, up to 50 characters each.')}</p>
  <label class="field">${t('Preferred product type')}<select name="category">${cats.map(c=>`<option value="${esc(c)}" ${p?.category===c||(!p&&c==='Art prints')?'selected':''}>${esc(t(c))}</option>`).join('')}</select></label>
  <label class="field full">${t('Private production notes')}<textarea name="production_notes" maxlength="2000" placeholder="${esc(t('Share placement preferences or printing instructions for the Veelad team.'))}">${esc(p?.production_notes||'')}</textarea></label>
- </div>${galleryUploadFields(p||{})}
+ </div>${designStyleFields(p)}${galleryUploadFields(p||{})}
  <p class="small">${t('Veelad sets retail pricing, product options and availability after reviewing the design. Your artist share is based on the approved product price; projections are not payable balances.')}</p>
  <p class="small">${t('Drafts and submissions are private. Administrator approval publishes a listing. Saving a published listing as a draft pauses it.')}</p>
  <label class="check"><input type="checkbox" name="rights" required>${t('I created this artwork or hold the rights needed to sell it.')}</label>

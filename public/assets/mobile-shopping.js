@@ -24,13 +24,13 @@ function openShoppingSheet(title,body) {
  openModal(title,body);document.querySelector('#modal').classList.add('shopping-sheet');
 }
 function shoppingMenu() {
- return `<nav class="shopping-menu" aria-label="${t('Shopping menu')}"><div class="menu-shortcuts">${link(icon('bag')+t('Your bag'),'bag')}${link(icon('heart')+t('Saved designs'),'saved')}${link(icon('user')+(user?t('Your account'):t('Sign in')),user?'account':'login')}${link(icon('truck')+t('Track an order'),'track')}</div><h4>${t('Shop by category')}</h4><div class="menu-categories">${link(t('Explore all products')+' '+icon('arrow'),'shop')}${cats.map(category=>link(esc(t(category))+' '+icon('arrow'),'shop','',{category})).join('')}</div><div class="menu-help">${link(t('Create your own'),'create')}${user?link(t('My Designs'),'my-designs'):''}${link(t('Meet the artists'),'artists')}${link(t('Sell your art'),'sell')}${link(t('Help & contact'),'help')}</div></nav>`;
+ return `<nav class="shopping-menu" aria-label="${t('Shopping menu')}"><div class="menu-shortcuts">${link(icon('bag')+t('Your bag'),'bag')}${link(icon('heart')+t('Saved designs'),'saved')}${link(icon('user')+(user?t('Your account'):t('Sign in')),user?'account':'login')}${link(icon('truck')+t('Track an order'),'track')}</div><h4>${t('Design styles')}</h4><div class="menu-styles">${designStyles.map(style=>link(esc(localField(style,'title')),'shop','',{style:style.id})).join('')}</div><h4>${t('Shop by category')}</h4><div class="menu-categories">${link(t('Explore all products')+' '+icon('arrow'),'shop')}${cats.map(category=>link(esc(t(category))+' '+icon('arrow'),'shop','',{category})).join('')}</div><div class="menu-help">${link(t('Create your own'),'create')}${user?link(t('My Designs'),'my-designs'):''}${link(t('Meet the artists'),'artists')}${link(t('Sell your art'),'sell')}${link(t('Help & contact'),'help')}</div></nav>`;
 }
 function shopCategoryParams(category) {
- const values=Object.fromEntries(params);delete values.category;if(category)values.category=category;return values;
+ const values=Object.fromEntries(params);delete values.category;delete values.page;if(category)values.category=category;return values;
 }
 function activeShopFilters() {
- const filters=[];
+ const filters=[];const style=designStyles.find(row=>row.id===params.get('style'));if(style)filters.push(['style',localField(style,'title')]);
  const category=params.get('category'),artistId=params.get('artist'),max=params.get('max'),tag=params.get('tag');
  if(category)filters.push(['category',t(category)]);
  if(artistId)filters.push(['artist',localField(artist(artistId),'name')]);
@@ -47,7 +47,7 @@ function openShopFilters() {
  const form=original.cloneNode(true);form.className='shopping-filter-form';form.querySelector('.results-count')?.remove();form.querySelector('button[type=submit]')?.remove();
  const category=form.querySelector('[name=category]');const value=category.value;
  category.outerHTML=`<select name="category" aria-label="${t('Filter by category')}"><option value="">${t('All categories')}</option>${cats.map(c=>`<option value="${esc(c)}" ${value===c?'selected':''}>${esc(t(c))}</option>`).join('')}</select>`;
- const labels={category:'Category',artist:'Artist',max:'Maximum price',sort:'Sort by',availability:'Availability'};
+ const labels={style:'Design style',category:'Category',artist:'Artist',max:'Maximum price',sort:'Sort by',availability:'Availability'};
  const minimum=form.querySelector('[name=min]');if(minimum){const label=document.createElement('label');label.className='field';label.textContent=t('Minimum price (SAR)');minimum.replaceWith(label);label.append(minimum);}
  for(const select of [...form.querySelectorAll('select')]){
   const field=document.createElement('label');field.className='field';field.textContent=t(labels[select.name]||select.name);
@@ -76,9 +76,9 @@ document.addEventListener('click',event=>{
   const values=Object.fromEntries(params);delete values[control.dataset.key];go('shop',values);
  }
  if(action==='clear-shop-filters'){
-  const values=Object.fromEntries(params);for(const key of ['category','artist','min','max','tag','availability'])delete values[key];go('shop',values);
+  const values=Object.fromEntries(params);for(const key of ['category','style','artist','min','max','tag','availability','page'])delete values[key];go('shop',values);
  }
  if(action==='reset-sheet-filters'){
-  const form=control.closest('form');for(const [key,value] of Object.entries({category:'',artist:'',max:'1000',sort:'featured',tag:'',min:'',availability:''})){const field=form.elements.namedItem(key);if(field)field.value=value;}
+  const form=control.closest('form');for(const [key,value] of Object.entries({category:'',style:'',artist:'',max:'1000',sort:'featured',tag:'',min:'',availability:''})){const field=form.elements.namedItem(key);if(field)field.value=value;}
  }
 });

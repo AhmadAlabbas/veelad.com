@@ -60,5 +60,5 @@ export function pageText(language,key,values={}) {
  return source.replace(/\{([a-zA-Z][a-zA-Z0-9_]*)\}/g,(token,name)=>Object.hasOwn(values,name)?String(values[name]??''):token);
 }
 export function pageMoney(value,language,numberingSystem='latn') {
- return new Intl.NumberFormat(language==='ar'?'ar-SA':'en',{style:'currency',currency:'SAR',numberingSystem}).format(Number(value)/100);
+ return '\u2066\u20c1\u00a0'+new Intl.NumberFormat(language==='ar'?'ar-SA':'en',{numberingSystem,minimumFractionDigits:0,maximumFractionDigits:2}).format(Number(value)/100)+'\u2069';
 }

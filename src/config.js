@@ -20,6 +20,7 @@ export function config(env = process.env) {
   try {revision ||= JSON.parse(fs.readFileSync(new URL('../.release.json',import.meta.url),'utf8')).revision;} catch {}
   return {mode, origin, secret, secure, trustProxy, revision, numberingSystem, marketplaceEnabled:mode!=='production'||env.PRODUCTION_MARKETPLACE_ENABLED==='true',
     google:{enabled:env.GOOGLE_AUTH_ENABLED==='true',clientId:env.GOOGLE_CLIENT_ID?.trim(),clientSecret:env.GOOGLE_CLIENT_SECRET?.trim()},
+    moyasar:{testEnabled:env.MOYASAR_TEST_ENABLED==='true',testSecretKey:env.MOYASAR_TEST_SECRET_KEY?.trim()},
     emailVerificationRequired:env.EMAIL_VERIFICATION_REQUIRED==='true',
     port:Number(env.PORT || 3000), uploadDir:path.resolve(env.UPLOAD_DIR || 'var/uploads'),
     cookieName:secure ? '__Host-veelad_session' : 'veelad_session',

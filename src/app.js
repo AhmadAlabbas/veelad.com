@@ -26,6 +26,8 @@ import {customerDraftRoute} from './customer-drafts.js';
 import {queueMail,mailStatus,recipientAllowed,checkMail,safeMailError} from './mail.js';
 import {createProductGallery} from './product-gallery.js';
 import {collectionSettings,validateCollections} from './curated-collections.js';
+import {designStyles,validateDesignStyles,validateCategoryPricing,publicStoreSettings} from './catalogue.js';
+import {moyasarStatus,checkMoyasar} from './moyasar.js';
 const publicDir=fileURLToPath(new URL('../public',import.meta.url));
 const categories=['T-shirts','Tote bags','Phone cases','Art prints','Mugs','Stickers','Notebooks'];
 function readinessCode(error,fallback='DATABASE_UNAVAILABLE') {
@@ -111,7 +113,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
  function preserveDetails(p,old) {
   if(!old) return;
   const previous=json(old.data);
-  for(const key of [...Object.keys(detailLimits),...Object.keys(translationLimits),'production_notes','print_formats','tags','tags_ar','gallery_upload_ids','design_studio','mockup_upload_id','customer_customizable','collection_id','design_group','story','story_ar','artwork_attribution','sample_pricing','stock_is_simulated']) if(p[key]===undefined && previous[key]!==undefined) p[key]=previous[key];
+  for(const key of [...Object.keys(detailLimits),...Object.keys(translationLimits),'production_notes','print_formats','tags','tags_ar','design_styles','gallery_upload_ids','design_studio','mockup_upload_id','customer_customizable','collection_id','design_group','story','story_ar','artwork_attribution','sample_pricing','stock_is_simulated']) if(p[key]===undefined && previous[key]!==undefined) p[key]=previous[key];
   if(previous.upload_id===p.upload_id&&previous.artwork_metadata!==undefined)p.artwork_metadata=previous.artwork_metadata;
   if(p.design_studio?.artwork_id!==(p.upload_id||null)){delete p.design_studio;delete p.mockup_upload_id;}
   if(!mockupMatches(p.mockup_upload_id,p.upload_id,p.category,p.design_studio))delete p.mockup_upload_id;
@@ -148,6 +150,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
   const p={title:text(v,'title',100,!draft),category,price:artistSubmission?0:integer(v.price,draft||v.status&&v.status!=='active'?0:100,100000,'price'),stock:artistSubmission?0:integer(v.stock??50,0,100000,'stock'),description:text(v,'description',2000,!draft),variants:options,royalty_percent:20,badge:'New',sheet:integer(v.sheet??0,0,1,'sheet'),cell:integer(v.cell??0,0,5,'cell')};
   if(!artistSubmission&&v.customer_customizable!==undefined){if(typeof v.customer_customizable!=='boolean')fail(422,'Please check customer customization.');p.customer_customizable=v.customer_customizable;}
   Object.assign(p,optionalDetails(v,detailLimits));
+  if(v.design_styles!==undefined)p.design_styles=validateDesignStyles(v.design_styles);
   Object.assign(p,optionalTranslations(v,{...translationLimits,production_notes:2000}));
   if(v.print_formats!==undefined) {
    if(!Array.isArray(v.print_formats)||v.print_formats.length>categories.length||v.print_formats.some(format=>!categories.includes(format))) fail(422,'Choose supported print formats.');
@@ -193,7 +196,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
  }
  api.all('/',async (req,res)=>{
   const route=req.baseUrl==='/auth/google/callback'?'google-callback':String(req.query.route||'bootstrap'),method=req.method,v=payload(req);
-  if(method==='GET' && route==='bootstrap') {const u=await me(req),locale=u?(await state(u.id)).user_locale:null,googleReturn=req.session.google_login_complete===true;delete req.session.google_login_complete;return res.json({mode:'server',authentication:await authenticationStatus(c,db,u),auth_event:googleReturn?'google-login':null,csrf:req.session.csrf,user:u ? safeUser(u) : null,locale:['ar','en'].includes(locale)?locale:null,products:await products(),artists:await publicArtists(db),settings:collectionSettings(await settings(),await products(),{publicOnly:true}),email_delivery:{available:mailStatus(c).ready,staging_restricted:c.mode==='staging'}});}
+  if(method==='GET' && route==='bootstrap') {const u=await me(req),locale=u?(await state(u.id)).user_locale:null,googleReturn=req.session.google_login_complete===true;delete req.session.google_login_complete;return res.json({mode:'server',authentication:await authenticationStatus(c,db,u),auth_event:googleReturn?'google-login':null,csrf:req.session.csrf,user:u ? safeUser(u) : null,locale:['ar','en'].includes(locale)?locale:null,products:await products(),artists:await publicArtists(db),design_styles:designStyles,settings:publicStoreSettings(collectionSettings(await settings(),await products(),{publicOnly:true})),email_delivery:{available:mailStatus(c).ready,staging_restricted:c.mode==='staging'}});}
   if(method==='POST' && route==='language-preference') {
    const u=await me(req,true);if(!['ar','en'].includes(v.locale))fail(422,'Choose Arabic or English.');
    await db.tx(async conn=>{await q('SELECT id FROM users WHERE id=? FOR UPDATE',[u.id],conn);const s=await state(u.id,conn);s.user_locale=v.locale;await putState(u.id,s,conn);});return res.json({ok:true,locale:v.locale});
@@ -490,7 +493,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
    if(method==='GET' && route==='admin') return res.json({products:await reviewedProducts(db,await products(true)),users:(await q('SELECT * FROM users ORDER BY created_at DESC')).map(safeUser),orders:(await q('SELECT * FROM orders ORDER BY created_at DESC')).map(order),messages:(await q('SELECT * FROM messages ORDER BY created_at DESC')).map(({data,...r})=>({...json(data),...r})),settings:collectionSettings(await settings(),await products(true)),audit:await q('SELECT * FROM audit_log ORDER BY created_at DESC LIMIT 30')});
    if(method==='GET' && route==='admin-system') {
     const counts=Object.fromEntries((await q("SELECT CASE WHEN m.status='queued' AND d.id IS NULL THEN 'held' ELSE m.status END AS delivery_status,COUNT(*) AS n FROM mail_queue m LEFT JOIN mail_delivery d ON d.id=m.id GROUP BY delivery_status")).map(r=>[r.delivery_status,Number(r.n)]));
-    return res.json({version:'3.0.0',database:'mysql',operations:await operationsStatus(c,db),google:googleStatus(c),email_verification_required:c.emailVerificationRequired,mail_enabled:c.mailEnabled,email:mailStatus(c),queued_emails:counts.queued||0,failed_emails:counts.failed||0,held_emails:counts.held||0,sending_emails:counts.sending||0,expired_emails:counts.expired||0,paid_orders:(await q('SELECT data FROM orders')).filter(o=>json(o.data).payment_status==='paid').length});
+    return res.json({version:'3.0.0',database:'mysql',operations:await operationsStatus(c,db),google:googleStatus(c),moyasar:moyasarStatus(c),email_verification_required:c.emailVerificationRequired,mail_enabled:c.mailEnabled,email:mailStatus(c),queued_emails:counts.queued||0,failed_emails:counts.failed||0,held_emails:counts.held||0,sending_emails:counts.sending||0,expired_emails:counts.expired||0,paid_orders:(await q('SELECT data FROM orders')).filter(o=>json(o.data).payment_status==='paid').length});
    }
    if(method==='POST' && route==='admin-storage-check') {await throttle(req,'operations',5);await audit(u,'storage.check','private');const result=await probeStorage(c,db);app.locals.operations ||= {};app.locals.operations.storage=result;return res.json({ok:result.ready,storage:result});}
    if(method==='GET' && route==='admin-missing-artwork') {
@@ -518,12 +521,26 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
     try {return res.json(await mailCheck(c,v.action,address));}
     catch(error) {return res.status(502).json({error:'Email check failed: '+safeMailError(error)+'. Check private SMTP settings and provider status.'});}
    }
+   if(method==='POST' && route==='admin-moyasar-check') {
+    await throttle(req,'moyasar-check',4);
+    await audit(u,'moyasar.test_check','provider');
+    return res.json(await checkMoyasar(c));
+   }
+   if(method==='POST' && route==='admin-category-pricing') {
+    await db.tx(async conn=>{
+     const row=await one('SELECT data FROM settings WHERE id=? FOR UPDATE',['store'],conn),s=json(row.data);
+     if(v.revision!==(s.pricing_revision||0))fail(409,'Prices changed in another tab. Reload before saving.');
+     s.category_pricing=validateCategoryPricing(v.prices);s.pricing_revision=(s.pricing_revision||0)+1;
+     await q('UPDATE settings SET data=? WHERE id=?',[JSON.stringify(s),'store'],conn);await audit(u,'pricing.defaults.save','store',conn);
+    });return res.json({ok:true});
+   }
    if(method==='POST' && route==='admin-product') {
     const p=await validProduct(v,req),id=v.id?text(v,'id',64):uid('p-'),artist=text(v,'artist_id',64),status=v.status??'active';
-    if(!await one('SELECT id FROM artists WHERE id=?',[artist])) fail(422,'Choose a valid artist.');if(!['active','pending','changes_requested','archived'].includes(status)) fail(422,'Invalid product status.');
+    if(artist!==u.id&&!await one('SELECT id FROM artists WHERE id=?',[artist])) fail(422,'Choose a valid artist.');if(!['active','pending','changes_requested','archived'].includes(status)) fail(422,'Invalid product status.');
     await db.tx(async conn=>{
      const old=await one('SELECT * FROM products WHERE id=? FOR UPDATE',[id],conn);
      preserveDetails(p,old);
+     if(artist===u.id)await q('INSERT IGNORE INTO artists VALUES (?,?)',[u.id,JSON.stringify({id:u.id,name:u.name,initials:[...u.name].slice(0,2).join('').toUpperCase(),handle:u.id,bio:'',location:'',color:'#ded5fb'})],conn);
      await q('INSERT INTO products VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE artist_id=?,status=?,stock=?,data=?',[id,artist,status,p.stock,JSON.stringify(p),now(),artist,status,p.stock,JSON.stringify(p)],conn);await audit(u,'product.save',id,conn);
      const feedback=text(v,'review_feedback',2000,false);
      if(status==='changes_requested'&&!feedback) fail(422,'Explain the changes the artist needs to make.');

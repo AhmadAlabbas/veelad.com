@@ -53,7 +53,7 @@ test('tap options and bounded cart controls preserve scroll and support narrow-s
  await noOverflow(page);await expect(page.locator('.summary-action')).toBeVisible();
  await page.locator('.summary-action').getByRole('link',{name:/checkout/i}).click();await expect(page.locator('#checkout-form')).toBeVisible();await noOverflow(page);
  await page.locator('button[form=checkout-form]').click();await expect(page.locator('#checkout-form [name=name]')).toBeFocused();
- await expect(page.locator('.summary-action')).toContainText('SAR');
+ await expect(page.locator('.summary-action')).toContainText('\u20c1');
  if(mobile(page))await expect(page.getByRole('navigation',{name:'Mobile shopping'})).not.toBeVisible();
  await page.goto('/#/bag');await expect(page.locator('.cart-quantity')).toHaveText('1');await page.getByRole('button',{name:/Remove Sun & Sea/}).click();await expect(page.locator('main')).toContainText('Your bag is empty.');
 });
@@ -97,7 +97,7 @@ for(const width of [320,390])test(`mobile product choices stay visible and reach
  await page.locator('.product-purchase [type=submit]').click();await expect(page.locator('#modal')).toBeVisible();
  await page.locator('#modal a[href="/ar/bag"]').click();
  await expect(page.locator('.bag-item')).toHaveCount(1);await expect(page.locator('.bag-item')).toContainText('XL');
- await expect(page.locator('.bag-item')).toContainText('115');await expect(page.locator('.bag-item')).toContainText('ر.س.');
+ await expect(page.locator('.bag-item')).toContainText('115');await expect(page.locator('.bag-item')).toContainText('\u20c1');
  expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('veelad-v2-cart')))).toEqual([{key:'p1::XL',id:'p1',variant:'XL',qty:1}]);
  await noOverflow(page);expect(errors).toEqual([]);
 });
