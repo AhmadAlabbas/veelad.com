@@ -55,6 +55,12 @@ test("layered workspace keeps multiple originals and independent sides through e
     fixture = await googleApp({ uploadDir: folder }),
     errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
+  const cartRequests=[];
+  page.on('request',request=>{
+    if(request.method()==='POST'&&new URL(request.url()).searchParams.get('route')==='state'){
+      const body=request.postDataJSON();if(Array.isArray(body?.cart))cartRequests.push(body.cart);
+    }
+  });
   try {
     const row = await fixture.db.one("SELECT data FROM products WHERE id=?", [
       "p1",
@@ -241,6 +247,8 @@ test("layered workspace keeps multiple originals and independent sides through e
       new Set([...firstImages, ...back.layers].map((layer) => layer.upload_id)),
     );
     await expect(page.locator("#modal")).toBeVisible();
+    expect(cartRequests.some(lines=>lines.some(line=>line.customization_id===saved.customization_id))).toBe(true);
+    for(const lines of cartRequests)for(const line of lines){expect(line).not.toHaveProperty('customization');expect(line).not.toHaveProperty('design_studio');}
     await page.locator('#modal [data-action=close-modal]').click();
 
     // Copying between print sides protects an existing design and is undoable.
