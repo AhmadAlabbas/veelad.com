@@ -100,10 +100,10 @@ test('payout details require identity confirmation and return only masked bank i
  try{
   const partner=await account(fixture,{id:'partners-browser-payee',name:'Browser payee',email:'partners-payee@example.test'});
   await fixture.db.q('INSERT INTO partners_profiles VALUES (?,?,?,?,?,?)',[partner.id,'approved',null,JSON.stringify({name:partner.name,locale:'en',email_commissions:false}),now(),now()]);
-  await login(page,fixture,partner.email,'partners/dashboard');await page.goto(fixture.origin+'/en/partners/payouts');
+  await login(page,fixture,partner.email,'partners/dashboard');await page.goto(fixture.origin+'/ar/partners/payouts');
   await page.locator('.partner-payout-grid details summary').click();const bank=page.locator('[data-partner-form=bank]');await expect(bank).toBeVisible();
   await bank.locator('[name=holder]').fill('Browser payee');await bank.locator('[name=iban]').fill('SA0380000000608010167519');await bank.locator('[name=current_password]').fill('Wrong isolated password');await bank.locator('button').click();
-  await expect(bank.locator('[role=alert]')).toBeVisible();expect(await fixture.db.one('SELECT user_id FROM partners_bank_accounts WHERE user_id=?',[partner.id])).toBe(null);
+  await expect(bank.locator('[role=alert]')).toContainText('أدخل كلمة مرور حسابك الحالية');expect(await fixture.db.one('SELECT user_id FROM partners_bank_accounts WHERE user_id=?',[partner.id])).toBe(null);
   await bank.locator('[name=current_password]').fill(password);await bank.locator('button').click();
   await expect.poll(async()=>!!await fixture.db.one('SELECT user_id FROM partners_bank_accounts WHERE user_id=?',[partner.id])).toBe(true);
   await expect(page.locator('.partners-page')).toContainText('7519');await expect(page.locator('.partners-page')).not.toContainText('SA0380000000608010167519');
