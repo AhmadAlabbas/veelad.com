@@ -173,7 +173,7 @@ Keep these values in the selected environment's private Hostinger settings. Do n
 
 | Variable | Initial setting | Purpose |
 | --- | --- | --- |
-| `PARTNERS_ENABLED` | `false` | Deployment-level program gate. Enable only for a reviewed environment. |
+| `PARTNERS_ENABLED` | Unset enables staging review only; other environments default off | Deployment-level program gate. Explicit `false` disables staging too; production requires explicit `true` after launch approval. Finance permissions, encryption and product eligibility remain separate requirements. |
 | `PARTNERS_PAYOUT_ENCRYPTION_KEY` | Unset until finance setup | Dedicated base64-encoded 32-byte AES-256-GCM key for bank details and transfer receipts. No session-secret fallback. |
 | `PARTNERS_FINANCE_ADMIN_IDS` | Empty | Comma-separated existing administrator account IDs explicitly allowed to manage financial settings, payout evidence and controlled bank exports. |
 
