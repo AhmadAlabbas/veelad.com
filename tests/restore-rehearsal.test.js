@@ -37,7 +37,7 @@ test('actual encrypted backup restores every row and artwork byte in temporary t
   const original=Object.fromEntries(await Promise.all(backupTables.map(async table=>[table,canonicalRows(await f.db.q('SELECT * FROM '+table))]))),sql=[];
   const guarded={...f.db,q:async(query,args,conn)=>{assert.equal(/^DROP TABLE/i.test(query),false);if(/TEMPORARY TABLE/.test(query))sql.push(query);return f.db.q(query,args,conn);}};
   const result=await rehearseBackup(f.c,guarded,f.backup);assert.equal(result.status,'success');assert.equal(result.complete,true);assert.equal(result.table_count,backupTables.length);assert.equal(result.artwork_count,1);assert.equal(result.temporary_targets_removed,true);assert.equal(result.offsite_confirmed,false);assert.equal(result.scope,'same_server_temporary_restore');
-  assert.equal(sql.filter(query=>query.startsWith('CREATE TEMPORARY TABLE')).length,18);assert.equal(sql.filter(query=>query.startsWith('DROP TEMPORARY TABLE')).length,18);
+  assert.equal(sql.filter(query=>query.startsWith('CREATE TEMPORARY TABLE')).length,backupTables.length);assert.equal(sql.filter(query=>query.startsWith('DROP TEMPORARY TABLE')).length,backupTables.length);
   for(const table of backupTables)assert.deepEqual(canonicalRows(await f.db.q('SELECT * FROM '+table)),original[table]);
   assert.deepEqual(await fs.readFile(path.join(f.c.uploadDir,'original.png')),f.bytes);assert.equal((await fs.readdir(f.c.backupDir)).some(name=>name.startsWith('.restore-rehearsal-')),false);
   sql.length=0;assert.deepEqual(await rehearseBackup(f.c,guarded,f.backup),result);assert.equal(sql.length,0,'The same artifact/schema proof is reused without another temporary restore');

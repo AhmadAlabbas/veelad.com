@@ -30,6 +30,9 @@ import {collectionSettings,validateCollections} from './curated-collections.js';
 import {designStyles,validateDesignStyles,categoryPricing,validateCategoryPricing,publicStoreSettings} from './catalogue.js';
 import {moyasarStatus,checkMoyasar} from './moyasar.js';
 import {deliveryCountries,deliveryCountry,validatePurchaseOptions,resolvePurchaseOptions} from './storefront-options.js';
+import {partnerRoute,partnerReferral,resolvePartnerAttribution} from './partners.js';
+import {partnerPayoutRoute} from './partners-payouts.js';
+import {capturePartnerOrder,syncPartnerOrder} from './partners-finance.js';
 const publicDir=fileURLToPath(new URL('../public',import.meta.url));
 const categories=['T-shirts','Tote bags','Phone cases','Art prints','Mugs','Stickers','Notebooks'];
 function readinessCode(error,fallback='DATABASE_UNAVAILABLE') {
@@ -201,7 +204,29 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
  }
  api.all('/',async (req,res)=>{
   const route=req.baseUrl==='/auth/google/callback'?'google-callback':String(req.query.route||'bootstrap'),method=req.method,v=payload(req);
-  if(method==='GET' && route==='bootstrap') {const u=await me(req),locale=u?(await state(u.id)).user_locale:null,googleReturn=req.session.google_login_complete===true;delete req.session.google_login_complete;return res.json({mode:'server',authentication:await authenticationStatus(c,db,u),auth_event:googleReturn?'google-login':null,csrf:req.session.csrf,user:u ? safeUser(u) : null,locale:['ar','en'].includes(locale)?locale:null,products:await products(),artists:await publicArtists(db),design_styles:designStyles,settings:publicStoreSettings(collectionSettings(await settings(),await products(),{publicOnly:true})),email_delivery:{available:mailStatus(c).ready,staging_restricted:c.mode==='staging'}});}
+  if(route==='partners-quote'&&method==='POST'){
+   await throttle(req,'partners-quote',120);
+   if(!Array.isArray(v.cart)||v.cart.length>50)fail(422,'Your bag needs at most 50 items.');
+   const s=await settings(),u=await me(req),items=[];
+   for(const [index,line] of v.cart.entries()){
+    const row=await one("SELECT * FROM products WHERE id=? AND status='active'",[text(line,'id',64)]);
+    if(!row)fail(422,'A bag item is unavailable.');
+    const p=product(row),qty=integer(line.qty,1,20,'quantity');
+    if(!p.variants.includes(text(line,'variant',50)))fail(422,'Choose a valid product option.');
+    items.push({...p,line_id:'quote-'+index,qty,...(line.customization_id?{customer_customized:true}:{})});
+   }
+   const subtotal=items.reduce((total,item)=>total+item.price*item.qty,0),code=typeof v.coupon==='string'?v.coupon.trim().toUpperCase():'';
+   const referral=c.partners?.enabled?await resolvePartnerAttribution({db,c,req,user:u,items,coupon:code,customerEmail:v.email?email(v):u?.email||'',dryRun:true}):{discount:null};
+   const discount=referral.discount??(code&&code===(s.coupon_code??'HELLOVEELAD')?Math.round(subtotal*(s.coupon_percent??10)/100):0);
+   const shipping=items.length&&subtotal-discount<s.free_shipping?Number(s.shipping):0;
+   return res.json({subtotal,discount,shipping,total:subtotal-discount+shipping,coupon_applied:!!code&&discount>0,provisional:true});
+  }
+  if(route.startsWith('partners-')||route==='admin-partners'||route.startsWith('admin-partners-')){
+   const context={route,method,v,req,res,db,c,me,role,throttle,audit,queue};
+   if(await partnerRoute(context)||await partnerPayoutRoute(context))return;
+   fail(404,'Endpoint not found.');
+  }
+  if(method==='GET' && route==='bootstrap') {const u=await me(req),locale=u?(await state(u.id)).user_locale:null,googleReturn=req.session.google_login_complete===true;delete req.session.google_login_complete;return res.json({mode:'server',authentication:await authenticationStatus(c,db,u),partners:{enabled:c.partners?.enabled===true},auth_event:googleReturn?'google-login':null,csrf:req.session.csrf,user:u ? safeUser(u) : null,locale:['ar','en'].includes(locale)?locale:null,products:await products(),artists:await publicArtists(db),design_styles:designStyles,settings:publicStoreSettings(collectionSettings(await settings(),await products(),{publicOnly:true})),email_delivery:{available:mailStatus(c).ready,staging_restricted:c.mode==='staging'}});}
   if(method==='POST' && route==='language-preference') {
    const u=await me(req,true);if(!['ar','en'].includes(v.locale))fail(422,'Choose Arabic or English.');
    await db.tx(async conn=>{await q('SELECT id FROM users WHERE id=? FOR UPDATE',[u.id],conn);const s=await state(u.id,conn);s.user_locale=v.locale;await putState(u.id,s,conn);});return res.json({ok:true,locale:v.locale});
@@ -236,7 +261,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
    await throttle(req,'login',12);const u=await one('SELECT * FROM users WHERE email=?',[email(v)]);
    if(!u || !await verifyPassword(v.password,u.password) || u.status!=='active') fail(401,'Email or password is incorrect.');
    if(!u.password.startsWith('$argon2id$')) {u.password=await passwordHash(v.password);await q('UPDATE users SET password=? WHERE id=?',[u.password,u.id]);}
-   await rotate(req,u);return res.json({user:safeUser(u)});
+   await rotate(req,u);req.session.authenticated_at=Date.now();return res.json({user:safeUser(u)});
   }
   if(method==='POST' && route==='logout') {await rotate(req);return res.json({ok:true});}
   if(method==='POST' && route==='profile') {
@@ -306,13 +331,16 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
      if(selection?.side&&selectedStudio?.scene_version!==sceneVersion&&selectedStudio?.placements?.shirt)selectedStudio.placements.shirt.view=selection.side==='back'?'shirt-back':'shirt';
      const selectedPhoto=selection?.color?.image_id||selection?.fit?.image_id;
      for(const sourceId of studioSourceIds(selectedStudio,design?design.upload_id:p.upload_id)){const source=await one('SELECT * FROM uploads WHERE id=?',[sourceId],conn);if(!source||(design&&source.user_id!==u.id))fail(409,'Personal artwork unavailable.');try{await readArtwork(c.uploadDir,source);}catch(error){if(error instanceof ApiError&&error.status===404)fail(409,'A print original is unavailable. Restore it before ordering.');throw error;}}
-     items.push({id:p.id,line_id:uid('line-'),title:p.title,...(p.title_ar?{title_ar:p.title_ar}:{}),category:p.category,artist_id:design?null:p.artist_id,variant,qty,price:p.price,sheet:p.sheet??0,cell:p.cell??0,upload_id:design?design.upload_id:p.upload_id??null,mockup_upload_id:design&&selectedStudio?.scene_version===sceneVersion?design.mockup_upload_id:selection?.side?null:selectedPhoto||design?.mockup_upload_id||p.mockup_upload_id||null,...(selection?{purchase_choices:selection}:{}),...(selectedStudio?{design_studio:selectedStudio,...(selectedStudio.scene_version===sceneVersion?{source_upload_ids:sceneSourceIds(selectedStudio),print_surfaces:Object.keys(selectedStudio.scenes?.[printProductFor(p.category)?.id]||{}).filter(surface=>sceneHasContent(selectedStudio,printProductFor(p.category)?.id,surface==='back'?'shirt-back':surface==='wrap'?'mug':'shirt'))}:{} )}:{}),...(design?{customization_id:design.customization_id,customer_customized:true,...(design.title?{design_title:design.title}:{})}:{}),royalty_percent:design?0:p.royalty_percent??20});subtotal+=p.price*qty;
+     items.push({id:p.id,line_id:uid('line-'),title:p.title,...(p.title_ar?{title_ar:p.title_ar}:{}),category:p.category,artist_id:design?null:p.artist_id,variant,qty,price:p.price,sheet:p.sheet??0,cell:p.cell??0,upload_id:design?design.upload_id:p.upload_id??null,mockup_upload_id:design&&selectedStudio?.scene_version===sceneVersion?design.mockup_upload_id:selection?.side?null:selectedPhoto||design?.mockup_upload_id||p.mockup_upload_id||null,...(selection?{purchase_choices:selection}:{}),...(selectedStudio?{design_studio:selectedStudio,...(selectedStudio.scene_version===sceneVersion?{source_upload_ids:sceneSourceIds(selectedStudio),print_surfaces:Object.keys(selectedStudio.scenes?.[printProductFor(p.category)?.id]||{}).filter(surface=>sceneHasContent(selectedStudio,printProductFor(p.category)?.id,surface==='back'?'shirt-back':surface==='wrap'?'mug':'shirt'))}:{} )}:{}),...(design?{customization_id:design.customization_id,customer_customized:true,...(design.title?{design_title:design.title}:{})}:{}),royalty_percent:design?0:p.royalty_percent??20,...(p.sample_pricing===true?{sample_pricing:true}:{}),...(p.stock_is_simulated===true?{stock_is_simulated:true}:{})});subtotal+=p.price*qty;
     }
     const code=typeof v.coupon==='string'?v.coupon.trim().toUpperCase():'';
-    const discount=code && code===(s.coupon_code??'HELLOVEELAD') ? Math.round(subtotal*(s.coupon_percent??10)/100) : 0;
+    const referral=c.partners?.enabled?await resolvePartnerAttribution({db,c,req,user:u,items,coupon:code,customerEmail:address,conn}):{attributions:{},discount:null};
+    const discount=referral.discount??(code && code===(s.coupon_code??'HELLOVEELAD') ? Math.round(subtotal*(s.coupon_percent??10)/100) : 0);
     const shipping=subtotal-discount>=s.free_shipping?0:Number(s.shipping),total=subtotal-discount+shipping;
+    if(v.expected_total!==undefined&&(!Number.isSafeInteger(v.expected_total)||v.expected_total!==total))fail(409,'Your order total changed. Review your bag before placing the order again.');
     const data={...(items.some(item=>item.customer_customized||item.purchase_choices)?{production:productionState({})}:{}),customer:details,items,subtotal,shipping,discount,payment_status:'awaiting_payment',tracking:'',note:'Order received. Awaiting payment; no charge has been made.'};
     await q('UPDATE orders SET total=?,data=? WHERE id=?',[total,JSON.stringify(data),id],conn);
+    if(c.partners?.enabled)await capturePartnerOrder(db,c,{orderId:id,userId:u?.id||null,email:address,items,discount,shipping,attributions:referral.attributions,lineDiscounts:referral.lineDiscounts},conn);
     await queue(address,'Veelad order received: '+id,`Hello ${name},\n\nYour order ${id} has been received and is awaiting payment. No charge has been made.\n\n${items.map(item=>`${item.title} — ${[item.variant,item.purchase_choices?.color?.label,item.purchase_choices?.fit?.label,item.purchase_choices?.side].filter(Boolean).join(' · ')} × ${item.qty}: SAR ${(item.price*item.qty/100).toFixed(2)}`).join('\n')}\n\nSubtotal: SAR ${(subtotal/100).toFixed(2)}\nDiscount: SAR ${(discount/100).toFixed(2)}\nDelivery: SAR ${(shipping/100).toFixed(2)}\nTotal: SAR ${(total/100).toFixed(2)}\n\nPrivate tracking: ${c.origin}/#/track?id=${id}&token=${guest}`,conn);
     if(u) {await q('SELECT id FROM users WHERE id=? FOR UPDATE',[u.id],conn);const st=await state(u.id,conn);st.cart=[];st.address=details;await putState(u.id,st,conn);}
     return {order:customerOrder(await one('SELECT * FROM orders WHERE id=?',[id],conn)),guest_token:guest};
@@ -594,11 +622,15 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
       if(next!==o.status && !allowed[o.status]?.includes(next)) fail(409,'This order status transition is not allowed.');
       if(next==='shipped'&&d.production){assertProductionReady(d,'packed');if(d.production.stage!=='packed')fail(409,'Pack the order before shipping.');}
       d.tracking=text(v,'tracking',100,false);if(next==='cancelled'&&d.payment_status==='paid') d.payment_status='refund_required';
+      if(next!==o.status&&['shipped','delivered'].includes(next))d[next+'_at']=now();
       await q('UPDATE orders SET status=?,data=? WHERE id=?',[next,JSON.stringify(d),o.id],conn);
       if(next==='cancelled'&&o.status!=='cancelled') for(const l of [...d.items].sort((a,b)=>a.id.localeCompare(b.id))) await q('UPDATE products SET stock=stock+? WHERE id=?',[l.qty,l.id],conn);
       await audit(u,'order.'+next,o.id,conn);
       if(next!==o.status) await queue(o.email,'Veelad order update: '+o.id,`Order ${o.id} is now ${next}.\n${d.tracking?'Tracking reference: '+d.tracking+'\n':''}${next==='cancelled'&&d.payment_status==='refund_required'?'A refund requires the store team’s review; no automatic refund has been issued.\n':''}Private tracking: ${c.origin}/#/track?id=${o.id}&token=${trackingToken(o.request_key,c.secret)}`,conn);
      }
+     // Existing liabilities still need cancellation/refund bookkeeping when new
+     // partner activity is paused; the finance module handles legacy schemas.
+     await syncPartnerOrder(db,c,o.id,conn);
     });return res.json({ok:true});
    }
    if(method==='POST' && route==='admin-user') {
@@ -626,6 +658,10 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
   app.get('/api.php',async(req,res)=>{if(req.query.route!=='health') return res.status(404).json({error:'Not found.'});try {await q('SELECT id FROM schema_migrations LIMIT 1');res.set('Cache-Control','no-store').json({ok:true,version:'3.0.0',environment:c.mode,revision:c.revision,marketplace_enabled:false});}catch {res.status(503).json({ok:false});}});
   app.use(express.static(fileURLToPath(new URL('../reference/coming-soon',import.meta.url)),{dotfiles:'deny'}));
  } else {
+ app.get('/r/:code',async(req,res)=>{
+  if(schema.status!=='ready')return res.status(503).set('Retry-After','2').json({error:'The store is starting. Please try again shortly.'});
+  await partnerReferral(req,res,{db,c});
+ });
  app.use(['/api.php','/auth/google/callback'],api);
  pageRoutes(app,c,db,schema);
  app.use(express.static(publicDir,{dotfiles:'deny',index:'index.html'}));
