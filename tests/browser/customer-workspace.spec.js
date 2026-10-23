@@ -82,6 +82,8 @@ test("layered workspace keeps multiple originals and independent sides through e
       "true",
     );
     await expect(shell).toBeVisible();
+    await expect(form.locator('.studio-upload')).not.toBeVisible();
+    await expect(shell.locator('[data-ws-drop]')).toBeVisible();
     await expect(shell).toHaveAttribute("data-surface", "front");
     await form.locator("[name=design_name]").fill("A little of both worlds");
 

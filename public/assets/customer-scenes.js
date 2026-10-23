@@ -109,10 +109,11 @@ async function mountCustomerScenes(instance) {
     if (customerSceneImages(instance.state).length + list.length > 16) throw Error(t('Use up to 16 different images in one design.'));
     for (const file of list) if (!['image/png', 'image/jpeg'].includes(file.type) || file.size > 25 * 1024 * 1024) throw Error(t('Choose a PNG or JPEG up to 25 MB.'));
     form.dataset.artworkBusy = '1';
-    const status = form.querySelector('#upload-status'), progress = form.querySelector('.studio-upload-progress');
+    const status = form.querySelector('#upload-status'), progress = form.querySelector('[data-ws-progress]') || form.querySelector('.studio-upload-progress');
     const product = instance.product(), side = customerSurface(product.id, instance.state.placements[product.id].view);
     try {
       for (let n = 0; n < list.length; n++) {
+        if (progress) progress.value = 0;
         if (status) status.textContent = t('Uploading your artwork...') + ` ${n + 1}/${list.length}`;
         const result = await sendArtworkUpload(list[n], form, progress);
         if (!form.isConnected) return added;
