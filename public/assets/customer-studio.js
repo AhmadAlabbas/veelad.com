@@ -104,11 +104,24 @@ function updateCustomerSelection(form, p) {
   form.querySelector("[data-customer-sample]").hidden = p.sample_pricing !== true && p.stock_is_simulated !== true;
   const summary = form.querySelector("[data-customer-review-summary]");
   summary.innerHTML = `<img src="/assets/mockups/${type?.[0] || "print"}.webp?v=${storefrontMediaVersion}" alt=""><div><strong>${esc(t(type?.[2] || p.category))}</strong><span>${esc([localVariant(p, form.elements.variant.value),purchaseChoiceText(clientPurchaseChoices(p,choicesFromForm(form)))].filter(Boolean).join(" · "))}</span></div><strong>${money(p.price)}</strong>`;
+  const instance=studioInstances.get(form.querySelector('.design-studio'));
+  if(instance?.sceneEditor){
+    const sides=Object.keys(instance.state.scenes?.[type[0]]||{}).filter(side=>customerSceneHasContent(instance.state,type[0],side));
+    if(sides.length)summary.querySelector('div').insertAdjacentHTML('beforeend',`<span class="customer-surface-summary" data-customer-print-surfaces>${esc(t('Print surfaces'))}: ${sides.map(side=>esc(t({front:'Front',back:'Back',wrap:'Wrap'}[side]))).join(' + ')}</span>`);
+  }
 }
+document.addEventListener('customer-scene-rendered',event=>{
+  const form=event.target.closest('[data-form=customer-design]'),canvas=event.target.querySelector('.studio-canvas'),target=form?.querySelector('[data-customer-review-summary] img');
+  if(!target||!canvas)return;
+  const thumbnail=document.createElement('canvas');thumbnail.width=thumbnail.height=180;
+  thumbnail.getContext('2d').drawImage(canvas,0,0,180,180);
+  target.src=thumbnail.toDataURL('image/webp',.8);
+  target.alt=t('Your design preview');
+});
 function syncCustomerPurchaseChoices(form, p, {fromEditor = false} = {}) {
   if (!p) return;
   const instance = studioInstances.get(form.querySelector(".design-studio")), sides = p.purchase_options?.confirmed ? p.purchase_options.sides || [] : [];
-  if (p.category === "T-shirts" && sides.length && instance?.state?.placements?.shirt) {
+  if (!instance?.sceneEditor && p.category === "T-shirts" && sides.length && instance?.state?.placements?.shirt) {
     const placement = instance.state.placements.shirt, shown = placement.view === "shirt-back" ? "back" : "front";
     let side = choicesFromForm(form).side || sides[0];
     if (fromEditor && sides.includes(shown)) side = shown;
@@ -152,7 +165,7 @@ function syncCustomerProduct(form, {selectionChanged = false} = {}) {
   if (instance?.state) {
     instance.state.active_product = type[0];
     const side = choicesFromForm(form).side;
-    if (type[0] === "shirt" && p.purchase_options?.confirmed && p.purchase_options.sides?.includes(side)) instance.state.placements.shirt.view = side === "back" ? "shirt-back" : "shirt";
+    if (!instance.sceneEditor && type[0] === "shirt" && p.purchase_options?.confirmed && p.purchase_options.sides?.includes(side)) instance.state.placements.shirt.view = side === "back" ? "shirt-back" : "shirt";
     instance.syncControls();
     instance.update();
   } else root.dataset.category = p.category;
@@ -200,12 +213,12 @@ async function submitCustomerDesign(form, v) {
     source = uploadId || v.upload_id;
   if (!instance?.state)
     throw Error(t("Preview templates could not be loaded."));
-  if (!source && !textLayersFor(instance).some((layer) => layer.text.trim()))
+  if (instance.sceneEditor?!customerSceneHasContent(instance.state,instance.product().id):!source && !textLayersFor(instance).some((layer) => layer.text.trim()))
     throw Error(t("Add artwork or text to your design."));
   if (
     instance.root.dataset.textBusy ||
     (textLayersFor(instance).some((layer) => layer.text.trim()) &&
-      instance.textReadyKey !== textGlyphKey(textLayersFor(instance)))
+      instance.textReadyKey !== textGlyphKey(textLayersFor(instance).filter(layer=>!instance.sceneEditor||layer.visible!==false&&layer.opacity>0)))
   )
     throw Error(t("Wait for the text preview to finish."));
   if (!instance?.state)
@@ -340,6 +353,9 @@ document.addEventListener("click", (event) => {
   form.querySelector("#upload-preview").innerHTML = icon("upload");
   const root = form.querySelector(".design-studio"),
     instance = studioInstances.get(root);
+  if(instance?.sceneEditor){
+    const scene=customerScene(instance);scene.layers=scene.layers.filter(layer=>layer.type!=='image');instance.sceneEditor.commit();rememberCustomerDraft(form);return;
+  }
   root.dataset.source = "";
   root.dataset.artworkId = "";
   if (instance) {

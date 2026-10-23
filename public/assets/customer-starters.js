@@ -157,8 +157,8 @@ async function applyStarter(root, replacing = false) {
     instance.glyphCache ||= new Map();
     instance.glyphCache.set(textGlyphKey(layers), Promise.resolve(glyphs));
     while (instance.glyphCache.size > 12) instance.glyphCache.delete(instance.glyphCache.keys().next().value);
-    instance.state.text_layers ||= {};
-    instance.state.text_layers[product.id] = layers;
+    if(instance.sceneEditor)instance.replaceSceneText(layers);
+    else{instance.state.text_layers ||= {};instance.state.text_layers[product.id] = layers;}
     instance.selectedText = layers.find((layer) => layer.text === values[starter.fields[0].key])?.id || layers[0].id;
     instance.textReadyKey = "";
     instance.customerTool = "text";
@@ -176,7 +176,8 @@ async function applyStarter(root, replacing = false) {
     state.appliedProduct = product.id;
     starterStatus(root, "Layout applied. Every line is editable in the text tools below.");
     form.querySelector(".design-studio").scrollIntoView({ block: "start", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
-    form.querySelector("[data-text-prop=text]")?.focus({ preventScroll: true });
+    instance.workspace?.select?.(instance.selectedText);
+    form.querySelector("[data-ws-text], [data-text-prop=text]")?.focus({ preventScroll: true });
   } catch (error) {
     if (root.isConnected && state.serial === serial) starterStatus(root, error.message, true);
   } finally {

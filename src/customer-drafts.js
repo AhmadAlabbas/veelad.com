@@ -17,6 +17,7 @@ import { artworkRenderSource, artworkPreview } from "./artwork.js";
 import { renderMockup, ensureMockup } from "./mockup-renderer.js";
 import { privateDirectory } from "./operations.js";
 import { hasText } from "./text-layers.js";
+import {sceneVersion,sceneSourceIds,sceneHasContent,ownedSceneSources} from "./design-scenes.js";
 
 const draftConflict = () => {
   throw Object.assign(
@@ -49,6 +50,7 @@ const baseValue = (p) =>
         status: p.status,
         variants: p.variants,
         customer_customizable: p.customer_customizable === true,
+        ...(p.purchase_options?{purchase_options:p.purchase_options}:{}),
       }
     : null;
 export async function customerDraftRoute({
@@ -186,11 +188,13 @@ export async function customerDraftRoute({
     const studio = validateDesignStudio(v.design_studio, source),
       variant = text(v, "variant", 50, false) || p.variants[0];
     if (!p.variants.includes(variant)) fail(422, "Choose a valid option.");
+    if(studio.scene_version===sceneVersion)await ownedSceneSources(db,studio,source,u.id);
     const data = {
         title: v.title.trim(),
         category: p.category,
         variant,
         upload_id: source,
+        ...(studio.scene_version===sceneVersion?{source_upload_ids:sceneSourceIds(studio)}:{}),
         design_studio: studio,
       },
       updated = now();
@@ -247,7 +251,8 @@ export async function customerDraftRoute({
         ])
       : null;
     if (d.upload_id && !image) fail(404, "Artwork not found.");
-    if (!image && !hasText(d.design_studio, p.id))
+    const records=d.design_studio?.scene_version===sceneVersion?await ownedSceneSources(db,d.design_studio,d.upload_id,u.id):null;
+    if (!image && !hasText(d.design_studio, p.id)&&!sceneHasContent(d.design_studio,p.id))
       fail(404, "Add artwork or text to preview your design.");
     const id = mockupId(
       image?.id || "text-" + u.id,
@@ -260,6 +265,7 @@ export async function customerDraftRoute({
         image ? await artworkRenderSource(c.uploadDir, image) : null,
         d.category,
         d.design_studio,
+        records?{resolveSource:async id=>{const record=records.get(id);if(!record)fail(404,"Artwork not found.");return artworkRenderSource(c.uploadDir,record);}}:{},
       ),
     );
     const preview = await db.one("SELECT * FROM uploads WHERE id=?", [id]);

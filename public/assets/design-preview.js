@@ -311,6 +311,7 @@ async function startDesignStudio(root) {
           String(tile.dataset.studioSelect === product.id),
         );
       instance.persist();
+      instance.workspace?.refresh?.();
     };
     instance.update = () => {
       if (!root.isConnected) return;
@@ -332,8 +333,9 @@ async function startDesignStudio(root) {
       q.dataset.level = quality.level;
       q.innerHTML = `<strong>${t(quality.level === "empty" ? "Add artwork to check quality" : quality.level === "template_required" ? "Supplier template required" : quality.level === "recommended" ? "Resolution estimate: good" : quality.level === "review" ? "Resolution estimate: review needed" : "Resolution estimate: too low")}</strong>${quality.dpi !== null ? `<span>${esc(t("About {dpi} DPI at this placement", { dpi: localNumber(quality.dpi) }))}</span>` : ""}<small>${t(quality.cropped ? "Artwork extends beyond the printable area and will be cropped." : quality.dense ? "The pattern is too dense. Increase its scale or use a single placement." : "Provisional dimensions. Supplier review is still required.")}</small>`;
       if(!instance.image&&instance.state.text_layers?.[product.id]?.some(layer=>layer.text.trim()))q.innerHTML=`<strong>${t('Text design')}</strong><small>${t('Text is rendered with the same fonts for preview and production. Supplier review is still required.')}</small>`;
-      if(typeof updateStudioWarnings==='function')updateStudioWarnings(instance);
+      if(!instance.sceneEditor&&typeof updateStudioWarnings==='function')updateStudioWarnings(instance);
       instance.persist();
+      instance.workspace?.refresh?.();
       cancelAnimationFrame(instance.frame);
       instance.frame = requestAnimationFrame(() => instance.render());
       clearTimeout(instance.thumbsTimer);
@@ -348,10 +350,11 @@ async function startDesignStudio(root) {
         const asset = await loadStudioAsset(p.view);
         if (serial !== instance.serial || !root.isConnected) return;
         instance.asset = asset;
-        const textOverlay=typeof customerTextOverlay==='function'?await customerTextOverlay(instance,product):null;
+        const textOverlay=!instance.sceneEditor&&typeof customerTextOverlay==='function'?await customerTextOverlay(instance,product):null;
         if(serial!==instance.serial||!root.isConnected)return;
-        const content=instance.image||textOverlay||p.background!=='transparent';
-        const texture=content?studioTexture(instance.image,product,p,math,textOverlay):null;
+        const content=instance.sceneEditor?customerSceneHasContent(instance.state,product.id,customerSurface(product.id,p.view)):instance.image||textOverlay||p.background!=='transparent';
+        const texture=instance.sceneEditor?await customerSceneTexture(instance,product):content?studioTexture(instance.image,product,p,math,textOverlay):null;
+        if(serial!==instance.serial||!root.isConnected)return;
         drawStudio(
           root.querySelector(".studio-canvas"),
           asset,
@@ -364,6 +367,7 @@ async function startDesignStudio(root) {
           ? ""
           : t("Upload artwork to see its placement");
         status.hidden = !!content;
+        if(instance.sceneEditor)root.dispatchEvent(new CustomEvent('customer-scene-rendered',{bubbles:true}));
       } catch (error) {
         if(serial!==instance.serial||!root.isConnected)return;
         status.hidden = false;
@@ -523,7 +527,7 @@ async function startDesignStudio(root) {
         instance.syncControls();
         instance.update();
       } else if (node.hasAttribute("data-studio-export")) {
-        if (!instance.image&&!instance.state.text_layers?.[product.id]?.some(layer=>layer.text.trim())) {
+        if (instance.sceneEditor?!customerSceneHasContent(instance.state,product.id):!instance.image&&!instance.state.text_layers?.[product.id]?.some(layer=>layer.text.trim())) {
           toast(t("Upload artwork to see its placement"));
           return;
         }
@@ -533,7 +537,7 @@ async function startDesignStudio(root) {
           drawStudio(
             canvas,
             await loadStudioAsset(p.view),
-            studioTexture(instance.image, product, p, math,await customerTextOverlay(instance,product)),
+            instance.sceneEditor?await customerSceneTexture(instance,product):studioTexture(instance.image, product, p, math,await customerTextOverlay(instance,product)),
             math,
           );
           const ctx = canvas.getContext("2d");
@@ -632,8 +636,9 @@ async function startDesignStudio(root) {
       instance.update();
     });
     instance.syncControls();
-    if(typeof mountCustomerTextTools==='function')mountCustomerTextTools(instance);
-    if(typeof mountStudioRefinements==='function')mountStudioRefinements(instance);
+    const layeredCustomer=!!root.closest('[data-form=customer-design]')&&typeof mountCustomerScenes==='function';
+    if(!layeredCustomer&&typeof mountCustomerTextTools==='function')mountCustomerTextTools(instance);
+    if(!layeredCustomer&&typeof mountStudioRefinements==='function')mountStudioRefinements(instance);
     instance.update();
     const source =
       root
@@ -645,6 +650,8 @@ async function startDesignStudio(root) {
         source,
         root.dataset.artworkId || instance.state.artwork_id,
       );
+    if(layeredCustomer)await mountCustomerScenes(instance);
+    instance.update();
     root.dataset.ready = "true";
   } catch (error) {
     root.querySelector(".studio-canvas-status").textContent = t(error.message);
@@ -754,6 +761,11 @@ document.addEventListener("change", async (event) => {
     file = input.files[0],
     form = input.closest("form");
   if (!file || form.dataset.artworkBusy) return;
+  const layered=studioInstances.get(form.querySelector('.design-studio'));
+  if(layered?.sceneEditor){
+    try{await layered.sceneEditor.addImages(input.files);}catch(error){toast(error.message);}finally{input.value='';}
+    return;
+  }
   const status = form.querySelector("#upload-status"),
     preview = form.querySelector("#upload-preview"),
     progress = form.querySelector("progress");
@@ -811,6 +823,8 @@ for (const eventName of ["dragover", "dragleave", "drop"])
     event.preventDefault();
     zone.classList.toggle("drag-active", eventName === "dragover");
     if (eventName === "drop" && event.dataTransfer?.files.length) {
+      const instance=studioInstances.get(zone.closest('form')?.querySelector('.design-studio'));
+      if(instance?.sceneEditor){instance.sceneEditor.addImages(event.dataTransfer.files).catch(error=>toast(error.message));return;}
       if (event.dataTransfer.files.length !== 1) {
         toast(t("Choose one original artwork file."));
         return;

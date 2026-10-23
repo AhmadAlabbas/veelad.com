@@ -57,7 +57,7 @@ test('administrators edit both languages, product membership, cover, publication
  }finally{await page.goto('about:blank');await fixture.close();}
 });
 
-test('studio step navigation keeps the item, artwork and text while the preview stays visible beside mobile controls',async({page},info)=>{
+test('studio step navigation keeps the item and editable text across workspace panels, product preview and review',async({page},info)=>{
  test.setTimeout(120000);page.setDefaultTimeout(15000);
  const fixture=await fixtureWithCollections(),errors=[];page.on('pageerror',e=>errors.push(e.message));
  try{
@@ -66,18 +66,24 @@ test('studio step navigation keeps the item, artwork and text while the preview 
   await page.locator('.personal-collection-card a[href$="product='+selected+'"]').click();await expect(page.locator('.customer-account-invitation')).toBeVisible();
   await page.locator('.customer-account-invitation a[href="/en/register?next=create"]').click();let registration=page.locator('[data-form=register]');await registration.locator('[name=name]').fill('Experience reviewer');await registration.locator('[name=email]').fill('experience-studio@example.test');await registration.locator('[name=password]').fill('Experience private test password 123');await registration.locator('[type=submit]').click();
   const form=page.locator('[data-form=customer-design]');await expect(form.locator('.design-studio')).toHaveAttribute('data-ready','true');await expect(form.locator('[name=product_id]')).toHaveValue(selected);
+  await expect(form.locator('.customer-workspace')).toBeVisible();
   await expect(form.locator('.customer-journey-nav button')).toHaveCount(4);await form.locator('[data-customer-step="1"]').click();await expect(page.locator('#customer-artwork')).toBeFocused();
-  const starter=form.locator('.customer-starters');await starter.locator('[data-starter-select=arabic-name]').click();await starter.locator('[data-starter-field=name]').fill('نورة');await starter.locator('[data-starter-apply]').click();await expect(starter.locator('[data-starter-status]')).toHaveText('Layout applied. Every line is editable in the text tools below.');
   await form.locator('[data-customer-step="2"]').click();await expect(page.locator('#customer-editor')).toBeFocused();
+  await form.locator('[data-ws-tool=layouts]').click();
+  const starter=form.locator('.customer-starters');await starter.locator('[data-starter-select=arabic-name]').click();await starter.locator('[data-starter-field=name]').fill('نورة');await starter.locator('[data-starter-apply]').click();await expect(starter.locator('[data-starter-status]')).toHaveText('Layout applied. Every line is editable in the text tools below.');
+  const textId=await form.locator('[name=design_studio]').evaluate(input=>JSON.parse(input.value).scenes.mug.wrap.layers.find(layer=>layer.type==='text').id);
+  await form.locator('[data-ws-tool=layers]').click();await form.locator(`[data-ws-select="${textId}"]`).click();
+  await form.locator('[data-ws-prop=rotation]').fill('14');await form.locator('[data-ws-prop=rotation]').dispatchEvent('input');
+  await expect.poll(async()=>JSON.parse(await form.locator('[name=design_studio]').inputValue()).scenes.mug.wrap.layers.find(layer=>layer.id===textId).rotation).toBe(14);
+  const beforePreview=await form.locator('[name=design_studio]').inputValue();
+  await form.locator('[data-ws-mode=preview]').click();await expect(form.locator('[data-ws-preview-pane]')).toBeVisible();await expect(form.locator('[data-ws-mode=preview]')).toHaveAttribute('aria-pressed','true');await expect(form.locator('[data-ws-design-pane]')).not.toBeVisible();
+  await form.locator('[data-ws-mode=edit]').click();await expect(form.locator('[data-ws-artboard]')).toBeVisible();await expect(form.locator('[name=design_studio]')).toHaveValue(beforePreview);
   if(info.project.name==='mobile'){
-   const before=await form.locator('[name=design_studio]').inputValue();await form.locator('[data-customer-preview]').click();await expect(form.locator('.studio-visual')).toHaveClass(/is-expanded/);await expect(form.locator('[data-customer-preview]')).toHaveAttribute('aria-expanded','true');await form.locator('[data-customer-preview]').click();await expect(form.locator('.studio-visual')).not.toHaveClass(/is-expanded/);await expect(form.locator('[name=design_studio]')).toHaveValue(before);
-  }
-  await form.locator('[data-text-prop=rotation]').fill('14');await form.locator('[data-text-prop=rotation]').dispatchEvent('input');
-  if(info.project.name==='mobile'){
-   await form.locator('[data-text-prop=y]').scrollIntoViewIfNeeded();const visual=await form.locator('.studio-visual').boundingBox();expect(visual.y).toBeGreaterThanOrEqual(70);expect(visual.y+visual.height).toBeLessThan(page.viewportSize().height/2-10);
+   await form.locator('[data-ws-close-panel]').click();await expect(form.locator('.cw-panel')).not.toBeVisible();await expect(form.locator('[data-ws-artboard]')).toBeVisible();
+   await form.locator('[data-ws-tool=layers]').click();await form.locator(`[data-ws-select="${textId}"]`).click();await expect(form.locator('[data-ws-prop=rotation]')).toHaveValue('14');
   }
   const designBefore=await form.locator('[name=design_studio]').inputValue();await fits(page);await page.screenshot({path:info.outputPath('studio-guided-editor.png')});
-  await form.locator('[data-customer-step="3"]').click();await expect(page.locator('#customer-review')).toBeFocused();await expect(form.locator('[name=preview_accepted]')).not.toBeChecked();
+  await form.locator('[data-ws-review]').click();await expect(page.locator('#customer-review')).toBeFocused();await expect(form.locator('[name=preview_accepted]')).not.toBeChecked();
   await form.locator('[name=rights]').check();await form.locator('[name=preview_accepted]').check();await expect(form.locator('[name=design_studio]')).toHaveValue(designBefore);
   await form.locator('[data-customer-order]').click();await expect(page.locator('#modal')).toBeVisible();
   await page.locator('#modal [data-action=customer-another-product]').click();await expect(form.locator('[name=product_id]')).toHaveValue(selected);await expect(form.locator('[name=design_studio]')).toHaveValue(designBefore);

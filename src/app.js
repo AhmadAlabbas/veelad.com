@@ -20,7 +20,8 @@ import {artworkLimits,artworkPath,validateArtwork,artworkMetadata,artworkPreview
 import {prepareArtworkArchive} from './artwork-archive.js';
 import {validateDesignStudio,mockupId,mockupMatches,productionPlan,printProductFor} from './design-studio.js';
 import {renderMockup,renderDesignTexture,ensureMockup,currentProductMockup} from './mockup-renderer.js';
-import {hasText,validateTextLayers,renderTextGlyph} from './text-layers.js';
+import {hasText,validateTextLayers,validateSceneTextLayers,renderTextGlyph,textGlyphMetadata} from './text-layers.js';
+import {sceneVersion,sceneSourceIds,studioSourceIds,sceneHasContent,sceneSurfaces,sceneSurface,ownedSceneSources} from './design-scenes.js';
 import {productionRoute,customerOrder,assertProductionReady,productionState} from './production.js';
 import {customerDraftRoute} from './customer-drafts.js';
 import {queueMail,mailStatus,recipientAllowed,checkMail,safeMailError} from './mail.js';
@@ -91,7 +92,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
   }
   next();
  });
- api.use(express.json({limit:'100kb'}));
+ api.use(express.json({limit:'256kb'}));
  const upload=multer({storage:multer.memoryStorage(),limits:{fileSize:artworkLimits.bytes,files:1,fields:0}});
  api.use((req,res,next)=>req.method==='POST' && ['upload','admin-artwork-restore'].includes(req.query.route) ? upload.single('artwork')(req,res,next) : next());
  const q=db.q, one=db.one;
@@ -175,13 +176,13 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
    if(!Array.isArray(v.gallery_upload_ids)||v.gallery_upload_ids.length>6) fail(422,'Add up to six product photos.');
    p.gallery_upload_ids=[...new Set(v.gallery_upload_ids.map(id=>text({id},'id',64)))];
   }
-  const imageIds=[...new Set([p.upload_id,...(p.gallery_upload_ids||[])].filter(Boolean))];
+  const imageIds=[...new Set([...studioSourceIds(p.design_studio,p.upload_id),...(p.gallery_upload_ids||[])].filter(Boolean))];
   if(imageIds.length) {
    const u=await me(req,true);
    const sourceId=v.id||(artistSubmission?v.source_product_id:null);
    const current=sourceId&&u.role!=='admin' ? await one('SELECT artist_id,data FROM products WHERE id=?',[text({id:sourceId},'id',64)]) : null;
    const previous=current?.artist_id===u.id ? json(current.data) : {};
-   const existingIds=new Set([previous.upload_id,...(Array.isArray(previous.gallery_upload_ids)?previous.gallery_upload_ids:[])].filter(Boolean));
+   const existingIds=new Set([...studioSourceIds(previous.design_studio,previous.upload_id),...(Array.isArray(previous.gallery_upload_ids)?previous.gallery_upload_ids:[])].filter(Boolean));
    for(const id of imageIds) {const image=await one('SELECT * FROM uploads WHERE id=?',[id]);if(!image||(image.user_id!==u.id&&u.role!=='admin'&&!existingIds.has(id))) fail(403,'Artwork unavailable.');}
   }
   if(!artistSubmission&&v.purchase_options!==undefined)p.purchase_options=validatePurchaseOptions(v.purchase_options,p);
@@ -302,10 +303,10 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
      if((await q('UPDATE products SET stock=stock-? WHERE id=? AND stock>=?',[qty,p.id,qty],conn)).affectedRows!==1) fail(409,'There is not enough stock for '+p.title+'.');
      const design=await customerDesign(l,p,u,conn),selection=resolvePurchaseOptions(p,l.choices);
      const selectedStudio=structuredClone(design?.design_studio||p.design_studio||null);
-     if(selection?.side&&selectedStudio?.placements?.shirt)selectedStudio.placements.shirt.view=selection.side==='back'?'shirt-back':'shirt';
+     if(selection?.side&&selectedStudio?.scene_version!==sceneVersion&&selectedStudio?.placements?.shirt)selectedStudio.placements.shirt.view=selection.side==='back'?'shirt-back':'shirt';
      const selectedPhoto=selection?.color?.image_id||selection?.fit?.image_id;
-     if(design?.upload_id){const source=await one('SELECT * FROM uploads WHERE id=?',[design.upload_id],conn);if(!source)fail(409,'Personal artwork unavailable.');await readArtwork(c.uploadDir,source);}
-     items.push({id:p.id,line_id:uid('line-'),title:p.title,...(p.title_ar?{title_ar:p.title_ar}:{}),category:p.category,artist_id:design?null:p.artist_id,variant,qty,price:p.price,sheet:p.sheet??0,cell:p.cell??0,upload_id:design?design.upload_id:p.upload_id??null,mockup_upload_id:selection?.side?null:selectedPhoto||design?.mockup_upload_id||p.mockup_upload_id||null,...(selection?{purchase_choices:selection}:{}),...(selectedStudio?{design_studio:selectedStudio}:{}),...(design?{customization_id:design.customization_id,customer_customized:true,...(design.title?{design_title:design.title}:{})}:{}),royalty_percent:design?0:p.royalty_percent??20});subtotal+=p.price*qty;
+     for(const sourceId of studioSourceIds(selectedStudio,design?design.upload_id:p.upload_id)){const source=await one('SELECT * FROM uploads WHERE id=?',[sourceId],conn);if(!source||(design&&source.user_id!==u.id))fail(409,'Personal artwork unavailable.');try{await readArtwork(c.uploadDir,source);}catch(error){if(error instanceof ApiError&&error.status===404)fail(409,'A print original is unavailable. Restore it before ordering.');throw error;}}
+     items.push({id:p.id,line_id:uid('line-'),title:p.title,...(p.title_ar?{title_ar:p.title_ar}:{}),category:p.category,artist_id:design?null:p.artist_id,variant,qty,price:p.price,sheet:p.sheet??0,cell:p.cell??0,upload_id:design?design.upload_id:p.upload_id??null,mockup_upload_id:design&&selectedStudio?.scene_version===sceneVersion?design.mockup_upload_id:selection?.side?null:selectedPhoto||design?.mockup_upload_id||p.mockup_upload_id||null,...(selection?{purchase_choices:selection}:{}),...(selectedStudio?{design_studio:selectedStudio,...(selectedStudio.scene_version===sceneVersion?{source_upload_ids:sceneSourceIds(selectedStudio),print_surfaces:Object.keys(selectedStudio.scenes?.[printProductFor(p.category)?.id]||{}).filter(surface=>sceneHasContent(selectedStudio,printProductFor(p.category)?.id,surface==='back'?'shirt-back':surface==='wrap'?'mug':'shirt'))}:{} )}:{}),...(design?{customization_id:design.customization_id,customer_customized:true,...(design.title?{design_title:design.title}:{})}:{}),royalty_percent:design?0:p.royalty_percent??20});subtotal+=p.price*qty;
     }
     const code=typeof v.coupon==='string'?v.coupon.trim().toUpperCase():'';
     const discount=code && code===(s.coupon_code??'HELLOVEELAD') ? Math.round(subtotal*(s.coupon_percent??10)/100) : 0;
@@ -345,9 +346,11 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
    const assigned=u.role==='artist'&&previous?.artist_id===u.id&&json(previous.data).upload_id===image.id;
    if(u.role!=='admin'&&u.id!==image.user_id&&!assigned)fail(403,'Artwork unavailable.');
    const studio=validateDesignStudio(v.design_studio,image.id),category=text(v,'category',30),id=mockupId(image.id,category,studio);if(!id)fail(422,'Choose a product category.');
+   const records=new Map([[image.id,image]]),previousSources=assigned?studioSourceIds(json(previous.data).design_studio,image.id):[];
+   for(const sourceId of sceneSourceIds(studio)){const record=await one('SELECT * FROM uploads WHERE id=?',[sourceId]);if(!record||(u.role!=='admin'&&record.user_id!==u.id&&!previousSources.includes(sourceId)))fail(403,'Artwork unavailable.');records.set(sourceId,record);}
    await privateDirectory(c,c.uploadDir);
-   await ensureMockup(c,db,id,image.user_id,async()=>renderMockup(await artworkRenderSource(c.uploadDir,image),category,studio));
-   return res.json({mockup_upload_id:id,source_upload_id:image.id});
+   await ensureMockup(c,db,id,image.user_id,async()=>renderMockup(await artworkRenderSource(c.uploadDir,image),category,studio,{resolveSource:async sourceId=>artworkRenderSource(c.uploadDir,records.get(sourceId))}));
+   return res.json({mockup_upload_id:id,source_upload_id:image.id,...(studio.scene_version===sceneVersion?{source_upload_ids:sceneSourceIds(studio)}:{})});
   }
   if(['customer-library','customer-draft','customer-draft-preview'].includes(route)) {
    const u=await me(req,true);if(method==='POST')await throttle(req,'customer-autosave',1200);if(route==='customer-draft-preview')await throttle(req,'draft-preview',150);
@@ -356,8 +359,10 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
   if(method==='POST'&&route==='customer-text-preview'){
    await me(req,true);await throttle(req,'customer-text-preview',600);
    const p=printProductFor(text(v,'category',30));if(!p)fail(422,'Choose a product category.');
-   const layers=validateTextLayers({[p.id]:v.layers})[p.id];
-   return res.json({layers:await Promise.all(layers.map(async layer=>{const bytes=await renderTextGlyph(layer);return {id:layer.id,image:bytes?'data:image/png;base64,'+bytes.toString('base64'):null};}))});
+   if(v.scene_version!==undefined&&v.scene_version!==sceneVersion)fail(422,'Please check the design version.');
+   const layers=v.scene_version===sceneVersion?validateSceneTextLayers(v.layers):validateTextLayers({[p.id]:v.layers})[p.id];
+   const glyphs=[];for(const layer of layers){const bytes=await renderTextGlyph(layer);glyphs.push({id:layer.id,image:bytes?'data:image/png;base64,'+bytes.toString('base64'):null});}
+   return res.json({layers:glyphs});
   }
   if(method==='POST' && route==='customer-design') {
    const u=await me(req,true);await throttle(req,'customer-design',25);
@@ -367,15 +372,18 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
    const source=v.upload_id?text(v,'upload_id',64):null,image=source?await one('SELECT * FROM uploads WHERE id=? AND user_id=?',[source,u.id]):null;
    if(source&&(!image||!image.id.startsWith('art-')))fail(404,'Artwork not found.');
    const studio=validateDesignStudio(v.design_studio,source),type=printProductFor(p.category);
-   if(!image&&!hasText(studio,type.id))fail(422,'Add artwork or text to your design.');
+   const records=studio.scene_version===sceneVersion?await ownedSceneSources(db,studio,source,u.id):null;
+   if(records)for(const record of records.values()){try{const info=await fs.stat(artworkPath(c.uploadDir,record));if(!info.isFile()||info.size<1||info.size>artworkLimits.bytes)fail(409,'A design image is unavailable. Restore it before saving.');}catch(error){if(error instanceof ApiError)throw error;fail(409,'A design image is unavailable. Restore it before saving.');}}
+   if(studio.scene_version===sceneVersion?!sceneHasContent(studio,type.id):!image&&!hasText(studio,type.id))fail(422,'Add artwork or text to your design.');
+   if(records)for(const scene of Object.values(studio.scenes?.[type.id]||{}))for(const layer of scene.layers)if(layer.type==='text'&&layer.visible!==false&&layer.opacity>0)await textGlyphMetadata(layer,(type.canvas||type.preview)[0]);
    if(v.title!==undefined&&(typeof v.title!=='string'||[...v.title].length>80))fail(422,'Name your design using up to 80 characters.');
    const previewId=mockupId(source||'text-'+u.id,p.category,studio);
    if(!previewId)fail(422,'Choose a product category.');
    // Content-derived IDs make retries safe. Saved designs are immutable; further edits create a new design.
    const id='custom-'+hash(u.id+'|'+p.id+'|'+JSON.stringify(studio)+(v.title?.trim()?'|'+v.title.trim():'')).slice(0,40);
    await privateDirectory(c,c.uploadDir);
-   await ensureMockup(c,db,previewId,u.id,async()=>renderMockup(image?await artworkRenderSource(c.uploadDir,image):null,p.category,studio));
-   const data={upload_id:source,mockup_upload_id:previewId,design_studio:studio,category:p.category,...(v.title?{title:v.title.trim()}:{})};
+   await ensureMockup(c,db,previewId,u.id,async()=>renderMockup(image?await artworkRenderSource(c.uploadDir,image):null,p.category,studio,records?{resolveSource:async id=>{const record=records.get(id);if(!record)fail(404,'Artwork not found.');return artworkRenderSource(c.uploadDir,record);}}:{}));
+   const data={upload_id:source,...(records?{source_upload_ids:sceneSourceIds(studio)}:{}),mockup_upload_id:previewId,design_studio:studio,category:p.category,...(v.title?{title:v.title.trim()}:{})};
    await q('INSERT IGNORE INTO customer_designs VALUES (?,?,?,?,?)',[id,u.id,p.id,JSON.stringify(data),now()]);
    const saved=json((await one('SELECT data FROM customer_designs WHERE id=?',[id])).data);
    return res.json({customization_id:id,customization:{customization_id:id,...saved}});
@@ -383,7 +391,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
   if(method==='GET' && route==='image') {
    const a=await one('SELECT * FROM uploads WHERE id=?',[String(req.query.id||'')]),u=await me(req);
    if(!a) fail(404,'Artwork not found.');
-   const containsImage=p=>p.upload_id===a.id||p.mockup_upload_id===a.id||(Array.isArray(p.gallery_upload_ids)&&p.gallery_upload_ids.includes(a.id));
+   const containsImage=p=>studioSourceIds(p.design_studio,p.upload_id).includes(a.id)||p.mockup_upload_id===a.id||(Array.isArray(p.gallery_upload_ids)&&p.gallery_upload_ids.includes(a.id));
    const visible=(await products()).some(containsImage)||(await publicArtists(db)).some(profile=>(profile.portfolio_upload_ids||[]).includes(a.id));
    const assigned=!visible&&u?.role==='artist'&&(await products(true,u.id)).some(containsImage);
    if(!visible&&!assigned&&(!u||(u.id!==a.user_id&&u.role!=='admin'))) fail(404,'Artwork not found.');
@@ -397,7 +405,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
   if(method==='GET' && route==='artwork-metadata') {
    const u=await me(req,true),a=await one('SELECT * FROM uploads WHERE id=?',[String(req.query.id||'')]);
    if(!a)fail(404,'Artwork not found.');
-   const assigned=u.role==='artist'&&(await products(true,u.id)).some(p=>p.upload_id===a.id||p.mockup_upload_id===a.id||(p.gallery_upload_ids||[]).includes(a.id));
+   const assigned=u.role==='artist'&&(await products(true,u.id)).some(p=>studioSourceIds(p.design_studio,p.upload_id).includes(a.id)||p.mockup_upload_id===a.id||(p.gallery_upload_ids||[]).includes(a.id));
    if(u.role!=='admin'&&u.id!==a.user_id&&!assigned)fail(404,'Artwork not found.');
    return res.json({artwork:await artworkMetadata(c.uploadDir,a)});
   }
@@ -425,7 +433,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
    const requestKey=text(v,'request_key',100),batchId=hash(u.id+'|'+requestKey),prepared=[];
    for(const category of formats){
     const p=await validProduct({...v,category,mockup_upload_id:null},req,draft,true);if(!p.upload_id)fail(422,'Upload your original artwork first.');
-    if(p.design_studio&&p.design_studio.listing_mockup!==false){const image=await one('SELECT * FROM uploads WHERE id=?',[p.upload_id]),id=mockupId(p.upload_id,category,p.design_studio);await privateDirectory(c,c.uploadDir);await ensureMockup(c,db,id,image.user_id,async()=>renderMockup(await artworkRenderSource(c.uploadDir,image),category,p.design_studio));p.mockup_upload_id=id;}
+    if(p.design_studio&&p.design_studio.listing_mockup!==false){const image=await one('SELECT * FROM uploads WHERE id=?',[p.upload_id]),id=mockupId(p.upload_id,category,p.design_studio);await privateDirectory(c,c.uploadDir);await ensureMockup(c,db,id,image.user_id,async()=>renderMockup(await artworkRenderSource(c.uploadDir,image),category,p.design_studio,{resolveSource:async sourceId=>{if(!studioSourceIds(p.design_studio,p.upload_id).includes(sourceId))fail(404,'Artwork not found.');const record=await one('SELECT * FROM uploads WHERE id=?',[sourceId]);if(!record)fail(404,'Artwork not found.');return artworkRenderSource(c.uploadDir,record);}}));p.mockup_upload_id=id;}
     p.submission_group=batchId;p.print_formats=[category];prepared.push({id:'p-'+hash(batchId+'|'+category).slice(0,40),p});
    }
    const fingerprint=hash(JSON.stringify(prepared.map(item=>item.p)));
@@ -453,22 +461,29 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
     if(orderId){const row=await one('SELECT * FROM orders WHERE id=?',[orderId]),items=row?order(row).items.filter(item=>item.id===productId):[];if(!req.query.line&&items.length>1)fail(422,'Choose the exact order line.');p=items.find(item=>!req.query.line||item.line_id===req.query.line);if(p)p={...p,print_formats:[p.category]};}
     else {const row=await one('SELECT * FROM products WHERE id=?',[productId]);p=row?product(row):null;}
     if(!p)fail(404,'Product not found.');
-    const image=p.upload_id?await one('SELECT * FROM uploads WHERE id=?',[p.upload_id]):null;
+    const records=new Map();for(const sourceId of studioSourceIds(p.design_studio,p.upload_id)){const record=await one('SELECT * FROM uploads WHERE id=?',[sourceId]);if(!record)fail(409,'Some print originals are unavailable. Restore them before exporting.');records.set(sourceId,record);}
+    const image=records.get(p.upload_id)||null;
     if(route==='admin-design-artwork'){
      await throttle(req,'production-layout',10);
      if(!p.design_studio)fail(404,'No saved placement instructions for this product.');
-     const type=printProductFor(p.category),width=(type.canvas||type.preview)[0];
-     const bytes=await renderDesignTexture(image?await artworkRenderSource(c.uploadDir,image,null):null,p.category,p.design_studio,width);
+     const type=printProductFor(p.category),width=(type.canvas||type.preview)[0],surface=req.query.surface?String(req.query.surface):sceneSurface(type.id,p.design_studio.placements?.[type.id]?.view);
+     if(p.design_studio.scene_version===sceneVersion&&(!sceneSurfaces(type.id).includes(surface)||!p.design_studio.scenes?.[type.id]?.[surface]))fail(422,'Choose a saved print surface.');
+     if(req.query.surface&&p.design_studio.scene_version!==sceneVersion)fail(422,'This legacy design has one saved print layout.');
+     const bytes=await renderDesignTexture(image?await artworkRenderSource(c.uploadDir,image,null):null,p.category,p.design_studio,width,{surface,resolveSource:async id=>{const record=records.get(id);if(!record)fail(409,'A print original is unavailable.');return artworkRenderSource(c.uploadDir,record,null);}});
      await audit(u,'artwork.layout_download',orderId||p.id);
-     return res.attachment('veelad-'+(p.line_id||p.id).replace(/[^a-zA-Z0-9_-]/g,'_')+'-provisional-layout.png').type('image/png').send(bytes);
+     return res.attachment('veelad-'+(p.line_id||p.id).replace(/[^a-zA-Z0-9_-]/g,'_')+(p.design_studio.scene_version===sceneVersion?'-'+surface:'')+'-provisional-layout.png').type('image/png').send(bytes);
     }
-    const plan=productionPlan(p,image?await artworkMetadata(c.uploadDir,image):null);if(!plan)fail(404,'No saved placement instructions for this product.');if(orderId){plan.order_id=orderId;plan.line_id=p.line_id??null;plan.variant=p.variant;plan.quantity=p.qty;plan.customer_customized=p.customer_customized===true;}
+    const metadata=new Map();for(const [id,record] of records)metadata.set(id,await artworkMetadata(c.uploadDir,record));
+    const plan=productionPlan(p,metadata.get(p.upload_id)||null,metadata);if(!plan)fail(404,'No saved placement instructions for this product.');if(orderId){plan.order_id=orderId;plan.line_id=p.line_id??null;plan.variant=p.variant;plan.quantity=p.qty;plan.customer_customized=p.customer_customized===true;}
     await audit(u,'artwork.plan_download',orderId||p.id);return res.attachment('veelad-'+(orderId||p.id).replace(/[^a-zA-Z0-9_-]/g,'_')+'-placement.json').json(plan);
    }
    if(method==='GET' && ['admin-product-files','admin-product-files-download'].includes(route)) {
-    const row=await one('SELECT * FROM products WHERE id=?',[String(req.query.id||'')]);if(!row)fail(404,'Product not found.');
-    const p=product(row),ids=[...new Set([p.upload_id,...(p.gallery_upload_ids||[])].filter(Boolean))];
-    if(ids.length>7)fail(422,'Too many product files.');
+    const productId=String(req.query.id||''),orderId=req.query.order?String(req.query.order):null;let p;
+    if(orderId){const row=await one('SELECT * FROM orders WHERE id=?',[orderId]),items=row?order(row).items.filter(item=>item.id===productId):[];if(!req.query.line&&items.length>1)fail(422,'Choose the exact order line.');p=items.find(item=>!req.query.line||item.line_id===req.query.line);}
+    else {const row=await one('SELECT * FROM products WHERE id=?',[productId]);p=row?product(row):null;}
+    if(!p)fail(404,'Product not found.');
+    const ids=[...new Set([...studioSourceIds(p.design_studio,p.upload_id),...(p.gallery_upload_ids||[])].filter(Boolean))];
+    if(ids.length>23)fail(422,'Too many product files.');
     const records=[];
     for(const id of ids){const record=await one('SELECT * FROM uploads WHERE id=?',[id]);records.push(record?{...record,primary:id===p.upload_id}:{id,primary:id===p.upload_id});}
     if(route==='admin-product-files') {

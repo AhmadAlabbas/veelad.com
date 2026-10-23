@@ -17,7 +17,7 @@ async function catalogue(info){
 }
 async function fits(page){await page.evaluate(()=>document.fonts.ready);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);}
 
-test('seven visual categories preserve a sign-in choice, one original and distinct placements across languages, reload and bag saves',async({page},info)=>{
+test('seven visual categories preserve a sign-in choice, one reusable original and independent design layers across languages, reload and bag saves',async({page},info)=>{
  test.setTimeout(180000);page.setDefaultTimeout(15000);const fixture=await catalogue(info);const {ids,stamp}=fixture;const errors=[];page.on('pageerror',e=>errors.push(e.message));
  try{
   await page.route('**/api.php?route=bootstrap',async route=>{
@@ -35,24 +35,34 @@ test('seven visual categories preserve a sign-in choice, one original and distin
   await form.locator('[name=name]').fill('Seven-type creator');await form.locator('[name=email]').fill('seven-'+stamp+'@example.test');await form.locator('[name=password]').fill('Private local studio password 123');await form.locator('[type=submit]').click();
   form=page.locator('[data-form=customer-design]');
   await expect(form.locator('.design-studio')).toHaveAttribute('data-ready','true');
+  await expect(form.locator('.customer-workspace')).toBeVisible();
   await expect(form.locator('[name=product_id]')).toHaveValue(ids.mug);
   await expect(form.locator('[name=customer_category]:checked')).toHaveValue('mug');
   await expect(form.locator('[data-customer-selected-label]')).toHaveText('Mug');
   const original=await sharp({create:{width:1800,height:2400,channels:4,background:'#428576aa'}}).png().toBuffer();
-  await form.locator('#artwork-file').setInputFiles({name:'seven-type-private-original.png',mimeType:'image/png',buffer:original});
-  await expect(form.locator('#upload-status')).toContainText('Artwork ready');
+  await form.locator('[data-ws-upload]').setInputFiles({name:'seven-type-private-original.png',mimeType:'image/png',buffer:original});
+  await expect(form.locator('[name=upload_id]')).toHaveValue(/^art-/);
+  await expect(form.locator('[data-ws-artboard-layers] [data-ws-layer] img')).toHaveCount(1);
   const source=await form.locator('[name=upload_id]').inputValue();expect(source).toMatch(/^art-/);
-  const savedPlacements={};
+  const savedScenes={};
   for(const [index,[type,,price]]of types.entries()){
    await form.locator(`[data-customer-category-card="${type}"]`).click();
    await expect(form.locator('[name=product_id]')).toHaveValue(ids[type]);
    await expect(form.locator('.design-mockup')).toHaveAttribute('data-format',type);
    await expect(form.locator('[name=customer_category]:checked')).toHaveValue(type);
    await expect(form.locator('[name=upload_id]')).toHaveValue(source);
-   await expect(form.locator('.studio-canvas-status')).not.toBeVisible();
-   await form.locator('[data-placement=rotation]').fill(String(index*4+3));await form.locator('[data-placement=rotation]').dispatchEvent('input');
-   await expect.poll(async()=>JSON.parse(await form.locator('[name=design_studio]').inputValue()).placements[type].rotation).toBe(index*4+3);
-   savedPlacements[type]=JSON.parse(await form.locator('[name=design_studio]').inputValue()).placements[type];
+   await expect(form.locator('[data-ws-artboard]')).toBeVisible();
+   const surface=type==='mug'?'wrap':'front';
+   // Each item has its own editable scene. Reuse the private upload instead of
+   // uploading seven copies, then give each scene a different image rotation.
+   if(type!=='mug'){
+    await form.locator('[data-ws-tool=uploads]').click();
+    await form.locator(`[data-ws-reuse="${source}"]`).click();
+   }
+   await form.locator('[data-ws-tool=layers]').click();await form.locator('[data-ws-select]').first().click();
+   await form.locator('[data-ws-prop=rotation]').fill(String(index*4+3));await form.locator('[data-ws-prop=rotation]').dispatchEvent('input');
+   await expect.poll(async()=>JSON.parse(await form.locator('[name=design_studio]').inputValue()).scenes[type][surface].layers[0].rotation).toBe(index*4+3);
+   savedScenes[type]=JSON.parse(await form.locator('[name=design_studio]').inputValue()).scenes[type];
    await expect(form.locator('[data-customer-price]')).toContainText(String(price/100));
    await expect(form.locator('[data-customer-sample]')).toBeVisible();
    await form.locator('[name=rights]').check();await form.locator('[name=preview_accepted]').check();await form.locator('[data-customer-order]').click();
@@ -61,18 +71,20 @@ test('seven visual categories preserve a sign-in choice, one original and distin
   }
   await form.locator('[data-customer-category-card=shirt]').click();
   await expect(form.locator('[name=preview_accepted]')).not.toBeChecked();
-  await expect(form.locator('[data-placement=rotation]')).toHaveValue('3');
+  await form.locator('[data-ws-tool=layers]').click();await form.locator('[data-ws-select]').first().click();
+  await expect(form.locator('[data-ws-prop=rotation]')).toHaveValue('3');
   await page.locator('[data-action=language-switch]').first().click();await expect(page).toHaveURL(/\/ar\/create/);await expect(page.locator('html')).toHaveAttribute('dir','rtl');
   await expect(form.locator('[name=product_id]')).toHaveValue(ids.shirt);await expect(form.locator('[name=customer_category]:checked')).toHaveValue('shirt');
   await expect(page.locator('#customer-items-title')).toHaveText('وش ودّك تصمّم؟');
-  await expect(form.locator('[data-placement=rotation]')).toHaveValue('3');await fits(page);
+  await form.locator('[data-ws-tool=layers]').click();await form.locator('[data-ws-select]').first().click();
+  await expect(form.locator('[data-ws-prop=rotation]')).toHaveValue('3');await fits(page);
   await page.screenshot({path:info.outputPath('seven-categories-ar-editor.png'),fullPage:true});
   await form.locator('[data-save-customer-draft]').click();await expect(form.locator('[data-customer-save-status]')).not.toHaveAttribute('data-failed','true');
   await page.reload();form=page.locator('[data-form=customer-design]');await expect(form.locator('.design-studio')).toHaveAttribute('data-ready','true');
   await expect(form.locator('[name=product_id]')).toHaveValue(ids.shirt);await expect(form.locator('[name=upload_id]')).toHaveValue(source);
-  const state=JSON.parse(await form.locator('[name=design_studio]').inputValue());for(const [type,placement]of Object.entries(savedPlacements))expect(state.placements[type]).toEqual(placement);
+  const state=JSON.parse(await form.locator('[name=design_studio]').inputValue());expect(state.scene_version).toBe('veelad-scene-1');for(const [type,scene]of Object.entries(savedScenes))expect(state.scenes[type]).toEqual(scene);
   await expect(form.locator('[name=preview_accepted]')).not.toBeChecked();
-  const bag=await page.evaluate(async()=>await api('state'));const lines=bag.cart.filter(line=>line.id.startsWith('seven-'));expect(lines).toHaveLength(7);expect(new Set(lines.map(line=>line.customization.category)).size).toBe(7);expect(lines.every(line=>line.customization.upload_id===source)).toBe(true);
+  const bag=await page.evaluate(async()=>await api('state'));const lines=bag.cart.filter(line=>line.id.startsWith('seven-'));expect(lines).toHaveLength(7);expect(new Set(lines.map(line=>line.customization.category)).size).toBe(7);expect(lines.every(line=>line.customization.upload_id===source)).toBe(true);expect(lines.every(line=>line.customization.design_studio.scene_version==='veelad-scene-1')).toBe(true);
   // A formerly published product can remain in a saved draft. It is still
   // editable, but must not make its category appear available for a new order.
   await fixture.db.q("UPDATE products SET status='pending' WHERE id=?",[ids.shirt]);

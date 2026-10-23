@@ -4,9 +4,9 @@ import {artworkLimits,artworkPath} from './artwork.js';
 import {fail} from './security.js';
 
 // Small, uncompressed ZIP archives preserve exact originals without buffering the bundle.
-// The format is limited to seven existing product attachments, each at most 25 MiB.
+// The format is limited to 23 existing product or scene attachments, each at most 25 MiB.
 export async function prepareArtworkArchive(directory,records) {
- if(!records.length||records.length>7)fail(422,'Choose a product with uploaded files.');
+ if(!records.length||records.length>23)fail(422,'Choose a product with uploaded files.');
  const entries=[];
  const close=async()=>{await Promise.all(entries.map(entry=>entry.file.close().catch(()=>{})));};
  try {

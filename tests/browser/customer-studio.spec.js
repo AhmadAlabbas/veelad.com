@@ -9,6 +9,13 @@ try {
   if (e.code !== "ENOENT") throw e;
 }
 
+async function selectImageLayer(form, type) {
+  const state = JSON.parse(await form.locator("[name=design_studio]").inputValue());
+  const layer = state.scenes[type].front.layers.find((layer) => layer.type === "image");
+  await form.locator("[data-ws-tool=layers]").click();
+  await form.locator(`[data-ws-select="${layer.id}"]`).click();
+}
+
 test("customers customize two products with one private original, switch language, order, and admin downloads the matching files", async ({
   page,
   browser,
@@ -111,12 +118,12 @@ test("customers customize two products with one private original, switch languag
     })
       .png()
       .toBuffer();
-    await form.locator("#artwork-file").setInputFiles({
+    await form.locator("[data-ws-upload]").setInputFiles({
       name: "personal-original.png",
       mimeType: "image/png",
       buffer: original,
     });
-    await expect(form.locator("#upload-status")).toContainText("Artwork ready");
+    await expect(form.locator(".customer-workspace")).not.toHaveAttribute("data-uploading", "true");
     await expect
       .poll(
         async () =>
@@ -124,30 +131,25 @@ test("customers customize two products with one private original, switch languag
             .artwork_id,
       )
       .toMatch(/^art-/);
-    await expect(form.locator("[data-artwork-metadata]")).toContainText(
-      "2,400",
-    );
-    await form.locator("[data-placement=rotation]").fill("13");
-    await form.locator("[data-placement=rotation]").dispatchEvent("input");
+    const source = JSON.parse(await form.locator("[name=design_studio]").inputValue()).artwork_id;
+    const metadata = await page.request.get("/api.php?route=artwork-metadata&id=" + source);
+    expect((await metadata.json()).artwork.width).toBe(2400);
+    await selectImageLayer(form, "shirt");
+    await form.locator("[data-ws-prop=rotation]").fill("13");
+    await form.locator("[data-ws-prop=rotation]").dispatchEvent("input");
     await page.locator("[data-action=language-switch]").first().click();
     await expect(page).toHaveURL(/\/ar\/create/);
     await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
-    await expect(form.locator(".studio-upload-note")).toContainText(
-      "استخدم PNG شفافًا",
-    );
-    await expect(form.locator("[data-artwork-metadata]")).toContainText(
-      "الملف الأصلي",
-    );
-    await expect(form.locator("#upload-status")).toContainText(
-      "يبقى التصميم الحالي",
-    );
+    await expect(form.locator(".customer-workspace")).toBeVisible();
+    await expect(form.locator(".cw-studio-title h3")).toHaveText("استوديو التصميم");
     await expect(form.locator("[name=product_id]")).toHaveValue(shirtId);
     await expect(form.locator("[name=variant]")).toHaveValue("M");
     await expect(form.locator(".design-studio")).toHaveAttribute(
       "data-ready",
       "true",
     );
-    await expect(form.locator("[data-placement=rotation]")).toHaveValue("13");
+    await selectImageLayer(form, "shirt");
+    await expect(form.locator("[data-ws-prop=rotation]")).toHaveValue("13");
     await expect(form.locator(".studio-canvas-status")).not.toBeVisible();
     await page.evaluate(() => document.fonts.ready);
     expect(
@@ -165,7 +167,8 @@ test("customers customize two products with one private original, switch languag
       "data-ready",
       "true",
     );
-    await expect(form.locator("[data-placement=rotation]")).toHaveValue("13");
+    await selectImageLayer(form, "shirt");
+    await expect(form.locator("[data-ws-prop=rotation]")).toHaveValue("13");
     await expect(form.locator(".studio-canvas-status")).not.toBeVisible();
     await page.screenshot({
       path: info.outputPath("customer-studio-en.png"),
@@ -187,14 +190,17 @@ test("customers customize two products with one private original, switch languag
       "notebook",
     );
     await expect(form.locator("[name=preview_accepted]")).not.toBeChecked();
-    await expect(form.locator("#upload-preview img")).toBeVisible();
+    await form.locator("[data-ws-tool=uploads]").click();
+    await expect(form.locator(`[data-ws-reuse="${source}"]`)).toBeVisible();
+    await form.locator(`[data-ws-reuse="${source}"]`).click();
+    await selectImageLayer(form, "notebook");
     await form.locator("[name=preview_accepted]").check();
     const reviewedState = await form.locator("[name=design_studio]").inputValue();
     await page.evaluate(() => refreshArtworkMetadata(uploadId));
     await expect(form.locator("[name=design_studio]")).toHaveValue(reviewedState);
     await expect(form.locator("[name=preview_accepted]")).toBeChecked();
-    await form.locator("[data-placement=rotation]").fill("7");
-    await form.locator("[data-placement=rotation]").dispatchEvent("input");
+    await form.locator("[data-ws-prop=rotation]").fill("7");
+    await form.locator("[data-ws-prop=rotation]").dispatchEvent("input");
     await expect(form.locator("[name=preview_accepted]")).not.toBeChecked();
     await form.locator("[name=preview_accepted]").check();
     await form.locator("[type=submit]").click();
@@ -223,7 +229,8 @@ test("customers customize two products with one private original, switch languag
       "data-ready",
       "true",
     );
-    await expect(form.locator("[data-placement=rotation]")).toHaveValue("13");
+    await selectImageLayer(form, "shirt");
+    await expect(form.locator("[data-ws-prop=rotation]")).toHaveValue("13");
     await form.locator("[name=preview_accepted]").check();
     await form.locator("[type=submit]").click();
     await expect(page.locator("#modal")).toBeVisible();
@@ -278,7 +285,7 @@ test("customers customize two products with one private original, switch languag
     try {
       for (const src of images)
         expect(
-          (await stranger.request.get("http://127.0.0.1:3000" + src)).status(),
+          (await stranger.request.get(new URL(src, page.url()).href)).status(),
         ).toBe(404);
     } finally {
       await stranger.close();
@@ -306,7 +313,8 @@ test("customers customize two products with one private original, switch languag
     const plan = JSON.parse(
       await fs.readFile(await (await planDownload).path(), "utf8"),
     );
-    expect(plan.products[0].placement.rotation).toBe(13);
+    expect(plan.scene_version).toBe("veelad-scene-1");
+    expect(plan.products[0].surfaces.find((surface) => surface.surface === "front").layers.find((layer) => layer.type === "image").rotation).toBe(13);
     expect(plan.customer_customized).toBe(true);
     expect(plan.variant).toBe("M");
     expect(plan.source_upload_id).toBe(last.order.items[0].upload_id);

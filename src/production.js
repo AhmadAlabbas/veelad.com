@@ -12,6 +12,7 @@ import {
 } from "./security.js";
 import { artworkMetadata, artworkPreview, readArtwork } from "./artwork.js";
 import { hasText } from "./text-layers.js";
+import {studioSourceIds,sceneHasContent,sceneVersion} from "./design-scenes.js";
 import { printProductFor } from "./design-studio.js";
 
 export const productionStages = [
@@ -226,25 +227,15 @@ export async function productionRoute({
             );
         if (["ready", "printing"].includes(next))
           for (const item of data.items) {
-            if (item.upload_id) {
-              const image = await db.one(
-                "SELECT * FROM uploads WHERE id=?",
-                [item.upload_id],
-                conn,
-              );
-              if (!image)
-                fail(
-                  409,
-                  "Attach a print original or customer text before production.",
-                );
-              await readArtwork(c.uploadDir, image);
-            } else if (
-              !hasText(item.design_studio, printProductFor(item.category)?.id)
-            )
-              fail(
-                409,
-                "Attach a print original or customer text before production.",
-              );
+            const sources=studioSourceIds(item.design_studio,item.upload_id);
+            for(const id of sources){
+              const image=await db.one("SELECT * FROM uploads WHERE id=?",[id],conn);
+              if(!image)fail(409,"Attach every design image before production.");
+              await readArtwork(c.uploadDir,image);
+            }
+            const type=printProductFor(item.category)?.id;
+            if(item.design_studio?.scene_version===sceneVersion?!sceneHasContent(item.design_studio,type):!sources.length&&!hasText(item.design_studio,type))
+              fail(409,"Attach a print original or customer text before production.");
           }
         p.stage = next;
       } else fail(422, "Choose a production action.");

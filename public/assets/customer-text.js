@@ -1,6 +1,7 @@
 /* Text glyphs are shaped by the same bundled fonts used for production exports. */
 "use strict";
 function textLayersFor(instance) {
+  if(instance.sceneEditor)return customerScene(instance).layers.filter(layer=>layer.type==='text');
   return instance.state.text_layers?.[instance.product().id] || [];
 }
 function textGlyphKey(layers) {
@@ -232,6 +233,7 @@ document.addEventListener("click", (event) => {
   const root = start.closest("form").querySelector(".design-studio"),
     instance = studioInstances.get(root);
   if (!instance) return;
+  if(instance.workspace?.addText){instance.workspace.addText();root.scrollIntoView({block:'start',behavior:'smooth'});return;}
   instance.customerTool = "text";
   instance.customerToolChosen = true;
   syncCustomerTextTools(instance);

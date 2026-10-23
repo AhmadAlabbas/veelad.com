@@ -6,7 +6,7 @@ Artists upload an original, preview it on seven generic products, adjust each pl
 
 The seven product families are T-shirts, tote bags, mugs, notebooks, phone cases, art prints and stickers. Templates are **provisional**: no supplier templates have been supplied. The current white generic product bases are AI-generated photographic-style illustrations, with manually calibrated surface meshes for deterministic artwork placement. They are not photographs of a supplier's actual goods. The initial Blender-based prototype has been superseded. The interface and exported PNG label them as visual previews, not print files or physical samples.
 
-Each product retains independent position, scale, rotation, repetition, print-area background and view. T-shirts support front/back placement views; mugs support opposite views of the same wrap. This version has one design/placement per product family, not separate artworks for two garment sides. Phone camera cutouts are generic and are not device-specific fit guarantees. Stickers use a generic rounded-square surface, not an automatic die-cut contour. Material color is the generic template color; background controls affect the printable area only.
+Each product retains independent position, scale, rotation, repetition, print-area background and view. The artist listing editor retains one design/placement per product family. The customer creative workspace now supports independent layered front/back shirt designs; see the customer section below. Mugs use opposite views of the same continuous wrap. Phone camera cutouts are generic and are not device-specific fit guarantees. Stickers use a generic rounded-square surface, not an automatic die-cut contour. Material color is the generic template color; background controls affect the printable area only.
 
 Drag on the product's printable surface to reposition; keyboard arrows adjust by 1% (Shift: 5%). Numeric controls allow exact logical placement. The dashed guides show the provisional printable boundary and a 5% inset. No supplier bleed, spot colors, color matching, CMYK conversion, device-specific manufacturing file, or production-ready PDF is generated. Original bytes remain unchanged.
 
@@ -67,3 +67,51 @@ Product galleries preserve the listing's main image and additional uploaded phot
 The metadata response provides a content signature and bounded preview URLs under `product-gallery-image`. Every metadata and image request checks current listing access; private listings require their assigned artist or an administrator, including cache hits. Stale signatures and unsupported views are rejected. Responses reveal no original file path or placement instructions and never provide print-original downloads. These remain in the existing authorized administrator/owner controls.
 
 Additional images are 1000 px WebP derivatives held in a disposable process cache of at most 16 entries / 16 MiB. Two rendering slots, a bounded queue and a limit on new render work protect the runtime. No product, upload, order, account or mail record is changed to display these views. A restart discards the cache and authorized requests regenerate it. No new dependency, secret, database migration or image-service account is required. Reverting the gallery release preserves original files, existing mockups and order instructions.
+
+## Customer creative workspace (2026-10-23)
+
+The signed-in **Create your own** page has a flat, editable artboard and a separate product-preview mode. Customers can add multiple PNG/JPEG originals, mix text and images in any stacking order, drag, resize, rotate, change opacity, align to the centre, duplicate, hide, lock and reorder layers. Undo/redo retains complete scene snapshots; switching languages changes interface direction without mirroring artwork. T-shirts have independent **front** and **back** scenes. Copying between sides asks before replacing existing content. A mug has one **wrap** scene, shared by both preview camera angles. Other products currently have one front print surface.
+
+The browser uses exact server-shaped text glyphs for the artboard and the same shared geometry as the print renderer. Selecting a font does not substitute browser fallback lettering in the production file. Image quality checks use native original dimensions, rather than the smaller browser image preview. Product previews remain illustrative and provisional. Saving a two-sided layout does not confirm a supplier's two-sided printing capability or a final surcharge.
+
+Limits are explicit: 24 image/text layers per surface, 120 layers across all seven product layouts, 16 distinct originals per design, and 500 Unicode code points/12 lines per text layer. Each original remains limited to PNG/JPEG, 25 MiB and 60 megapixels. Large print exports and individual text rasters have bounded pixel budgets. Finalization checks text at the provisional native print size, so a layout that cannot be rendered is rejected before becoming an immutable ordered design. Drafts remain editable to correct such issues.
+
+### Fonts
+
+The local catalogue contains **152 font choices**, including **29 with Arabic coverage**, spanning **57 Unicode script codes**. This describes font coverage, not a promise that every language or every emoji is supported. Search by name, script and style; unsupported characters produce a helpful warning and server validation. Historical Manrope/DM Sans Arabic fallback is preserved when upgrading old layouts.
+
+The font catalogue is requested only when the workspace needs it. Individual font files load on demand with at most four simultaneous browser downloads. CJK families are large and remain lazy. The website makes no runtime Google Fonts request. Browser sample fonts and server text rendering use the same pinned TTF files; licences, hashes, provenance and reproduction instructions are in [the font library README](../public/assets/fonts/library/README.md). `tools/prepare-design-fonts.py` reproduces the catalogue. Asset requests carry revision/hash versions to avoid stale Hostinger caches.
+
+### Scene data and file safety
+
+The version-1 studio envelope gains `scene_version: "veelad-scene-1"` and `scenes[productType][surface] = {background, layers}`. Image layers reference private `art-*` upload IDs and normalized width/height; text layers retain text, an allowlisted font, colour, normalized size, alignment and direction. Both share stable IDs, centre coordinates, rotation, opacity, visibility and locking. Array order defines stacking. `placements[type].view` selects a preview camera; it never overwrites the opposite print surface.
+
+```mermaid
+flowchart LR
+  U[Private originals] --> E[Layered customer draft]
+  F[Licensed local fonts] --> G[Server-shaped glyphs]
+  G --> E
+  E --> P[Bounded product preview]
+  E --> V[Ownership and native text checks]
+  V --> S[Immutable saved design]
+  S --> O[Immutable order snapshot]
+  O --> A[Administrator: all originals and per-side PNGs]
+  O --> B[Database and artwork backup]
+```
+
+All image references, including hidden layers and other saved product layouts, are checked for ownership. Source lists are derived on the server. Missing secondary originals block finalization/checkout/production. Restoring or editing a draft never changes an earlier order. Existing single-image artist listings and historical version-1 orders keep their original rendering and hash behavior; upgrading is confined to the private customer editing workflow. No database migration is needed because existing JSON columns hold the additive scene data.
+
+Administrators download **every unchanged original**, an order-specific ZIP, and separate **front/back/wrap composed PNGs** from the immutable order line. Native PNGs use full-resolution sources rather than browser thumbnails. The placement plan includes all surfaces, layers, source IDs and per-image DPI estimates. A composed PNG is still based on provisional dimensions; confirm supplier requirements before printing. The existing proof workflow records one latest proof per order line, so a multi-side proof must show both sides clearly in its image/caption.
+
+### Relevant code
+
+| Area | Files |
+| --- | --- |
+| Scene model and compatibility | `public/assets/customer-scenes.js`, `src/design-scenes.js`, `src/design-studio.js` |
+| Responsive editing controls | `public/assets/customer-workspace.js`, `public/assets/customer-workspace.css` |
+| Font registry and shaping | `src/font-library.js`, `src/text-layers.js`, `public/assets/design-fonts.js` |
+| Print and preview compositing | `src/scene-renderer.js`, `src/mockup-renderer.js`, `public/assets/design-math.js` |
+| Drafts, immutable designs and orders | `src/customer-drafts.js`, `src/app.js`, `public/assets/customer-library.js` |
+| Administrator production handoff | `public/assets/production-files.js`, `production-workspace.js`, `print-job.js`, `src/production.js` |
+
+Tests cover bounds, font licences/coverage, private ownership, missing secondary files, independent sides, stacking/opacity/clipping, native-source print detail, immutable snapshots, ZIP contents, client/server pixel parity, desktop/iPhone editing, autosave, language changes and existing artist workflows. Deployment remains staging-first. No production environment variables, production catalogue, supplier specifications or payment settings are changed by this editor upgrade.

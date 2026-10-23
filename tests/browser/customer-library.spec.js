@@ -9,6 +9,23 @@ try {
   if (e.code !== "ENOENT") throw e;
 }
 
+const sceneText = (state) => state.scenes.shirt.front.layers.filter((layer) => layer.type === "text");
+async function selectTextLayer(form, index = 0) {
+  const state = JSON.parse(await form.locator("[name=design_studio]").inputValue());
+  const layer = sceneText(state)[index];
+  await form.locator("[data-ws-tool=layers]").click();
+  await form.locator(`[data-ws-select="${layer.id}"]`).click();
+}
+async function chooseFont(form, id, query) {
+  await form.locator("[data-ws-tool=fonts]").click();
+  await form.locator("[data-ws-font-search]").fill(query);
+  await form.locator(`[data-ws-font="${id}"]`).click();
+}
+async function addText(form) {
+  await form.locator("[data-ws-tool=text]").click();
+  await form.locator("[data-ws-panel=text] [data-ws-add-text=body]").click();
+}
+
 test("bilingual text designs autosave, survive reload/offline recovery, appear in My Designs and print from immutable order snapshots", async ({
   page,
   browser,
@@ -57,12 +74,12 @@ test("bilingual text designs autosave, survive reload/offline recovery, appear i
     );
     await form.locator("[name=product_id]").selectOption(pid);
     await form.locator("[name=design_name]").fill("هدية أحمد / Ahmed gift");
-    await form.locator("[data-text-add]").click();
+    await addText(form);
     const mixed = "مرحبا Veelad";
-    await form.locator("[data-text-prop=text]").fill(mixed);
-    await form.locator("[data-text-prop=font]").selectOption("arabic-bold");
-    await form.locator("[data-text-prop=color]").fill("#ba2038");
-    await form.locator("[data-text-prop=y]").fill("40");
+    await form.locator("[data-ws-prop=text]").fill(mixed);
+    await chooseFont(form, "arabic-bold", "Veelad Arabic Bold");
+    await form.locator("[data-ws-prop=color]").fill("#ba2038");
+    await form.locator("[data-ws-prop=y]").fill("40");
     await expect(form.locator(".studio-canvas-status")).not.toBeVisible();
     await expect(form.locator("[data-customer-save-status]")).toHaveText(
       "All changes saved",
@@ -79,11 +96,10 @@ test("bilingual text designs autosave, survive reload/offline recovery, appear i
     await expect(form.locator("[name=design_name]")).toHaveValue(
       "هدية أحمد / Ahmed gift",
     );
-    await expect(form.locator("[data-text-prop=text]")).toHaveValue(mixed);
-    await expect(form.locator("[data-text-prop=font]")).toHaveValue(
-      "arabic-bold",
-    );
-    await expect(form.locator("[data-text-prop=color]")).toHaveValue("#ba2038");
+    await selectTextLayer(form);
+    await expect(form.locator("[data-ws-prop=text]")).toHaveValue(mixed);
+    expect(sceneText(JSON.parse(await form.locator("[name=design_studio]").inputValue()))[0].font).toBe("arabic-bold");
+    await expect(form.locator("[data-ws-prop=color]")).toHaveValue("#ba2038");
     await expect(form.locator(".studio-canvas-status")).not.toBeVisible();
     await page.locator("[data-action=language-switch]").first().click();
     await expect(page).toHaveURL(/\/ar\/create/);
@@ -91,10 +107,9 @@ test("bilingual text designs autosave, survive reload/offline recovery, appear i
       "data-ready",
       "true",
     );
-    await expect(form.locator("[data-text-prop=text]")).toHaveValue(mixed);
-    await expect(form.locator(".customer-text-tools h3")).toHaveText(
-      "اكتب اللي في بالك",
-    );
+    await selectTextLayer(form);
+    await expect(form.locator("[data-ws-prop=text]")).toHaveValue(mixed);
+    await expect(form.locator(".cw-studio-title h3")).toHaveText("استوديو التصميم");
     await expect(form.locator(".studio-canvas-status")).not.toBeVisible();
     await page.evaluate(() => document.fonts.ready);
     expect(
@@ -112,10 +127,10 @@ test("bilingual text designs autosave, survive reload/offline recovery, appear i
       "data-ready",
       "true",
     );
-    await form.locator("[data-text-add]").click();
-    await form.locator("[data-text-prop=text]").fill("For Ahmed");
-    await form.locator("[data-text-prop=font]").selectOption("manrope");
-    await form.locator("[data-text-prop=y]").fill("70");
+    await addText(form);
+    await form.locator("[data-ws-prop=text]").fill("For Ahmed");
+    await chooseFont(form, "manrope", "Manrope");
+    await form.locator("[data-ws-prop=y]").fill("70");
     await expect
       .poll(async () =>
         form.locator(".design-studio").getAttribute("data-text-busy"),
@@ -155,13 +170,14 @@ test("bilingual text designs autosave, survive reload/offline recovery, appear i
       "data-ready",
       "true",
     );
-    await expect(form.locator("[data-text-prop=text]")).toHaveValue(mixed);
+    await selectTextLayer(form);
+    await expect(form.locator("[data-ws-prop=text]")).toHaveValue(mixed);
     // A failed save keeps a device recovery copy. Reload restores it without overwriting server edits blindly.
     const blocked = async (route) =>
       route.request().method() === "POST" ? route.abort() : route.continue();
     await page.route("**/api.php?route=customer-draft", blocked);
     await page.route("**/api.php?route=customer-text-preview", blocked);
-    await form.locator("[data-text-prop=text]").fill("Offline recovery مرحبا");
+    await form.locator("[data-ws-prop=text]").fill("Offline recovery مرحبا");
     await expect(form.locator("[data-customer-save-status]")).toContainText(
       "Could not sync",
       { timeout: 15000 },
@@ -171,7 +187,8 @@ test("bilingual text designs autosave, survive reload/offline recovery, appear i
       "data-ready",
       "true",
     );
-    await expect(form.locator("[data-text-prop=text]")).toHaveValue(
+    await selectTextLayer(form);
+    await expect(form.locator("[data-ws-prop=text]")).toHaveValue(
       "Offline recovery مرحبا",
     );
     await page.unroute("**/api.php?route=customer-draft", blocked);
@@ -188,7 +205,7 @@ test("bilingual text designs autosave, survive reload/offline recovery, appear i
       "SELECT data FROM customer_design_drafts WHERE id=?",
       [draftId],
     );
-    expect(JSON.parse(row.data).design_studio.text_layers.shirt[0].text).toBe(
+    expect(sceneText(JSON.parse(row.data).design_studio)[0].text).toBe(
       "Offline recovery مرحبا",
     );
     const changeElsewhere = async (title) => {
@@ -293,7 +310,7 @@ test("bilingual text designs autosave, survive reload/offline recovery, appear i
       ),
       item = last.order.items[0];
     expect(item.upload_id).toBeNull();
-    expect(item.design_studio.text_layers.shirt.map((l) => l.text)).toEqual([
+    expect(sceneText(item.design_studio).map((l) => l.text)).toEqual([
       mixed,
       "For Ahmed",
     ]);
@@ -324,7 +341,7 @@ test("bilingual text designs autosave, survive reload/offline recovery, appear i
     const plan = JSON.parse(
       await fs.readFile(await (await planDownload).path(), "utf8"),
     );
-    expect(plan.products[0].text_layers[0].text).toBe(mixed);
+    expect(plan.products[0].surfaces.find((surface) => surface.surface === "front").layers.find((layer) => layer.type === "text").text).toBe(mixed);
     expect(plan.source_upload_id).toBeNull();
     expect(plan.supplier_confirmed).toBe(false);
     expect(errors).toEqual([]);

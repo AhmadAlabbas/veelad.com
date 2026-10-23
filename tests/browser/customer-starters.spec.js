@@ -4,6 +4,8 @@ import { config } from "../../src/config.js";
 import { database } from "../../src/db.js";
 try { process.loadEnvFile(".env"); } catch (error) { if (error.code !== "ENOENT") throw error; }
 
+const sceneText = (state, type) => (state.scenes[type]?.[type === "mug" ? "wrap" : "front"]?.layers || []).filter((layer) => layer.type === "text");
+
 test("starter layouts stay editable, protect existing artwork and text, autosave, and survive language changes", async ({ page }, info) => {
   test.setTimeout(120000);
   const c = config();
@@ -32,6 +34,7 @@ test("starter layouts stay editable, protect existing artwork and text, autosave
     await register.locator("[type=submit]").click();
     await expect(page).toHaveURL(/\/en\/create/);
     await expect(studio().locator(".design-studio")).toHaveAttribute("data-ready", "true");
+    await studio().locator("[data-ws-tool=layouts]").click();
     await expect(starters().locator("[data-starter-select]")).toHaveCount(8);
     await page.evaluate(() => document.fonts.ready);
     const miniatureOverflow = await starters().locator(".starter-line").evaluateAll((lines) => lines.filter((line) => {
@@ -49,14 +52,16 @@ test("starter layouts stay editable, protect existing artwork and text, autosave
     await starters().locator("[data-starter-field=name]").fill("سارة راشد");
     await starters().locator("[data-starter-apply]").click();
     await settled();
-    const mugText = (await state()).text_layers.mug;
+    const mugText = sceneText(await state(), "mug");
     await studio().locator("[name=product_id]").selectOption(shirt);
-    await studio().locator("#artwork-file").setInputFiles({ name: "private-original.png", mimeType: "image/png", buffer: await sharp({ create: { width: 1200, height: 1400, channels: 4, background: "#c7dcda" } }).png().toBuffer() });
+    await studio().locator("[data-ws-tool=uploads]").click();
+    await studio().locator("[data-ws-upload]").setInputFiles({ name: "private-original.png", mimeType: "image/png", buffer: await sharp({ create: { width: 1200, height: 1400, channels: 4, background: "#c7dcda" } }).png().toBuffer() });
     await expect(studio().locator("[name=upload_id]")).not.toHaveValue("");
     await expect(studio().locator(".design-studio")).not.toHaveAttribute("data-text-busy", "true");
     const source = await studio().locator("[name=upload_id]").inputValue();
     await expect.poll(async () => (await state()).artwork_id).toBe(source);
     const before = await state();
+    await studio().locator("[data-ws-tool=layouts]").click();
 
     await starters().locator("[data-starter-select=arabic-name]").click();
     await studio().locator("[name=rights]").check();
@@ -76,13 +81,13 @@ test("starter layouts stay editable, protect existing artwork and text, autosave
     await settled();
     expect(designRequests).toEqual([]);
     const applied = await state();
-    expect(applied.text_layers.shirt.map((layer) => layer.text)).toEqual(["صُنع لك", "عبدالعزيز", "تفاصيل على ذوقي"]);
-    expect(applied.text_layers.mug).toEqual(mugText);
+    expect(sceneText(applied, "shirt").map((layer) => layer.text)).toEqual(["صُنع لك", "عبدالعزيز", "تفاصيل على ذوقي"]);
+    expect(sceneText(applied, "mug")).toEqual(mugText);
     expect(applied.placements).toEqual(before.placements);
     expect(applied.artwork_id).toBe(source);
     await expect(studio().locator("[name=preview_accepted]")).not.toBeChecked();
-    await expect(studio().locator("[data-text-prop=text]")).toHaveValue("عبدالعزيز");
-    await studio().locator("[data-text-prop=text]").fill("عبدالعزيز سعود");
+    await expect(studio().locator("[data-ws-prop=text]")).toHaveValue("عبدالعزيز");
+    await studio().locator("[data-ws-prop=text]").fill("عبدالعزيز سعود");
     await expect(studio().locator("[data-customer-save-status]")).toHaveText("All changes saved", { timeout: 15000 });
     const edited = await state();
 
@@ -107,19 +112,19 @@ test("starter layouts stay editable, protect existing artwork and text, autosave
     releasePreview();
     await settled();
     await page.unroute("**/api.php?route=customer-text-preview");
-    await studio().locator("[data-studio-undo]").click();
-    expect((await state()).text_layers.shirt).toEqual(edited.text_layers.shirt);
-    expect((await state()).text_layers.mug).toEqual(mugText);
+    await studio().locator("[data-ws-action=undo]").click();
+    expect(sceneText(await state(), "shirt")).toEqual(sceneText(edited, "shirt"));
+    expect(sceneText(await state(), "mug")).toEqual(mugText);
     expect((await state()).artwork_id).toBe(source);
     await expect(studio().locator("[data-customer-save-status]")).toHaveText("All changes saved", { timeout: 15000 });
     await page.reload();
     await expect(studio().locator(".design-studio")).toHaveAttribute("data-ready", "true");
-    expect((await state()).text_layers).toEqual(edited.text_layers);
+    expect((await state()).scenes).toEqual(edited.scenes);
     await page.locator("[data-action=language-switch]").first().click();
     await expect(page).toHaveURL(/\/ar\/create/);
     await expect(studio().locator(".design-studio")).toHaveAttribute("data-ready", "true");
-    expect((await state()).text_layers).toEqual(edited.text_layers);
-    await starters().locator("summary").click();
+    expect((await state()).scenes).toEqual(edited.scenes);
+    await studio().locator("[data-ws-tool=layouts]").click();
     await expect(starters().locator("summary strong")).toHaveText("ابدأ بفكرة جاهزة");
     const savedState = await state();
     for (const key of ["arabic-name", "initials", "birthday", "minimal-name", "gift-note", "coffee", "graduation", "our-date"]) {

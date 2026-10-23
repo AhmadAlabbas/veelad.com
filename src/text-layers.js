@@ -1,19 +1,12 @@
 import sharp from "sharp";
 import fs from "node:fs/promises";
-import { fileURLToPath } from "node:url";
 import { fail } from "./security.js";
 
-export const designFonts = {
-  arabic: { family: "Veelad Arabic", file: "veelad-arabic-400.ttf" },
-  "arabic-bold": {
-    family: "Veelad Arabic Bold",
-    file: "veelad-arabic-700.ttf",
-  },
-  manrope: { family: "Manrope", file: "manrope-400.ttf" },
-  "dm-sans": { family: "DM Sans", file: "dm-sans-400.ttf" },
-};
+import {designFonts,fontPath,legacyFontForText,supportsText} from './font-library.js';
+export {designFonts} from './font-library.js';
 const types = ["shirt", "tote", "mug", "notebook", "phone", "print", "sticker"];
-export function validateTextLayers(value = {}) {
+export function validateTextLayers(value = {}, options = {}) {
+  const scene=options.scene===true;
   if (
     !value ||
     typeof value !== "object" ||
@@ -23,15 +16,15 @@ export function validateTextLayers(value = {}) {
     fail(422, "Please check the text layers.");
   const result = {};
   for (const [type, layers] of Object.entries(value)) {
-    if (!Array.isArray(layers) || layers.length > 4)
-      fail(422, "Add up to four text layers per product.");
+    if (!Array.isArray(layers) || layers.length > (scene?24:4))
+      fail(422, scene?"Add up to 24 layers per print surface.":"Add up to four text layers per product.");
     result[type] = layers.map((layer, index) => {
       if (
         !layer ||
         typeof layer !== "object" ||
         typeof layer.text !== "string" ||
-        [...layer.text].length > 120 ||
-        layer.text.split("\n").length > 4 ||
+        [...layer.text].length > (scene?500:120) ||
+        layer.text.split("\n").length > (scene?12:4) ||
         /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f\u202a-\u202e\u2066-\u2069]/u.test(
           layer.text,
         ) ||
@@ -46,7 +39,7 @@ export function validateTextLayers(value = {}) {
       for (const [key, min, max] of [
         ["x", 0, 1],
         ["y", 0, 1],
-        ["size", 0.02, 0.2],
+        ["size", scene?0.005:0.02, scene?0.5:0.2],
         ["rotation", -180, 180],
       ])
         if (
@@ -55,6 +48,7 @@ export function validateTextLayers(value = {}) {
           layer[key] > max
         )
           fail(422, "Please check the text layers.");
+      if(scene&&!supportsText(legacyFontForText(layer)?.id||layer.font,layer.text))fail(422,"This font does not include every character in your text. Choose a font for that language.");
       const id =
         typeof layer.id === "string" && /^[a-zA-Z0-9_-]{1,48}$/.test(layer.id)
           ? layer.id
@@ -91,12 +85,8 @@ const escape = (value) =>
         "'": "&apos;",
       })[c],
   );
-export function effectiveFont(layer) {
-  return /[\u0600-\u06ff\u0750-\u077f\u08a0-\u08ff]/u.test(layer.text) &&
-    ["manrope", "dm-sans"].includes(layer.font)
-    ? designFonts.arabic
-    : designFonts[layer.font];
-}
+export const validateSceneTextLayers=layers=>validateTextLayers({shirt:layers},{scene:true}).shirt;
+export const effectiveFont=layer=>legacyFontForText(layer);
 export async function croppedOverlay(bytes, left, top, width, height) {
   const info = await sharp(bytes).metadata(),
     x = Math.max(0, -left),
@@ -112,12 +102,10 @@ export async function croppedOverlay(bytes, left, top, width, height) {
     top: Math.max(0, top),
   };
 }
-export async function renderTextGlyph(layer, width = 900) {
+async function prepareTextGlyph(layer, width = 900) {
   if (!layer.text.trim()) return null;
   const font = effectiveFont(layer),
-    fontfile = fileURLToPath(
-      new URL("../public/assets/fonts/" + font.file, import.meta.url),
-    );
+    fontfile = fontPath(font.id||Object.keys(designFonts).find(id=>designFonts[id]===font));
   try {
     await fs.access(fontfile);
   } catch {
@@ -129,17 +117,30 @@ export async function renderTextGlyph(layer, width = 900) {
       : layer.direction === "ltr"
         ? "\u200e"
         : "";
-  const input = {
+  const fontSize=Math.max(1,Math.round(width*layer.size));
+  const glyphInput=size=>({
     text: {
       text: `<span foreground="${layer.color}">${escape(direction + layer.text)}</span>`,
-      font: font.family + " " + Math.round(width * layer.size),
+      font: font.family + " " + size,
       fontfile,
       align: layer.align,
       rgba: true,
       wrap: "none",
-      spacing: Math.round(width * layer.size * 0.2),
+      spacing: Math.round(size * 0.2),
     },
-  };
+  });
+  // Measure large lettering at a small, fixed type size first. Font shaping
+  // remains exact, while a 500-character line cannot allocate an enormous native
+  // bitmap merely to discover that it exceeds the print-rendering limits.
+  if(fontSize>64){
+    const reference=await sharp(glyphInput(64)).metadata(),ratio=fontSize/64;
+    const longest=Math.max(...layer.text.split('\n').map(line=>[...line].length));
+    const estimatedWidth=Math.ceil(reference.width*ratio)+longest*2;
+    const estimatedHeight=Math.ceil(reference.height*ratio)+layer.text.split('\n').length*2;
+    if(estimatedWidth>16000||estimatedHeight>16000||estimatedWidth*estimatedHeight>24000000)
+      fail(422,"Text is too large. Reduce the font size or add line breaks.");
+  }
+  const input=glyphInput(fontSize);
   const info = await sharp(input).metadata();
   if (
     info.width * info.height > 24000000 ||
@@ -147,8 +148,10 @@ export async function renderTextGlyph(layer, width = 900) {
     info.height > 16000
   )
     fail(422, "Text is too large. Reduce the font size or add line breaks.");
-  return sharp(input).png().toBuffer();
+  return {input,info};
 }
+export async function textGlyphMetadata(layer,width=900){return (await prepareTextGlyph(layer,width))?.info||null;}
+export async function renderTextGlyph(layer,width=900){const prepared=await prepareTextGlyph(layer,width);return prepared?sharp(prepared.input).png().toBuffer():null;}
 export async function renderTextOverlay(product, layers, width = 900) {
   const height = Math.round((width * product.preview[1]) / product.preview[0]),
     overlays = [];

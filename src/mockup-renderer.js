@@ -10,6 +10,8 @@ import { printProductFor, mockupId, mockupMatches } from "./design-studio.js";
 import { artworkRenderSource } from "./artwork.js";
 import { fail } from "./security.js";
 import { renderTextOverlay } from "./text-layers.js";
+import { activeScene, sceneSourceIds } from "./design-scenes.js";
+import { renderSceneTexture } from "./scene-renderer.js";
 const assets = new URL("../public/assets/mockups/", import.meta.url);
 const baseCache = new Map();
 const loading = new Map();
@@ -23,10 +25,32 @@ async function template(view) {
   baseCache.set(view, result);
   return result;
 }
-export async function renderDesignTexture(preview, category, studio, cw = 900) {
+export async function renderDesignTexture(
+  preview,
+  category,
+  studio,
+  cw = 900,
+  options = {},
+) {
   const product = printProductFor(category),
-    placement = studio.placements[product.id],
-    info = preview ? await sharp(preview).metadata() : null;
+    placement = studio.placements[product.id];
+  if (studio.scene_version === "veelad-scene-1") {
+    const view = options.surface
+      ? product.id === "shirt"
+        ? options.surface === "back"
+          ? "shirt-back"
+          : "shirt"
+        : placement.view
+      : placement.view;
+    return renderSceneTexture(
+      preview,
+      product,
+      activeScene(studio, product.id, view),
+      cw,
+      { ...options, primaryId: studio.artwork_id },
+    );
+  }
+  const info = preview ? await sharp(preview).metadata() : null;
   const ch = Math.round((cw * product.preview[1]) / product.preview[0]),
     layout = info
       ? imageLayout(info.width, info.height, cw, ch, placement)
@@ -88,13 +112,19 @@ export async function renderDesignTexture(preview, category, studio, cw = 900) {
         .toBuffer()
     : texture;
 }
-export async function renderMockup(preview, category, studio) {
+export async function renderMockup(preview, category, studio, options = {}) {
   const product = printProductFor(category),
     placement = studio.placements[product.id],
     cw = 900,
     ch = Math.round((cw * product.preview[1]) / product.preview[0]);
-  const texture = await renderDesignTexture(preview, category, studio, cw);
-  const { base, projection } = await template(placement.view);
+  const texture = await renderDesignTexture(preview, category, studio, cw, options);
+  const view =
+    options.surface && product.id === "shirt"
+      ? options.surface === "back"
+        ? "shirt-back"
+        : "shirt"
+      : placement.view;
+  const { base, projection } = await template(view);
   const raw = await sharp(texture).ensureAlpha().raw().toBuffer(),
     projected = projectTexture(raw, cw, ch, projection);
   let warped = await sharp(projected, {
@@ -125,15 +155,33 @@ export async function currentProductMockup(c, db, p) {
   )
     return null;
   const id = mockupId(p.upload_id, p.category, p.design_studio);
-  const source = await db.one("SELECT * FROM uploads WHERE id=?", [
-    p.upload_id,
-  ]);
-  if (!source) return null;
-  await ensureMockup(c, db, id, source.user_id, async () =>
+  const sources = sceneSourceIds(p.design_studio),
+    sourceId = p.upload_id || sources[0] || null,
+    source = sourceId
+      ? await db.one("SELECT * FROM uploads WHERE id=?", [sourceId])
+      : null;
+  if (!source && (p.upload_id || sources.length)) return null;
+  const owner = source?.user_id || p.artist_id || p.user_id;
+  if (!owner) return null;
+  // The caller has already authorized the stored product, whose source IDs were
+  // checked when saved. An administrator can assign originals to an artist, so
+  // legitimate product sources do not necessarily all have the same uploader.
+  const allowedSources = new Set([p.upload_id, ...sources].filter(Boolean));
+  const resolveSource = async (uploadId) => {
+    if (!allowedSources.has(uploadId)) fail(404, "Artwork not found.");
+    const record =
+      uploadId === source?.id
+        ? source
+        : await db.one("SELECT * FROM uploads WHERE id=?", [uploadId]);
+    if (!record) fail(404, "Artwork not found.");
+    return artworkRenderSource(c.uploadDir, record);
+  };
+  await ensureMockup(c, db, id, owner, async () =>
     renderMockup(
-      await artworkRenderSource(c.uploadDir, source),
+      source ? await artworkRenderSource(c.uploadDir, source) : null,
       p.category,
       p.design_studio,
+      { resolveSource },
     ),
   );
   return db.one("SELECT * FROM uploads WHERE id=?", [id]);

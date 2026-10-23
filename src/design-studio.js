@@ -2,6 +2,7 @@ import fs from "node:fs";
 import { createHash } from "node:crypto";
 import { fail } from "./security.js";
 import {validateTextLayers} from './text-layers.js';
+import {sceneVersion,validateScenes,activeScene,sceneSurface,sceneSourceIds} from './design-scenes.js';
 import {
   defaultPlacement,
   qualityEstimate,
@@ -18,6 +19,8 @@ export function validateDesignStudio(value, uploadId) {
     typeof value !== "object" ||
     Array.isArray(value) ||
     value.version !== 1 ||
+    (value.scene_version!==undefined&&value.scene_version!==sceneVersion) ||
+    (value.scenes!==undefined&&value.scene_version!==sceneVersion) ||
     (value.text_version!==undefined&&value.text_version!=="veelad-text-1") ||
     value.template_version !== printProducts.version ||
     value.artwork_id !== (uploadId || null) ||
@@ -78,6 +81,7 @@ export function validateDesignStudio(value, uploadId) {
     active_product: value.active_product,
     listing_mockup: value.listing_mockup !== false,
     placements,
+    ...(value.scene_version===sceneVersion?{scene_version:sceneVersion,scenes:validateScenes(value.scenes)}:{}),
     ...(value.text_layers!==undefined?{text_layers:validateTextLayers(value.text_layers),text_version:"veelad-text-1"}:{}),
   };
 }
@@ -101,7 +105,8 @@ export function mockupId(
           source: uploadId,
           product: product.id,
           placement: studio.placements[product.id],
-          ...(studio.text_layers?.[product.id]?.some(layer=>layer.text.trim())?{text_layers:studio.text_layers[product.id],text_version:studio.text_version||"veelad-text-1"}:{}),
+          ...(studio.scene_version===sceneVersion?{scene_version:sceneVersion,surface:sceneSurface(product.id,studio.placements[product.id].view),scene:activeScene(studio,product.id)}:{}),
+          ...(studio.scene_version!==sceneVersion&&studio.text_layers?.[product.id]?.some(layer=>layer.text.trim())?{text_layers:studio.text_layers[product.id],text_version:studio.text_version||"veelad-text-1"}:{}),
         }),
       )
       .digest("hex")
@@ -118,12 +123,13 @@ export function mockupMatches(id, uploadId, category, studio) {
       id === mockupId(uploadId, category, studio, null))
   );
 }
-export function productionPlan(product, metadata) {
+export function productionPlan(product, metadata, sources = new Map()) {
   if (!product.design_studio) return null;
   return {
     version: 1,
     product_id: product.id,
     source_upload_id: product.upload_id,
+    ...(product.design_studio.scene_version===sceneVersion?{scene_version:sceneVersion,source_upload_ids:sceneSourceIds(product.design_studio),sources:[...sources].map(([id,original])=>({id,...original}))}:{}),
     template_version: printProducts.version,
     template_status: "provisional",
     supplier_confirmed: false,
@@ -146,6 +152,7 @@ export function productionPlan(product, metadata) {
       .map((p) => ({
         category: p.category,
         placement: product.design_studio.placements[p.id],
+        ...(product.design_studio.scene_version===sceneVersion?{surfaces:Object.entries(product.design_studio.scenes?.[p.id]||{}).map(([surface,scene])=>({surface,...scene,quality:scene.layers.filter(layer=>layer.type==='image').map(layer=>{const original=sources.get(layer.upload_id);const dpi=original&&p.canvas?Math.floor(Math.min(original.width/(layer.width*p.canvas[0]/300),original.height/(layer.height*p.canvas[1]/300))):null;return {layer_id:layer.id,upload_id:layer.upload_id,dpi,level:!p.canvas?'template_required':!original?'missing':dpi>=300?'recommended':dpi>=150?'review':'low'};})}))}:{}),
         ...(product.design_studio.text_layers?.[p.id]?.length?{text_layers:product.design_studio.text_layers[p.id]}:{}),
         provisional_canvas_pixels: p.canvas,
         quality: metadata

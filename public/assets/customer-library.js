@@ -53,6 +53,7 @@ function queueCustomerAutosave() {
     hasContent =
       d.upload_id ||
       d.title ||
+      (d.design_studio.scene_version==='veelad-scene-1'&&customerSceneHasContent(d.design_studio)) ||
       Object.values(d.design_studio.text_layers || {}).some(
         (layers) => layers.length,
       );

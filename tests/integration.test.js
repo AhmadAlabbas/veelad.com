@@ -499,6 +499,57 @@ test('customer text, autosaved drafts and library enforce revisions and ownershi
  assert.equal((await success(owner,'order',undefined,{id:o.id})).order.items[0].design_studio.text_layers.shirt[0].text,layer.text);
 });
 
+test('layered front/back customer designs validate every owner, keep immutable files and export each print surface',async()=>{
+ await db.q('DELETE FROM rate_limits');
+ const owner=client(),stranger=client();for(const client of [owner,stranger])await success(client,'bootstrap');
+ await success(owner,'register',{name:'Layer owner',email:'layer-owner@example.test',password:pw});
+ await success(stranger,'register',{name:'Layer stranger',email:'layer-stranger@example.test',password:pw});
+ const base={id:'p-layer-test',title:'Layered T-shirt',description:'A layered customer test product.',category:'T-shirts',price:7500,stock:10,variants:['Standard'],artist_id:(await db.one('SELECT id FROM artists ORDER BY id LIMIT 1')).id,status:'active',customer_customizable:true};
+ await success(admin,'admin-product',base);
+ const upload=async(client,color)=>{const bytes=await sharp({create:{width:200,height:240,channels:4,background:color}}).png().toBuffer(),form=new FormData();form.append('artwork',new Blob([bytes],{type:'image/png'}),'layer.png');return {...await success(client,'upload',form),bytes};};
+ const front=await upload(owner,'red'),back=await upload(owner,'blue'),foreign=await upload(stranger,'green');
+ const layer=(id,upload_id)=>({id,type:'image',upload_id,x:.5,y:.5,width:.5,height:.5,rotation:0,opacity:1,visible:true,locked:false});
+ const studio={version:1,template_version:'veelad-generic-1',artwork_id:front.upload_id,active_product:'shirt',placements:{},scene_version:'veelad-scene-1',scenes:{shirt:{front:{background:'transparent',layers:[layer('front',front.upload_id)]},back:{background:'transparent',layers:[layer('back',back.upload_id)]}}}};
+ const request={product_id:base.id,upload_id:front.upload_id,design_studio:studio,rights:true,preview_accepted:true};
+ const stolen=structuredClone(request);stolen.design_studio.scenes.shirt.back.layers[0].upload_id=foreign.upload_id;
+ assert.equal((await owner.call('customer-design',stolen)).status,404);
+ assert.equal((await owner.call('customer-draft',{...stolen,title:'Stolen secondary',revision:0,variant:'Standard'})).status,404);
+ const unprintable=structuredClone(request);unprintable.design_studio.scenes.shirt.back.layers.push({id:'oversized-type',type:'text',text:'W'.repeat(20),font:'manrope',color:'#111111',size:.3,x:.5,y:.5,rotation:0,opacity:1,visible:true,locked:false,align:'center',direction:'ltr'});
+ assert.equal((await owner.call('customer-design',unprintable)).status,422,'The nonpreview back must also pass native text export limits');
+ const saved=await success(owner,'customer-design',request);
+ assert.deepEqual(saved.customization.source_upload_ids,[front.upload_id,back.upload_id]);
+ assert.equal((await stranger.call('image',undefined,{id:saved.customization.mockup_upload_id})).status,404);
+ const draft=await success(owner,'customer-draft',{...request,title:'Both print sides',revision:0,variant:'Standard'});
+ const restored=await success(owner,'customer-draft',undefined,{id:draft.id});assert.equal(restored.draft.design_studio.scenes.shirt.back.layers[0].upload_id,back.upload_id);
+ assert.equal((await owner.call('customer-draft-preview',undefined,{id:draft.id},true)).status,200);
+ // A supplier-side selector must not erase a personalized scene preview or
+ // replace independently saved front/back layers during checkout.
+ const productRow=await db.one('SELECT data FROM products WHERE id=?',[base.id]);
+ await db.q('UPDATE products SET data=? WHERE id=?',[JSON.stringify({...JSON.parse(productRow.data),purchase_options:{confirmed:true,colors:[],fits:[],sides:['front','back']}}),base.id]);
+ const selected=()=>({id:base.id,variant:'Standard',qty:1,choices:{side:'front'},customization_id:saved.customization_id});
+ const record=await db.one('SELECT path FROM uploads WHERE id=?',[back.upload_id]),originalPath=path.join(c.uploadDir,record.path),temporary=originalPath+'.held';
+ await fs.rename(originalPath,temporary);
+ try{assert.equal((await owner.call('customer-design',request)).status,409);assert.equal((await owner.call('checkout',{customer,consent:true,cart:[selected()],request_key:'missing-secondary'})).status,409);assert.equal(await stock(base.id),10);}
+ finally{await fs.rename(temporary,originalPath);}
+ const result=await success(owner,'checkout',{customer,consent:true,cart:[selected()],request_key:'layered-order'}),line=result.order.items[0];
+ assert.deepEqual(line.print_surfaces,['front','back']);assert.deepEqual(line.source_upload_ids,[front.upload_id,back.upload_id]);assert.equal(line.mockup_upload_id,saved.customization.mockup_upload_id);
+ const query={id:base.id,order:result.order.id,line:line.line_id},plan=await success(admin,'admin-design-plan',undefined,query);
+ assert.deepEqual(plan.products[0].surfaces.map(s=>s.surface),['front','back']);assert.equal(plan.sources.length,2);
+ const frontOutput=await admin.call('admin-design-artwork',undefined,{...query,surface:'front'},true),backOutput=await admin.call('admin-design-artwork',undefined,{...query,surface:'back'},true);
+ assert.equal(frontOutput.status,200);assert.equal(backOutput.status,200);assert.notDeepEqual(Buffer.from(frontOutput.body),Buffer.from(backOutput.body));
+ assert.equal((await sharp(Buffer.from(backOutput.body)).metadata()).width,4500);assert.match(backOutput.headers.get('content-disposition'),/-back-provisional-layout/);
+ assert.equal((await admin.call('admin-design-artwork',undefined,{...query,surface:'wrap'})).status,422);
+ const files=await success(admin,'admin-product-files',undefined,query);assert.equal(files.files.length,2);assert.ok(files.files.every(f=>f.available));
+ const archive=await admin.call('admin-product-files-download',undefined,query,true);assert.equal(archive.status,200);assert.ok(Buffer.from(archive.body).includes(back.bytes));
+ const changed=structuredClone(studio);changed.scenes.shirt.back.layers[0].rotation=31;
+ await success(owner,'customer-draft',{...request,id:draft.id,revision:1,title:'Changed draft',variant:'Standard',design_studio:changed});
+ const snapshot=await success(admin,'admin-design-plan',undefined,query);assert.equal(snapshot.products[0].surfaces.find(s=>s.surface==='back').layers[0].rotation,0);
+ const frozen=await admin.call('admin-design-artwork',undefined,{...query,surface:'back'},true);assert.deepEqual(Buffer.from(frozen.body),Buffer.from(backOutput.body));
+ const glyph={id:'larger-text',type:'text',text:'A longer creative message',font:'manrope',color:'#111111',x:.5,y:.5,size:.3,rotation:0,align:'center',direction:'ltr'};
+ assert.equal((await owner.call('customer-text-preview',{category:'T-shirts',scene_version:'veelad-scene-1',layers:[glyph]})).status,200);
+ assert.equal((await owner.call('customer-text-preview',{category:'T-shirts',layers:[glyph]})).status,422);
+});
+
 test('production proofs require exact customer approval, preserve privacy, prevent stale decisions and gate printing and shipping',async()=>{
  await db.q('DELETE FROM rate_limits');const buyer=client();await success(buyer,'bootstrap');await success(buyer,'register',{name:'Production buyer',email:'production-buyer@example.test',password:pw});
  const pid='p-production-proof';await success(admin,'admin-product',{id:pid,upload_id:artId,title:'Proof item',description:'Production test item',category:'T-shirts',price:7000,stock:10,variants:['Standard'],artist_id:(await db.one('SELECT id FROM artists ORDER BY id LIMIT 1')).id,status:'active'});

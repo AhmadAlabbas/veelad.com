@@ -1,5 +1,24 @@
 /* Administrator-only access to unchanged originals, separate from storefront previews. */
 'use strict';
+function productionSurfaceLabel(surface) {
+ return t({front:'Front print',back:'Back print',wrap:'Wraparound print'}[surface]||surface);
+}
+function productionSceneSurfaces(item) {
+ const studio=item.design_studio,type=studioTypes.find(([,category])=>category===item.category)?.[0];
+ if(studio?.scene_version!=='veelad-scene-1')return [];
+ const scenes=studio.scenes?.[type]||{},order=type==='shirt'?['front','back']:type==='mug'?['wrap']:['front'];
+ return order.filter(surface=>{
+  const scene=scenes[surface];
+  return scene&&(scene.background!=='transparent'||scene.layers?.some(layer=>layer.visible!==false&&(layer.opacity??1)>0&&(layer.type==='image'||layer.text?.trim())));
+ }).map(surface=>({surface,...scenes[surface]}));
+}
+function productionSourceIds(item) {
+ const scenes=item.design_studio?.scene_version==='veelad-scene-1'?Object.values(item.design_studio.scenes||{}).flatMap(surfaces=>Object.values(surfaces).flatMap(scene=>(scene.layers||[]).filter(layer=>layer.type==='image').map(layer=>layer.upload_id))):[];
+ return [...new Set([item.upload_id,...(item.source_upload_ids||[]),...scenes].filter(Boolean))];
+}
+function productionSceneMarkup(item) {
+ return productionSceneSurfaces(item).map(scene=>`<section class="production-scene" data-production-surface="${esc(scene.surface)}"><h5>${esc(productionSurfaceLabel(scene.surface))}</h5><p class="small">${t('Print background')}: <bdi>${scene.background==='transparent'?t('Transparent'):esc(scene.background)}</bdi> · ${t('{count} layers',{count:localNumber(scene.layers.length)})}</p><ol class="production-scene-layers">${scene.layers.map((layer,index)=>`<li><div class="production-text-layer"><strong>${t('Layer {number}',{number:localNumber(index+1)})} · ${t(layer.type==='image'?'Image':'Text')}${layer.visible===false||layer.opacity===0?' · '+t('Hidden — excluded from print'):''}</strong>${layer.type==='text'?`<p class="product-long-text" dir="auto">${esc(layer.text)}</p><small><bdi>${esc(layer.font)} · ${esc(layer.color)} · ${localNumber(layer.size*100)}%</bdi></small>`:`<p class="small"><bdi>${esc(layer.upload_id)}</bdi> · ${t('Width / height')}: <bdi>${localNumber(layer.width*100)}% / ${localNumber(layer.height*100)}%</bdi></p>`}<p class="small">${t('Position')}: <bdi>${localNumber(layer.x*100)}% / ${localNumber(layer.y*100)}%</bdi> · ${t('Rotation')}: <bdi>${localNumber(layer.rotation)}°</bdi> · ${t('Opacity')}: <bdi>${localNumber((layer.opacity??1)*100)}%</bdi></p></div></li>`).join('')}</ol></section>`).join('');
+}
 function productionFileSize(value) {
  const bytes=Number(value)||0;
  if(bytes<1024)return t('{value} bytes',{value:localNumber(bytes)});
@@ -37,7 +56,7 @@ async function downloadProductionFile(control,archive=false) {
  try {
   const plan=control.dataset.action==='download-design-plan',composed=control.dataset.action==='download-design-artwork',master=control.dataset.action==='download-artwork-master';
   const route=master?'admin-artwork-master':composed?'admin-design-artwork':plan?'admin-design-plan':archive?'admin-product-files-download':'admin-artwork-original';
-  const response=await fetch('/api.php?'+new URLSearchParams({route,id:control.dataset.id,...((plan||composed)&&control.dataset.order?{order:control.dataset.order,...(control.dataset.line?{line:control.dataset.line}:{})}:{})}),{credentials:'same-origin'});
+  const response=await fetch('/api.php?'+new URLSearchParams({route,id:control.dataset.id,...((plan||composed||archive)&&control.dataset.order?{order:control.dataset.order,...(control.dataset.line?{line:control.dataset.line}:{})}:{}),...(composed&&control.dataset.surface?{surface:control.dataset.surface}:{})}),{credentials:'same-origin'});
   if(!response.ok){let error;try{error=(await response.json()).error;}catch{}throw Error(error||'Download failed. Please try again.');}
   const type=response.headers.get('content-type')||'';
   if(!(master?type.startsWith('application/octet-stream'):plan?type.startsWith('application/json'):archive?type.startsWith('application/zip'):/^image\/(png|jpeg)/.test(type)))throw Error('The server returned an unexpected response. Check the server configuration.');
