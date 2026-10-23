@@ -2,7 +2,7 @@
 
 Runnable Node.js 24 LTS / Express 5 / MySQL backend with the existing buildless storefront. `public/` is the marketplace frontend; `reference/coming-soon/` retains the production landing page. PHP reference files are never served. The ZIP and its unmapped private artwork remain outside Git.
 
-The uploaded handoff is a reference implementation, not a migrated application or customer database. Its future OAuth, payment gateway and payout features are outside this migration. No real payments or transfers are enabled.
+The original handoff was a reference implementation, not an imported customer database. The application now includes Google sign-in and a gated Partners program; live payment-provider processing and automated bank transfers remain disabled. See the setup guides below before enabling new services.
 
 ## Run locally
 
@@ -47,6 +47,7 @@ npm run check
 - [Guided designer, editable collections, print job sheets and launch rehearsal](docs/EXPERIENCE-REFINEMENTS.md)
 - [Private storage, encrypted backups, recovery and monitoring](docs/OPERATIONS.md)
 - [Transactional email setup](docs/EMAIL.md)
+- [Veelad Partners: affiliate operations, financial controls and gated setup](docs/PARTNERS.md)
 
 No frontend build is required. Hosting build: `npm ci --omit=dev && npm run build && npm run migrate`. Start: `npm start`. `npm run build` records the actual Git SHA; when Git metadata is absent set `DEPLOY_COMMIT` to the deployed full SHA. Health returns this revision so automation cannot mistake an old or PHP deployment for the new release.
 

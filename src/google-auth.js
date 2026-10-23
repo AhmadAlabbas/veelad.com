@@ -127,7 +127,7 @@ function localReturn(flow, user, code) {
     route =
       flow?.intent === "link" || flow?.intent === "reauth"
         ? "account"
-        : ["create", "my-designs", "checkout"].includes(flow?.next)
+        : ["create", "my-designs", "checkout", "partners/apply", "partners/dashboard"].includes(flow?.next)
           ? flow.next
           : user?.role === "admin"
             ? "admin"
@@ -184,7 +184,7 @@ export async function googleRoute({
         intent,
         locale: v.locale === "ar" ? "ar" : "en",
         role: v.role === "artist" ? "artist" : "buyer",
-        next: ["create", "my-designs", "checkout"].includes(v.next)
+        next: ["create", "my-designs", "checkout", "partners/apply", "partners/dashboard"].includes(v.next)
           ? v.next
           : null,
         user_id: user?.id || null,
@@ -441,6 +441,7 @@ export async function googleRoute({
     });
     await rotate(req, user);
     req.session.google_authenticated_at = Date.now();
+    req.session.authenticated_at = req.session.google_authenticated_at;
     if (flow.intent === "signin") req.session.google_login_complete = true;
     await new Promise((resolve, reject) =>
       req.session.save((error) => (error ? reject(error) : resolve())),

@@ -60,6 +60,47 @@ form[data-form="track"] ~ .panel .pill {
   }
 }
 /* Keep artist forms within the mobile viewport, including native input widths. */
+/* The workspace menu owns its scroll area; branding and the exit stay visible. */
+.sidebar { height: 100vh; height: 100dvh; overflow: hidden; }
+.sidebar > .wordmark, .sidebar > .workspace-label, .sidebar > .back-store { flex-shrink: 0; }
+.sidebar .workspace-label { margin-bottom: 24px; }
+.sidebar .sidebar-links {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  gap: 4px;
+  padding: 4px 6px 4px 4px;
+  scrollbar-width: thin;
+  scrollbar-color: #777780 #242429;
+  scrollbar-gutter: stable;
+}
+.sidebar .sidebar-links::-webkit-scrollbar { width: 6px; height: 6px; }
+.sidebar .sidebar-links::-webkit-scrollbar-track { background: #242429; border-radius: 8px; }
+.sidebar .sidebar-links::-webkit-scrollbar-thumb { background: #777780; border-radius: 8px; }
+.sidebar a.nav-item { flex-shrink: 0; min-height: 44px; margin: 0; }
+.sidebar a.nav-item:hover { background: #ffffff0d; color: #fff; }
+.sidebar a.nav-item.active:hover { background: #dcd0fc; color: #221a37; }
+.sidebar a.nav-item:focus-visible { outline-color: #dcd0fc; outline-offset: -2px; }
+.sidebar .back-store { margin-top: 16px; padding: 16px 4px 0; border-top: 1px solid #ffffff24; }
+@media (max-width: 760px) {
+  .sidebar { height: auto; overflow: visible; }
+  .sidebar .workspace-label { margin: 0; }
+  .sidebar .sidebar-links {
+    flex: 0 0 100%;
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 4px 2px 8px;
+    scrollbar-gutter: auto;
+    scrollbar-width: thin;
+  }
+  .sidebar a.nav-item { font-size: 11px; }
+  .sidebar .nav-item .icon { width: 16px; height: 16px; }
+  .sidebar .back-store { margin-block: 0 8px; margin-inline: auto 0; padding: 0; border: 0; }
+}
 .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .form-grid > *, .admin-content, .admin-content form { min-width: 0; }
 @media (max-width: 600px) {

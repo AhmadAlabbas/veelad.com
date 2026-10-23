@@ -96,7 +96,7 @@ test('staging startup completes an existing PHP schema, preserves records, and s
    assert.equal((await connection.query('SELECT data FROM settings WHERE id=?',['store']))[0][0].data,store);
    assert.equal((await connection.query('SELECT password FROM users WHERE id=?',['preserved-user']))[0][0].password,'preserved-hash');
    assert.equal((await connection.query('SELECT COUNT(*) AS n FROM products'))[0][0].n,0,'Startup must not insert a demo catalog');
-   assert.equal((await connection.query('SELECT COUNT(*) AS n FROM schema_migrations'))[0][0].n,7);
+   assert.equal((await connection.query('SELECT COUNT(*) AS n FROM schema_migrations'))[0][0].n,(await fs.readdir('migrations')).filter(name=>name.endsWith('.json')).length);
    await connection.query('SELECT id,kind,expires,reset_hash,next_attempt_at FROM mail_delivery LIMIT 1');
    const response=await fetch(server.origin+'/api.php?route=bootstrap',{headers:{'X-Forwarded-Proto':'https'}});
    assert.equal(response.status,200);assert.equal((await response.json()).settings.announcement,'Existing PHP store settings remain intact.');

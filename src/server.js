@@ -10,6 +10,8 @@ import {installSampleCollection,publishSampleCollection} from './sample-collecti
 import {cleanupCatalogue} from './catalogue-cleanup.js';
 import {installScalableEditions} from './scalable-editions.js';
 import {enableCustomerCatalogue} from './customer-catalogue.js';
+import {runPartnerMaintenance} from './partners-finance.js';
+import {runPartnerPrivacyMaintenance,runPartnerCampaignNotifications} from './partners.js';
 console.log('Veelad startup: dependencies loaded; validating settings.');
 let c;
 try {c=config();} catch(error) {console.error('Veelad startup settings validation failed:',error.message);throw error;}
@@ -111,9 +113,17 @@ if(c.mode==='staging') {
 }
 if(c.mode!=='staging'&&c.marketplaceEnabled)runOperations();
 let operationsTimer=setInterval(()=>{if(schema.status==='ready'&&c.marketplaceEnabled){if(c.mode==='staging')runStagingMaintenance();else runOperations();}},60000);
+let partnersRunning=false;
+const partnersTimer=setInterval(async()=>{
+ if(partnersRunning||schema.status!=='ready'||!c.partners?.enabled||!c.marketplaceEnabled)return;
+ partnersRunning=true;
+ try{await runPartnerMaintenance(c,db);await runPartnerPrivacyMaintenance(c,db);await runPartnerCampaignNotifications(c,db);}
+ catch(error){console.error('Veelad Partners maintenance failed:',/^ER_[A-Z0-9_]+$/.test(error.code||'')?error.code:'PARTNERS_MAINTENANCE_FAILED');}
+ finally{partnersRunning=false;}
+},60000);
 let worker;
 if(mailStatus(c).ready) worker=setInterval(()=>{
  if(schema.status==='ready') work(c,db).catch(()=>console.error('Email worker failed; inspect provider configuration'));
 },c.workerInterval*1000);
-async function stop() {clearInterval(operationsTimer);clearInterval(worker);server.close(async()=>{await app.locals.sessionStore.close();await db.pool.end();process.exit(0);});setTimeout(()=>process.exit(1),10000).unref();}
+async function stop() {clearInterval(operationsTimer);clearInterval(partnersTimer);clearInterval(worker);server.close(async()=>{await app.locals.sessionStore.close();await db.pool.end();process.exit(0);});setTimeout(()=>process.exit(1),10000).unref();}
 process.on('SIGTERM',stop);process.on('SIGINT',stop);
