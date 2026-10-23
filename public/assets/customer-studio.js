@@ -121,14 +121,14 @@ document.addEventListener('customer-scene-rendered',event=>{
 function syncCustomerPurchaseChoices(form, p, {fromEditor = false} = {}) {
   if (!p) return;
   const instance = studioInstances.get(form.querySelector(".design-studio")), sides = p.purchase_options?.confirmed ? p.purchase_options.sides || [] : [];
-  if (!instance?.sceneEditor && p.category === "T-shirts" && sides.length && instance?.state?.placements?.shirt) {
+  if (p.category === "T-shirts" && sides.length && instance?.state?.placements?.shirt) {
     const placement = instance.state.placements.shirt, shown = placement.view === "shirt-back" ? "back" : "front";
     let side = choicesFromForm(form).side || sides[0];
     if (fromEditor && sides.includes(shown)) side = shown;
     const radio = form.querySelector(`[name=choice_side][value=${side}]`); if (radio) radio.checked = true;
     purchaseSelections.set(p.id, choicesFromForm(form));
     const view = side === "back" ? "shirt-back" : "shirt";
-    if (placement.view !== view && !form.dataset.syncingPurchaseChoices) {
+    if (placement.view !== view && !form.dataset.syncingPurchaseChoices && !(instance.sceneEditor && fromEditor && !sides.includes(shown))) {
       form.dataset.syncingPurchaseChoices = "true";
       try { placement.view = view; instance.syncControls(); instance.update(); }
       finally { delete form.dataset.syncingPurchaseChoices; }
@@ -169,7 +169,7 @@ function syncCustomerProduct(form, {selectionChanged = false} = {}) {
     instance.syncControls();
     instance.update();
   } else root.dataset.category = p.category;
-  syncCustomerPurchaseChoices(form, p);
+  syncCustomerPurchaseChoices(form, p, {fromEditor: !!instance?.sceneEditor});
   root.querySelector(".design-preview-format").disabled = true;
   // The customer selects a real purchasable product above, not a requested seller format.
   root.querySelector(".studio-heading h3").textContent = t("Make it yours");

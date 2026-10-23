@@ -73,8 +73,11 @@ test('customer editor keeps print-side choices, placement controls and bilingual
   const registered=await page.request.post(fixture.origin+'/api.php?route=register',{headers:{'X-CSRF-Token':bootstrap.csrf},data:{name:'Disposable creator',email:'creator-options@example.test',password:'Disposable creator password 123'}});expect(registered.ok()).toBe(true);
   await page.goto(fixture.origin+'/en/create?product=p1');const form=page.locator('[data-form=customer-design]');await expect(form.locator('.design-studio')).toHaveAttribute('data-ready','true');
   await form.locator('[name=choice_side][value=back]').check();await expect.poll(async()=>JSON.parse(await form.locator('[name=design_studio]').inputValue()).placements.shirt.view).toBe('shirt-back');await expect(form.locator('[data-customer-review-summary]')).toContainText('Back');
-  await form.locator('[data-studio-view=shirt]').click();await expect(form.locator('[name=choice_side][value=front]')).toBeChecked();await expect(form.locator('[data-customer-review-summary]')).toContainText('Front');
+  await form.locator('[data-ws-surface=front]').click();await expect(form.locator('[name=choice_side][value=front]')).toBeChecked();await expect(form.locator('[data-customer-review-summary]')).toContainText('Front');
+  await form.locator('[data-ws-tool=text]').click();await form.locator('[data-ws-add-text=body]').first().click();await form.locator('[data-ws-prop=text]').fill('Independent front artwork');
+  const front=JSON.parse(await form.locator('[name=design_studio]').inputValue()).scenes.shirt.front;
   await form.locator('[name=choice_side][value=back]').check();await page.locator('[data-action=language-switch]').first().click();await expect(form.locator('.design-studio')).toHaveAttribute('data-ready','true');await expect(form.locator('[name=choice_side][value=back]')).toBeChecked();await expect(form.locator('[data-customer-review-summary]')).toContainText('الخلف');
+  const state=JSON.parse(await form.locator('[name=design_studio]').inputValue());expect(state.scenes.shirt.front).toMatchObject(front);expect(state.scenes.shirt.back.layers).toEqual([]);await expect(form.locator('[data-ws-surface=back]')).toHaveAttribute('aria-pressed','true');
   expect(media.some(url=>url.pathname.endsWith('/shirt.json'))).toBe(true);expect(media.some(url=>url.pathname.endsWith('/shirt.webp'))).toBe(true);expect(media.every(url=>url.searchParams.get('v')==='veelad-neutral-2')).toBe(true);
   expect(errors).toEqual([]);
  }finally{await page.goto('about:blank').catch(()=>{});await fixture.close();}
