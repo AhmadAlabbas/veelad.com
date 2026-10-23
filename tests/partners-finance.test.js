@@ -138,3 +138,22 @@ test('pausing new partner activity never skips reversals for existing liabilitie
  const row=await db.one('SELECT * FROM partners_commissions WHERE id=?',[commission.id]);
  assert.equal(row.state,'reversed');assert.equal(row.reversed_minor,row.amount_minor);
 });
+test('partners can concurrently buy each other’s recommendations without cross-locking customer accounts',async()=>{
+ await db.q('INSERT INTO users VALUES (?,?,?,?,?,?,?)',['affiliate-second','Second partner','second@example.test','not-a-login-hash','buyer','active',now()]);
+ await db.q('INSERT INTO partners_profiles VALUES (?,?,?,?,?,?)',['affiliate-second','approved',null,JSON.stringify({locale:'en',email_commissions:false}),now(),now()]);
+ let arrived=0,release,rejectBarrier;
+ const barrier=new Promise((resolve,reject)=>{release=resolve;rejectBarrier=reject;}),timer=setTimeout(()=>rejectBarrier(Error('Customer-account reads did not remain independent')),4000);
+ const observed={...db,one:async(sql,args,conn)=>{const row=await db.one(sql,args,conn);if(sql.includes('FROM users WHERE id=?')||sql.includes('JOIN users')){if(++arrived===2)release();await barrier;}return row;}};
+ try{
+  const values=await Promise.all([['affiliate-test','affiliate-second','first'],['affiliate-second','affiliate-test','second']].map(async([buyerId,affiliateId,suffix])=>{
+   const orderId='cross-buy-'+suffix,line={...item,line_id:'cross-line-'+suffix};
+   await db.q('INSERT INTO orders VALUES (?,?,?,?,?,?,?,?,?)',[orderId,buyerId,buyerId+'@example.test','awaiting_payment',23000,JSON.stringify({payment_status:'awaiting_payment',items:[line]}),orderId,orderId,now()]);
+   return db.tx(async conn=>{
+    await db.q('SET SESSION innodb_lock_wait_timeout=3',[],conn);
+    const ids=await capturePartnerOrder(observed,c,{orderId,userId:buyerId,email:buyerId+'@example.test',items:[line],discount:0,attributions:{[line.line_id]:{affiliate_id:affiliateId}}},conn);
+    await db.one('SELECT id FROM users WHERE id=? FOR UPDATE',[buyerId],conn);return ids;
+   });
+  }));
+  assert.deepEqual(values.map(ids=>ids.length),[1,1]);
+ }finally{clearTimeout(timer);release();}
+});

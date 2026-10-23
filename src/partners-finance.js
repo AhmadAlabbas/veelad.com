@@ -142,7 +142,10 @@ export async function capturePartnerOrder(db,c,{orderId,userId,email,items,disco
  for(const id of [...new Set(Object.values(attributions).map(value=>value.campaign_id).filter(Boolean))].sort())await db.q('SELECT id FROM partners_campaigns WHERE id=? FOR UPDATE',[id],conn);
  for(const [index,item] of items.entries()){
   const attribution=attributions[item.line_id];if(!attribution||item.customer_customized)continue;
-  const affiliate=await db.one('SELECT p.status,u.status AS user_status,u.email FROM partners_profiles p JOIN users u ON CONVERT(u.id USING utf8mb4) COLLATE utf8mb4_unicode_ci=p.user_id WHERE p.user_id=? FOR UPDATE',[attribution.affiliate_id],conn);
+  // Never lock another buyer's account while reserving an affiliate balance:
+  // partners may concurrently purchase each other's recommendations.
+  const membership=await db.one('SELECT status FROM partners_profiles WHERE user_id=? FOR UPDATE',[attribution.affiliate_id],conn),account=await db.one('SELECT status,email FROM users WHERE id=?',[attribution.affiliate_id],conn);
+  const affiliate=membership&&account?{status:membership.status,user_status:account.status,email:account.email}:null;
   if(!affiliate||affiliate.status!=='approved'||affiliate.user_status!=='active'||attribution.affiliate_id===userId||affiliate.email.toLowerCase()===String(email||'').toLowerCase()||item.artist_id===attribution.affiliate_id&&!settings.allow_artist_self_promotion)continue;
   if(await db.one('SELECT id FROM partners_commissions WHERE order_id=? AND line_id=?',[orderId,item.line_id],conn))continue;
   const record=await db.one('SELECT data FROM partners_product_policies WHERE product_id=?',[item.id],conn),policy=record?parse(record.data):null;
