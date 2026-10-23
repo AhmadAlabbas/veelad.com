@@ -460,7 +460,13 @@ function mountCustomerWorkspace(instance) {
     else if(button.hasAttribute("data-ws-reuse")){
       if(!canAdd())return;
       const upload=button.dataset.wsReuse,source=Object.values(instance.state.scenes||{}).flatMap(product=>Object.values(product).flatMap(scene=>scene.layers||[])).find(l=>l.upload_id===upload);
-      if(source){const layer={...cloneState(source),id:uid(),x:.5,y:.5,visible:true,locked:false};layers().push(layer);selected=layer.id;commit();}
+      if(source)try{
+        const product=instance.product().id,surface=adapter.surface(),image=await adapter.image(upload);
+        if(!root.isConnected||instance.product().id!==product||adapter.surface()!==surface||!canAdd())return;
+        const d=logical(),fit=Math.min(d.width*.74/image.naturalWidth,d.height*.74/image.naturalHeight);
+        const layer={id:uid(),type:'image',upload_id:upload,x:.5,y:.5,width:image.naturalWidth*fit/d.width,height:image.naturalHeight*fit/d.height,rotation:0,repeat:false,opacity:1,visible:true,locked:false};
+        layers().push(layer);selected=layer.id;commit();
+      }catch{setStatus('Could not load this layer.',true);}
     }else if(button.hasAttribute("data-ws-font")){
       let layer=current();if(layer?.type!=="text"){addText();layer=current();switchTool("fonts");}
       if(layer?.locked)return;

@@ -60,6 +60,8 @@ test('seven visual categories preserve a sign-in choice, one reusable original a
     await form.locator(`[data-ws-reuse="${source}"]`).click();
    }
    await form.locator('[data-ws-tool=layers]').click();await form.locator('[data-ws-select]').first().click();
+   const proportions=await page.evaluate(()=>{const editor=studioInstances.get(document.querySelector('.design-studio')),layer=editor.sceneEditor.layers()[0],[width,height]=editor.product().preview;return layer.width*width/(layer.height*height);});
+   expect(proportions).toBeCloseTo(1800/2400,5);
    await form.locator('[data-ws-prop=rotation]').fill(String(index*4+3));await form.locator('[data-ws-prop=rotation]').dispatchEvent('input');
    await expect.poll(async()=>JSON.parse(await form.locator('[name=design_studio]').inputValue()).scenes[type][surface].layers[0].rotation).toBe(index*4+3);
    savedScenes[type]=JSON.parse(await form.locator('[name=design_studio]').inputValue()).scenes[type];
