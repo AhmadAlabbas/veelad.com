@@ -25,6 +25,10 @@ async function fixture(){
  await db.q('INSERT INTO settings VALUES (?,?)',['private-vector-fixture',JSON.stringify({source:'Private vector archival source',version:1})]);
  await db.q('INSERT INTO shopping_metrics VALUES (?,?,?,?,?,?)',['2026-10-24','product_view','p1','product',3,0]);
  await db.q('INSERT INTO shopping_metric_receipts VALUES (?,?)',['a'.repeat(64),'2026-10-24']);
+ await db.q('INSERT INTO artist_profile_drafts VALUES (?,?,?,?,?)',['recovery-owner',1,JSON.stringify({name:'Private profile draft'}),'b'.repeat(64),new Date().toISOString()]);
+ await db.q('INSERT INTO artist_follows VALUES (?,?,?,?,?)',['recovery-owner','artist-1',0,'en',new Date().toISOString()]);
+ await db.q('INSERT INTO artist_notifications VALUES (?,?,?,?,?,?,?)',['c'.repeat(64),'recovery-owner','artist-1','p1',null,0,new Date().toISOString()]);
+ await db.q('INSERT INTO artist_releases VALUES (?,?,?,?,?)',['p1','artist-1','','done',new Date().toISOString()]);
  const backup=await createBackup(c,db);
  return {folder,app,db,c,bytes,backup,async close(){await app.close();await fs.rm(folder,{recursive:true,force:true});}};
 }

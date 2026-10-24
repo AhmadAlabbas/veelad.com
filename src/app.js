@@ -1,3 +1,4 @@
+import {artistProfileRoute,recordArtistRelease} from './artist-profiles.js';
 import {shoppingRoute} from './shopping-quality.js';
 import {readScalableMaster} from './scalable-editions.js';
 import {fileHash} from './private-bundle.js';
@@ -226,6 +227,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
    const shipping=items.length&&subtotal-discount<s.free_shipping?Number(s.shipping):0;
    return res.json({subtotal,discount,shipping,total:subtotal-discount+shipping,coupon_applied:!!code&&discount>0,provisional:true});
   }
+  if(await artistProfileRoute({route,method,v,req,res,db,c,me,role,throttle,audit}))return;
   if(route.startsWith('shopping-')||route.startsWith('admin-shopping-')){if(await shoppingRoute({route,method,v,req,res,db,c,me,role,throttle,audit,queue}))return;fail(404,'Endpoint not found.');}
   if(route==='creative-status'&&method==='GET')return res.json({enabled:c.creativeEnabled===true});
   if(route.startsWith('creative-')||route.startsWith('admin-creative')||route.startsWith('room-')||route.startsWith('admin-room-')){
@@ -239,7 +241,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
    if(await partnerRoute(context)||await partnerPayoutRoute(context))return;
    fail(404,'Endpoint not found.');
   }
-  if(method==='GET' && route==='bootstrap') {const u=await me(req),locale=u?(await state(u.id)).user_locale:null,googleReturn=req.session.google_login_complete===true;delete req.session.google_login_complete;return res.json({mode:'server',authentication:await authenticationStatus(c,db,u),partners:{enabled:c.partners?.enabled===true},creative:{enabled:c.creativeEnabled===true},shopping:{enabled:c.shoppingEnabled===true},auth_event:googleReturn?'google-login':null,csrf:req.session.csrf,user:u ? safeUser(u) : null,locale:['ar','en'].includes(locale)?locale:null,products:await products(),artists:await publicArtists(db),design_styles:designStyles,settings:publicStoreSettings(collectionSettings(await settings(),await products(),{publicOnly:true})),email_delivery:{available:mailStatus(c).ready,staging_restricted:c.mode==='staging'}});}
+  if(method==='GET' && route==='bootstrap') {const u=await me(req),locale=u?(await state(u.id)).user_locale:null,googleReturn=req.session.google_login_complete===true;delete req.session.google_login_complete;return res.json({mode:'server',authentication:await authenticationStatus(c,db,u),partners:{enabled:c.partners?.enabled===true},creative:{enabled:c.creativeEnabled===true},shopping:{enabled:c.shoppingEnabled===true},artist_profiles:{enabled:c.artistProfilesEnabled===true},auth_event:googleReturn?'google-login':null,csrf:req.session.csrf,user:u ? safeUser(u) : null,locale:['ar','en'].includes(locale)?locale:null,products:await products(),artists:await publicArtists(db),design_styles:designStyles,settings:publicStoreSettings(collectionSettings(await settings(),await products(),{publicOnly:true})),email_delivery:{available:mailStatus(c).ready,staging_restricted:c.mode==='staging'}});}
   if(method==='POST' && route==='language-preference') {
    const u=await me(req,true);if(!['ar','en'].includes(v.locale))fail(422,'Choose Arabic or English.');
    await db.tx(async conn=>{await q('SELECT id FROM users WHERE id=? FOR UPDATE',[u.id],conn);const s=await state(u.id,conn);s.user_locale=v.locale;await putState(u.id,s,conn);});return res.json({ok:true,locale:v.locale});
@@ -434,7 +436,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
    const a=await one('SELECT * FROM uploads WHERE id=?',[String(req.query.id||'')]),u=await me(req);
    if(!a) fail(404,'Artwork not found.');
    const containsImage=p=>studioSourceIds(p.design_studio,p.upload_id).includes(a.id)||p.mockup_upload_id===a.id||(Array.isArray(p.gallery_upload_ids)&&p.gallery_upload_ids.includes(a.id));
-   const visible=(await products()).some(containsImage)||(await publicArtists(db)).some(profile=>(profile.portfolio_upload_ids||[]).includes(a.id));
+   const visible=(await products()).some(containsImage)||(await publicArtists(db)).some(profile=>[...(profile.portfolio_upload_ids||[]),profile.avatar_upload_id,profile.cover_upload_id].includes(a.id));
    const assigned=!visible&&u?.role==='artist'&&(await products(true,u.id)).some(containsImage);
    if(!visible&&!assigned&&(!u||(u.id!==a.user_id&&u.role!=='admin'))) fail(404,'Artwork not found.');
    if(a.id.startsWith('mock-')){
@@ -612,6 +614,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
      if(status==='active'&&p.price_is_placeholder===true)fail(422,'Replace the placeholder with a reviewed selling price before publishing.');
      if(artist===u.id)await q('INSERT IGNORE INTO artists VALUES (?,?)',[u.id,JSON.stringify({id:u.id,name:u.name,initials:[...u.name].slice(0,2).join('').toUpperCase(),handle:u.id,bio:'',location:'',color:'#ded5fb'})],conn);
      await q('INSERT INTO products VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE artist_id=?,status=?,stock=?,data=?',[id,artist,status,p.stock,JSON.stringify(p),now(),artist,status,p.stock,JSON.stringify(p)],conn);await audit(u,'product.save',id,conn);
+     if(status==='active'&&old?.status!=='active')await recordArtistRelease(db,c,id,artist,conn);
      const feedback=text(v,'review_feedback',2000,false);
      if(status==='changes_requested'&&!feedback) fail(422,'Explain the changes the artist needs to make.');
      if(old?.status==='draft') fail(409,'The artist must submit a draft before administrator review.');

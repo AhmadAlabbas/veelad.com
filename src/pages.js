@@ -26,7 +26,7 @@ export function pageRoutes(app,c,db,schema) {
  async function artist(id){return (await publicArtists(db)).find(a=>a.id===id)||null;}
  function ready(req,res){if(schema.status!=='ready'){res.status(503).set('Retry-After','2').send(pageText(languageFor(req),'storeStarting'));return false;}return true;}
  async function html(req,res,{title,description,image,canonical=basePath(req),body='',structured=null,status=200,indexable=true}={}) {
-  if(basePath(req).startsWith('/creative/rooms'))res.set('Referrer-Policy','no-referrer');
+  if(basePath(req).startsWith('/creative/rooms')||req.query.artist_unsubscribe)res.set('Referrer-Policy','no-referrer');
   const language=languageFor(req),origin=c.origin,url=origin+localizedPath(canonical,language),robots=c.mode==='staging'||!indexable||status!==200?'noindex, nofollow':'index, follow';
   title||=pageText(language,'storeTitle');
   description||=pageText(language,'storeDescription');
@@ -71,7 +71,7 @@ export function pageRoutes(app,c,db,schema) {
   if(/\/products\//.test(req.path)){item=await listing(id);if(!item)return res.status(404).end();a=await artist(item.artist_id);title=field(item,'title',language);subtitle=pageText(language,'shareDesignedBy',{artist:field(a,'name',language)||pageText(language,'independentArtist')});}
   if(/\/artists\//.test(req.path)){a=await artist(id);if(!a)return res.status(404).end();title=field(a,'name',language);subtitle=field(a,'bio',language);}
   let currentImage; if(item?.mockup_upload_id)try{currentImage=await currentProductMockup(c,db,item);}catch(error){if(![404,503].includes(error.status))throw error;}
-  const imageId=currentImage?.id||item?.mockup_upload_id||item?.upload_id||a?.portfolio_upload_ids?.[0];
+  const imageId=currentImage?.id||item?.mockup_upload_id||item?.upload_id||a?.cover_upload_id||a?.avatar_upload_id||a?.portfolio_upload_ids?.[0];
   if(imageId){const image=await db.one('SELECT path FROM uploads WHERE id=?',[imageId]);if(image&&/^[a-zA-Z0-9_-]+\.(png|jpg)$/.test(image.path))try{imageBytes=await fs.readFile(path.join(c.uploadDir,image.path));}catch{}}
   if(!imageBytes&&item&&!item.upload_id){const sheet=path.join(publicDir,'assets',item.sheet===1?'catalog-2.jpg':'catalog.jpg'),info=await sharp(sheet).metadata(),cell=Math.min(5,Math.max(0,Number(item.cell)||0)),width=Math.floor(info.width/3),height=Math.floor(info.height/2);imageBytes=await sharp(sheet).extract({left:(cell%3)*width,top:Math.floor(cell/3)*height,width,height}).toBuffer();}
   const words=title.split(/\s+/),lines=[''];for(const word of words){if((lines.at(-1)+' '+word).length>25&&lines.length<4)lines.push(word);else lines[lines.length-1]+=(lines.at(-1)?' ':'')+word;}
