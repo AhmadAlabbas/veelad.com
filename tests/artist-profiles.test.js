@@ -23,6 +23,15 @@ async function fixture(){
 }
 async function upload(call){const form=new FormData(),bytes=await sharp({create:{width:240,height:240,channels:3,background:'#c99463'}}).png().toBuffer();form.append('artwork',new Blob([bytes],{type:'image/png'}),'profile.png');return(await ok(call,'upload',form)).upload_id;}
 
+test('administrators can edit their own artist shop without borrowing another artist identity or gaining cross-owner profile fields',async()=>{
+ const f=await fixture();try{
+  const call=f.users.admin.call,initial=await ok(call,'artist-profile');assert.equal(initial.published.id,f.users.admin.id);assert.equal(initial.products.length,0);
+  assert.equal((await call('artist-profile-draft',{action:'save',version:0,data:{...initial.draft,featured_product_ids:['p1']}})).status,403);
+  await ok(call,'artist-profile-draft',{action:'publish',version:0,data:{...initial.draft,name:'The store artist shop'}});
+  assert.equal((await ok(f.anonymous,'bootstrap')).artists.find(a=>a.id===f.users.admin.id).name,'The store artist shop');assert.notEqual((await ok(f.anonymous,'bootstrap')).artists.find(a=>a.id==='artist-1').name,'The store artist shop');
+ }finally{await f.close();}
+});
+
 test('artist profile drafts stay private, preserve published data and publish owned media, bilingual captions and shop sections atomically',async()=>{
  const f=await fixture();try{
   assert.equal((await f.anonymous('artist-profile')).status,401);assert.equal((await f.users.buyer.call('artist-profile')).status,403);

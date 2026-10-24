@@ -33,6 +33,6 @@ Each update contains a signed link to an explicit stop-email page. It works with
 
 Migration 015 adds `artist_profile_drafts`, `artist_follows`, `artist_notifications` and `artist_releases`. All four are included in encrypted backup and restoration, taking coverage to **60 tables**. The migration runner supports the publication baseline data statement as well as table DDL. Existing migration checksums stay unchanged.
 
-Artist metadata and sharing images use the published profile. Draft fields never enter bootstrap, public artist pages, social previews or sitemap data. Existing registered artists and newly promoted artist accounts can use the editor; a promoted account's new public artist record is created when it first publishes.
+Artist metadata and sharing images use the published profile. Draft fields never enter bootstrap, public artist pages, social previews or sitemap data. Existing registered artists, administrators editing their own shop, and newly promoted artist accounts can use the editor; a promoted account's new public artist record is created when it first publishes.
 
 Automated coverage includes draft/public separation, owned media, bilingual captions, two-tab conflicts, offline save recovery, crop output, device/language previews, featured sections, follow defaults, deduplication, SMTP consent checks, anonymous signed opt-out and nonempty backup/restoration.

@@ -11,12 +11,20 @@ try{process.loadEnvFile('.env');}catch(error){if(error.code!=='ENOENT')throw err
 const password='Artist profile browser fixture password 123';
 async function fixture(){
  const folder=await fs.mkdtemp(path.join(os.tmpdir(),'veelad-profile-ui-')),f=await googleApp({artistProfilesEnabled:true,uploadDir:path.join(folder,'uploads'),mailEnabled:true,mailFrom:'info@example.test',smtp:{host:'smtp.example.test',port:465,auth:{user:'info@example.test',pass:'test-only-password'}}});
- for(const [id,role]of [['artist-1','artist'],['profile-ui-buyer','buyer']]){const user={id,name:id,email:id+'@profile-ui.example.test',password:await passwordHash(password),role,status:'active',created_at:now()};await f.db.q('INSERT INTO users VALUES (?,?,?,?,?,?,?)',Object.values(user));await markEmailVerified(f.db,user);}
+ for(const [id,role]of [['artist-1','artist'],['profile-ui-buyer','buyer'],['profile-ui-admin','admin']]){const user={id,name:id,email:id+'@profile-ui.example.test',password:await passwordHash(password),role,status:'active',created_at:now()};await f.db.q('INSERT INTO users VALUES (?,?,?,?,?,?,?)',Object.values(user));await markEmailVerified(f.db,user);}
  return {...f,async close(){await f.close();await fs.rm(folder,{recursive:true,force:true});}};
 }
 async function login(page,f,id,lang='en'){await page.goto(f.origin+'/'+lang+'/login');await page.locator('[data-form=login]').waitFor();await page.evaluate(async values=>api('login',values),{email:id+'@profile-ui.example.test',password});}
 async function fits(page){expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);}
 async function file(){return {name:'profile-photo.png',mimeType:'image/png',buffer:await sharp(Buffer.from('<svg width="1600" height="900"><rect width="800" height="900" fill="#e8b785"/><rect x="800" width="800" height="900" fill="#526e83"/><circle cx="800" cy="450" r="250" fill="#e7ddd0"/></svg>')).png().toBuffer()};}
+
+test('an administrator opens their own public artist shop editor and keeps the store-management navigation',async({page},info)=>{
+ test.setTimeout(60000);const f=await fixture(),lang=info.project.name==='mobile'?'ar':'en';
+ try{
+  await login(page,f,'profile-ui-admin',lang);await page.evaluate(async()=>{const own=await api('artist-profile');await api('artist-profile-draft',{action:'publish',version:own.version,data:{...own.draft,name:'Store owner studio'}});});
+  await page.goto(f.origin+'/'+lang+'/artists/profile-ui-admin');await page.locator('[data-artist-follow] a').click();await expect(page.locator('[data-artist-profile-form] [name=name]')).toHaveValue('Store owner studio');await expect(page.locator('.sidebar-links a[href*="/admin?tab=products"]')).toBeVisible();await fits(page);
+ }finally{await page.goto('about:blank').catch(()=>{});await f.close();}
+});
 
 test('an artist crops private profile media, previews both languages/devices and publishes captions, featured designs and ordered sections',async({page,browser},info)=>{
  test.setTimeout(120000);const f=await fixture(),errors=[];page.on('pageerror',error=>errors.push(error.message));const lang=info.project.name==='mobile'?'ar':'en',ar=lang==='ar';let visitor;

@@ -74,11 +74,11 @@ export async function artistProfileRoute({route,method,v,req,res,db,c,me,role,th
  if(!['artist-profile','artist-profile-draft','artist-follow-state','artist-follow','artist-following','artist-notifications-read','artist-email-preferences'].includes(route))return false;
  if(!c.artistProfilesEnabled)fail(503,'Artist profile tools are unavailable in this environment.');
  if(route==='artist-profile'&&method==='GET'){
-  const user=await role(req,'artist'),record=await db.one('SELECT data FROM artists WHERE id=?',[user.id]),a=record?parse(record.data):initialProfile(user),draft=await db.one('SELECT * FROM artist_profile_drafts WHERE artist_id=?',[user.id]);
-  const data=draft?parse(draft.data):editable(a);res.json({published:publicArtistProfile(a),draft:data,version:draft?Number(draft.version):0,updated_at:draft?.updated_at||null,conflict:!!draft&&draft.base_hash!==hash(JSON.stringify(a)),completion:artistCompletion(data)});return true;
+  const user=await role(req,'artist','admin'),record=await db.one('SELECT data FROM artists WHERE id=?',[user.id]),a=record?parse(record.data):initialProfile(user),draft=await db.one('SELECT * FROM artist_profile_drafts WHERE artist_id=?',[user.id]);
+  const data=draft?parse(draft.data):editable(a);const products=(await db.q('SELECT * FROM products WHERE artist_id=? ORDER BY created_at DESC,id',[user.id])).map(product);res.json({published:publicArtistProfile(a),products,draft:data,version:draft?Number(draft.version):0,updated_at:draft?.updated_at||null,conflict:!!draft&&draft.base_hash!==hash(JSON.stringify(a)),completion:artistCompletion(data)});return true;
  }
  if(route==='artist-profile-draft'&&method==='POST'){
-  const user=await role(req,'artist');await throttle(req,'artist-profile-'+user.id,180);if(!['save','publish','discard'].includes(v.action)||!Number.isSafeInteger(v.version)||v.version<0)fail(422,'Check the profile action and version.');
+  const user=await role(req,'artist','admin');await throttle(req,'artist-profile-'+user.id,180);if(!['save','publish','discard'].includes(v.action)||!Number.isSafeInteger(v.version)||v.version<0)fail(422,'Check the profile action and version.');
   let result;
   await db.tx(async conn=>{
    // Lock the user too, including accounts newly promoted to the artist role.
