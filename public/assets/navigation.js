@@ -48,7 +48,7 @@ async function switchLanguage(language=currentLanguage()==='en'?'ar':'en') {
 }
 function updatePageMetadata() {
  if(route==='creative'||route.startsWith('creative/')){
-  const language=currentLanguage(),name=language==='ar'?'مساحة الإبداع | فيلاد':'Creative hub | Veelad',heading=document.querySelector('#main h1')?.textContent?.trim(),title=heading?heading+' | '+(language==='ar'?'فيلاد':'Veelad'):name;
+  const language=currentLanguage(),name=language==='ar'?'مساحة الإبداع | فيلاد':'Creative hub | Veelad',heading=document.querySelector('#main h1')?.innerText?.replace(/\s+/g,' ').trim(),title=heading?heading+' | '+(language==='ar'?'فيلاد':'Veelad'):name;
   const values=params.has('id')?{id:params.get('id')}:{},canonical=location.origin+normalUrl(route,values,language);
   document.title=title;document.querySelector('link[rel=canonical]')?.setAttribute('href',canonical);document.querySelector('meta[property="og:title"]')?.setAttribute('content',title);document.querySelector('meta[property="og:url"]')?.setAttribute('content',canonical);
   for(const code of ['en','ar','x-default'])document.querySelector('link[rel=alternate][hreflang="'+code+'"]')?.setAttribute('href',location.origin+normalUrl(route,values,code==='x-default'?'en':code));
