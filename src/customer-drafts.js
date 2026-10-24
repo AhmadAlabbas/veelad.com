@@ -1,3 +1,4 @@
+import {validateCreativePersonalisation} from './creative-personalisation.js';
 import {
   ApiError,
   fail,
@@ -189,7 +190,9 @@ export async function customerDraftRoute({
       variant = text(v, "variant", 50, false) || p.variants[0];
     if (!p.variants.includes(variant)) fail(422, "Choose a valid option.");
     if(studio.scene_version===sceneVersion)await ownedSceneSources(db,studio,source,u.id);
+    const personalisation=await validateCreativePersonalisation({db,userId:u.id,productId:p.id,reference:v.creative_personalisation,studio,source,previousReference:previous?json(previous.data).creative_personalisation:null});
     const data = {
+        ...(personalisation?{creative_personalisation:personalisation}:{}),
         title: v.title.trim(),
         category: p.category,
         variant,

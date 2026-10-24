@@ -1,8 +1,10 @@
 'use strict';
 const pagePaths={partners:'/partners','partners/apply':'/partners/apply','partners/dashboard':'/partners/dashboard','partners/products':'/partners/products','partners/campaigns':'/partners/campaigns','partners/links':'/partners/links','partners/payouts':'/partners/payouts','partners/store':'/partners/store','partners/settings':'/partners/settings','partners/terms':'/partners/terms','partners/privacy':'/partners/privacy','partners/referral':'/partners/referral','my-designs':'/my-designs',create:'/create',home:'/',shop:'/shop',artists:'/artists',sell:'/sell',saved:'/saved',bag:'/bag',checkout:'/checkout',confirmation:'/confirmation',login:'/login',register:'/register',account:'/account',forgot:'/forgot','verify-email':'/verify-email',reset:'/reset',help:'/help',policies:'/policies',admin:'/admin',studio:'/studio',track:'/track'};
+Object.assign(pagePaths,{'creative':'/creative','creative/story':'/creative/story','creative/gifts':'/creative/gifts','creative/taste':'/creative/taste','creative/wishes':'/creative/wishes','creative/templates':'/creative/templates','creative/stories':'/creative/stories','creative/rooms':'/creative/rooms','creative/sample-room':'/creative/sample-room','creative/workspace':'/creative/workspace'});
 function normalUrl(page,values={},language=currentLanguage()) {
  const query={...values};let path=pagePaths[page];delete query.lang;
  if(['product','artist','preview'].includes(page)){path=(page==='product'?'/products/':page==='artist'?'/artists/':'/studio/preview/')+encodeURIComponent(query.id||'missing');delete query.id;}
+ if(['creative/rooms','creative/stories','creative/wishes'].includes(page)&&query.id){path='/'+page+'/'+encodeURIComponent(query.id);delete query.id;}
  if(page==='partners/store'&&query.username){path='/partners/store/'+encodeURIComponent(query.username);delete query.username;}
  const search=new URLSearchParams(query).toString(),prefix='/'+(language==='ar'?'ar':'en');return prefix+(path==='/'?'':path||'/not-found')+(search?'?'+search:'');
 }
@@ -12,6 +14,7 @@ function routeFromPath(pathname,search='') {
  if(parts.length===2&&['products','artists'].includes(parts[0])){page=parts[0]==='products'?'product':'artist';try{values.set('id',decodeURIComponent(parts[1]));}catch{page='not-found';}}
  if(parts.length===3&&parts[0]==='studio'&&parts[1]==='preview'){page='preview';try{values.set('id',decodeURIComponent(parts[2]));}catch{page='not-found';}}
  if(parts.length===3&&parts[0]==='partners'&&parts[1]==='store'){page='partners/store';try{values.set('username',decodeURIComponent(parts[2]));}catch{page='not-found';}}
+ if(parts.length===3&&parts[0]==='creative'&&['rooms','stories','wishes'].includes(parts[1])){page='creative/'+parts[1];try{values.set('id',decodeURIComponent(parts[2]));}catch{page='not-found';}}
  return {route:page,params:values,language:locale};
 }
 function currentPage() {
@@ -32,18 +35,26 @@ function navigate(page,values={}){
 async function switchLanguage(language=currentLanguage()==='en'?'ar':'en') {
  const page=currentPage(),nextLanguage=language==='ar'?'ar':'en';
  const retainedCollections=typeof captureCollectionEdits==='function'?captureCollectionEdits():null;
- const snapshots=[...document.querySelectorAll('form[data-form],form[data-partner-form]')].filter(form=>form.dataset.form!=='curated-collections').map(form=>({type:form.dataset.form,partnerType:form.dataset.partnerForm,fields:[...form.elements].map(field=>({name:field.name,type:field.type,value:field.value,checked:field.checked})),artwork:form.querySelector('#upload-preview')?.innerHTML}));const retainedUpload=uploadId;setLanguage(nextLanguage);
+ const snapshots=[...document.querySelectorAll('form[data-form],form[data-partner-form],form[data-creative-form],form[data-room-form]')].filter(form=>form.dataset.form!=='curated-collections').map(form=>({type:form.dataset.form,partnerType:form.dataset.partnerForm,creativeType:form.dataset.creativeForm,roomType:form.dataset.roomForm,fields:[...form.elements].map(field=>({name:field.name,type:field.type,value:field.value,checked:field.checked})),artwork:form.querySelector('#upload-preview')?.innerHTML}));const retainedUpload=uploadId;setLanguage(nextLanguage);
  if(mode==='demo'){
   const next='#/'+page.route+'?'+new URLSearchParams({...Object.fromEntries(page.params),lang:nextLanguage});
   if(location.hash!==next)location.hash=next;else render();
  }else{
   let preferenceFailed=false;if(user)try{await stateQueue;await api('language-preference',{locale:nextLanguage});user={...user,locale:nextLanguage};}catch{preferenceFailed=true;}
   const next=normalUrl(page.route,Object.fromEntries(page.params),nextLanguage);if(location.pathname+location.search!==next)history.pushState(null,'',next);closeModal();await render();uploadId=retainedUpload;if(typeof restoreCollectionEdits==='function')restoreCollectionEdits(retainedCollections);
-  for(const snapshot of snapshots){const form=[...document.querySelectorAll('form[data-form],form[data-partner-form]')].find(f=>snapshot.partnerType?f.dataset.partnerForm===snapshot.partnerType:f.dataset.form===snapshot.type);if(!form)continue;const occurrences=new Map();for(const field of [...form.elements]){if(!field.name||['file','password','submit','button'].includes(field.type))continue;const key=field.name+'|'+field.type,index=occurrences.get(key)||0;occurrences.set(key,index+1);const previous=snapshot.fields.filter(p=>p.name===field.name&&p.type===field.type)[index];if(!previous)continue;if(['checkbox','radio'].includes(field.type))field.checked=previous.checked;else field.value=previous.value;}if(snapshot.artwork&&form.querySelector('#upload-preview'))form.querySelector('#upload-preview').innerHTML=snapshot.artwork;}if(typeof restoreDesignStudios==='function')restoreDesignStudios();if(page.route==='create')syncCustomerProduct(document.querySelector('[data-form=customer-design]'));if(retainedUpload)refreshArtworkMetadata(retainedUpload);
+  for(const snapshot of snapshots){const form=[...document.querySelectorAll('form[data-form],form[data-partner-form],form[data-creative-form],form[data-room-form]')].find(f=>snapshot.creativeType?f.dataset.creativeForm===snapshot.creativeType:snapshot.roomType?f.dataset.roomForm===snapshot.roomType:snapshot.partnerType?f.dataset.partnerForm===snapshot.partnerType:f.dataset.form===snapshot.type);if(!form)continue;const occurrences=new Map();for(const field of [...form.elements]){if(!field.name||['file','password','submit','button'].includes(field.type))continue;const key=field.name+'|'+field.type,index=occurrences.get(key)||0;occurrences.set(key,index+1);const previous=snapshot.fields.filter(p=>p.name===field.name&&p.type===field.type)[index];if(!previous)continue;if(['checkbox','radio'].includes(field.type))field.checked=previous.checked;else field.value=previous.value;}if(snapshot.artwork&&form.querySelector('#upload-preview'))form.querySelector('#upload-preview').innerHTML=snapshot.artwork;}if(typeof restoreDesignStudios==='function')restoreDesignStudios();if(page.route==='create')syncCustomerProduct(document.querySelector('[data-form=customer-design]'));if(retainedUpload)refreshArtworkMetadata(retainedUpload);
   if(preferenceFailed)toast(t('Your language is saved on this device. We could not update your account preference.'));
  }
 }
 function updatePageMetadata() {
+ if(route==='creative'||route.startsWith('creative/')){
+  const language=currentLanguage(),name=language==='ar'?'مساحة الإبداع | فيلاد':'Creative hub | Veelad',heading=document.querySelector('#main h1')?.innerText?.replace(/\s+/g,' ').trim(),title=heading?heading+' | '+(language==='ar'?'فيلاد':'Veelad'):name;
+  const values=params.has('id')?{id:params.get('id')}:{},canonical=location.origin+normalUrl(route,values,language);
+  document.title=title;document.querySelector('link[rel=canonical]')?.setAttribute('href',canonical);document.querySelector('meta[property="og:title"]')?.setAttribute('content',title);document.querySelector('meta[property="og:url"]')?.setAttribute('content',canonical);
+  for(const code of ['en','ar','x-default'])document.querySelector('link[rel=alternate][hreflang="'+code+'"]')?.setAttribute('href',location.origin+normalUrl(route,values,code==='x-default'?'en':code));
+  const robots=document.querySelector('meta[name=robots]');if(robots)robots.content=location.hostname==='staging.veelad.com'||!['creative','creative/wishes','creative/stories','creative/templates','creative/sample-room'].includes(route)?'noindex, nofollow':'index, follow';
+  document.querySelector('script[data-page-schema]')?.remove();return;
+ }
  if(route==='partners'||route.startsWith('partners/')){const language=currentLanguage(),name=language==='ar'?'شركاء فيلاد':'Veelad Partners';document.title=name+' — '+(language==='ar'?'شارك ما تحب، واربح مع فيلاد.':'Share what you love. Earn with Veelad.');const canonical=location.origin+normalUrl(route,params.has('username')?{username:params.get('username')}:{},language);document.querySelector('link[rel=canonical]')?.setAttribute('href',canonical);document.querySelector('meta[property="og:title"]')?.setAttribute('content',name);for(const code of ['en','ar','x-default'])document.querySelector('link[rel=alternate][hreflang="'+code+'"]')?.setAttribute('href',location.origin+normalUrl(route,params.has('username')?{username:params.get('username')}:{},code==='x-default'?'en':code));return;}
 
  const p=route==='product'?products.find(p=>p.id===params.get('id')):null,a=route==='artist'?artists.find(a=>a.id===params.get('id')):null,language=currentLanguage();
