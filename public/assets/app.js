@@ -175,12 +175,13 @@ function gate(studio){return `<main id="main" class="container"><div class="empt
 function initWorkspaceNavigation(){
  const menu=document.querySelector('.sidebar-links'),active=menu?.querySelector('[aria-current="page"]');
  if(!active)return;
+ if(workspaceNavigationMenu!==menu){workspaceNavigationObserver?.disconnect();workspaceNavigationMenu=menu;workspaceNavigationObserver=new ResizeObserver(()=>{if(menu.isConnected)initWorkspaceNavigation();});workspaceNavigationObserver.observe(menu);workspaceNavigationObserver.observe(active);document.fonts?.ready.then(()=>{if(menu.isConnected)requestAnimationFrame(initWorkspaceNavigation);});}
  const bounds=menu.getBoundingClientRect(),item=active.getBoundingClientRect();
  const top=item.top<bounds.top?item.top-bounds.top:item.bottom>bounds.bottom?item.bottom-bounds.bottom:0;
  const left=item.left<bounds.left?item.left-bounds.left:item.right>bounds.right?item.right-bounds.right:0;
  menu.scrollBy({top,left,behavior:'instant'});
 }
-let workspaceNavigationFrame=0;
+let workspaceNavigationFrame=0,workspaceNavigationMenu=null,workspaceNavigationObserver=null;
 window.addEventListener('resize',()=>{cancelAnimationFrame(workspaceNavigationFrame);workspaceNavigationFrame=requestAnimationFrame(initWorkspaceNavigation);});
 async function render(options={}){window.VeeladDesignRooms?.stop?.();const previousScroll=scrollY;const token=++renderToken;clearInterval(slideTimer);const page=currentPage();route=page.route;params=page.params;const workspace=route==='admin'||route==='studio';let content='';const shell=c=>header()+demoNotice()+c+footer()+mobileNavigation();const signedWorkspace=workspace&&user&&(route==='admin'?user.role==='admin':user.role==='artist');if(window.VeeladCreative?.handles(route,params)){
  const isAdmin=route==='admin'&&user?.role==='admin';

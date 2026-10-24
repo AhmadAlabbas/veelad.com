@@ -22,8 +22,7 @@ test('workspace navigation stays reachable at short heights and gives each desti
    await expect(page.locator('.partner-admin')).toBeVisible();
    await expect(items).toHaveCount(13);
    await expect(menu.locator('[aria-current=page]')).toContainText(language==='ar'?'شركاء فيلاد':'Veelad Partners');
-   const activeFits=await menu.evaluate(element=>{const menu=element.getBoundingClientRect(),active=element.querySelector('[aria-current=page]').getBoundingClientRect();return active.top>=menu.top-1&&active.bottom<=menu.bottom+1&&active.left>=menu.left-1&&active.right<=menu.right+1;});
-   expect(activeFits).toBe(true);
+   await expect.poll(()=>menu.evaluate(element=>{const box=element.getBoundingClientRect(),active=element.querySelector('[aria-current=page]').getBoundingClientRect();return active.top>=box.top-1&&active.bottom<=box.bottom+1&&active.left>=box.left-1&&active.right<=box.right+1;})).toBe(true);
    const glyphs=await items.locator('svg').evaluateAll(elements=>elements.map(element=>element.innerHTML));
    expect(new Set(glyphs).size).toBe(13);
    await expect(items.locator('svg[data-symbol=settings] circle')).toHaveAttribute('r','3.2');
