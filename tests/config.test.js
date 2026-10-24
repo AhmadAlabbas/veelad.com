@@ -2,6 +2,14 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {config} from '../src/config.js';
 const env={DB_NAME:'example',DB_USER:'example',DB_PASSWORD:'test-only-password',SESSION_SECRET:'test-only-secret-at-least-32-characters'};
+test('artist profile tools default to review environments and require explicit production enablement',()=>{
+ for(const mode of ['local','test','staging','production']){
+  const deployment={...env,APP_ENV:mode,APP_ORIGIN:mode==='production'?'https://veelad.com':mode==='staging'?'https://staging.veelad.com':'http://127.0.0.1:3000'};
+  assert.equal(config(deployment).artistProfilesEnabled,mode!=='production');
+  assert.equal(config({...deployment,ARTIST_PROFILES_ENABLED:'false'}).artistProfilesEnabled,false);
+  assert.equal(config({...deployment,ARTIST_PROFILES_ENABLED:'true'}).artistProfilesEnabled,true);
+ }
+});
 test('shopping improvements require production opt-in and can be disabled for review',()=>{
  const stage={...env,APP_ENV:'staging',APP_ORIGIN:'https://staging.veelad.com'};
  assert.equal(config(stage).shoppingEnabled,true);assert.equal(config({...stage,SHOP_ENHANCEMENTS_ENABLED:'false'}).shoppingEnabled,false);

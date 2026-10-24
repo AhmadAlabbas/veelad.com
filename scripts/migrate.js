@@ -13,7 +13,8 @@ export async function migrate(db) {
       const source=await fs.readFile(dir+name,'utf8'), checksum=hash(source);
       const old=await db.one('SELECT checksum FROM schema_migrations WHERE id=?',[name],lock);
       if(old) {if(old.checksum!==checksum) throw Error(`Applied migration changed: ${name}`);continue;}
-      for(const sql of JSON.parse(source)) await db.q(sql+' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci',[],lock);
+      // Data migrations (such as publication baselines) are already complete SQL.
+      for(const sql of JSON.parse(source)) await db.q(/^CREATE TABLE\b/i.test(sql)?sql+' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci':sql,[],lock);
       await db.q('INSERT INTO schema_migrations VALUES (?,?,?)',[name,checksum,new Date().toISOString()],lock);
     }
     const engines=await db.q("SELECT TABLE_NAME,ENGINE FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME IN ('users','products','orders','password_resets','mail_queue','mail_delivery','rate_limits','uploads','customer_state','sessions')",[],lock);
