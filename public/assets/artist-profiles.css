@@ -6,3 +6,8 @@
 @media print{.artist-editor-preview{position:static}.artist-editor-save{position:static}.artist-shop-cover{break-inside:avoid}}
 
 .artist-browse-all{margin-top:26px}.artist-shop.is-preview .artist-browse-all{font-size:8px;min-height:28px;padding:7px 10px}
+
+.artist-preview-shortcut{display:flex;align-items:center;justify-content:center;gap:7px;flex-basis:100%;font-size:11px;min-height:32px}.artist-preview-shortcut .icon{width:16px;height:16px}.artist-media-control>.btn:focus-within{outline:3px solid #8062df;outline-offset:3px}#artist-profile-preview{scroll-margin-top:20px}
+.artist-shop-location,.artist-shop-section h2,.artist-shop-product-group>h3,.artist-notifications a{overflow-wrap:anywhere}.artist-notifications article>div{min-width:0}
+
+.artist-editor-heading-actions{display:grid;gap:10px;flex-shrink:0}.artist-editor-heading-actions .btn{font-size:12px}.artist-editor-save{position:static}.artist-editor-preview .artist-preview-shell{order:-1}#artist-profile-actions{scroll-margin-top:20px}@media(max-width:760px){.artist-editor-heading-actions{display:flex;flex-wrap:wrap;margin-top:20px}.artist-editor-heading-actions .btn{font-size:11px;flex:1;padding-inline:12px}}

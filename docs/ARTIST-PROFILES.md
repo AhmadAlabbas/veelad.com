@@ -6,7 +6,7 @@ Artists edit their shop in **Artist studio → Shop settings**. The editor provi
 
 - Profile photos are cropped in the browser to 1024 × 1024 JPEGs; cover banners to 2400 × 900 JPEGs. Sliders support horizontal/vertical framing and zoom. Only the cropped derivative is uploaded. These are presentation images, not print masters.
 - Cropped images and portfolio uploads remain private until they appear in the published profile. The image endpoint permits their owner and administrators to preview them privately. Unpublishing an image removes its profile-based public access; another intentionally published use can still make it public.
-- The artist can preview a laptop/phone layout and English/Arabic independently of the editing language. Missing Arabic content falls back to English. Product images are never mirrored for RTL.
+- The header links directly to Review & publish, and the save controls link back to the live preview without covering fields. The artist can preview a laptop/phone layout and English/Arabic independently of the editing language. Missing Arabic content falls back to English. Product images are never mirrored for RTL.
 - Profiles support six featured products, six named shop sections with up to 24 products each, and six portfolio images with English/Arabic captions. Only the artist's own products can be selected; only currently active listings appear publicly. Empty shop sections are hidden.
 - The public shop initially renders at most 24 products and links larger catalogues into the existing paginated, filtered shop. Portfolio images preserve the full artwork inside their frame.
 - The ten-item completion checklist helps artists improve their profile. It is not an artistic rating, a sales promise or a publication requirement.
