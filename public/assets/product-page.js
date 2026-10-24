@@ -149,6 +149,8 @@ document.addEventListener('click',event=>{
  const target=event.target.closest('[data-action]');if(!target)return;
  if(target.dataset.action==='product-jump'){
   const section=document.getElementById(target.getAttribute('href').slice(1));if(!section)return;
+  if(section.tagName==='DETAILS')section.open=true;
+  if(!section.hasAttribute('tabindex'))section.setAttribute('tabindex','-1');
   event.preventDefault();section.focus({preventScroll:true});section.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});
  }
  if(target.dataset.action==='size-guide'){

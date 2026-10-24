@@ -258,6 +258,7 @@ async function submitCustomerDesign(form, v) {
   await stateQueue;
   await api("state", { cart: next });
   cart = next;
+  window.VeeladShop?.track("design_saved",{product_id:p.id});window.VeeladShop?.track("cart_add",{product_id:p.id});
   write("cart", cart);
   rememberCustomerDraft(form);
   customerDraft.editing_key = null;
