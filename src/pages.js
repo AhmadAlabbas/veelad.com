@@ -10,6 +10,7 @@ const publicDir=fileURLToPath(new URL('../public',import.meta.url));
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const publicPaths=['/','/shop','/artists','/sell','/help','/policies','/partners','/partners/terms','/partners/privacy'];
 const appPaths=[...publicPaths,'/my-designs','/create','/saved','/bag','/checkout','/confirmation','/login','/register','/account','/forgot','/verify-email','/reset','/admin','/studio','/track','/partners/apply','/partners/dashboard','/partners/products','/partners/campaigns','/partners/links','/partners/payouts','/partners/store','/partners/settings','/partners/referral'];
+appPaths.push(...['creative','creative/story','creative/gifts','creative/taste','creative/wishes','creative/templates','creative/stories','creative/rooms','creative/sample-room','creative/workspace','creative/wishes/:id','creative/stories/:id','creative/rooms/:id'].map(route=>'/'+route));
 const languages=['en','ar'];
 const languageFor=req=>/^\/ar(?:\/|$)/.test(req.path)?'ar':'en';
 const basePath=req=>req.path.replace(/^\/(en|ar)(?=\/|$)/,'').replace(/\/$/,'')||'/';
@@ -25,6 +26,7 @@ export function pageRoutes(app,c,db,schema) {
  async function artist(id){return (await publicArtists(db)).find(a=>a.id===id)||null;}
  function ready(req,res){if(schema.status!=='ready'){res.status(503).set('Retry-After','2').send(pageText(languageFor(req),'storeStarting'));return false;}return true;}
  async function html(req,res,{title,description,image,canonical=basePath(req),body='',structured=null,status=200,indexable=true}={}) {
+  if(basePath(req).startsWith('/creative/rooms'))res.set('Referrer-Policy','no-referrer');
   const language=languageFor(req),origin=c.origin,url=origin+localizedPath(canonical,language),robots=c.mode==='staging'||!indexable||status!==200?'noindex, nofollow':'index, follow';
   title||=pageText(language,'storeTitle');
   description||=pageText(language,'storeDescription');

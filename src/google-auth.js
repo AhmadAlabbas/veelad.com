@@ -127,7 +127,7 @@ function localReturn(flow, user, code) {
     route =
       flow?.intent === "link" || flow?.intent === "reauth"
         ? "account"
-        : ["create", "my-designs", "checkout", "partners/apply", "partners/dashboard"].includes(flow?.next)
+        : ["create", "my-designs", "checkout", "partners/apply", "partners/dashboard", "creative", "creative/rooms", "creative/workspace", "creative/taste"].includes(flow?.next)
           ? flow.next
           : user?.role === "admin"
             ? "admin"
@@ -184,7 +184,7 @@ export async function googleRoute({
         intent,
         locale: v.locale === "ar" ? "ar" : "en",
         role: v.role === "artist" ? "artist" : "buyer",
-        next: ["create", "my-designs", "checkout", "partners/apply", "partners/dashboard"].includes(v.next)
+        next: ["create", "my-designs", "checkout", "partners/apply", "partners/dashboard", "creative", "creative/rooms", "creative/workspace", "creative/taste"].includes(v.next)
           ? v.next
           : null,
         user_id: user?.id || null,

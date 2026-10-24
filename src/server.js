@@ -1,3 +1,4 @@
+import {runDesignRoomMaintenance} from './design-rooms.js';
 import './startup-env.js';
 import {config} from './config.js';
 import {database} from './db.js';
@@ -121,9 +122,11 @@ const partnersTimer=setInterval(async()=>{
  catch(error){console.error('Veelad Partners maintenance failed:',/^ER_[A-Z0-9_]+$/.test(error.code||'')?error.code:'PARTNERS_MAINTENANCE_FAILED');}
  finally{partnersRunning=false;}
 },60000);
+let creativeRunning=false;
+const creativeTimer=setInterval(async()=>{if(creativeRunning||schema.status!=='ready'||!c.creativeEnabled)return;creativeRunning=true;try{await runDesignRoomMaintenance(db,{batch:25});}catch{console.error('Creative room retention check failed.');}finally{creativeRunning=false;}},3600000);
 let worker;
 if(mailStatus(c).ready) worker=setInterval(()=>{
  if(schema.status==='ready') work(c,db).catch(()=>console.error('Email worker failed; inspect provider configuration'));
 },c.workerInterval*1000);
-async function stop() {clearInterval(operationsTimer);clearInterval(partnersTimer);clearInterval(worker);server.close(async()=>{await app.locals.sessionStore.close();await db.pool.end();process.exit(0);});setTimeout(()=>process.exit(1),10000).unref();}
+async function stop() {clearInterval(creativeTimer);clearInterval(operationsTimer);clearInterval(partnersTimer);clearInterval(worker);server.close(async()=>{await app.locals.sessionStore.close();await db.pool.end();process.exit(0);});setTimeout(()=>process.exit(1),10000).unref();}
 process.on('SIGTERM',stop);process.on('SIGINT',stop);

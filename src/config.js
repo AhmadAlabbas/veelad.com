@@ -23,6 +23,7 @@ export function config(env = process.env) {
   let revision=env.DEPLOY_COMMIT||null;
   try {revision ||= JSON.parse(fs.readFileSync(new URL('../.release.json',import.meta.url),'utf8')).revision;} catch {}
   return {mode, origin, secret, secure, trustProxy, revision, numberingSystem, marketplaceEnabled:mode!=='production'||env.PRODUCTION_MARKETPLACE_ENABLED==='true',
+    creativeEnabled:env.CREATIVE_EXPERIENCES_ENABLED==='true'||(mode!=='production'&&env.CREATIVE_EXPERIENCES_ENABLED!=='false'),
     partners:{enabled:env.PARTNERS_ENABLED==='true'||(mode==='staging'&&env.PARTNERS_ENABLED===undefined),payoutKey,financeAdmins,payoutChangeHoldHours:168},
     google:{enabled:env.GOOGLE_AUTH_ENABLED==='true',clientId:env.GOOGLE_CLIENT_ID?.trim(),clientSecret:env.GOOGLE_CLIENT_SECRET?.trim()},
     moyasar:{testEnabled:env.MOYASAR_TEST_ENABLED==='true',testSecretKey:env.MOYASAR_TEST_SECRET_KEY?.trim()},

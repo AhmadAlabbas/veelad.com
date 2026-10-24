@@ -3,4 +3,10 @@ export const partnerBackupMigrations={
  '009-partners-operations.json':['partners_profiles','partners_links','partners_clicks','partners_stores','partners_notifications','partners_audit','partners_fraud_cases'],
  '010-partners-payouts.json':['partners_bank_accounts','partners_payouts','partners_payout_entries','partners_payout_batches','partners_payout_evidence','partners_campaigns','partners_coupons','partners_tiers'],
 };
-export const backupTables=['users','account_emails','auth_identities','artists','products','orders','settings','messages','rate_limits','uploads','customer_state','customer_designs','customer_design_drafts','password_resets','mail_queue','mail_delivery','product_reviews','audit_log',...Object.values(partnerBackupMigrations).flat()];
+export const creativeBackupMigrations={
+ '011-creative-hub.json':['creative_profiles','creative_briefs','creative_wishes','creative_wish_interests','creative_concepts','creative_stories','creative_templates','creative_contributions'],
+ '012-design-rooms.json':['design_rooms','design_room_members','design_room_invites','design_room_ideas','design_room_votes','design_room_messages'],
+ '013-creative-personalisations.json':['creative_personalisations']
+};
+export const additiveBackupMigrations={...partnerBackupMigrations,...creativeBackupMigrations};
+export const backupTables=['users','account_emails','auth_identities','artists','products','orders','settings','messages','rate_limits','uploads','customer_state','customer_designs','customer_design_drafts','password_resets','mail_queue','mail_delivery','product_reviews','audit_log',...Object.values(additiveBackupMigrations).flat()];

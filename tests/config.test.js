@@ -2,6 +2,14 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {config} from '../src/config.js';
 const env={DB_NAME:'example',DB_USER:'example',DB_PASSWORD:'test-only-password',SESSION_SECRET:'test-only-secret-at-least-32-characters'};
+test('creative experiences default to review environments and respect an explicit production gate',()=>{
+ for(const mode of ['local','test','staging','production']) {
+  const deployment={...env,APP_ENV:mode,APP_ORIGIN:mode==='production'?'https://veelad.com':mode==='staging'?'https://staging.veelad.com':'http://127.0.0.1:3000'};
+  assert.equal(config(deployment).creativeEnabled,mode!=='production');
+  assert.equal(config({...deployment,CREATIVE_EXPERIENCES_ENABLED:'false'}).creativeEnabled,false);
+  assert.equal(config({...deployment,CREATIVE_EXPERIENCES_ENABLED:'true'}).creativeEnabled,true);
+ }
+});
 test('Partners defaults closed and finance access requires a dedicated valid encryption key and explicit account IDs',()=>{
  assert.deepEqual(config(env).partners,{enabled:false,payoutKey:'',financeAdmins:[],payoutChangeHoldHours:168});
  const key=Buffer.alloc(32,11).toString('base64'),c=config({...env,PARTNERS_ENABLED:'true',PARTNERS_PAYOUT_ENCRYPTION_KEY:key,PARTNERS_FINANCE_ADMIN_IDS:'user-finance,user-second'});

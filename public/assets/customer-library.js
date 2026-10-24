@@ -10,6 +10,7 @@ function customerDraftPayload(draft) {
     variant: draft.variant || "Standard",
     upload_id: draft.upload_id || null,
     design_studio: draft.design_studio,
+    creative_personalisation:window.VeeladCreativeEditor?.referenceForDraft(draft)||null,
   };
 }
 const customerFingerprint = (draft) =>
