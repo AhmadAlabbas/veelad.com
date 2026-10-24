@@ -26,6 +26,7 @@ test('quick personalisation previews approved words, preserves options and artis
  try{
   const lang=info.project.name==='mobile'?'ar':'en';await login(page,f,'shop-ui-buyer',lang);await page.goto(f.origin+'/'+lang+'/products/p1');
   const form=page.locator('[data-quick-form]');await expect(form).toBeVisible();await form.locator('[name=text_name]').fill(lang==='ar'?'نورة':'NOURA');
+  await page.locator('.shop-buying-links a[href="#product-returns"]').click();await expect(page.locator('#product-returns')).toHaveAttribute('open','');
   await page.locator('[data-form=add-to-bag] [name=variant][value=M]').check();
   await form.locator('[data-shop-action=quick-preview]').click();await expect(form.locator('[data-quick-product]')).toBeVisible({timeout:20000});
   expect(await form.locator('[data-quick-product]').evaluate(image=>image.complete&&image.naturalWidth===1000)).toBe(true);
@@ -35,6 +36,19 @@ test('quick personalisation previews approved words, preserves options and artis
   const state=await page.evaluate(async()=>api('state'));expect(state.cart).toHaveLength(1);expect(state.cart[0].variant).toBe('M');expect(state.cart[0].customization.creative_personalisation.artist_id).toBe('artist-1');
   expect(Number((await f.db.one('SELECT COUNT(*) AS n FROM orders')).n)).toBe(0);await fits(page);
   await page.screenshot({path:info.outputPath('quick-bag-'+lang+'.png'),fullPage:true});expect(errors).toEqual([]);
+ }finally{await page.goto('about:blank').catch(()=>{});await f.close();}
+});
+
+test('a guest keeps personalised words through sign-in and editing invalidates the reviewed preview',async({page},info)=>{
+ test.setTimeout(120000);const f=await fixture();
+ try{
+  const lang=info.project.name==='mobile'?'ar':'en',name=lang==='ar'?'سارة':'SARA';await page.goto(f.origin+'/'+lang+'/products/p1');
+  await page.locator('[data-quick-form] [name=text_name]').fill(name);await page.locator('[data-shop-action=quick-preview]').click();await expect(page).toHaveURL(/\/login$/);
+  await page.locator('[data-form=login] [name=email]').fill('shop-ui-buyer@shopping-ui.example.test');await page.locator('[data-form=login] [name=password]').fill(password);await page.locator('[data-form=login] button[type=submit]').click();
+  await expect(page).toHaveURL(/\/products\/p1$/);const form=page.locator('[data-quick-form]');await expect(form.locator('[name=text_name]')).toHaveValue(name);
+  await form.locator('[data-shop-action=quick-preview]').click();await expect(form.locator('[data-quick-product]')).toBeVisible({timeout:20000});await form.locator('[name=rights]').check();
+  await form.locator('[name=text_name]').fill(lang==='ar'?'نورة':'NOURA');await expect(form.locator('[data-quick-add]')).toBeDisabled();await expect(form.locator('[data-quick-product]')).toBeHidden();await expect(form.locator('[name=rights]')).not.toBeChecked();
+  expect(Number((await f.db.one('SELECT COUNT(*) AS n FROM customer_designs WHERE user_id=?',['shop-ui-buyer'])).n)).toBe(0);
  }finally{await page.goto('about:blank').catch(()=>{});await f.close();}
 });
 

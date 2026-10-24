@@ -40,7 +40,7 @@ window.VeeladShop=(()=>{
   form.querySelector('[data-quick-product]').hidden=true;form.querySelector('[data-quick-add]').disabled=true;form.elements.rights.checked=false;quick.preview=null;
  }
  function pendingReturn(){try{const value=JSON.parse(sessionStorage.getItem(returnKey)||'null');if(value&&Date.now()-value.time<15*60000)return value;sessionStorage.removeItem(returnKey);}catch{}return null;}
- function resume(){const saved=pendingReturn();if(!saved||!user||route==='product')return false;navigate('product',{id:saved.product_id});return true;}
+ function resume(){const saved=pendingReturn();if(!saved||!user||route==='product')return false;if(!productById(saved.product_id)){sessionStorage.removeItem(returnKey);return false;}navigate('product',{id:saved.product_id});return true;}
  async function mountQuick(token){
   const target=document.querySelector('[data-shop-quick]');if(!target)return;const productId=target.dataset.shopQuick,mount=target.querySelector('[data-quick-content]');
   try{
