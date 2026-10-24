@@ -23,6 +23,8 @@ async function fixture(){
  await db.q('INSERT INTO users VALUES (?,?,?,?,?,?,?)',['recovery-owner','Private owner','recovery-fixture@example.test','unchanged-private-hash','buyer','active',new Date().toISOString()]);
  await db.q('INSERT INTO uploads VALUES (?,?,?,?)',['original-rehearsal','recovery-owner','original.png','image/png']);
  await db.q('INSERT INTO settings VALUES (?,?)',['private-vector-fixture',JSON.stringify({source:'Private vector archival source',version:1})]);
+ await db.q('INSERT INTO shopping_metrics VALUES (?,?,?,?,?,?)',['2026-10-24','product_view','p1','product',3,0]);
+ await db.q('INSERT INTO shopping_metric_receipts VALUES (?,?)',['a'.repeat(64),'2026-10-24']);
  const backup=await createBackup(c,db);
  return {folder,app,db,c,bytes,backup,async close(){await app.close();await fs.rm(folder,{recursive:true,force:true});}};
 }
