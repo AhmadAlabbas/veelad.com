@@ -20,7 +20,7 @@ test('temporary category defaults are explicit placeholders and integer halalas 
   const bad=structuredClone(rows);mutation(bad);assert.throws(()=>validateCategoryPricing(bad),e=>e.status===422);
  }
  const privateSettings={announcement:'Keep the announcement',category_pricing:rows,pricing_revision:3,checkout_enabled:false};
- assert.deepEqual(publicStoreSettings(privateSettings),{announcement:'Keep the announcement',checkout_enabled:false});
+ assert.deepEqual(publicStoreSettings(privateSettings),{announcement:'Keep the announcement',checkout_enabled:false,social_links:{youtube:'https://www.youtube.com/@VeeladCompany',instagram:'https://www.instagram.com/veeladofficial/',tiktok:'https://www.tiktok.com/@veelad1',x:'https://x.com/veeladofficial',linkedin:'https://www.linkedin.com/company/veelad/',pinterest:'https://www.pinterest.com/veelad100/'}});
  assert.equal(privateSettings.category_pricing[0].price,12345);
 });
 

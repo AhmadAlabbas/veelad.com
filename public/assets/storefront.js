@@ -181,3 +181,12 @@ document.addEventListener('submit',async event=>{
 });
 
 document.addEventListener('veelad:gallery-updated',event=>{const form=event.detail?.form;if(!form)return;const ids=JSON.parse(form.elements.gallery_upload_ids.value||'[]');for(const select of form.querySelectorAll('[data-choice-field=image_id]'))select.innerHTML=purchasePhotoOptions(ids,select.value);});
+
+// Store-owned accounts are configured independently from artists' social profiles.
+const footerSocialPlatforms=[['youtube','YouTube'],['instagram','Instagram'],['tiktok','TikTok'],['x','X'],['linkedin','LinkedIn'],['pinterest','Pinterest']];
+function socialProfileHref(value){try{const url=new URL(value);return url.protocol==='https:'&&!url.username&&!url.password?url.href:'';}catch{return '';}}
+function socialMediaFooter(){
+ const linked=footerSocialPlatforms.some(([id])=>socialProfileHref(settings.social_links?.[id]));
+ return `<section class="footer-social" aria-labelledby="footer-social-title"><div><h4 id="footer-social-title">${t('Connect with Veelad')}</h4>${linked?'':`<p>${t('Our social links are coming soon.')}</p>`}</div><ul class="footer-social-list">${footerSocialPlatforms.map(([id,name])=>{const href=socialProfileHref(settings.social_links?.[id]),label=href?name+' · '+t('Opens in a new tab'):name+' · '+t('Link coming soon'),image=`<img src="/assets/social/${id}.svg" width="22" height="22" alt="" aria-hidden="true" loading="lazy">`;return `<li>${href?`<a class="footer-social-icon" href="${esc(href)}" target="_blank" rel="noopener noreferrer" aria-label="${esc(label)}" title="${esc(label)}">${image}</a>`:`<span class="footer-social-icon is-pending" role="img" aria-label="${esc(label)}" title="${esc(label)}">${image}</span>`}</li>`;}).join('')}</ul></section>`;
+}
+function socialMediaFields(){return `<fieldset class="social-settings"><legend>${t('Social media')}</legend><p class="small">${t('Add your official profile links when ready. Empty fields show an inactive icon in the footer.')}</p><div class="form-grid">${footerSocialPlatforms.map(([id,name])=>field(name,'social_'+id,settings.social_links?.[id]||'','url','maxlength="500" dir="ltr" placeholder="https://"')).join('')}</div></fieldset>`;}

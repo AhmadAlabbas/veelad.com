@@ -1,3 +1,4 @@
+import {socialLinks} from './social-links.js';
 import {orderMessage} from './order-mail.js';
 import {artistProfileRoute,recordArtistRelease} from './artist-profiles.js';
 import {shoppingRoute} from './shopping-quality.js';
@@ -677,7 +678,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
     });return res.json({ok:true});
    }
    if(method==='POST' && route==='admin-settings') {
-    await db.tx(async conn=>{const row=await one('SELECT data FROM settings WHERE id=? FOR UPDATE',['store'],conn),s=json(row.data);Object.assign(s,{announcement:text(v,'announcement',150),support_email:email(v,'support_email'),shipping:integer(v.shipping,0,100000,'shipping'),free_shipping:integer(v.free_shipping,0,100000,'free shipping'),checkout_enabled:v.checkout_enabled===true,coupon_code:text(v,'coupon_code',30,false).toUpperCase(),coupon_percent:integer(v.coupon_percent??0,0,70,'discount')},optionalDetails(v,{delivery_estimate:300,returns_policy:3000}),optionalTranslations(v,{announcement_ar:150,delivery_estimate_ar:300,returns_policy_ar:3000}),...(v.shipping_countries!==undefined?[{shipping_countries:deliveryCountries(v.shipping_countries)}]:[]));
+    await db.tx(async conn=>{const row=await one('SELECT data FROM settings WHERE id=? FOR UPDATE',['store'],conn),s=json(row.data);Object.assign(s,{social_links:socialLinks(v,s.social_links),announcement:text(v,'announcement',150),support_email:email(v,'support_email'),shipping:integer(v.shipping,0,100000,'shipping'),free_shipping:integer(v.free_shipping,0,100000,'free shipping'),checkout_enabled:v.checkout_enabled===true,coupon_code:text(v,'coupon_code',30,false).toUpperCase(),coupon_percent:integer(v.coupon_percent??0,0,70,'discount')},optionalDetails(v,{delivery_estimate:300,returns_policy:3000}),optionalTranslations(v,{announcement_ar:150,delivery_estimate_ar:300,returns_policy_ar:3000}),...(v.shipping_countries!==undefined?[{shipping_countries:deliveryCountries(v.shipping_countries)}]:[]));
     await q('UPDATE settings SET data=? WHERE id=?',[JSON.stringify(s),'store'],conn);await audit(u,'settings.save','store',conn);});return res.json({ok:true});
    }
   }

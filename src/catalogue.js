@@ -1,6 +1,7 @@
 import styles from '../public/assets/design-styles.json' with {type:'json'};
 import placeholderPrices from '../public/assets/launch-pricing.json' with {type:'json'};
 import {fail,integer} from './security.js';
+import {defaultSocialLinks} from './social-links.js';
 
 export const designStyles=Object.freeze(styles.map((row,index)=>Object.freeze({...row,index})));
 const styleIds=new Set(styles.map(row=>row.id));
@@ -33,5 +34,5 @@ export function validateCategoryPricing(rows){
 
 export function publicStoreSettings(settings){
  const {category_pricing,pricing_revision,...visible}=settings;
- return visible;
+ return {...visible,social_links:{...defaultSocialLinks,...visible.social_links}};
 }

@@ -146,3 +146,18 @@ html[lang=ar] .global-nav .wordmark{font-family:Manrope,sans-serif;letter-spacin
 .product-photo.sheet1{background-image:url('/assets/catalog-2.jpg?v=veelad-neutral-2')}
 .hero-image.catalog-shot::before{background-image:url('/assets/catalog-2.jpg?v=veelad-neutral-2')}
 .hero-image.flower-shot::before{background-image:url('/assets/catalog.jpg?v=veelad-neutral-2')}
+
+/* Local monochrome social marks, with honest inactive states until URLs are set. */
+.footer-social{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:24px 0;border-top:1px solid #333}
+.footer-social h4{margin:0;font-size:14px}
+.footer-social p{margin:7px 0 0;max-width:none}
+.footer-social-list{display:flex;flex-wrap:wrap;gap:10px;list-style:none;padding:0;margin:0}
+.footer .footer-social-list .footer-social-icon{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;margin:0;border:1px solid #555;border-radius:50%;background:#1c1c1c;color:#fff;transition:background .15s,border-color .15s}
+.footer-social-icon img{width:22px;height:22px;filter:invert(1)}
+.footer a.footer-social-icon:hover,.footer a.footer-social-icon:focus-visible{background:#35303f;border-color:#c8b7f5}
+.footer-social-icon.is-pending{opacity:.65}
+.social-settings{border:1px solid var(--line);border-radius:12px;padding:20px;margin:28px 0 0;min-width:0}
+.social-settings legend{font-weight:700;padding:0 6px}
+.social-settings>p{margin-bottom:16px}
+@media(max-width:600px){.footer-social{align-items:flex-start;flex-direction:column}.footer-social-list{gap:8px}}
+@media(max-width:359px){.footer-social-list{display:grid;grid-template-columns:repeat(3,44px)}}
