@@ -1,3 +1,7 @@
+import {socialLinks} from './social-links.js';
+import {orderMessage} from './order-mail.js';
+import {artistProfileRoute,recordArtistRelease} from './artist-profiles.js';
+import {shoppingRoute} from './shopping-quality.js';
 import {readScalableMaster} from './scalable-editions.js';
 import {fileHash} from './private-bundle.js';
 import express from 'express';
@@ -30,6 +34,12 @@ import {collectionSettings,validateCollections} from './curated-collections.js';
 import {designStyles,validateDesignStyles,categoryPricing,validateCategoryPricing,publicStoreSettings} from './catalogue.js';
 import {moyasarStatus,checkMoyasar} from './moyasar.js';
 import {deliveryCountries,deliveryCountry,validatePurchaseOptions,resolvePurchaseOptions} from './storefront-options.js';
+import {creativeRoute} from './creative-hub.js';
+import {designRoomRoute} from './design-rooms.js';
+import {creativePersonalisationRoute,validateCreativePersonalisation} from './creative-personalisation.js';
+import {partnerRoute,partnerReferral,resolvePartnerAttribution} from './partners.js';
+import {partnerPayoutRoute} from './partners-payouts.js';
+import {capturePartnerOrder,syncPartnerOrder} from './partners-finance.js';
 const publicDir=fileURLToPath(new URL('../public',import.meta.url));
 const categories=['T-shirts','Tote bags','Phone cases','Art prints','Mugs','Stickers','Notebooks'];
 function readinessCode(error,fallback='DATABASE_UNAVAILABLE') {
@@ -92,9 +102,20 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
   }
   next();
  });
- api.use(express.json({limit:'256kb'}));
+ api.use(express.json({limit:'256kb',inflate:false}));
  const upload=multer({storage:multer.memoryStorage(),limits:{fileSize:artworkLimits.bytes,files:1,fields:0}});
- api.use((req,res,next)=>req.method==='POST' && ['upload','admin-artwork-restore'].includes(req.query.route) ? upload.single('artwork')(req,res,next) : next());
+ let parsingUploads=0;
+ api.use(async(req,res,next)=>{
+  if(req.method!=='POST'||!['upload','admin-artwork-restore'].includes(req.query.route))return next();
+  try {
+   const u=req.query.route==='admin-artwork-restore'?await role(req,'admin'):await me(req,true);
+   await throttle(req,'upload-admission',40);await throttle(req,'upload-account',40,u.id);
+   if(parsingUploads>=4)return next(new ApiError(429,'Uploads are busy. Please try again shortly.'));
+   parsingUploads++;let released=false;const release=()=>{if(!released){released=true;parsingUploads--;}};
+   res.once('close',release);res.once('finish',release);req.once('aborted',release);
+   upload.single('artwork')(req,res,error=>{if(error)release();next(error);});
+  }catch(error){next(error);}
+ });
  const q=db.q, one=db.one;
  const settings=async conn=> {const r=await one('SELECT data FROM settings WHERE id=?',['store'],conn);if(!r) fail(503,'Store provisioning is required.');return json(r.data);};
  const products=async (all=false,artist=null,conn)=> (await q('SELECT * FROM products'+(!all ? " WHERE status='active'" : artist ? ' WHERE artist_id=?' : '')+' ORDER BY created_at DESC,id', all&&artist ? [artist] : [],conn)).map(row=>{const p=product(row);if(!all){if(p.category==='T-shirts'&&p.design_studio)p.preview_print_side=p.design_studio.placements?.shirt?.view==='shirt-back'?'back':'front';delete p.production_notes;delete p.design_studio;}return p;});
@@ -133,8 +154,8 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
   req.session.csrf=csrf;
   if(u) {req.session.user_id=u.id;req.session.password_stamp=hash(u.password);}
  }
- async function throttle(req,bucket,max) {
-  const key=hash(bucket+'|'+req.ip+'|'+Math.floor(Date.now()/900000));
+ async function throttle(req,bucket,max,identity=req.ip) {
+  const key=hash(bucket+'|'+identity+'|'+Math.floor(Date.now()/900000));
   const hits=await db.tx(async conn=>{
    await q('INSERT INTO rate_limits VALUES (?,1,?) ON DUPLICATE KEY UPDATE hits=hits+1',[key,Math.floor(Date.now()/1000)+1800],conn);
    const row=await one('SELECT hits FROM rate_limits WHERE id=?',[key],conn);
@@ -197,11 +218,43 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
   if(!row)fail(404,'Personal design not found.');
   const design=json(row.data);
   if(p.customer_customizable!==true||design.category!==p.category)fail(409,'This product is no longer available for customization.');
-  return {customization_id:row.id,...design};
+  const personalisation=await validateCreativePersonalisation({db,userId:u.id,productId:p.id,reference:design.creative_personalisation,studio:design.design_studio,source:design.upload_id,conn});
+  return {customization_id:row.id,...design,...(personalisation?{creative_personalisation:personalisation}:{})};
  }
  api.all('/',async (req,res)=>{
   const route=req.baseUrl==='/auth/google/callback'?'google-callback':String(req.query.route||'bootstrap'),method=req.method,v=payload(req);
-  if(method==='GET' && route==='bootstrap') {const u=await me(req),locale=u?(await state(u.id)).user_locale:null,googleReturn=req.session.google_login_complete===true;delete req.session.google_login_complete;return res.json({mode:'server',authentication:await authenticationStatus(c,db,u),auth_event:googleReturn?'google-login':null,csrf:req.session.csrf,user:u ? safeUser(u) : null,locale:['ar','en'].includes(locale)?locale:null,products:await products(),artists:await publicArtists(db),design_styles:designStyles,settings:publicStoreSettings(collectionSettings(await settings(),await products(),{publicOnly:true})),email_delivery:{available:mailStatus(c).ready,staging_restricted:c.mode==='staging'}});}
+  if(route==='partners-quote'&&method==='POST'){
+   await throttle(req,'partners-quote',120);
+   if(!Array.isArray(v.cart)||v.cart.length>50)fail(422,'Your bag needs at most 50 items.');
+   const s=await settings(),u=await me(req),items=[];
+   for(const [index,line] of v.cart.entries()){
+    const row=await one("SELECT * FROM products WHERE id=? AND status='active'",[text(line,'id',64)]);
+    if(!row)fail(422,'A bag item is unavailable.');
+    const p=product(row),qty=integer(line.qty,1,20,'quantity');
+    if(!p.variants.includes(text(line,'variant',50)))fail(422,'Choose a valid product option.');
+    items.push({...p,line_id:'quote-'+index,qty,...(line.customization_id?{customer_customized:true}:{})});
+   }
+   const subtotal=items.reduce((total,item)=>total+item.price*item.qty,0),code=typeof v.coupon==='string'?v.coupon.trim().toUpperCase():'';
+   const referral=c.partners?.enabled?await resolvePartnerAttribution({db,c,req,user:u,items,coupon:code,customerEmail:v.email?email(v):u?.email||'',dryRun:true}):{discount:null};
+   const discount=referral.discount??(code&&code===(s.coupon_code??'HELLOVEELAD')?Math.round(subtotal*(s.coupon_percent??10)/100):0);
+   const shipping=items.length&&subtotal-discount<s.free_shipping?Number(s.shipping):0;
+   return res.json({subtotal,discount,shipping,total:subtotal-discount+shipping,coupon_applied:!!code&&discount>0,provisional:true});
+  }
+  if(await artistProfileRoute({route,method,v,req,res,db,c,me,role,throttle,audit}))return;
+  if(route.startsWith('shopping-')||route.startsWith('admin-shopping-')){if(await shoppingRoute({route,method,v,req,res,db,c,me,role,throttle,audit,queue}))return;fail(404,'Endpoint not found.');}
+  if(route==='creative-status'&&method==='GET')return res.json({enabled:c.creativeEnabled===true});
+  if(route.startsWith('creative-')||route.startsWith('admin-creative')||route.startsWith('room-')||route.startsWith('admin-room-')){
+   if(c.creativeEnabled!==true)fail(503,'Creative experiences are not available in this environment.');
+   const context={route,method,v,req,res,db,c,me,role,throttle,audit,queue};
+   if(await creativePersonalisationRoute(context)||await creativeRoute(context)||await designRoomRoute(context))return;
+   fail(404,'Endpoint not found.');
+  }
+  if(route.startsWith('partners-')||route==='admin-partners'||route.startsWith('admin-partners-')){
+   const context={route,method,v,req,res,db,c,me,role,throttle,audit,queue};
+   if(await partnerRoute(context)||await partnerPayoutRoute(context))return;
+   fail(404,'Endpoint not found.');
+  }
+  if(method==='GET' && route==='bootstrap') {const catalog=await products(),catalogueRevision=hash(JSON.stringify(catalog)),requested=req.get('x-veelad-catalogue'),omitCatalogue=requested==='deferred'||requested===catalogueRevision;const u=await me(req),locale=u?(await state(u.id)).user_locale:null,googleReturn=req.session.google_login_complete===true;delete req.session.google_login_complete;return res.json({mode:'server',authentication:await authenticationStatus(c,db,u),partners:{enabled:c.partners?.enabled===true},creative:{enabled:c.creativeEnabled===true},shopping:{enabled:c.shoppingEnabled===true},artist_profiles:{enabled:c.artistProfilesEnabled===true},auth_event:googleReturn?'google-login':null,csrf:req.session.csrf,user:u ? safeUser(u) : null,locale:['ar','en'].includes(locale)?locale:null,products:omitCatalogue?null:catalog,catalogue_revision:catalogueRevision,catalogue_deferred:omitCatalogue,artists:await publicArtists(db),design_styles:designStyles,settings:publicStoreSettings(collectionSettings(await settings(),catalog,{publicOnly:true})),email_delivery:{available:mailStatus(c).ready,staging_restricted:c.mode==='staging'}});}
   if(method==='POST' && route==='language-preference') {
    const u=await me(req,true);if(!['ar','en'].includes(v.locale))fail(422,'Choose Arabic or English.');
    await db.tx(async conn=>{await q('SELECT id FROM users WHERE id=? FOR UPDATE',[u.id],conn);const s=await state(u.id,conn);s.user_locale=v.locale;await putState(u.id,s,conn);});return res.json({ok:true,locale:v.locale});
@@ -236,7 +289,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
    await throttle(req,'login',12);const u=await one('SELECT * FROM users WHERE email=?',[email(v)]);
    if(!u || !await verifyPassword(v.password,u.password) || u.status!=='active') fail(401,'Email or password is incorrect.');
    if(!u.password.startsWith('$argon2id$')) {u.password=await passwordHash(v.password);await q('UPDATE users SET password=? WHERE id=?',[u.password,u.id]);}
-   await rotate(req,u);return res.json({user:safeUser(u)});
+   await rotate(req,u);req.session.authenticated_at=Date.now();return res.json({user:safeUser(u)});
   }
   if(method==='POST' && route==='logout') {await rotate(req);return res.json({ok:true});}
   if(method==='POST' && route==='profile') {
@@ -245,7 +298,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
    return res.json({user:safeUser(await me(req,true))});
   }
   if(method==='POST' && route==='password') {
-   const u=await me(req,true);if(hasLocalPassword(u)){if(!await verifyPassword(v.current,u.password))fail(403,'Current password is incorrect.');}else if(!req.session.google_authenticated_at||Date.now()-req.session.google_authenticated_at>300000)fail(403,'Confirm your identity with Google again before setting a password.');
+   const u=await me(req,true);await throttle(req,'password-change-ip',15);await throttle(req,'password-change-account',10,u.id);if(hasLocalPassword(u)){if(!await verifyPassword(v.current,u.password))fail(403,'Current password is incorrect.');}else if(!req.session.google_authenticated_at||Date.now()-req.session.google_authenticated_at>300000)fail(403,'Confirm your identity with Google again before setting a password.');
    u.password=await passwordHash(password(v.password));await q('UPDATE users SET password=? WHERE id=?',[u.password,u.id]);await rotate(req,u);return res.json({ok:true});
   }
   if(method==='POST' && route==='resend-verification') {
@@ -306,14 +359,17 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
      if(selection?.side&&selectedStudio?.scene_version!==sceneVersion&&selectedStudio?.placements?.shirt)selectedStudio.placements.shirt.view=selection.side==='back'?'shirt-back':'shirt';
      const selectedPhoto=selection?.color?.image_id||selection?.fit?.image_id;
      for(const sourceId of studioSourceIds(selectedStudio,design?design.upload_id:p.upload_id)){const source=await one('SELECT * FROM uploads WHERE id=?',[sourceId],conn);if(!source||(design&&source.user_id!==u.id))fail(409,'Personal artwork unavailable.');try{await readArtwork(c.uploadDir,source);}catch(error){if(error instanceof ApiError&&error.status===404)fail(409,'A print original is unavailable. Restore it before ordering.');throw error;}}
-     items.push({id:p.id,line_id:uid('line-'),title:p.title,...(p.title_ar?{title_ar:p.title_ar}:{}),category:p.category,artist_id:design?null:p.artist_id,variant,qty,price:p.price,sheet:p.sheet??0,cell:p.cell??0,upload_id:design?design.upload_id:p.upload_id??null,mockup_upload_id:design&&selectedStudio?.scene_version===sceneVersion?design.mockup_upload_id:selection?.side?null:selectedPhoto||design?.mockup_upload_id||p.mockup_upload_id||null,...(selection?{purchase_choices:selection}:{}),...(selectedStudio?{design_studio:selectedStudio,...(selectedStudio.scene_version===sceneVersion?{source_upload_ids:sceneSourceIds(selectedStudio),print_surfaces:Object.keys(selectedStudio.scenes?.[printProductFor(p.category)?.id]||{}).filter(surface=>sceneHasContent(selectedStudio,printProductFor(p.category)?.id,surface==='back'?'shirt-back':surface==='wrap'?'mug':'shirt'))}:{} )}:{}),...(design?{customization_id:design.customization_id,customer_customized:true,...(design.title?{design_title:design.title}:{})}:{}),royalty_percent:design?0:p.royalty_percent??20});subtotal+=p.price*qty;
+     items.push({id:p.id,line_id:uid('line-'),title:p.title,...(p.title_ar?{title_ar:p.title_ar}:{}),category:p.category,artist_id:design?design.creative_personalisation?.artist_id||null:p.artist_id,variant,qty,price:p.price,sheet:p.sheet??0,cell:p.cell??0,upload_id:design?design.upload_id:p.upload_id??null,mockup_upload_id:design&&selectedStudio?.scene_version===sceneVersion?design.mockup_upload_id:selection?.side?null:selectedPhoto||design?.mockup_upload_id||p.mockup_upload_id||null,...(selection?{purchase_choices:selection}:{}),...(selectedStudio?{design_studio:selectedStudio,...(selectedStudio.scene_version===sceneVersion?{source_upload_ids:sceneSourceIds(selectedStudio),print_surfaces:Object.keys(selectedStudio.scenes?.[printProductFor(p.category)?.id]||{}).filter(surface=>sceneHasContent(selectedStudio,printProductFor(p.category)?.id,surface==='back'?'shirt-back':surface==='wrap'?'mug':'shirt'))}:{} )}:{}),...(design?{customization_id:design.customization_id,customer_customized:true,...(design.creative_personalisation?{creative_personalisation:design.creative_personalisation}:{}),...(design.title?{design_title:design.title}:{})}:{}),royalty_percent:design?design.creative_personalisation?.royalty_percent??0:p.royalty_percent??20,...(p.sample_pricing===true?{sample_pricing:true}:{}),...(p.stock_is_simulated===true?{stock_is_simulated:true}:{})});subtotal+=p.price*qty;
     }
     const code=typeof v.coupon==='string'?v.coupon.trim().toUpperCase():'';
-    const discount=code && code===(s.coupon_code??'HELLOVEELAD') ? Math.round(subtotal*(s.coupon_percent??10)/100) : 0;
+    const referral=c.partners?.enabled?await resolvePartnerAttribution({db,c,req,user:u,items,coupon:code,customerEmail:address,conn}):{attributions:{},discount:null};
+    const discount=referral.discount??(code && code===(s.coupon_code??'HELLOVEELAD') ? Math.round(subtotal*(s.coupon_percent??10)/100) : 0);
     const shipping=subtotal-discount>=s.free_shipping?0:Number(s.shipping),total=subtotal-discount+shipping;
-    const data={...(items.some(item=>item.customer_customized||item.purchase_choices)?{production:productionState({})}:{}),customer:details,items,subtotal,shipping,discount,payment_status:'awaiting_payment',tracking:'',note:'Order received. Awaiting payment; no charge has been made.'};
+    if(v.expected_total!==undefined&&(!Number.isSafeInteger(v.expected_total)||v.expected_total!==total))fail(409,'Your order total changed. Review your bag before placing the order again.');
+    const data={locale:v.locale==='ar'?'ar':'en',...(items.some(item=>item.customer_customized||item.purchase_choices)?{production:productionState({})}:{}),customer:details,items,subtotal,shipping,discount,payment_status:'awaiting_payment',tracking:'',note:'Order received. Awaiting payment; no charge has been made.'};
     await q('UPDATE orders SET total=?,data=? WHERE id=?',[total,JSON.stringify(data),id],conn);
-    await queue(address,'Veelad order received: '+id,`Hello ${name},\n\nYour order ${id} has been received and is awaiting payment. No charge has been made.\n\n${items.map(item=>`${item.title} — ${[item.variant,item.purchase_choices?.color?.label,item.purchase_choices?.fit?.label,item.purchase_choices?.side].filter(Boolean).join(' · ')} × ${item.qty}: SAR ${(item.price*item.qty/100).toFixed(2)}`).join('\n')}\n\nSubtotal: SAR ${(subtotal/100).toFixed(2)}\nDiscount: SAR ${(discount/100).toFixed(2)}\nDelivery: SAR ${(shipping/100).toFixed(2)}\nTotal: SAR ${(total/100).toFixed(2)}\n\nPrivate tracking: ${c.origin}/#/track?id=${id}&token=${guest}`,conn);
+    if(c.partners?.enabled)await capturePartnerOrder(db,c,{orderId:id,userId:u?.id||null,email:address,items,discount,shipping,attributions:referral.attributions,lineDiscounts:referral.lineDiscounts},conn);
+    const message=orderMessage(c,{...data,id,total},guest);await queue(address,message.subject,message.body,conn);
     if(u) {await q('SELECT id FROM users WHERE id=? FOR UPDATE',[u.id],conn);const st=await state(u.id,conn);st.cart=[];st.address=details;await putState(u.id,st,conn);}
     return {order:customerOrder(await one('SELECT * FROM orders WHERE id=?',[id],conn)),guest_token:guest};
    });}catch(e) {
@@ -372,6 +428,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
    const source=v.upload_id?text(v,'upload_id',64):null,image=source?await one('SELECT * FROM uploads WHERE id=? AND user_id=?',[source,u.id]):null;
    if(source&&(!image||!image.id.startsWith('art-')))fail(404,'Artwork not found.');
    const studio=validateDesignStudio(v.design_studio,source),type=printProductFor(p.category);
+   const personalisation=await validateCreativePersonalisation({db,userId:u.id,productId:p.id,reference:v.creative_personalisation,studio,source});
    const records=studio.scene_version===sceneVersion?await ownedSceneSources(db,studio,source,u.id):null;
    if(records)for(const record of records.values()){try{const info=await fs.stat(artworkPath(c.uploadDir,record));if(!info.isFile()||info.size<1||info.size>artworkLimits.bytes)fail(409,'A design image is unavailable. Restore it before saving.');}catch(error){if(error instanceof ApiError)throw error;fail(409,'A design image is unavailable. Restore it before saving.');}}
    if(studio.scene_version===sceneVersion?!sceneHasContent(studio,type.id):!image&&!hasText(studio,type.id))fail(422,'Add artwork or text to your design.');
@@ -380,10 +437,10 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
    const previewId=mockupId(source||'text-'+u.id,p.category,studio);
    if(!previewId)fail(422,'Choose a product category.');
    // Content-derived IDs make retries safe. Saved designs are immutable; further edits create a new design.
-   const id='custom-'+hash(u.id+'|'+p.id+'|'+JSON.stringify(studio)+(v.title?.trim()?'|'+v.title.trim():'')).slice(0,40);
+   const id='custom-'+hash(u.id+'|'+p.id+'|'+JSON.stringify(studio)+(personalisation?'|'+personalisation.id:'')+(v.title?.trim()?'|'+v.title.trim():'')).slice(0,40);
    await privateDirectory(c,c.uploadDir);
    await ensureMockup(c,db,previewId,u.id,async()=>renderMockup(image?await artworkRenderSource(c.uploadDir,image):null,p.category,studio,records?{resolveSource:async id=>{const record=records.get(id);if(!record)fail(404,'Artwork not found.');return artworkRenderSource(c.uploadDir,record);}}:{}));
-   const data={upload_id:source,...(records?{source_upload_ids:sceneSourceIds(studio)}:{}),mockup_upload_id:previewId,design_studio:studio,category:p.category,...(v.title?{title:v.title.trim()}:{})};
+   const data={upload_id:source,...(personalisation?{creative_personalisation:personalisation}:{}),...(records?{source_upload_ids:sceneSourceIds(studio)}:{}),mockup_upload_id:previewId,design_studio:studio,category:p.category,...(v.title?{title:v.title.trim()}:{})};
    await q('INSERT IGNORE INTO customer_designs VALUES (?,?,?,?,?)',[id,u.id,p.id,JSON.stringify(data),now()]);
    const saved=json((await one('SELECT data FROM customer_designs WHERE id=?',[id])).data);
    return res.json({customization_id:id,customization:{customization_id:id,...saved}});
@@ -392,7 +449,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
    const a=await one('SELECT * FROM uploads WHERE id=?',[String(req.query.id||'')]),u=await me(req);
    if(!a) fail(404,'Artwork not found.');
    const containsImage=p=>studioSourceIds(p.design_studio,p.upload_id).includes(a.id)||p.mockup_upload_id===a.id||(Array.isArray(p.gallery_upload_ids)&&p.gallery_upload_ids.includes(a.id));
-   const visible=(await products()).some(containsImage)||(await publicArtists(db)).some(profile=>(profile.portfolio_upload_ids||[]).includes(a.id));
+   const visible=(await products()).some(containsImage)||(await publicArtists(db)).some(profile=>[...(profile.portfolio_upload_ids||[]),profile.avatar_upload_id,profile.cover_upload_id].includes(a.id));
    const assigned=!visible&&u?.role==='artist'&&(await products(true,u.id)).some(containsImage);
    if(!visible&&!assigned&&(!u||(u.id!==a.user_id&&u.role!=='admin'))) fail(404,'Artwork not found.');
    if(a.id.startsWith('mock-')){
@@ -570,6 +627,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
      if(status==='active'&&p.price_is_placeholder===true)fail(422,'Replace the placeholder with a reviewed selling price before publishing.');
      if(artist===u.id)await q('INSERT IGNORE INTO artists VALUES (?,?)',[u.id,JSON.stringify({id:u.id,name:u.name,initials:[...u.name].slice(0,2).join('').toUpperCase(),handle:u.id,bio:'',location:'',color:'#ded5fb'})],conn);
      await q('INSERT INTO products VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE artist_id=?,status=?,stock=?,data=?',[id,artist,status,p.stock,JSON.stringify(p),now(),artist,status,p.stock,JSON.stringify(p)],conn);await audit(u,'product.save',id,conn);
+     if(status==='active'&&old?.status!=='active')await recordArtistRelease(db,c,id,artist,conn);
      const feedback=text(v,'review_feedback',2000,false);
      if(status==='changes_requested'&&!feedback) fail(422,'Explain the changes the artist needs to make.');
      if(old?.status==='draft') fail(409,'The artist must submit a draft before administrator review.');
@@ -594,11 +652,15 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
       if(next!==o.status && !allowed[o.status]?.includes(next)) fail(409,'This order status transition is not allowed.');
       if(next==='shipped'&&d.production){assertProductionReady(d,'packed');if(d.production.stage!=='packed')fail(409,'Pack the order before shipping.');}
       d.tracking=text(v,'tracking',100,false);if(next==='cancelled'&&d.payment_status==='paid') d.payment_status='refund_required';
+      if(next!==o.status&&['shipped','delivered'].includes(next))d[next+'_at']=now();
       await q('UPDATE orders SET status=?,data=? WHERE id=?',[next,JSON.stringify(d),o.id],conn);
       if(next==='cancelled'&&o.status!=='cancelled') for(const l of [...d.items].sort((a,b)=>a.id.localeCompare(b.id))) await q('UPDATE products SET stock=stock+? WHERE id=?',[l.qty,l.id],conn);
       await audit(u,'order.'+next,o.id,conn);
-      if(next!==o.status) await queue(o.email,'Veelad order update: '+o.id,`Order ${o.id} is now ${next}.\n${d.tracking?'Tracking reference: '+d.tracking+'\n':''}${next==='cancelled'&&d.payment_status==='refund_required'?'A refund requires the store team’s review; no automatic refund has been issued.\n':''}Private tracking: ${c.origin}/#/track?id=${o.id}&token=${trackingToken(o.request_key,c.secret)}`,conn);
+      if(next!==o.status){const message=orderMessage(c,{...d,id:o.id,status:next},trackingToken(o.request_key,c.secret),{update:true});await queue(o.email,message.subject,message.body,conn);}
      }
+     // Existing liabilities still need cancellation/refund bookkeeping when new
+     // partner activity is paused; the finance module handles legacy schemas.
+     await syncPartnerOrder(db,c,o.id,conn);
     });return res.json({ok:true});
    }
    if(method==='POST' && route==='admin-user') {
@@ -616,7 +678,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
     });return res.json({ok:true});
    }
    if(method==='POST' && route==='admin-settings') {
-    await db.tx(async conn=>{const row=await one('SELECT data FROM settings WHERE id=? FOR UPDATE',['store'],conn),s=json(row.data);Object.assign(s,{announcement:text(v,'announcement',150),support_email:email(v,'support_email'),shipping:integer(v.shipping,0,100000,'shipping'),free_shipping:integer(v.free_shipping,0,100000,'free shipping'),checkout_enabled:v.checkout_enabled===true,coupon_code:text(v,'coupon_code',30,false).toUpperCase(),coupon_percent:integer(v.coupon_percent??0,0,70,'discount')},optionalDetails(v,{delivery_estimate:300,returns_policy:3000}),optionalTranslations(v,{announcement_ar:150,delivery_estimate_ar:300,returns_policy_ar:3000}),...(v.shipping_countries!==undefined?[{shipping_countries:deliveryCountries(v.shipping_countries)}]:[]));
+    await db.tx(async conn=>{const row=await one('SELECT data FROM settings WHERE id=? FOR UPDATE',['store'],conn),s=json(row.data);Object.assign(s,{social_links:socialLinks(v,s.social_links),announcement:text(v,'announcement',150),support_email:email(v,'support_email'),shipping:integer(v.shipping,0,100000,'shipping'),free_shipping:integer(v.free_shipping,0,100000,'free shipping'),checkout_enabled:v.checkout_enabled===true,coupon_code:text(v,'coupon_code',30,false).toUpperCase(),coupon_percent:integer(v.coupon_percent??0,0,70,'discount')},optionalDetails(v,{delivery_estimate:300,returns_policy:3000}),optionalTranslations(v,{announcement_ar:150,delivery_estimate_ar:300,returns_policy_ar:3000}),...(v.shipping_countries!==undefined?[{shipping_countries:deliveryCountries(v.shipping_countries)}]:[]));
     await q('UPDATE settings SET data=? WHERE id=?',[JSON.stringify(s),'store'],conn);await audit(u,'settings.save','store',conn);});return res.json({ok:true});
    }
   }
@@ -626,6 +688,10 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
   app.get('/api.php',async(req,res)=>{if(req.query.route!=='health') return res.status(404).json({error:'Not found.'});try {await q('SELECT id FROM schema_migrations LIMIT 1');res.set('Cache-Control','no-store').json({ok:true,version:'3.0.0',environment:c.mode,revision:c.revision,marketplace_enabled:false});}catch {res.status(503).json({ok:false});}});
   app.use(express.static(fileURLToPath(new URL('../reference/coming-soon',import.meta.url)),{dotfiles:'deny'}));
  } else {
+ app.get('/r/:code',async(req,res)=>{
+  if(schema.status!=='ready')return res.status(503).set('Retry-After','2').json({error:'The store is starting. Please try again shortly.'});
+  await partnerReferral(req,res,{db,c});
+ });
  app.use(['/api.php','/auth/google/callback'],api);
  pageRoutes(app,c,db,schema);
  app.use(express.static(publicDir,{dotfiles:'deny',index:'index.html'}));

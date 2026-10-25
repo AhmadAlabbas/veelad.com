@@ -1,0 +1,4 @@
+[
+ "CREATE TABLE IF NOT EXISTS shopping_metrics (day VARCHAR(10) NOT NULL,event VARCHAR(32) NOT NULL,product_id VARCHAR(64) NOT NULL DEFAULT '',bucket VARCHAR(20) NOT NULL DEFAULT '',count INTEGER NOT NULL DEFAULT 0,total_ms BIGINT NOT NULL DEFAULT 0,PRIMARY KEY(day,event,product_id,bucket)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+ "CREATE TABLE IF NOT EXISTS shopping_metric_receipts (id VARCHAR(64) PRIMARY KEY,day VARCHAR(10) NOT NULL,INDEX shopping_receipt_day(day)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+]

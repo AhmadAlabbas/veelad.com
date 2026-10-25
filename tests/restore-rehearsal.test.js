@@ -23,6 +23,12 @@ async function fixture(){
  await db.q('INSERT INTO users VALUES (?,?,?,?,?,?,?)',['recovery-owner','Private owner','recovery-fixture@example.test','unchanged-private-hash','buyer','active',new Date().toISOString()]);
  await db.q('INSERT INTO uploads VALUES (?,?,?,?)',['original-rehearsal','recovery-owner','original.png','image/png']);
  await db.q('INSERT INTO settings VALUES (?,?)',['private-vector-fixture',JSON.stringify({source:'Private vector archival source',version:1})]);
+ await db.q('INSERT INTO shopping_metrics VALUES (?,?,?,?,?,?)',['2026-10-24','product_view','p1','product',3,0]);
+ await db.q('INSERT INTO shopping_metric_receipts VALUES (?,?)',['a'.repeat(64),'2026-10-24']);
+ await db.q('INSERT INTO artist_profile_drafts VALUES (?,?,?,?,?)',['recovery-owner',1,JSON.stringify({name:'Private profile draft'}),'b'.repeat(64),new Date().toISOString()]);
+ await db.q('INSERT INTO artist_follows VALUES (?,?,?,?,?)',['recovery-owner','artist-1',0,'en',new Date().toISOString()]);
+ await db.q('INSERT INTO artist_notifications VALUES (?,?,?,?,?,?,?)',['c'.repeat(64),'recovery-owner','artist-1','p1',null,0,new Date().toISOString()]);
+ await db.q('INSERT INTO artist_releases VALUES (?,?,?,?,?)',['p1','artist-1','','done',new Date().toISOString()]);
  const backup=await createBackup(c,db);
  return {folder,app,db,c,bytes,backup,async close(){await app.close();await fs.rm(folder,{recursive:true,force:true});}};
 }
@@ -37,7 +43,7 @@ test('actual encrypted backup restores every row and artwork byte in temporary t
   const original=Object.fromEntries(await Promise.all(backupTables.map(async table=>[table,canonicalRows(await f.db.q('SELECT * FROM '+table))]))),sql=[];
   const guarded={...f.db,q:async(query,args,conn)=>{assert.equal(/^DROP TABLE/i.test(query),false);if(/TEMPORARY TABLE/.test(query))sql.push(query);return f.db.q(query,args,conn);}};
   const result=await rehearseBackup(f.c,guarded,f.backup);assert.equal(result.status,'success');assert.equal(result.complete,true);assert.equal(result.table_count,backupTables.length);assert.equal(result.artwork_count,1);assert.equal(result.temporary_targets_removed,true);assert.equal(result.offsite_confirmed,false);assert.equal(result.scope,'same_server_temporary_restore');
-  assert.equal(sql.filter(query=>query.startsWith('CREATE TEMPORARY TABLE')).length,18);assert.equal(sql.filter(query=>query.startsWith('DROP TEMPORARY TABLE')).length,18);
+  assert.equal(sql.filter(query=>query.startsWith('CREATE TEMPORARY TABLE')).length,backupTables.length);assert.equal(sql.filter(query=>query.startsWith('DROP TEMPORARY TABLE')).length,backupTables.length);
   for(const table of backupTables)assert.deepEqual(canonicalRows(await f.db.q('SELECT * FROM '+table)),original[table]);
   assert.deepEqual(await fs.readFile(path.join(f.c.uploadDir,'original.png')),f.bytes);assert.equal((await fs.readdir(f.c.backupDir)).some(name=>name.startsWith('.restore-rehearsal-')),false);
   sql.length=0;assert.deepEqual(await rehearseBackup(f.c,guarded,f.backup),result);assert.equal(sql.length,0,'The same artifact/schema proof is reused without another temporary restore');

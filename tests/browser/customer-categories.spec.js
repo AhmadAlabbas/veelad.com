@@ -21,7 +21,7 @@ test('seven visual categories preserve a sign-in choice, one reusable original a
  test.setTimeout(180000);page.setDefaultTimeout(15000);const fixture=await catalogue(info);const {ids,stamp}=fixture;const errors=[];page.on('pageerror',e=>errors.push(e.message));
  try{
   await page.route('**/api.php?route=bootstrap',async route=>{
-   const response=await route.fetch(),body=await response.json();body.products=body.products.filter(p=>Object.values(ids).includes(p.id));await route.fulfill({response,json:body});
+   const response=await route.fetch({headers:{...route.request().headers(),'x-veelad-catalogue':'full'}}),body=await response.json();body.products=body.products.filter(p=>Object.values(ids).includes(p.id));await route.fulfill({response,json:body});
   });
   await page.goto('/en/create');
   await expect(page.locator('.customer-category-grid>.customer-category')).toHaveCount(7);
@@ -102,7 +102,7 @@ test('all seven categories remain visible when items are disabled or sold out, w
  const fixture=await catalogue(info);
  try{
   await page.route('**/api.php?route=bootstrap',async route=>{
-   const response=await route.fetch(),body=await response.json();
+   const response=await route.fetch({headers:{...route.request().headers(),'x-veelad-catalogue':'full'}}),body=await response.json();
    body.products=body.products.filter(p=>Object.values(fixture.ids).includes(p.id)).map(p=>p.category==='Mugs'?{...p,stock:0}:p.category==='Stickers'?{...p,customer_customizable:false}:p);
    await route.fulfill({response,json:body});
   });

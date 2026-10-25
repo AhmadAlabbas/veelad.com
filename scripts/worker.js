@@ -1,3 +1,4 @@
+import {artistUpdateAllowed} from '../src/artist-profiles.js';
 import {fileURLToPath} from 'node:url';
 import {config} from '../src/config.js';
 import {database} from '../src/db.js';
@@ -17,6 +18,7 @@ export async function work(c,db,transport) {
   for(const m of rows) {
    const currentTime=Math.floor(Date.now()/1000);
    if(!recipientAllowed(c,m.email)) {await db.q("UPDATE mail_queue SET status='held' WHERE id=?",[m.id],conn);held++;continue;}
+   if(m.kind==='artist-update'&&!await artistUpdateAllowed(c,db,m,conn)){await db.q("UPDATE mail_queue SET status='expired',body='Artist update consent or publication is no longer current.' WHERE id=?",[m.id],conn);expired++;continue;}
    if((m.expires && m.expires<=currentTime) || (m.kind==='recovery' && !await db.one("SELECT r.id FROM password_resets r JOIN users u ON u.id=r.user_id WHERE r.id=? AND r.expires>? AND u.email=? AND u.status='active'",[m.reset_hash,currentTime,m.email],conn)) || (m.kind==='verification' && !await db.one("SELECT v.id FROM email_verification_tokens v JOIN users u ON u.id=v.user_id WHERE v.id=? AND v.expires>? AND v.email=? AND u.email=v.email AND u.status='active'",[m.reset_hash,currentTime,m.email],conn))) {
     await db.q("UPDATE mail_queue SET status='expired',body='This account link has expired or was replaced.' WHERE id=?",[m.id],conn);expired++;continue;
    }

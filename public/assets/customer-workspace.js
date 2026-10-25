@@ -77,7 +77,7 @@ function mountCustomerWorkspace(instance) {
   let qualityTimer=null,qualitySerial=0;
   const logical=()=>({width:900,height:900*instance.product().preview[1]/instance.product().preview[0]}),
     layers=()=>adapter.layers(), current=()=>layers().find(layer=>layer.id===selected),
-    snapshot=()=>JSON.stringify({scenes:instance.state.scenes,scene_version:instance.state.scene_version,active_product:instance.state.active_product,placements:instance.state.placements});
+    snapshot=()=>JSON.stringify({creative_personalisation:instance.state.creative_personalisation||null,scenes:instance.state.scenes,scene_version:instance.state.scene_version,active_product:instance.state.active_product,placements:instance.state.placements});
   const totalLayers=()=>Object.values(instance.state.scenes||{}).reduce((total,product)=>total+Object.values(product).reduce((sum,scene)=>sum+(scene.layers?.length||0),0),0);
   function canAdd(amount=1){
     if(layers().length+amount>24){setStatus("Add up to 24 layers on each side.",true);return false;}

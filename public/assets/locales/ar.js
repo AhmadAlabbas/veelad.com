@@ -2,6 +2,14 @@
 'use strict';
 window.VEELAD_LOCALES = window.VEELAD_LOCALES || {};
 window.VEELAD_LOCALES.ar = Object.freeze({
+  "Connect with Veelad": "فيلاد على السوشال",
+  "Our social links are coming soon.": "قريبًا نشارككم حساباتنا.",
+  "Opens in a new tab": "يفتح في تبويب جديد",
+  "Link coming soon": "الرابط قريبًا",
+  "Social media": "حسابات التواصل الاجتماعي",
+  "Add your official profile links when ready. Empty fields show an inactive icon in the footer.": "أضف روابط حسابات فيلاد الرسمية لما تجهز. إذا تركت الحقل فاضي، تظهر الأيقونة بدون رابط في أسفل الموقع.",
+  "Enter a valid HTTPS social profile URL.": "أدخل رابط حساب صحيح يبدأ بـ https://.",
+  "Uploads are busy. Please try again shortly.": "الرفع مشغول حاليًا. جرّب بعد لحظات.",
   "Backup restoration rehearsal": "تجربة استعادة النسخة الاحتياطية",
   "Complete snapshot restored and verified": "اكتملت استعادة النسخة والتحقق منها",
   "Restore verification needs attention": "تجربة الاستعادة تحتاج مراجعة",

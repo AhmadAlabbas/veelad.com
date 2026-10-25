@@ -34,7 +34,7 @@ test('shopping navigation and filters preserve search, category and gift selecti
 test('tap options and bounded cart controls preserve scroll and support narrow-screen checkout',async({page})=>{
  let stock=2;
  await page.route('**/api.php?route=bootstrap',async route=>{
-  const response=await route.fetch();const body=await response.json();const product=body.products?.find(product=>product.id==='p1');if(product)product.stock=stock;
+  const response=await route.fetch({headers:{...route.request().headers(),'x-veelad-catalogue':'full'}});const body=await response.json();const product=body.products?.find(product=>product.id==='p1');if(product)product.stock=stock;
   await route.fulfill({response,json:body});
  });
  await page.goto('/#/product?id=p1');await expect(page.getByRole('radio',{name:'M',exact:true})).toBeVisible();
@@ -63,7 +63,7 @@ for(const width of [320,390])test(`mobile product choices stay visible and reach
  await page.setViewportSize({width,height:844});await page.emulateMedia({reducedMotion:'reduce'});
  const errors=[];page.on('pageerror',error=>errors.push(error.message));
  await page.route('**/api.php?route=bootstrap',async route=>{
-  const response=await route.fetch(),data=await response.json(),p=data.products.find(p=>p.id==='p1');
+  const response=await route.fetch({headers:{...route.request().headers(),'x-veelad-catalogue':'full'}}),data=await response.json(),p=data.products.find(p=>p.id==='p1');
   Object.assign(p,{sample_pricing:true,title_ar:'شمس وبحر',description:'A deliberately long design story. '.repeat(45),description_ar:'حكاية تصميم طويلة لا تؤخر اختيار المقاس. '.repeat(45)});
   await route.fulfill({response,json:data});
  });

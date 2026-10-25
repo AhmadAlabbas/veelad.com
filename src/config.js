@@ -16,9 +16,17 @@ export function config(env = process.env) {
   if (![0,1].includes(trustProxy)) throw Error('TRUST_PROXY must be 0 or 1');
   const numberingSystem = env.NUMERAL_SYSTEM || 'latn';
   if (!['latn','arab'].includes(numberingSystem)) throw Error('NUMERAL_SYSTEM must be latn or arab');
+  const payoutKey=env.PARTNERS_PAYOUT_ENCRYPTION_KEY?.trim()||'';
+  if(payoutKey && (!/^[A-Za-z0-9+/]{43}=$/.test(payoutKey)||Buffer.from(payoutKey,'base64').length!==32))throw Error('PARTNERS_PAYOUT_ENCRYPTION_KEY must be a base64 encoded 32-byte key');
+  const financeAdmins=(env.PARTNERS_FINANCE_ADMIN_IDS||'').split(',').map(value=>value.trim()).filter(Boolean);
+  if(financeAdmins.some(id=>!/^[A-Za-z0-9_-]{1,64}$/.test(id)))throw Error('PARTNERS_FINANCE_ADMIN_IDS must contain account IDs');
   let revision=env.DEPLOY_COMMIT||null;
   try {revision ||= JSON.parse(fs.readFileSync(new URL('../.release.json',import.meta.url),'utf8')).revision;} catch {}
   return {mode, origin, secret, secure, trustProxy, revision, numberingSystem, marketplaceEnabled:mode!=='production'||env.PRODUCTION_MARKETPLACE_ENABLED==='true',
+    artistProfilesEnabled:env.ARTIST_PROFILES_ENABLED==='true'||(mode!=='production'&&env.ARTIST_PROFILES_ENABLED!=='false'),
+    shoppingEnabled:env.SHOP_ENHANCEMENTS_ENABLED==='true'||(mode!=='production'&&env.SHOP_ENHANCEMENTS_ENABLED!=='false'),
+    creativeEnabled:env.CREATIVE_EXPERIENCES_ENABLED==='true'||(mode!=='production'&&env.CREATIVE_EXPERIENCES_ENABLED!=='false'),
+    partners:{enabled:env.PARTNERS_ENABLED==='true'||(mode==='staging'&&env.PARTNERS_ENABLED===undefined),payoutKey,financeAdmins,payoutChangeHoldHours:168},
     google:{enabled:env.GOOGLE_AUTH_ENABLED==='true',clientId:env.GOOGLE_CLIENT_ID?.trim(),clientSecret:env.GOOGLE_CLIENT_SECRET?.trim()},
     moyasar:{testEnabled:env.MOYASAR_TEST_ENABLED==='true',testSecretKey:env.MOYASAR_TEST_SECRET_KEY?.trim()},
     emailVerificationRequired:env.EMAIL_VERIFICATION_REQUIRED==='true',

@@ -1,3 +1,4 @@
+import {publicArtistProfile} from './artist-profiles.js';
 import {fail,text,json} from './security.js';
 export function optionalTranslations(v,limits) {
  const result={};
@@ -8,7 +9,7 @@ export function optionalTranslations(v,limits) {
  return result;
 }
 export async function publicArtists(db,conn) {
- return (await db.q("SELECT a.data FROM artists a LEFT JOIN users u ON u.id=a.id WHERE u.id IS NULL OR u.status='active'",[],conn)).map(a=>json(a.data));
+ return (await db.q("SELECT a.data FROM artists a LEFT JOIN users u ON u.id=a.id WHERE u.id IS NULL OR u.status='active'",[],conn)).map(a=>publicArtistProfile(json(a.data)));
 }
 export async function profileDetails(v,u,db,conn,old) {
  const result={...old,name:text(v,'name',100),bio:text(v,'bio',500,false),location:text(v,'location',100,false)};

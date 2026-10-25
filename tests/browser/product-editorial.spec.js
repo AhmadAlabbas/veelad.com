@@ -4,7 +4,7 @@ for(const language of ['en','ar'])test(`extended product pages connect real desi
  const errors=[];page.on('pageerror',error=>errors.push(error.message));
  await page.route('**/api.php?route=image&id=art-editorial-*',route=>route.fulfill({contentType:'image/png',body:Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jZQkAAAAASUVORK5CYII=','base64')}));
  await page.route('**/api.php?route=bootstrap',async route=>{
-  const response=await route.fetch(),data=await response.json();
+  const response=await route.fetch({headers:{...route.request().headers(),'x-veelad-catalogue':'full'}}),data=await response.json();
   const original=data.products.find(product=>product.id==='p1');
   Object.assign(original,{sample_pricing:true,upload_id:'art-editorial-original',design_group:'editorial-browser-fixture',story:'A sea of cobalt shapes. <img src=x onerror=1>',story_ar:'حكاية لون أزرق وبحر هادئ. <img src=x onerror=1>'});
   data.products.push({...original,id:'editorial-notebook',category:'Notebooks',title:'Sea Notes',title_ar:'دفتر البحر',variants:['Standard'],variants_ar:['عادي']});

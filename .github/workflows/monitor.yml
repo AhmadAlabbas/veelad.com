@@ -22,7 +22,7 @@ jobs:
         id: staging
         continue-on-error: true
         run: node scripts/monitor.js staging
-      - name: Check production website
+      - name: Check production website, database, storage and recovery
         id: production
         continue-on-error: true
         run: node scripts/monitor.js production
@@ -41,7 +41,7 @@ jobs:
             const failed = process.env.STAGING_RESULT !== 'success' || process.env.PRODUCTION_RESULT !== 'success';
             if (failed && existing && existing.title !== title) await github.rest.issues.update({ owner, repo, issue_number: existing.number, title });
             if (failed && !existing) {
-              await github.rest.issues.create({ owner, repo, title, body: `Staging readiness: ${process.env.STAGING_RESULT}. Production homepage: ${process.env.PRODUCTION_RESULT}. Checks include private artwork and backup completeness; a storage failure does not necessarily mean the storefront is offline.\n\nReview the [monitor run](https://github.com/${owner}/${repo}/actions/runs/${context.runId}) and Hostinger runtime logs. No credentials or private data are included.` });
+              await github.rest.issues.create({ owner, repo, title, body: `Staging readiness: ${process.env.STAGING_RESULT}. Production readiness: ${process.env.PRODUCTION_RESULT}. Checks include private artwork, backup freshness and verified recovery; a storage failure does not necessarily mean the storefront is offline.\n\nReview the [monitor run](https://github.com/${owner}/${repo}/actions/runs/${context.runId}) and Hostinger runtime logs. No credentials or private data are included.` });
             } else if (!failed && existing) {
               await github.rest.issues.update({ owner, repo, issue_number: existing.number, state: 'closed', state_reason: 'completed' });
             }

@@ -7,7 +7,7 @@ async function galleryFixture(page,{waitForMetadata}={}){
  await page.route('**/api.php?route=image&id=gallery-test-*',route=>route.fulfill({contentType:'image/webp',body:image}));
  await page.route('**/api.php?route=product-gallery-image&**',route=>route.fulfill({contentType:'image/webp',body:image}));
  await page.route('**/api.php?route=bootstrap',async route=>{
-  const response=await route.fetch(),data=await response.json(),product=data.products.find(p=>p.id==='p1');
+  const response=await route.fetch({headers:{...route.request().headers(),'x-veelad-catalogue':'full'}}),data=await response.json(),product=data.products.find(p=>p.id==='p1');
   Object.assign(product,{upload_id:'gallery-test-original',mockup_upload_id:'gallery-test-mockup',gallery_upload_ids:['gallery-test-photo'],sample_pricing:true});
   await route.fulfill({response,json:data});
  });

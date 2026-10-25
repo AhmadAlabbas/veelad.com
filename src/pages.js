@@ -8,8 +8,9 @@ import {pageText,pageMoney} from './locales.js';
 import {currentProductMockup} from './mockup-renderer.js';
 const publicDir=fileURLToPath(new URL('../public',import.meta.url));
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const publicPaths=['/','/shop','/artists','/sell','/help','/policies'];
-const appPaths=[...publicPaths,'/my-designs','/create','/saved','/bag','/checkout','/confirmation','/login','/register','/account','/forgot','/verify-email','/reset','/admin','/studio','/track'];
+const publicPaths=['/','/shop','/artists','/sell','/help','/policies','/partners','/partners/terms','/partners/privacy'];
+const appPaths=[...publicPaths,'/my-designs','/create','/saved','/bag','/checkout','/confirmation','/login','/register','/account','/forgot','/verify-email','/reset','/admin','/studio','/track','/partners/apply','/partners/dashboard','/partners/products','/partners/campaigns','/partners/links','/partners/payouts','/partners/store','/partners/settings','/partners/referral'];
+appPaths.push(...['creative','creative/story','creative/gifts','creative/taste','creative/wishes','creative/templates','creative/stories','creative/rooms','creative/sample-room','creative/workspace','creative/wishes/:id','creative/stories/:id','creative/rooms/:id'].map(route=>'/'+route));
 const languages=['en','ar'];
 const languageFor=req=>/^\/ar(?:\/|$)/.test(req.path)?'ar':'en';
 const basePath=req=>req.path.replace(/^\/(en|ar)(?=\/|$)/,'').replace(/\/$/,'')||'/';
@@ -25,6 +26,7 @@ export function pageRoutes(app,c,db,schema) {
  async function artist(id){return (await publicArtists(db)).find(a=>a.id===id)||null;}
  function ready(req,res){if(schema.status!=='ready'){res.status(503).set('Retry-After','2').send(pageText(languageFor(req),'storeStarting'));return false;}return true;}
  async function html(req,res,{title,description,image,canonical=basePath(req),body='',structured=null,status=200,indexable=true}={}) {
+  if(basePath(req).startsWith('/creative/rooms')||req.query.artist_unsubscribe)res.set('Referrer-Policy','no-referrer');
   const language=languageFor(req),origin=c.origin,url=origin+localizedPath(canonical,language),robots=c.mode==='staging'||!indexable||status!==200?'noindex, nofollow':'index, follow';
   title||=pageText(language,'storeTitle');
   description||=pageText(language,'storeDescription');
@@ -58,10 +60,10 @@ export function pageRoutes(app,c,db,schema) {
   const pathname='/artists/'+encodeURIComponent(a.id),image='/share/'+language+pathname+'.png',name=field(a,'name',language),bio=field(a,'bio',language),story=field(a,'story',language);
   return html(req,res,{title:pageText(language,'artistTitle',{name}),description:bio,image,canonical:pathname,body:`<main><h1>${esc(name)}</h1><p>${esc(bio)}</p><p>${esc(story)}</p><a href="${localizedPath('/shop',language)}?artist=${encodeURIComponent(a.id)}">${pageText(language,'exploreProducts')}</a></main>`,structured:{'@context':'https://schema.org','@type':'Person',name,description:bio,inLanguage:language,url:c.origin+localizedPath(pathname,language),image:c.origin+image}});
  });
- app.get([...appPaths,'/studio/preview/:id'].flatMap(equivalents).filter(path=>path!=='/'),async(req,res)=>{
+ app.get([...appPaths,'/studio/preview/:id','/partners/store/:username'].flatMap(equivalents).filter(path=>path!=='/'),async(req,res)=>{
   if(!ready(req,res))return;
   const pathname=basePath(req),language=languageFor(req),titles={'/my-designs':pageText(language,'myDesignsTitle'),'/create':pageText(language,'createTitle'),'/shop':pageText(language,'shopTitle'),'/artists':pageText(language,'artistsTitle')};
-  return html(req,res,{title:titles[pathname],canonical:pathname,indexable:publicPaths.includes(pathname)&&!req.query.q,body:`<main><h1>${pageText(language,'storeName')}</h1><p>${pageText(language,'storeIntro')}</p><a href="${localizedPath('/shop',language)}">${pageText(language,'exploreDesigns')}</a><a href="${localizedPath('/artists',language)}">${pageText(language,'meetArtists')}</a></main>`});
+  return html(req,res,{title:pathname.startsWith('/partners')?(language==='ar'?'شركاء فيلاد — شارك ما تحب، واربح مع فيلاد.':'Veelad Partners — Share what you love. Earn with Veelad.'):titles[pathname],canonical:pathname,indexable:publicPaths.includes(pathname)&&!req.query.q,body:`<main><h1>${pageText(language,'storeName')}</h1><p>${pageText(language,'storeIntro')}</p><a href="${localizedPath('/shop',language)}">${pageText(language,'exploreDesigns')}</a><a href="${localizedPath('/artists',language)}">${pageText(language,'meetArtists')}</a></main>`});
  });
  app.get(['/share/store.png','/share/products/:image','/share/artists/:image',...languages.flatMap(language=>['/share/'+language+'/store.png','/share/'+language+'/products/:image','/share/'+language+'/artists/:image'])],async(req,res)=>{
   if(!ready(req,res))return;const language=req.path.startsWith('/share/ar/')?'ar':'en';let item=null,a=null,title=pageText(language,'shareTitle'),subtitle=pageText(language,'shareSubtitle'),imageBytes=null;
@@ -69,7 +71,7 @@ export function pageRoutes(app,c,db,schema) {
   if(/\/products\//.test(req.path)){item=await listing(id);if(!item)return res.status(404).end();a=await artist(item.artist_id);title=field(item,'title',language);subtitle=pageText(language,'shareDesignedBy',{artist:field(a,'name',language)||pageText(language,'independentArtist')});}
   if(/\/artists\//.test(req.path)){a=await artist(id);if(!a)return res.status(404).end();title=field(a,'name',language);subtitle=field(a,'bio',language);}
   let currentImage; if(item?.mockup_upload_id)try{currentImage=await currentProductMockup(c,db,item);}catch(error){if(![404,503].includes(error.status))throw error;}
-  const imageId=currentImage?.id||item?.mockup_upload_id||item?.upload_id||a?.portfolio_upload_ids?.[0];
+  const imageId=currentImage?.id||item?.mockup_upload_id||item?.upload_id||a?.cover_upload_id||a?.avatar_upload_id||a?.portfolio_upload_ids?.[0];
   if(imageId){const image=await db.one('SELECT path FROM uploads WHERE id=?',[imageId]);if(image&&/^[a-zA-Z0-9_-]+\.(png|jpg)$/.test(image.path))try{imageBytes=await fs.readFile(path.join(c.uploadDir,image.path));}catch{}}
   if(!imageBytes&&item&&!item.upload_id){const sheet=path.join(publicDir,'assets',item.sheet===1?'catalog-2.jpg':'catalog.jpg'),info=await sharp(sheet).metadata(),cell=Math.min(5,Math.max(0,Number(item.cell)||0)),width=Math.floor(info.width/3),height=Math.floor(info.height/2);imageBytes=await sharp(sheet).extract({left:(cell%3)*width,top:Math.floor(cell/3)*height,width,height}).toBuffer();}
   const words=title.split(/\s+/),lines=[''];for(const word of words){if((lines.at(-1)+' '+word).length>25&&lines.length<4)lines.push(word);else lines[lines.length-1]+=(lines.at(-1)?' ':'')+word;}
