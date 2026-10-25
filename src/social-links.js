@@ -1,7 +1,7 @@
 import {fail} from './security.js';
 
 const platforms=['youtube','instagram','tiktok','x','linkedin','pinterest'];
-export const defaultSocialLinks=Object.freeze({youtube:'https://www.youtube.com/@VeeladCompany',instagram:'https://www.instagram.com/veeladofficial/',tiktok:'https://www.tiktok.com/@veelad1'});
+export const defaultSocialLinks=Object.freeze({youtube:'https://www.youtube.com/@VeeladCompany',instagram:'https://www.instagram.com/veeladofficial/',tiktok:'https://www.tiktok.com/@veelad1',x:'https://x.com/veeladofficial'});
 
 // Omitted fields preserve existing links; an explicit empty value clears a link.
 export function socialLinks(values,current={}) {

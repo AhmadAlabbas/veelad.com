@@ -11,10 +11,11 @@ test('footer shows confirmed accounts and administrators can publish and clear b
   for(const lang of ['en','ar']){
    await page.goto(f.origin+'/'+lang+'/help');
    const footer=page.locator('.footer-social');await footer.scrollIntoViewIfNeeded();
-   await expect(footer.locator('.is-pending')).toHaveCount(3);await expect(footer.locator('a')).toHaveCount(3);
+   await expect(footer.locator('.is-pending')).toHaveCount(2);await expect(footer.locator('a')).toHaveCount(4);
    await expect(footer.locator('a').nth(0)).toHaveAttribute('href','https://www.youtube.com/@VeeladCompany');
    await expect(footer.locator('a').nth(1)).toHaveAttribute('href','https://www.instagram.com/veeladofficial/');
    await expect(footer.locator('a').nth(2)).toHaveAttribute('href','https://www.tiktok.com/@veelad1');
+   await expect(footer.locator('a').nth(3)).toHaveAttribute('href','https://x.com/veeladofficial');
    await expect.poll(()=>footer.locator('img').evaluateAll(images=>images.every(image=>image.complete&&image.naturalWidth>0))).toBe(true);
    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
    await footer.screenshot({path:info.outputPath('social-'+lang+'.png')});
