@@ -1,9 +1,8 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import {randomBytes} from 'node:crypto';
-import {readBackup} from './backup-codec.js';
+import {readBackup,hashBackup,backupLimits} from './backup-codec.js';
 import {backupTables} from './backup-tables.js';
-import {fileHash} from './private-bundle.js';
 import {validateRestoreDataset,migrationManifestHash,restoreDatasetRows,verifyDatasetRows,restoreDatasetArtwork,verifyDatasetArtwork} from './restore-dataset.js';
 
 const check=(value,code)=>{if(!value)throw Object.assign(Error('Backup restoration rehearsal failed'),{code});};
@@ -20,8 +19,8 @@ export async function rehearseBackup(c,db,backup) {
   check(/^veelad-staging-[a-zA-Z0-9_-]+\.vbackup$/.test(backup.file),'RESTORE_ARTIFACT_INVALID');
   const root=await fs.realpath(c.backupDir),uploadRoot=await fs.realpath(c.uploadDir);
   check(!/(?:^|\/)(?:public_html|public|htdocs|www)(?:\/|$)/.test(root)&&root!==process.cwd()&&!root.startsWith(process.cwd()+path.sep)&&root!==uploadRoot&&!root.startsWith(uploadRoot+path.sep),'RESTORE_PRIVATE_DIRECTORY_REQUIRED');
-  const artifact=path.join(root,backup.file),info=await fs.lstat(artifact);check(info.isFile()&&info.size<=160*1024*1024,'RESTORE_ARTIFACT_INVALID');
-  const artifactHash=fileHash(await fs.readFile(artifact)),snapshot=await readBackup(artifact,c.backupKey);
+  const artifact=path.join(root,backup.file),info=await fs.lstat(artifact);check(info.isFile()&&info.size<=backupLimits.archive,'RESTORE_ARTIFACT_INVALID');
+  const artifactHash=await hashBackup(artifact),snapshot=await readBackup(artifact,c.backupKey);
   check(snapshot.environment==='staging'&&snapshot.revision===c.revision,'RESTORE_ARTIFACT_REVISION_MISMATCH');
   validateRestoreDataset(snapshot);const schemaHash=await migrationManifestHash(snapshot,{requireCurrent:true});
   const old=await db.one('SELECT data FROM operational_status WHERE id=?',['restore_rehearsal']);

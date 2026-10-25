@@ -54,7 +54,7 @@ test('editorial home uses real catalogue destinations and campaign images in Eng
 test('sample price labels appear only on explicitly marked listings in both languages',async({page})=>{
  let sampleId,regularId;
  await page.route('**/api.php?route=bootstrap',async route=>{
-  const response=await route.fetch(),data=await response.json();
+  const response=await route.fetch({headers:{...route.request().headers(),'x-veelad-catalogue':'full'}}),data=await response.json();
   const [sample,regular]=data.products;
   sampleId=sample.id;regularId=regular.id;
   sample.sample_pricing=true;sample.badge='Sample';regular.sample_pricing=false;regular.badge='New';

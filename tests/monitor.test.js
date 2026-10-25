@@ -9,5 +9,5 @@ test('monitor fails on HTTP/database/storage and failed or stale backups without
   payload=bad;await assert.rejects(()=>checkSite('https://staging.example.test'),error=>!error.message.includes('Private SQL'));
  }
  status=503;await assert.rejects(()=>checkSite('https://staging.example.test'),/HTTP 503/);
- status=200;assert.equal((await checkSite('https://production.example.test',false)).ok,true);
+ status=200;payload={ok:true,environment:'production',revision:'prod',storage:{ready:true},backup:{status:'success',created_at:new Date().toISOString()},restore:{status:'success',complete:true,revision:'prod',temporary_targets_removed:true}};assert.equal((await checkSite('https://production.example.test','production')).ok,true);payload.restore={status:'disabled'};await assert.rejects(()=>checkSite('https://production.example.test','production'),/restoration/);payload={ok:true,environment:'production',storage:{ready:true}};await assert.rejects(()=>checkSite('https://production.example.test','production'),/Backup/);
 });

@@ -2,6 +2,7 @@
 'use strict';
 window.VEELAD_LOCALES = window.VEELAD_LOCALES || {};
 window.VEELAD_LOCALES.ar = Object.freeze({
+  "Uploads are busy. Please try again shortly.": "الرفع مشغول حاليًا. جرّب بعد لحظات.",
   "Backup restoration rehearsal": "تجربة استعادة النسخة الاحتياطية",
   "Complete snapshot restored and verified": "اكتملت استعادة النسخة والتحقق منها",
   "Restore verification needs attention": "تجربة الاستعادة تحتاج مراجعة",

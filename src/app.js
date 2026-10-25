@@ -1,3 +1,4 @@
+import {orderMessage} from './order-mail.js';
 import {artistProfileRoute,recordArtistRelease} from './artist-profiles.js';
 import {shoppingRoute} from './shopping-quality.js';
 import {readScalableMaster} from './scalable-editions.js';
@@ -100,9 +101,20 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
   }
   next();
  });
- api.use(express.json({limit:'256kb'}));
+ api.use(express.json({limit:'256kb',inflate:false}));
  const upload=multer({storage:multer.memoryStorage(),limits:{fileSize:artworkLimits.bytes,files:1,fields:0}});
- api.use((req,res,next)=>req.method==='POST' && ['upload','admin-artwork-restore'].includes(req.query.route) ? upload.single('artwork')(req,res,next) : next());
+ let parsingUploads=0;
+ api.use(async(req,res,next)=>{
+  if(req.method!=='POST'||!['upload','admin-artwork-restore'].includes(req.query.route))return next();
+  try {
+   const u=req.query.route==='admin-artwork-restore'?await role(req,'admin'):await me(req,true);
+   await throttle(req,'upload-admission',40);await throttle(req,'upload-account',40,u.id);
+   if(parsingUploads>=4)return next(new ApiError(429,'Uploads are busy. Please try again shortly.'));
+   parsingUploads++;let released=false;const release=()=>{if(!released){released=true;parsingUploads--;}};
+   res.once('close',release);res.once('finish',release);req.once('aborted',release);
+   upload.single('artwork')(req,res,error=>{if(error)release();next(error);});
+  }catch(error){next(error);}
+ });
  const q=db.q, one=db.one;
  const settings=async conn=> {const r=await one('SELECT data FROM settings WHERE id=?',['store'],conn);if(!r) fail(503,'Store provisioning is required.');return json(r.data);};
  const products=async (all=false,artist=null,conn)=> (await q('SELECT * FROM products'+(!all ? " WHERE status='active'" : artist ? ' WHERE artist_id=?' : '')+' ORDER BY created_at DESC,id', all&&artist ? [artist] : [],conn)).map(row=>{const p=product(row);if(!all){if(p.category==='T-shirts'&&p.design_studio)p.preview_print_side=p.design_studio.placements?.shirt?.view==='shirt-back'?'back':'front';delete p.production_notes;delete p.design_studio;}return p;});
@@ -141,8 +153,8 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
   req.session.csrf=csrf;
   if(u) {req.session.user_id=u.id;req.session.password_stamp=hash(u.password);}
  }
- async function throttle(req,bucket,max) {
-  const key=hash(bucket+'|'+req.ip+'|'+Math.floor(Date.now()/900000));
+ async function throttle(req,bucket,max,identity=req.ip) {
+  const key=hash(bucket+'|'+identity+'|'+Math.floor(Date.now()/900000));
   const hits=await db.tx(async conn=>{
    await q('INSERT INTO rate_limits VALUES (?,1,?) ON DUPLICATE KEY UPDATE hits=hits+1',[key,Math.floor(Date.now()/1000)+1800],conn);
    const row=await one('SELECT hits FROM rate_limits WHERE id=?',[key],conn);
@@ -241,7 +253,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
    if(await partnerRoute(context)||await partnerPayoutRoute(context))return;
    fail(404,'Endpoint not found.');
   }
-  if(method==='GET' && route==='bootstrap') {const u=await me(req),locale=u?(await state(u.id)).user_locale:null,googleReturn=req.session.google_login_complete===true;delete req.session.google_login_complete;return res.json({mode:'server',authentication:await authenticationStatus(c,db,u),partners:{enabled:c.partners?.enabled===true},creative:{enabled:c.creativeEnabled===true},shopping:{enabled:c.shoppingEnabled===true},artist_profiles:{enabled:c.artistProfilesEnabled===true},auth_event:googleReturn?'google-login':null,csrf:req.session.csrf,user:u ? safeUser(u) : null,locale:['ar','en'].includes(locale)?locale:null,products:await products(),artists:await publicArtists(db),design_styles:designStyles,settings:publicStoreSettings(collectionSettings(await settings(),await products(),{publicOnly:true})),email_delivery:{available:mailStatus(c).ready,staging_restricted:c.mode==='staging'}});}
+  if(method==='GET' && route==='bootstrap') {const catalog=await products(),catalogueRevision=hash(JSON.stringify(catalog)),requested=req.get('x-veelad-catalogue'),omitCatalogue=requested==='deferred'||requested===catalogueRevision;const u=await me(req),locale=u?(await state(u.id)).user_locale:null,googleReturn=req.session.google_login_complete===true;delete req.session.google_login_complete;return res.json({mode:'server',authentication:await authenticationStatus(c,db,u),partners:{enabled:c.partners?.enabled===true},creative:{enabled:c.creativeEnabled===true},shopping:{enabled:c.shoppingEnabled===true},artist_profiles:{enabled:c.artistProfilesEnabled===true},auth_event:googleReturn?'google-login':null,csrf:req.session.csrf,user:u ? safeUser(u) : null,locale:['ar','en'].includes(locale)?locale:null,products:omitCatalogue?null:catalog,catalogue_revision:catalogueRevision,catalogue_deferred:omitCatalogue,artists:await publicArtists(db),design_styles:designStyles,settings:publicStoreSettings(collectionSettings(await settings(),catalog,{publicOnly:true})),email_delivery:{available:mailStatus(c).ready,staging_restricted:c.mode==='staging'}});}
   if(method==='POST' && route==='language-preference') {
    const u=await me(req,true);if(!['ar','en'].includes(v.locale))fail(422,'Choose Arabic or English.');
    await db.tx(async conn=>{await q('SELECT id FROM users WHERE id=? FOR UPDATE',[u.id],conn);const s=await state(u.id,conn);s.user_locale=v.locale;await putState(u.id,s,conn);});return res.json({ok:true,locale:v.locale});
@@ -285,7 +297,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
    return res.json({user:safeUser(await me(req,true))});
   }
   if(method==='POST' && route==='password') {
-   const u=await me(req,true);if(hasLocalPassword(u)){if(!await verifyPassword(v.current,u.password))fail(403,'Current password is incorrect.');}else if(!req.session.google_authenticated_at||Date.now()-req.session.google_authenticated_at>300000)fail(403,'Confirm your identity with Google again before setting a password.');
+   const u=await me(req,true);await throttle(req,'password-change-ip',15);await throttle(req,'password-change-account',10,u.id);if(hasLocalPassword(u)){if(!await verifyPassword(v.current,u.password))fail(403,'Current password is incorrect.');}else if(!req.session.google_authenticated_at||Date.now()-req.session.google_authenticated_at>300000)fail(403,'Confirm your identity with Google again before setting a password.');
    u.password=await passwordHash(password(v.password));await q('UPDATE users SET password=? WHERE id=?',[u.password,u.id]);await rotate(req,u);return res.json({ok:true});
   }
   if(method==='POST' && route==='resend-verification') {
@@ -353,10 +365,10 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
     const discount=referral.discount??(code && code===(s.coupon_code??'HELLOVEELAD') ? Math.round(subtotal*(s.coupon_percent??10)/100) : 0);
     const shipping=subtotal-discount>=s.free_shipping?0:Number(s.shipping),total=subtotal-discount+shipping;
     if(v.expected_total!==undefined&&(!Number.isSafeInteger(v.expected_total)||v.expected_total!==total))fail(409,'Your order total changed. Review your bag before placing the order again.');
-    const data={...(items.some(item=>item.customer_customized||item.purchase_choices)?{production:productionState({})}:{}),customer:details,items,subtotal,shipping,discount,payment_status:'awaiting_payment',tracking:'',note:'Order received. Awaiting payment; no charge has been made.'};
+    const data={locale:v.locale==='ar'?'ar':'en',...(items.some(item=>item.customer_customized||item.purchase_choices)?{production:productionState({})}:{}),customer:details,items,subtotal,shipping,discount,payment_status:'awaiting_payment',tracking:'',note:'Order received. Awaiting payment; no charge has been made.'};
     await q('UPDATE orders SET total=?,data=? WHERE id=?',[total,JSON.stringify(data),id],conn);
     if(c.partners?.enabled)await capturePartnerOrder(db,c,{orderId:id,userId:u?.id||null,email:address,items,discount,shipping,attributions:referral.attributions,lineDiscounts:referral.lineDiscounts},conn);
-    await queue(address,'Veelad order received: '+id,`Hello ${name},\n\nYour order ${id} has been received and is awaiting payment. No charge has been made.\n\n${items.map(item=>`${item.title} — ${[item.variant,item.purchase_choices?.color?.label,item.purchase_choices?.fit?.label,item.purchase_choices?.side].filter(Boolean).join(' · ')} × ${item.qty}: SAR ${(item.price*item.qty/100).toFixed(2)}`).join('\n')}\n\nSubtotal: SAR ${(subtotal/100).toFixed(2)}\nDiscount: SAR ${(discount/100).toFixed(2)}\nDelivery: SAR ${(shipping/100).toFixed(2)}\nTotal: SAR ${(total/100).toFixed(2)}\n\nPrivate tracking: ${c.origin}/#/track?id=${id}&token=${guest}`,conn);
+    const message=orderMessage(c,{...data,id,total},guest);await queue(address,message.subject,message.body,conn);
     if(u) {await q('SELECT id FROM users WHERE id=? FOR UPDATE',[u.id],conn);const st=await state(u.id,conn);st.cart=[];st.address=details;await putState(u.id,st,conn);}
     return {order:customerOrder(await one('SELECT * FROM orders WHERE id=?',[id],conn)),guest_token:guest};
    });}catch(e) {
@@ -643,7 +655,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
       await q('UPDATE orders SET status=?,data=? WHERE id=?',[next,JSON.stringify(d),o.id],conn);
       if(next==='cancelled'&&o.status!=='cancelled') for(const l of [...d.items].sort((a,b)=>a.id.localeCompare(b.id))) await q('UPDATE products SET stock=stock+? WHERE id=?',[l.qty,l.id],conn);
       await audit(u,'order.'+next,o.id,conn);
-      if(next!==o.status) await queue(o.email,'Veelad order update: '+o.id,`Order ${o.id} is now ${next}.\n${d.tracking?'Tracking reference: '+d.tracking+'\n':''}${next==='cancelled'&&d.payment_status==='refund_required'?'A refund requires the store team’s review; no automatic refund has been issued.\n':''}Private tracking: ${c.origin}/#/track?id=${o.id}&token=${trackingToken(o.request_key,c.secret)}`,conn);
+      if(next!==o.status){const message=orderMessage(c,{...d,id:o.id,status:next},trackingToken(o.request_key,c.secret),{update:true});await queue(o.email,message.subject,message.body,conn);}
      }
      // Existing liabilities still need cancellation/refund bookkeeping when new
      // partner activity is paused; the finance module handles legacy schemas.
