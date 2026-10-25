@@ -1,3 +1,4 @@
+import {readBackupArtwork,backupLimits} from './backup-codec.js';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -20,6 +21,7 @@ export function validateRestoreDataset(snapshot,allowMissing=false) {
  if(snapshot.missing_artwork){check(Array.isArray(snapshot.missing_artwork),'Invalid missing artwork manifest');check(JSON.stringify(canonicalRows(snapshot.missing_artwork))===JSON.stringify(canonicalRows(missing)),'Missing artwork manifest mismatch');}
  let bytes=0;
  for(const [name,value] of Object.entries(snapshot.artwork)){
+  if(snapshot.artwork_encoding==='vld2'){check(filename.test(name)&&knownPaths.has(name)&&value&&Number.isSafeInteger(value.size)&&value.size>0&&value.size<=backupLimits.artwork,'Invalid artwork entry');bytes+=value.size;check(bytes<=backupLimits.archive,'Restore artwork exceeds capacity');continue;}
   check(filename.test(name)&&knownPaths.has(name)&&typeof value==='string'&&value.length<=4*Math.ceil(25*1024*1024/3),'Invalid artwork entry');
   const content=Buffer.from(value,'base64');check(content.length>0&&content.toString('base64')===value,'Invalid artwork encoding');bytes+=content.length;
   check(bytes<=100*1024*1024,'Restore artwork exceeds the capacity limit');
@@ -57,7 +59,7 @@ export async function restoreDatasetArtwork(snapshot,folder) {
  check((await fs.readdir(folder)).length===0,'Restore artwork directory must be empty');
  for(const [name,value] of Object.entries(snapshot.artwork)){
   check(filename.test(name),'Invalid artwork entry');
-  await fs.writeFile(path.join(folder,name),Buffer.from(value,'base64'),{mode:0o600,flag:'wx'});
+  await fs.writeFile(path.join(folder,name),await readBackupArtwork(snapshot,name),{mode:0o600,flag:'wx'});
  }
 }
 export async function verifyDatasetArtwork(snapshot,folder) {
@@ -66,7 +68,7 @@ export async function verifyDatasetArtwork(snapshot,folder) {
  const hashes=[];let bytes=0;
  for(const name of names){
   const info=await fs.lstat(path.join(folder,name));check(info.isFile()&&(info.mode&0o777)===0o600,'Restored artwork permissions are unsafe');
-  const content=await fs.readFile(path.join(folder,name)),digest=fileHash(content);check(digest===fileHash(Buffer.from(snapshot.artwork[name],'base64')),'Restored artwork differs from snapshot');bytes+=content.length;hashes.push([name,digest]);
+  const content=await fs.readFile(path.join(folder,name)),digest=fileHash(content);check(digest===fileHash(await readBackupArtwork(snapshot,name)),'Restored artwork differs from snapshot');bytes+=content.length;hashes.push([name,digest]);
  }
  return {artwork_count:names.length,artwork_bytes:bytes,artwork_sha256:fileHash(JSON.stringify(hashes))};
 }
