@@ -152,7 +152,7 @@ html[lang=ar] .global-nav .wordmark{font-family:Manrope,sans-serif;letter-spacin
 .footer-social h4{margin:0;font-size:14px}
 .footer-social p{margin:7px 0 0;max-width:none}
 .footer-social-list{display:flex;flex-wrap:wrap;gap:10px;list-style:none;padding:0;margin:0}
-.footer .footer-social-icon{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;margin:0;border:1px solid #555;border-radius:50%;background:#1c1c1c;color:#fff;transition:background .15s,border-color .15s}
+.footer .footer-social-list .footer-social-icon{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;margin:0;border:1px solid #555;border-radius:50%;background:#1c1c1c;color:#fff;transition:background .15s,border-color .15s}
 .footer-social-icon img{width:22px;height:22px;filter:invert(1)}
 .footer a.footer-social-icon:hover,.footer a.footer-social-icon:focus-visible{background:#35303f;border-color:#c8b7f5}
 .footer-social-icon.is-pending{opacity:.65}
