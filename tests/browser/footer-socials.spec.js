@@ -3,7 +3,7 @@ import {googleApp} from '../helpers/google-app.js';
 import {passwordHash,now} from '../../src/security.js';
 try{process.loadEnvFile('.env');}catch(error){if(error.code!=='ENOENT')throw error;}
 
-test('footer shows the confirmed YouTube account and administrators can publish and clear bilingual links',async({page},info)=>{
+test('footer shows confirmed accounts and administrators can publish and clear bilingual links',async({page},info)=>{
  test.setTimeout(60000);
  const f=await googleApp(),password='Local social fixture password 123';
  const platforms=['youtube','instagram','tiktok','x','linkedin','pinterest'];
@@ -11,8 +11,9 @@ test('footer shows the confirmed YouTube account and administrators can publish 
   for(const lang of ['en','ar']){
    await page.goto(f.origin+'/'+lang+'/help');
    const footer=page.locator('.footer-social');await footer.scrollIntoViewIfNeeded();
-   await expect(footer.locator('.is-pending')).toHaveCount(5);await expect(footer.locator('a')).toHaveCount(1);
-   await expect(footer.locator('a')).toHaveAttribute('href','https://www.youtube.com/@VeeladCompany');
+   await expect(footer.locator('.is-pending')).toHaveCount(4);await expect(footer.locator('a')).toHaveCount(2);
+   await expect(footer.locator('a').nth(0)).toHaveAttribute('href','https://www.youtube.com/@VeeladCompany');
+   await expect(footer.locator('a').nth(1)).toHaveAttribute('href','https://www.instagram.com/veeladofficial/');
    await expect.poll(()=>footer.locator('img').evaluateAll(images=>images.every(image=>image.complete&&image.naturalWidth>0))).toBe(true);
    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
    await footer.screenshot({path:info.outputPath('social-'+lang+'.png')});
