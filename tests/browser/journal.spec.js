@@ -26,7 +26,7 @@ test('Journal editor creates, previews, publishes and unpublishes real bilingual
 });
 test('Journal empty state is readable without JavaScript and responsive in both languages',async({page,browser},info)=>{
  const f=await journalFixture();let noJs;
- try{noJs=await browser.newContext({javaScriptEnabled:false,viewport:page.viewportSize()});const raw=await noJs.newPage();await raw.goto(f.origin+'/journal');await expect(raw.locator('h1')).toHaveText('Veelad Journal');await expect(raw.locator('.journal-empty h2')).toHaveText('Good stories take shape here.');await fits(raw);
- for(const lang of ['en','ar']){await page.goto(f.origin+(lang==='ar'?'/ar':'')+'/journal');await expect(page.locator('.journal-masthead')).toBeVisible();await fits(page);await page.screenshot({path:info.outputPath('journal-empty-'+lang+'.png'),fullPage:true});}
+ try{noJs=await browser.newContext({javaScriptEnabled:false,viewport:page.viewportSize()});const raw=await noJs.newPage();await raw.goto(f.origin+'/journal');await expect(raw.locator('h1')).toHaveText('Veelad Journal');await expect(raw.locator('.journal-empty h2')).toHaveText('Good stories take shape here.');await expect(raw.locator('.journal-empty .btn')).toHaveCSS('color','rgb(255, 255, 255)');await fits(raw);
+ for(const lang of ['en','ar']){await page.goto(f.origin+(lang==='ar'?'/ar':'')+'/journal');await expect(page.locator('.journal-masthead')).toBeVisible();await expect(page.locator('.journal-empty .btn')).toHaveCSS('color','rgb(255, 255, 255)');await fits(page);await page.screenshot({path:info.outputPath('journal-empty-'+lang+'.png'),fullPage:true});}
  }finally{await noJs?.close();await page.goto('about:blank').catch(()=>{});await f.close();}
 });

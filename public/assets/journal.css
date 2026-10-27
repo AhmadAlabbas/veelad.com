@@ -13,3 +13,4 @@
 
 .journal .sr-only,.journal-admin .sr-only,.journal-dialog .sr-only{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
 [data-journal-url]{direction:ltr;text-align:start}
+.journal a.btn{color:#fff}.journal a.btn.outline{color:var(--journal-ink)}.journal a.btn:hover{text-decoration:none}
