@@ -1,3 +1,5 @@
+import {journalRoute} from './journal.js';
+import {journalPages,journalPageRoute} from './journal-pages.js';
 import {socialLinks} from './social-links.js';
 import {orderMessage} from './order-mail.js';
 import {artistProfileRoute,recordArtistRelease} from './artist-profiles.js';
@@ -240,6 +242,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
    const shipping=items.length&&subtotal-discount<s.free_shipping?Number(s.shipping):0;
    return res.json({subtotal,discount,shipping,total:subtotal-discount+shipping,coupon_applied:!!code&&discount>0,provisional:true});
   }
+  if(await journalPageRoute({route,method,v,req,res,db,c,me,role,throttle,audit})||await journalRoute({route,method,v,req,res,db,c,me,role,throttle,audit}))return;
   if(await artistProfileRoute({route,method,v,req,res,db,c,me,role,throttle,audit}))return;
   if(route.startsWith('shopping-')||route.startsWith('admin-shopping-')){if(await shoppingRoute({route,method,v,req,res,db,c,me,role,throttle,audit,queue}))return;fail(404,'Endpoint not found.');}
   if(route==='creative-status'&&method==='GET')return res.json({enabled:c.creativeEnabled===true});
@@ -693,6 +696,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
   await partnerReferral(req,res,{db,c});
  });
  app.use(['/api.php','/auth/google/callback'],api);
+ journalPages(app,c,db,schema);
  pageRoutes(app,c,db,schema);
  app.use(express.static(publicDir,{dotfiles:'deny',index:'index.html'}));
  }

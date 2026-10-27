@@ -29,6 +29,13 @@ async function fixture(){
  await db.q('INSERT INTO artist_follows VALUES (?,?,?,?,?)',['recovery-owner','artist-1',0,'en',new Date().toISOString()]);
  await db.q('INSERT INTO artist_notifications VALUES (?,?,?,?,?,?,?)',['c'.repeat(64),'recovery-owner','artist-1','p1',null,0,new Date().toISOString()]);
  await db.q('INSERT INTO artist_releases VALUES (?,?,?,?,?)',['p1','artist-1','','done',new Date().toISOString()]);
+ await db.q("UPDATE journal_categories SET name='Edited editorial category' WHERE id='fashion-style'");
+ await db.q("DELETE FROM journal_categories WHERE id='streetwear'");
+ await db.q('INSERT INTO journal_authors VALUES (?,?,?,?,?)',['restore-author','Fixture writer','كاتب التجربة','Private biography','نبذة خاصة']);
+ await db.q('INSERT INTO journal_articles(id,author_id,category_id,data,created_at,updated_at) VALUES (?,?,?,?,?,?)',['restore-article','restore-author','fashion-style','{}',new Date().toISOString(),new Date().toISOString()]);
+ await db.q('INSERT INTO journal_translations(article_id,locale,slug,title,summary,content,status,data) VALUES (?,?,?,?,?,?,?,?)',['restore-article','en','private-draft','Private editorial draft','Summary','<p>Unpublished private content</p>','draft',JSON.stringify({featured_upload_id:'original-rehearsal'})]);
+ await db.q('INSERT INTO journal_redirects VALUES (?,?,?)',['en','old-private-draft','restore-article']);
+ await db.q('INSERT INTO journal_media VALUES (?,?,?)',['original-rehearsal','restore-article','en']);
  const backup=await createBackup(c,db);
  return {folder,app,db,c,bytes,backup,async close(){await app.close();await fs.rm(folder,{recursive:true,force:true});}};
 }

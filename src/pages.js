@@ -1,3 +1,4 @@
+import {journalSitemap} from './journal-pages.js';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
@@ -45,7 +46,7 @@ export function pageRoutes(app,c,db,schema) {
  app.get('/sitemap.xml',async(req,res)=>{
   if(!ready(req,res))return;
   const paths=c.mode==='staging'?[]:[...publicPaths,...(await db.q("SELECT id FROM products WHERE status='active'")).map(p=>'/products/'+encodeURIComponent(p.id)),...(await publicArtists(db)).map(a=>'/artists/'+encodeURIComponent(a.id))];
-  res.type('application/xml').send(`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">${paths.flatMap(p=>languages.map(language=>`<url><loc>${esc(c.origin+localizedPath(p,language))}</loc>${languages.map(code=>`<xhtml:link rel="alternate" hreflang="${code}" href="${esc(c.origin+localizedPath(p,code))}"/>`).join('')}<xhtml:link rel="alternate" hreflang="x-default" href="${esc(c.origin+localizedPath(p,'en'))}"/></url>`)).join('')}</urlset>`);
+  res.type('application/xml').send(`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">${paths.flatMap(p=>languages.map(language=>`<url><loc>${esc(c.origin+localizedPath(p,language))}</loc>${languages.map(code=>`<xhtml:link rel="alternate" hreflang="${code}" href="${esc(c.origin+localizedPath(p,code))}"/>`).join('')}<xhtml:link rel="alternate" hreflang="x-default" href="${esc(c.origin+localizedPath(p,'en'))}"/></url>`)).join('')}${await journalSitemap(db,c)}</urlset>`);
  });
  app.get(equivalents('/products/:id'),async(req,res)=>{
   if(!ready(req,res))return;const p=await listing(req.params.id),language=languageFor(req);
