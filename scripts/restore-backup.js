@@ -13,7 +13,9 @@ export async function restoreSnapshot(c,source,key,target,uploadDir,allowMissing
   if(await root.one('SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME=?',[target]))throw Error('Restore target already exists');
   await fs.mkdir(uploadDir,{recursive:true,mode:0o700});if((await fs.readdir(uploadDir)).length)throw Error('Restore artwork directory must be empty');
   await root.pool.query('CREATE DATABASE ??',[target]);restored=database({...c,db:{...c.db,database:target}});await migrate(restored);
-  await restored.tx(async conn=>{await restoreDatasetRows(restored,conn,snapshot);await verifyDatasetRows(restored,conn,snapshot);});
+  // The target was created above and is isolated. Replace migration-provided
+  // category defaults with the exact saved editorial taxonomy, including removals.
+  await restored.tx(async conn=>{await restored.q('DELETE FROM journal_categories',[],conn);await restoreDatasetRows(restored,conn,snapshot);await verifyDatasetRows(restored,conn,snapshot);});
   await restoreDatasetArtwork(snapshot,uploadDir);const verified=await verifyDatasetArtwork(snapshot,uploadDir);
   return {restored:true,complete:inventory.missing_files===0,missing_files:inventory.missing_files,environment:snapshot.environment,revision:snapshot.revision,artwork_count:verified.artwork_count};
  }finally {if(restored)await restored.pool.end();await root.pool.end();}

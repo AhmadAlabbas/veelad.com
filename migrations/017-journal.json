@@ -1,0 +1,18 @@
+[
+  "CREATE TABLE IF NOT EXISTS journal_categories (id VARCHAR(64) PRIMARY KEY,name VARCHAR(160) NOT NULL,name_ar VARCHAR(160) NOT NULL,sort_order INTEGER NOT NULL DEFAULT 0)",
+  "CREATE TABLE IF NOT EXISTS journal_authors (id VARCHAR(64) PRIMARY KEY,name VARCHAR(160) NOT NULL,name_ar VARCHAR(160) NOT NULL,bio TEXT NOT NULL,bio_ar TEXT NOT NULL)",
+  "CREATE TABLE IF NOT EXISTS journal_articles (id VARCHAR(64) PRIMARY KEY,author_id VARCHAR(64),category_id VARCHAR(64),featured INTEGER NOT NULL DEFAULT 0,archived INTEGER NOT NULL DEFAULT 0,data MEDIUMTEXT NOT NULL,version INTEGER NOT NULL DEFAULT 1,created_at VARCHAR(40) NOT NULL,updated_at VARCHAR(40) NOT NULL,INDEX journal_editorial(updated_at,id),INDEX journal_category(category_id),INDEX journal_author(author_id))",
+  "CREATE TABLE IF NOT EXISTS journal_translations (article_id VARCHAR(64) NOT NULL,locale VARCHAR(2) NOT NULL,slug VARCHAR(160) NOT NULL,title VARCHAR(240) NOT NULL,summary TEXT NOT NULL,content MEDIUMTEXT NOT NULL,status VARCHAR(16) NOT NULL,publish_at VARCHAR(40),published_at VARCHAR(40),data TEXT NOT NULL,PRIMARY KEY(article_id,locale),UNIQUE KEY journal_slug(locale,slug),INDEX journal_public(locale,status,publish_at,published_at))",
+  "CREATE TABLE IF NOT EXISTS journal_redirects (locale VARCHAR(2) NOT NULL,slug VARCHAR(160) NOT NULL,article_id VARCHAR(64) NOT NULL,PRIMARY KEY(locale,slug))",
+  "CREATE TABLE IF NOT EXISTS journal_media (upload_id VARCHAR(64) PRIMARY KEY,article_id VARCHAR(64) NOT NULL,locale VARCHAR(2) NOT NULL,INDEX journal_media_article(article_id,locale))",
+  "INSERT IGNORE INTO journal_categories VALUES ('fashion-style','Fashion & Style','الأزياء والأناقة',0)",
+  "INSERT IGNORE INTO journal_categories VALUES ('streetwear','Streetwear','أزياء الشارع',1)",
+  "INSERT IGNORE INTO journal_categories VALUES ('artist-stories','Artist Stories','حكايات الفنانين',2)",
+  "INSERT IGNORE INTO journal_categories VALUES ('behind-designs','Behind the Designs','خلف التصاميم',3)",
+  "INSERT IGNORE INTO journal_categories VALUES ('new-collections','New Collections','مجموعات جديدة',4)",
+  "INSERT IGNORE INTO journal_categories VALUES ('fashion-trends','Fashion Trends','اتجاهات الموضة',5)",
+  "INSERT IGNORE INTO journal_categories VALUES ('styling-guides','Styling Guides','دليل التنسيق',6)",
+  "INSERT IGNORE INTO journal_categories VALUES ('sustainability-materials','Sustainability & Materials','الاستدامة والخامات',7)",
+  "INSERT IGNORE INTO journal_categories VALUES ('veelad-news','Veelad News','أخبار فيلاد',8)",
+  "INSERT IGNORE INTO journal_categories VALUES ('culture-creativity','Culture & Creativity','الثقافة والإبداع',9)"
+]
