@@ -11,3 +11,5 @@
 @media(max-width:600px){.international-selectors{gap:4px}.international-selectors select{max-width:102px;font-size:12px;padding-inline:6px}.global-nav .nav-actions{flex-wrap:wrap}.admin-topbar .international-selectors{flex-basis:auto}.international-notice{overflow-wrap:anywhere}}
 
 span.international-notice{display:block}
+/* Keep the mobile product gallery in the first screen while retaining 44px controls. */
+@media(max-width:760px){.global-nav .container{padding-block:8px;row-gap:6px}}
