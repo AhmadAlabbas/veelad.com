@@ -32,7 +32,7 @@ Journal supports independent publication for all three languages, including Chin
 
 Currency/language never grant delivery eligibility. Existing configured shipping countries and fees remain authoritative; there is no newly verified worldwide fulfillment integration. Existing delivery restrictions continue to apply. No new tax or duty amounts are invented.
 
-Migrations 018 and 019 add historical rate batches and widen the Journal locale columns. Existing migration files remain unchanged. No product/order deletion or sample catalog seeding is introduced. Rate batches are included in encrypted backups. Staging startup runs migrations. Production would need a separately reviewed migration/release procedure.
+Migrations 018–020 add historical rate batches, widen the Journal locale columns, and keep rate JSON serialized as text to match the existing encrypted backup/restore contract. Existing migration files remain unchanged. No product/order deletion or sample catalog seeding is introduced. Rate batches are included in encrypted backups. Staging startup runs migrations. Production would need a separately reviewed migration/release procedure.
 
 ## Validation
 

@@ -1,3 +1,5 @@
+import {backupTables} from '../src/backup-tables.js';
+import {validateRestoreDataset} from '../src/restore-dataset.js';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {journalFixture} from './helpers/journal-app.js';
@@ -18,6 +20,9 @@ test('international migrations, FX cache, preferences, authorization, Chinese SE
   const time=Math.floor(Date.now()/1000),config={...f.config,international:{fxEnabled:true}};
   const result=await refreshExchangeRates(config,f.db,{fetch:async()=>new Response(JSON.stringify({result:'success',base_code:'SAR',rates,time_last_update_unix:time-3600,time_next_update_unix:time+3600}))});
   assert.equal(result.status,'success');
+  const savedRates=await f.db.q('SELECT * FROM currency_rate_batches');assert.equal(typeof savedRates[0].rates,'string');
+  const snapshot={format:1,tables:Object.fromEntries(backupTables.map(name=>[name,name==='currency_rate_batches'?savedRates:[]])),artwork:{},migrations:[]};
+  assert.equal(validateRestoreDataset(snapshot).missing_files,0);
   const status=(await ok(buyer,'bootstrap')).international;
   assert.equal(status.currencies.length,9);assert.equal(status.rate_status,'current');
   let requests=0;await refreshExchangeRates(config,f.db,{fetch:async()=>{requests++;throw Error('must not fetch cached rates');}});assert.equal(requests,0);
