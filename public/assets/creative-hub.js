@@ -2,7 +2,7 @@
 'use strict';
 window.VeeladCreative = (() => {
   let data = {}, activeRoute = '', activeParams = new URLSearchParams(), lastGuide = null;
-  const say = (en, ar) => currentLanguage() === 'ar' ? ar : en;
+  const say = (en, ar) => currentLanguage() === 'ar' ? ar : t(en);
   const e = value => esc(value ?? '');
   const local = (record, key) => currentLanguage() === 'ar' && record?.[key + '_ar'] ? record[key + '_ar'] : record?.[key] || '';
   const number = value => typeof localNumber === 'function' ? localNumber(Number(value || 0)) : String(value || 0);

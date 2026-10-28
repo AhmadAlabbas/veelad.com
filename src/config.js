@@ -28,6 +28,8 @@ export function config(env = process.env) {
     creativeEnabled:env.CREATIVE_EXPERIENCES_ENABLED==='true'||(mode!=='production'&&env.CREATIVE_EXPERIENCES_ENABLED!=='false'),
     partners:{enabled:env.PARTNERS_ENABLED==='true'||(mode==='staging'&&env.PARTNERS_ENABLED===undefined),payoutKey,financeAdmins,payoutChangeHoldHours:168},
     google:{enabled:env.GOOGLE_AUTH_ENABLED==='true',clientId:env.GOOGLE_CLIENT_ID?.trim(),clientSecret:env.GOOGLE_CLIENT_SECRET?.trim()},
+    translations:{enabled:env.AI_TRANSLATIONS_ENABLED==='true',apiKey:env.OPENAI_TRANSLATION_API_KEY?.trim(),model:env.OPENAI_TRANSLATION_MODEL?.trim()||'gpt-4.1-mini'},
+    international:{fxEnabled:env.FX_ENABLED==='true'||(mode==='staging'&&env.FX_ENABLED!=='false'),apiKey:env.EXCHANGE_RATE_API_KEY?.trim()},
     moyasar:{testEnabled:env.MOYASAR_TEST_ENABLED==='true',testSecretKey:env.MOYASAR_TEST_SECRET_KEY?.trim()},
     emailVerificationRequired:env.EMAIL_VERIFICATION_REQUIRED==='true',
     port:Number(env.PORT || 3000), uploadDir:path.resolve(env.UPLOAD_DIR || 'var/uploads'),

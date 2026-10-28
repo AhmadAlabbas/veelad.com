@@ -123,7 +123,7 @@ export function createGoogleProvider(c, options = {}) {
   };
 }
 function localReturn(flow, user, code) {
-  const locale = flow?.locale === "ar" ? "ar" : "en",
+  const locale = ["en","ar","zh-CN"].includes(flow?.locale)?flow.locale:"en",
     route =
       flow?.intent === "link" || flow?.intent === "reauth"
         ? "account"
@@ -182,7 +182,7 @@ export async function googleRoute({
     const state = token(),
       flow = {
         intent,
-        locale: v.locale === "ar" ? "ar" : "en",
+        locale: ["en","ar","zh-CN"].includes(v.locale)?v.locale:"en",
         role: v.role === "artist" ? "artist" : "buyer",
         next: ["create", "my-designs", "checkout", "partners/apply", "partners/dashboard", "creative", "creative/rooms", "creative/workspace", "creative/taste"].includes(v.next)
           ? v.next
@@ -241,7 +241,7 @@ export async function googleRoute({
     fail(404, "Route not found.");
   let flow, user;
   const redirect = (code, failed = false) => {
-    const locale = flow?.locale === "ar" ? "ar" : "en";
+    const locale = ["en","ar","zh-CN"].includes(flow?.locale)?flow.locale:"en";
     return res.redirect(
       303,
       failed && (!flow || flow.intent === "signin")

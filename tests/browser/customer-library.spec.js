@@ -101,7 +101,7 @@ test("bilingual text designs autosave, survive reload/offline recovery, appear i
     expect(sceneText(JSON.parse(await form.locator("[name=design_studio]").inputValue()))[0].font).toBe("arabic-bold");
     await expect(form.locator("[data-ws-prop=color]")).toHaveValue("#ba2038");
     await expect(form.locator(".studio-canvas-status")).not.toBeVisible();
-    await page.locator("[data-action=language-switch]").first().click();
+    await page.locator('[data-international-language]').first().selectOption(await page.locator('html').getAttribute('lang')==='ar'?'en':'ar');
     await expect(page).toHaveURL(/\/ar\/create/);
     await expect(form.locator(".design-studio")).toHaveAttribute(
       "data-ready",
@@ -121,7 +121,7 @@ test("bilingual text designs autosave, survive reload/offline recovery, appear i
       path: info.outputPath("text-studio-ar.png"),
       fullPage: true,
     });
-    await page.locator("[data-action=language-switch]").first().click();
+    await page.locator('[data-international-language]').first().selectOption(await page.locator('html').getAttribute('lang')==='ar'?'en':'ar');
     await expect(page).toHaveURL(/\/en\/create/);
     await expect(form.locator(".design-studio")).toHaveAttribute(
       "data-ready",

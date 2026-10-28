@@ -3,11 +3,11 @@
 'use strict';
 window.VeeladDesignRooms=(()=>{
  let state=null,roomId='',timer=null,generation=0,invitation=null,pendingSnapshot=null,dirty=false;
- const say=(en,ar)=>currentLanguage()==='ar'?ar:en,e=value=>esc(String(value??''));
+ const say=(en,ar)=>currentLanguage()==='ar'?ar:t(en),e=value=>esc(String(value??''));
  const address=(id,extra={})=>url('creative/rooms',{...(id?{id}:{}),...extra});
  const actor=id=>state?.members?.find(member=>member.user_id===id)?.name||say('Former member','عضو سابق');
  const roleLabel=role=>({owner:say('Room owner','صاحب الغرفة'),editor:say('Contributor','مشارك بالتصميم'),viewer:say('Reviewer','مراجع')}[role]||role);
- const date=value=>new Date(value).toLocaleDateString(currentLanguage()==='ar'?'ar-SA':'en-GB',{day:'numeric',month:'short',calendar:'gregory'});
+ const date=value=>new Date(value).toLocaleDateString(currentLanguage()==='ar'?'ar-SA':t('en-GB'),{day:'numeric',month:'short',calendar:'gregory'});
  const action=(label,name,attributes='',classes='btn outline sm')=>`<button type="button" class="${classes}" data-room-action="${name}" ${attributes}>${label}</button>`;
  const field=(label,name,value='',attrs='')=>`<label class="field"><span>${label}</span><input name="${name}" value="${e(value)}" ${attrs}></label>`;
  const roomOpen=()=>state?.room.status==='open',canEdit=()=>['owner','editor'].includes(state?.role)&&roomOpen();

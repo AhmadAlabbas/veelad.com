@@ -1,7 +1,7 @@
 /* Artist-owned presentation, private drafts and explicit following preferences. */
 'use strict';
 window.VeeladArtists=(()=>{
- const e=value=>esc(value??''),say=(en,ar,lang=currentLanguage())=>lang==='ar'?ar:en,copy=(item,key,lang=currentLanguage())=>lang==='ar'&&item?.[key+'_ar']?.trim()?item[key+'_ar']:item?.[key]||'',image=id=>'/api.php?route=image&id='+encodeURIComponent(id),returnKey='artist-follow-return';
+ const e=value=>esc(value??''),say=(en,ar,lang=currentLanguage())=>lang==='ar'?ar:lang==='zh-CN'?translations['zh-CN']?.[en]||en:en,copy=(item,key,lang=currentLanguage())=>lang==='ar'&&item?.[key+'_ar']?.trim()?item[key+'_ar']:item?.[key]||'',image=id=>'/api.php?route=image&id='+encodeURIComponent(id),returnKey='artist-follow-return';
  const categories={'T-shirts':'تيشيرتات','Tote bags':'شنط قماش','Stickers':'ملصقات','Phone cases':'أغطية جوال','Art prints':'لوحات فنية','Mugs':'أكواب','Notebooks':'دفاتر'};
  const completionLabels={avatar:['Profile photo','صورة الحساب'],cover:['Cover banner','غلاف المتجر'],english_intro:['English introduction','التعريف بالإنجليزية'],arabic_intro:['Arabic introduction','التعريف بالعربية'],english_story:['English artist story','حكايتك بالإنجليزية'],arabic_story:['Arabic artist story','حكايتك بالعربية'],portfolio:['Portfolio images','صور الأعمال'],captions:['Portfolio captions','حكايات صور الأعمال'],featured:['Featured designs','التصاميم المميزة'],sections:['Shop sections','أقسام المتجر']};
  let editor=null,crop=null,saveTimer=null,savePromise=null,pageToken=0;

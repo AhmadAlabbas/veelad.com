@@ -54,11 +54,12 @@ const ar={
  // Keep the Latin logo intact in both directions.
  shareBrand:'veelad'
 };
-export const pageTranslations=Object.freeze({en:Object.freeze(en),ar:Object.freeze(ar)});
+const zh={storeStarting:'商店正在启动，请稍后重试。',storeLoading:'正在加载商店…',storeTitle:'Veelad — 让原创艺术融入你的日常。',storeDescription:'在 Veelad 发现独立艺术家的原创设计，用喜欢的作品装点日常生活。',productUnavailable:'商品不可用 | Veelad',artistUnavailable:'艺术家页面不可用 | Veelad',independentArtist:'独立艺术家',productTitle:'{title} — {artist} 设计 | Veelad',artistTitle:'{name} — 艺术家与原创设计 | Veelad',designedBy:'由 {artist} 创作',inStock:'有货',soldOut:'已售罄',samplePrice:'示例价格 · 测试预览',sampleListing:'样品展示',sampleDetails:'此为样品展示，价格及商品信息仅供参考，不会收取实际付款。',exploreProducts:'探索商品',shopTitle:'探索原创设计 | Veelad',artistsTitle:'认识独立艺术家 | Veelad',createTitle:'自由创作 | Veelad',myDesignsTitle:'我的设计 | Veelad',storeName:'Veelad',storeIntro:'独立艺术家的原创设计。',exploreDesigns:'探索设计',meetArtists:'认识艺术家',shareTitle:'原创艺术，日常好物。',shareSubtitle:'Veelad · 独立艺术家',shareDesignedBy:'由 {artist} 创作',shareBrand:'veelad'};
+export const pageTranslations=Object.freeze({en:Object.freeze(en),ar:Object.freeze(ar),'zh-CN':Object.freeze(zh)});
 export function pageText(language,key,values={}) {
  const source=pageTranslations[language]?.[key]??en[key]??key;
  return source.replace(/\{([a-zA-Z][a-zA-Z0-9_]*)\}/g,(token,name)=>Object.hasOwn(values,name)?String(values[name]??''):token);
 }
 export function pageMoney(value,language,numberingSystem='latn') {
- return '\u2066\u20c1\u00a0'+new Intl.NumberFormat(language==='ar'?'ar-SA':'en',{numberingSystem,minimumFractionDigits:0,maximumFractionDigits:2}).format(Number(value)/100)+'\u2069';
+ return '\u2066\u20c1\u00a0'+new Intl.NumberFormat(language==='ar'?'ar-SA':language==='zh-CN'?'zh-CN':'en',{numberingSystem,minimumFractionDigits:0,maximumFractionDigits:2}).format(Number(value)/100)+'\u2069';
 }

@@ -90,7 +90,7 @@ test("artist places artwork across seven products, keeps layouts through Arabic 
   expect((await state(form)).artwork_id).toBe(original);
   expect((await state(form)).placements).toEqual(before.placements);
   await expect(form.locator("#upload-preview img")).toBeVisible();
-  await page.locator("[data-action=language-switch]").first().click();
+  await page.locator('[data-international-language]').first().selectOption(await page.locator('html').getAttribute('lang')==='ar'?'en':'ar');
   await expect(page).toHaveURL(/\/ar\/studio/);
   await expect(form.locator(".design-studio")).toHaveAttribute(
     "data-ready",

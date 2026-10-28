@@ -2,7 +2,7 @@
  * previews. This module never requests an original-download endpoint. */
 'use strict';
 window.VeeladSampleRoom=(()=>{
- const say=(en,ar)=>currentLanguage()==='ar'?ar:en;
+ const say=(en,ar)=>currentLanguage()==='ar'?ar:t(en);
  const title=p=>localField(p,'title');
  const imageUrl=id=>'/api.php?'+new URLSearchParams({route:'image',id});
  const validId=id=>typeof id==='string'&&/^[A-Za-z0-9_-]{1,64}$/.test(id);

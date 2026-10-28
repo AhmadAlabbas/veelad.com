@@ -1,6 +1,6 @@
 'use strict';
 window.VeeladCreativeEditor=(()=>{
- const key='veelad-creative-handoff',say=(en,ar)=>currentLanguage()==='ar'?ar:en;
+ const key='veelad-creative-handoff',say=(en,ar)=>currentLanguage()==='ar'?ar:t(en);
  let timer=null;
  async function handoff(payload){
   sessionStorage.setItem(key,JSON.stringify(payload));
@@ -19,7 +19,7 @@ window.VeeladCreativeEditor=(()=>{
    const concept=payload.concept||{},type=instance.product().id,surface=type==='mug'?'wrap':'front';
    const content=[concept.headline||concept.text||say('YOUR STORY','حكايتك'),concept.caption||''].filter(Boolean);
    state=clone(instance.state);state.artwork_id=null;state.scenes={};state.scene_version=customerSceneVersion;
-   state.scenes[type]={[surface]:{background:'transparent',layers:content.map((text,index)=>({id:id('story-'),type:'text',text:[...String(text)].slice(0,120).join(''),font:currentLanguage()==='ar'?'arabic':'manrope',color:/^#[a-f0-9]{6}$/i.test(concept.palette?.[0])?concept.palette[0]:'#292437',x:.5,y:index?.65:.4,size:index?.04:.075,align:'center',direction:'auto',rotation:0,opacity:1,visible:true,locked:false}))}};
+   state.scenes[type]={[surface]:{background:'transparent',layers:content.map((text,index)=>({id:id('story-'),type:'text',text:[...String(text)].slice(0,120).join(''),font:currentLanguage()==='ar'?'arabic':t('manrope'),color:/^#[a-f0-9]{6}$/i.test(concept.palette?.[0])?concept.palette[0]:'#292437',x:.5,y:index?.65:.4,size:index?.04:.075,align:'center',direction:'auto',rotation:0,opacity:1,visible:true,locked:false}))}};
   }
   state.creative_personalisation=personalisation;instance.state=state;uploadId=null;form.elements.upload_id.value='';
   customerDraft||={user_id:user.id,product_id:productId,variant:form.elements.variant.value};customerDraft.creative_personalisation=personalisation;

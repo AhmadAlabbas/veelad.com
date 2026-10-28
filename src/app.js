@@ -1,3 +1,5 @@
+import {productTranslationRoute,categoryTranslations} from './product-translations.js';
+import {internationalStatus,internationalRoute,orderCurrencySnapshot} from './international.js';
 import {journalRoute} from './journal.js';
 import {journalPages,journalPageRoute} from './journal-pages.js';
 import {socialLinks} from './social-links.js';
@@ -126,7 +128,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
  const state=async (id,conn)=> {const r=await one('SELECT data FROM customer_state WHERE id=?',[id],conn);return r ? json(r.data) : {cart:[],saved:[],address:[]};};
  const putState=async (id,value,conn)=>q('INSERT INTO customer_state VALUES (?,?) ON DUPLICATE KEY UPDATE data=?',[id,JSON.stringify(value),JSON.stringify(value)],conn);
  const detailLimits={materials:300,dimensions:300,care_instructions:1000,size_guide:2000};
- const translationLimits={title_ar:100,description_ar:2000,materials_ar:300,dimensions_ar:300,care_instructions_ar:1000,size_guide_ar:2000};
+ const translationLimits={title_zh:400,description_zh:8000,materials_zh:1200,dimensions_zh:1200,care_instructions_zh:4000,size_guide_zh:8000,seo_title:160,seo_title_ar:160,seo_title_zh:640,seo_description:400,seo_description_ar:400,seo_description_zh:1600,title_ar:100,description_ar:2000,materials_ar:300,dimensions_ar:300,care_instructions_ar:1000,size_guide_ar:2000};
  function optionalDetails(v,limits) {
   const details={};
   for(const [key,max] of Object.entries(limits)) if(v[key]!==undefined) {
@@ -138,7 +140,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
  function preserveDetails(p,old) {
   if(!old) return;
   const previous=json(old.data),optionsSupplied=p.purchase_options!==undefined;
-  for(const key of [...Object.keys(detailLimits),...Object.keys(translationLimits),'production_notes','print_formats','tags','tags_ar','design_styles','price_is_placeholder','purchase_options','gallery_upload_ids','design_studio','mockup_upload_id','customer_customizable','collection_id','design_group','story','story_ar','artwork_attribution','sample_pricing','stock_is_simulated']) if(p[key]===undefined && previous[key]!==undefined) p[key]=previous[key];
+  for(const key of [...Object.keys(detailLimits),...Object.keys(translationLimits),'production_notes','print_formats','tags','tags_ar','tags_zh','design_styles','price_is_placeholder','purchase_options','gallery_upload_ids','design_studio','mockup_upload_id','customer_customizable','collection_id','design_group','story','story_ar','artwork_attribution','sample_pricing','stock_is_simulated']) if(p[key]===undefined && previous[key]!==undefined) p[key]=previous[key];
   if(!optionsSupplied&&(previous.upload_id!==p.upload_id||previous.category!==p.category)){if(p.purchase_options)p.purchase_options={...p.purchase_options,confirmed:false};}
   if(previous.upload_id===p.upload_id&&previous.artwork_metadata!==undefined)p.artwork_metadata=previous.artwork_metadata;
   if(p.design_studio?.artwork_id!==(p.upload_id||null)){delete p.design_studio;delete p.mockup_upload_id;}
@@ -183,7 +185,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
    if(!Array.isArray(v.print_formats)||v.print_formats.length>categories.length||v.print_formats.some(format=>!categories.includes(format))) fail(422,'Choose supported print formats.');
    p.print_formats=[...new Set(v.print_formats)];
   }
-  for(const key of ['tags','tags_ar']) if(v[key]!==undefined) {
+  for(const key of ['tags','tags_ar','tags_zh']) if(v[key]!==undefined) {
    if(!Array.isArray(v[key])||v[key].length>12||v[key].some(tag=>typeof tag!=='string'||![...tag.trim()].length||[...tag.trim()].length>50)) fail(422,'Add up to 12 tags, with 1–50 characters each.');
    p[key]=[...new Set(v[key].map(tag=>tag.trim()))];
   }
@@ -242,6 +244,8 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
    const shipping=items.length&&subtotal-discount<s.free_shipping?Number(s.shipping):0;
    return res.json({subtotal,discount,shipping,total:subtotal-discount+shipping,coupon_applied:!!code&&discount>0,provisional:true});
   }
+  if(await productTranslationRoute({route,method,v,req,res,db,c,role,throttle,audit}))return;
+  if(await internationalRoute({route,method,v,req,res,db,c,me,role,throttle,audit,state,putState}))return;
   if(await journalPageRoute({route,method,v,req,res,db,c,me,role,throttle,audit})||await journalRoute({route,method,v,req,res,db,c,me,role,throttle,audit}))return;
   if(await artistProfileRoute({route,method,v,req,res,db,c,me,role,throttle,audit}))return;
   if(route.startsWith('shopping-')||route.startsWith('admin-shopping-')){if(await shoppingRoute({route,method,v,req,res,db,c,me,role,throttle,audit,queue}))return;fail(404,'Endpoint not found.');}
@@ -257,9 +261,9 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
    if(await partnerRoute(context)||await partnerPayoutRoute(context))return;
    fail(404,'Endpoint not found.');
   }
-  if(method==='GET' && route==='bootstrap') {const catalog=await products(),catalogueRevision=hash(JSON.stringify(catalog)),requested=req.get('x-veelad-catalogue'),omitCatalogue=requested==='deferred'||requested===catalogueRevision;const u=await me(req),locale=u?(await state(u.id)).user_locale:null,googleReturn=req.session.google_login_complete===true;delete req.session.google_login_complete;return res.json({mode:'server',authentication:await authenticationStatus(c,db,u),partners:{enabled:c.partners?.enabled===true},creative:{enabled:c.creativeEnabled===true},shopping:{enabled:c.shoppingEnabled===true},artist_profiles:{enabled:c.artistProfilesEnabled===true},auth_event:googleReturn?'google-login':null,csrf:req.session.csrf,user:u ? safeUser(u) : null,locale:['ar','en'].includes(locale)?locale:null,products:omitCatalogue?null:catalog,catalogue_revision:catalogueRevision,catalogue_deferred:omitCatalogue,artists:await publicArtists(db),design_styles:designStyles,settings:publicStoreSettings(collectionSettings(await settings(),catalog,{publicOnly:true})),email_delivery:{available:mailStatus(c).ready,staging_restricted:c.mode==='staging'}});}
+  if(method==='GET' && route==='bootstrap') {const catalog=await products(),catalogueRevision=hash(JSON.stringify(catalog)),requested=req.get('x-veelad-catalogue'),omitCatalogue=requested==='deferred'||requested===catalogueRevision;const u=await me(req),locale=u?(await state(u.id)).user_locale:null,googleReturn=req.session.google_login_complete===true;delete req.session.google_login_complete;return res.json({mode:'server',authentication:await authenticationStatus(c,db,u),partners:{enabled:c.partners?.enabled===true},creative:{enabled:c.creativeEnabled===true},shopping:{enabled:c.shoppingEnabled===true},artist_profiles:{enabled:c.artistProfilesEnabled===true},auth_event:googleReturn?'google-login':null,csrf:req.session.csrf,user:u ? safeUser(u) : null,locale:['ar','en','zh-CN'].includes(locale)?locale:null,category_translations:await categoryTranslations(db),international:await internationalStatus(db),currency:u?(await state(u.id)).user_currency||null:null,products:omitCatalogue?null:catalog,catalogue_revision:catalogueRevision,catalogue_deferred:omitCatalogue,artists:await publicArtists(db),design_styles:designStyles,settings:publicStoreSettings(collectionSettings(await settings(),catalog,{publicOnly:true})),email_delivery:{available:mailStatus(c).ready,staging_restricted:c.mode==='staging'}});}
   if(method==='POST' && route==='language-preference') {
-   const u=await me(req,true);if(!['ar','en'].includes(v.locale))fail(422,'Choose Arabic or English.');
+   const u=await me(req,true);if(!['ar','en','zh-CN'].includes(v.locale))fail(422,'Choose a supported language.');
    await db.tx(async conn=>{await q('SELECT id FROM users WHERE id=? FOR UPDATE',[u.id],conn);const s=await state(u.id,conn);s.user_locale=v.locale;await putState(u.id,s,conn);});return res.json({ok:true,locale:v.locale});
   }
   if(route==='state' && ['GET','POST'].includes(method)) {
@@ -362,14 +366,15 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
      if(selection?.side&&selectedStudio?.scene_version!==sceneVersion&&selectedStudio?.placements?.shirt)selectedStudio.placements.shirt.view=selection.side==='back'?'shirt-back':'shirt';
      const selectedPhoto=selection?.color?.image_id||selection?.fit?.image_id;
      for(const sourceId of studioSourceIds(selectedStudio,design?design.upload_id:p.upload_id)){const source=await one('SELECT * FROM uploads WHERE id=?',[sourceId],conn);if(!source||(design&&source.user_id!==u.id))fail(409,'Personal artwork unavailable.');try{await readArtwork(c.uploadDir,source);}catch(error){if(error instanceof ApiError&&error.status===404)fail(409,'A print original is unavailable. Restore it before ordering.');throw error;}}
-     items.push({id:p.id,line_id:uid('line-'),title:p.title,...(p.title_ar?{title_ar:p.title_ar}:{}),category:p.category,artist_id:design?design.creative_personalisation?.artist_id||null:p.artist_id,variant,qty,price:p.price,sheet:p.sheet??0,cell:p.cell??0,upload_id:design?design.upload_id:p.upload_id??null,mockup_upload_id:design&&selectedStudio?.scene_version===sceneVersion?design.mockup_upload_id:selection?.side?null:selectedPhoto||design?.mockup_upload_id||p.mockup_upload_id||null,...(selection?{purchase_choices:selection}:{}),...(selectedStudio?{design_studio:selectedStudio,...(selectedStudio.scene_version===sceneVersion?{source_upload_ids:sceneSourceIds(selectedStudio),print_surfaces:Object.keys(selectedStudio.scenes?.[printProductFor(p.category)?.id]||{}).filter(surface=>sceneHasContent(selectedStudio,printProductFor(p.category)?.id,surface==='back'?'shirt-back':surface==='wrap'?'mug':'shirt'))}:{} )}:{}),...(design?{customization_id:design.customization_id,customer_customized:true,...(design.creative_personalisation?{creative_personalisation:design.creative_personalisation}:{}),...(design.title?{design_title:design.title}:{})}:{}),royalty_percent:design?design.creative_personalisation?.royalty_percent??0:p.royalty_percent??20,...(p.sample_pricing===true?{sample_pricing:true}:{}),...(p.stock_is_simulated===true?{stock_is_simulated:true}:{})});subtotal+=p.price*qty;
+     items.push({id:p.id,line_id:uid('line-'),title:p.title,...(p.title_ar?{title_ar:p.title_ar}:{}),...(p.title_zh?{title_zh:p.title_zh}:{}),category:p.category,artist_id:design?design.creative_personalisation?.artist_id||null:p.artist_id,variant,qty,price:p.price,sheet:p.sheet??0,cell:p.cell??0,upload_id:design?design.upload_id:p.upload_id??null,mockup_upload_id:design&&selectedStudio?.scene_version===sceneVersion?design.mockup_upload_id:selection?.side?null:selectedPhoto||design?.mockup_upload_id||p.mockup_upload_id||null,...(selection?{purchase_choices:selection}:{}),...(selectedStudio?{design_studio:selectedStudio,...(selectedStudio.scene_version===sceneVersion?{source_upload_ids:sceneSourceIds(selectedStudio),print_surfaces:Object.keys(selectedStudio.scenes?.[printProductFor(p.category)?.id]||{}).filter(surface=>sceneHasContent(selectedStudio,printProductFor(p.category)?.id,surface==='back'?'shirt-back':surface==='wrap'?'mug':'shirt'))}:{} )}:{}),...(design?{customization_id:design.customization_id,customer_customized:true,...(design.creative_personalisation?{creative_personalisation:design.creative_personalisation}:{}),...(design.title?{design_title:design.title}:{})}:{}),royalty_percent:design?design.creative_personalisation?.royalty_percent??0:p.royalty_percent??20,...(p.sample_pricing===true?{sample_pricing:true}:{}),...(p.stock_is_simulated===true?{stock_is_simulated:true}:{})});subtotal+=p.price*qty;
     }
     const code=typeof v.coupon==='string'?v.coupon.trim().toUpperCase():'';
     const referral=c.partners?.enabled?await resolvePartnerAttribution({db,c,req,user:u,items,coupon:code,customerEmail:address,conn}):{attributions:{},discount:null};
     const discount=referral.discount??(code && code===(s.coupon_code??'HELLOVEELAD') ? Math.round(subtotal*(s.coupon_percent??10)/100) : 0);
     const shipping=subtotal-discount>=s.free_shipping?0:Number(s.shipping),total=subtotal-discount+shipping;
     if(v.expected_total!==undefined&&(!Number.isSafeInteger(v.expected_total)||v.expected_total!==total))fail(409,'Your order total changed. Review your bag before placing the order again.');
-    const data={locale:v.locale==='ar'?'ar':'en',...(items.some(item=>item.customer_customized||item.purchase_choices)?{production:productionState({})}:{}),customer:details,items,subtotal,shipping,discount,payment_status:'awaiting_payment',tracking:'',note:'Order received. Awaiting payment; no charge has been made.'};
+    const currency_snapshot=await orderCurrencySnapshot(db,v.currency_quote,{subtotal,shipping,discount},conn);
+    const data={currency_snapshot,locale:['en','ar','zh-CN'].includes(v.locale)?v.locale:'en',...(items.some(item=>item.customer_customized||item.purchase_choices)?{production:productionState({})}:{}),customer:details,items,subtotal,shipping,discount,payment_status:'awaiting_payment',tracking:'',note:'Order received. Awaiting payment; no charge has been made.'};
     await q('UPDATE orders SET total=?,data=? WHERE id=?',[total,JSON.stringify(data),id],conn);
     if(c.partners?.enabled)await capturePartnerOrder(db,c,{orderId:id,userId:u?.id||null,email:address,items,discount,shipping,attributions:referral.attributions,lineDiscounts:referral.lineDiscounts},conn);
     const message=orderMessage(c,{...data,id,total},guest);await queue(address,message.subject,message.body,conn);

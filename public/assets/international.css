@@ -1,0 +1,13 @@
+.international-selectors{display:flex;align-items:center;gap:6px;flex-wrap:wrap;max-width:100%}
+.international-selectors label{margin:0;min-width:0}
+.international-selectors select{font:inherit;font-size:13px;font-weight:600;background:#fff;color:#211d2d;border:1px solid #dedbe5;border-radius:12px;min-height:44px;padding:8px 22px 8px 10px;max-width:130px;cursor:pointer}
+.international-selectors select:focus-visible{outline:3px solid #8771b9;outline-offset:2px}
+.international-notice{font-size:12px;line-height:1.6;color:#5c5469;background:#f6f4f9;padding:12px;border-radius:12px;margin:12px 0}
+.international-notice a{text-decoration:underline;color:inherit}
+.international-currencies{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px}
+.international-currencies label{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.international-currencies small{flex-basis:100%;color:#625a6c}
+:lang(zh-CN){font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei","Noto Sans CJK SC",sans-serif;word-break:normal;line-break:auto}
+@media(max-width:600px){.international-selectors{gap:4px}.international-selectors select{max-width:102px;font-size:12px;padding-inline:6px}.global-nav .nav-actions{flex-wrap:wrap}.admin-topbar .international-selectors{flex-basis:auto}.international-notice{overflow-wrap:anywhere}}
+
+span.international-notice{display:block}

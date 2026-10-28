@@ -173,7 +173,7 @@ test("customers review private proofs and administrators prepare production with
     await expect(page.locator(".proof-version").last()).toContainText(
       "Proof approved",
     );
-    await page.locator("[data-action=language-switch]").first().click();
+    await page.locator('[data-international-language]').first().selectOption(await page.locator('html').getAttribute('lang')==='ar'?'en':'ar');
     await expect(page).toHaveURL(/\/ar\/track/);
     await expect(page.locator(".customer-production")).toContainText(
       "تمت الموافقة على المعاينة",

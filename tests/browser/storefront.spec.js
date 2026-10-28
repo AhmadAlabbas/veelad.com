@@ -11,7 +11,7 @@ test('destination selection survives reload and language switching without chang
   await page.locator('#modal [data-destination-search]').fill('zzzzzz');await expect(page.locator('#modal [type=submit]')).toBeDisabled();
   await page.locator('#modal [data-destination-search]').fill('United States');await expect(page.locator('#modal select[name=destination] option')).toHaveCount(1);await page.locator('#modal select[name=destination]').selectOption('US');await page.locator('#modal [type=submit]').click();
   await expect(page.locator('.destination-control')).toContainText('الولايات المتحدة');await expect(page.locator('html')).toHaveAttribute('lang','ar');
-  await page.locator('[data-action=language-switch]').first().click();await expect(page.locator('.destination-control')).toContainText('United States');
+  await page.locator('[data-international-language]').first().selectOption(await page.locator('html').getAttribute('lang')==='ar'?'en':'ar');await expect(page.locator('.destination-control')).toContainText('United States');
   await page.reload();await expect(page.locator('.destination-control')).toContainText('United States');
   await page.goto(fixture.origin+'/en/products/p1');await page.locator('.product-purchase [type=submit]').click();
   await page.goto(fixture.origin+'/en/checkout');await page.locator('#checkout-form [name=name]').fill('Keep this name');await page.locator('#checkout-form [name=city]').fill('Keep this city');
@@ -76,7 +76,7 @@ test('customer editor keeps print-side choices, placement controls and bilingual
   await form.locator('[data-ws-surface=front]').click();await expect(form.locator('[name=choice_side][value=front]')).toBeChecked();await expect(form.locator('[data-customer-review-summary]')).toContainText('Front');
   await form.locator('[data-ws-tool=text]').click();await form.locator('[data-ws-add-text=body]').first().click();await form.locator('[data-ws-prop=text]').fill('Independent front artwork');
   const front=JSON.parse(await form.locator('[name=design_studio]').inputValue()).scenes.shirt.front;
-  await form.locator('[name=choice_side][value=back]').check();await page.locator('[data-action=language-switch]').first().click();await expect(form.locator('.design-studio')).toHaveAttribute('data-ready','true');await expect(form.locator('[name=choice_side][value=back]')).toBeChecked();await expect(form.locator('[data-customer-review-summary]')).toContainText('الخلف');
+  await form.locator('[name=choice_side][value=back]').check();await page.locator('[data-international-language]').first().selectOption(await page.locator('html').getAttribute('lang')==='ar'?'en':'ar');await expect(form.locator('.design-studio')).toHaveAttribute('data-ready','true');await expect(form.locator('[name=choice_side][value=back]')).toBeChecked();await expect(form.locator('[data-customer-review-summary]')).toContainText('الخلف');
   const state=JSON.parse(await form.locator('[name=design_studio]').inputValue());expect(state.scenes.shirt.front).toMatchObject(front);expect(state.scenes.shirt.back.layers).toEqual([]);await expect(form.locator('[data-ws-surface=back]')).toHaveAttribute('aria-pressed','true');
   expect(media.some(url=>url.pathname.endsWith('/shirt.json'))).toBe(true);expect(media.some(url=>url.pathname.endsWith('/shirt.webp'))).toBe(true);expect(media.every(url=>url.searchParams.get('v')==='veelad-neutral-2')).toBe(true);
   expect(errors).toEqual([]);

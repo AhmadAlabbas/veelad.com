@@ -75,7 +75,7 @@ test('seven visual categories preserve a sign-in choice, one reusable original a
   await expect(form.locator('[name=preview_accepted]')).not.toBeChecked();
   await form.locator('[data-ws-tool=layers]').click();await form.locator('[data-ws-select]').first().click();
   await expect(form.locator('[data-ws-prop=rotation]')).toHaveValue('3');
-  await page.locator('[data-action=language-switch]').first().click();await expect(page).toHaveURL(/\/ar\/create/);await expect(page.locator('html')).toHaveAttribute('dir','rtl');
+  await page.locator('[data-international-language]').first().selectOption(await page.locator('html').getAttribute('lang')==='ar'?'en':'ar');await expect(page).toHaveURL(/\/ar\/create/);await expect(page.locator('html')).toHaveAttribute('dir','rtl');
   await expect(form.locator('[name=product_id]')).toHaveValue(ids.shirt);await expect(form.locator('[name=customer_category]:checked')).toHaveValue('shirt');
   await expect(page.locator('#customer-items-title')).toHaveText('وش ودّك تصمّم؟');
   await form.locator('[data-ws-tool=layers]').click();await form.locator('[data-ws-select]').first().click();

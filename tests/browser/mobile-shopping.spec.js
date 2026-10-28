@@ -90,7 +90,7 @@ for(const width of [320,390])test(`mobile product choices stay visible and reach
   await page.evaluate(()=>scrollTo(0,0));
   await page.screenshot({path:testInfo.outputPath(`product-first-viewport-${language}-${width}.png`)});
   if(language==='en'){
-   await page.locator('[data-action=language-switch]').click();await expect(page).toHaveURL('/ar/products/p1');
+   await page.locator('[data-international-language]').first().selectOption(await page.locator('html').getAttribute('lang')==='ar'?'en':'ar');await expect(page).toHaveURL('/ar/products/p1');
    await expect(page.getByRole('radio',{name:'XL',exact:true})).toBeChecked();
   }
  }

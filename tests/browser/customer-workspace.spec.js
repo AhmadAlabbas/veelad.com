@@ -218,7 +218,7 @@ test("layered workspace keeps multiple originals and independent sides through e
     expect(await scene("back")).toMatchObject(back);
     await shell.locator("[data-ws-surface=front]").click();
     await expect(shell.locator("[data-ws-layer]")).toHaveCount(4);
-    await page.locator("[data-action=language-switch]").first().click();
+    await page.locator('[data-international-language]').first().selectOption(await page.locator('html').getAttribute('lang')==='ar'?'en':'ar');
     await expect(page).toHaveURL(/\/ar\/create/);
     await expect(form.locator(".design-studio")).toHaveAttribute("data-ready", "true");
     await expect(page.locator("html")).toHaveAttribute("dir", "rtl");

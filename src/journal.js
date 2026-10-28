@@ -1,11 +1,12 @@
+import {interfaceText} from './international-locales.js';
 import {publicArtistProfile} from './artist-profiles.js';
 import sanitizeHtml from 'sanitize-html';
 import sharp from 'sharp';
 import {fail,uid,now,text,integer,json,product} from './security.js';
 import {artworkPreview} from './artwork.js';
 
-export const journalPath=(locale,slug='')=>(locale==='ar'?'/ar':'')+'/journal'+(slug?'/'+encodeURIComponent(slug):'');
-export const journalLocale=value=>value==='ar'?'ar':'en';
+export const journalPath=(locale,slug='')=>(journalLocale(locale)==='en'?'':'/'+journalLocale(locale))+'/journal'+(slug?'/'+encodeURIComponent(slug):'');
+export const journalLocale=value=>['en','ar','zh-CN'].includes(value)?value:'en';
 export const publicJournalWhere="a.archived=0 AND t.status='published'";
 const join=' FROM journal_translations t JOIN journal_articles a ON a.id=t.article_id LEFT JOIN journal_categories cat ON cat.id=a.category_id LEFT JOIN journal_authors au ON au.id=a.author_id ';
 const columns='t.article_id,t.locale,t.slug,t.title,t.summary,t.status,t.publish_at,t.published_at,t.data AS translation_data,a.author_id,a.category_id,a.featured,a.updated_at,cat.name AS category_name,cat.name_ar AS category_name_ar,au.name AS author_name,au.name_ar AS author_name_ar';
@@ -16,7 +17,7 @@ export function sanitizeJournalContent(value){
 }
 function listIds(value,max=8){if(!Array.isArray(value)||value.length>max)fail(422,'Choose up to '+max+' items.');return [...new Set(value.map(id=>text({id},'id',64)))];}
 function slugValue(value){const slug=String(value||'').trim().toLowerCase();if(!/^[\p{L}\p{N}]+(?:-[\p{L}\p{N}]+)*$/u.test(slug)||[...slug].length>140)fail(422,'Use a short URL slug with letters, numbers and hyphens.');return slug;}
-function translated(row){return {...row,...json(row.translation_data||'{}'),category:row.locale==='ar'?row.category_name_ar:row.category_name,author:row.locale==='ar'?row.author_name_ar||row.author_name:row.author_name,url:journalPath(row.locale,row.slug)};}
+function translated(row){return {...row,...json(row.translation_data||'{}'),category:interfaceText(row.locale,row.category_name,row.category_name_ar||row.category_name),author:row.locale==='ar'?row.author_name_ar||row.author_name:row.author_name,url:journalPath(row.locale,row.slug)};}
 export async function journalLookups(db){return {categories:await db.q('SELECT * FROM journal_categories ORDER BY sort_order,id'),authors:await db.q('SELECT * FROM journal_authors ORDER BY name,id')};}
 export async function journalList(db,locale,query={}){
  const page=integer(Number(query.page||1),1,10000,'page'),conditions=[publicJournalWhere,'t.locale=?'],args=[locale];
@@ -25,7 +26,7 @@ export async function journalList(db,locale,query={}){
  if(query.q){conditions.push('(t.title LIKE ? OR t.summary LIKE ?)');const term='%'+text(query,'q',120).replace(/[\\%_]/g,'\\$&')+'%';args.push(term,term);}
  const where=' WHERE '+conditions.join(' AND '),total=Number((await db.one('SELECT COUNT(*) AS total'+join+where,args)).total);
  const rows=await db.q('SELECT '+columns+join+where+' ORDER BY t.published_at DESC,t.article_id LIMIT 12 OFFSET '+((page-1)*12),args);
- const sections={},shown=new Set(rows.map(row=>row.article_id));
+ const sections={},shown=new Set();
  if(page===1&&!query.q&&!query.category&&!query.author&&!query.tag){
   for(const [key,condition] of [['featured','a.featured=1'],['artists',"a.category_id='artist-stories'"],['style',"a.category_id IN ('fashion-style','styling-guides','streetwear')"]]){const excluded=key==='featured'?[]:[...shown];sections[key]=(await db.q('SELECT '+columns+join+' WHERE '+publicJournalWhere+' AND t.locale=? AND '+condition+(excluded.length?' AND a.id NOT IN ('+excluded.map(()=>'?').join(',')+')':'')+' ORDER BY t.published_at DESC,t.article_id LIMIT '+(key==='featured'?1:3),[locale,...excluded])).map(translated);for(const item of sections[key])shown.add(item.article_id);}
  }
@@ -48,7 +49,7 @@ export async function getJournalDraft(db,id){
  return {...article,...relations,relation_names,translations:(await db.q('SELECT * FROM journal_translations WHERE article_id=?',[id])).map(t=>({...t,...json(t.data)}))};
 }
 export async function saveJournalArticle(db,v,user,audit=async()=>{}){
- if(!['en','ar'].includes(v.locale))fail(422,'Choose English or Arabic.');
+ if(!['en','ar','zh-CN'].includes(v.locale))fail(422,'Choose a supported language.');
  const locale=journalLocale(v.locale),id=text(v,'id',64),translation=v.translation||{},status=text(translation,'status',16),date=now();
  if(!['draft','published','scheduled'].includes(status))fail(422,'Choose a valid publication status.');
  const title=text(translation,'title',700,false),slug=slugValue(translation.slug||id+'-'+locale),summary=text(translation,'summary',2000,false);
@@ -113,7 +114,7 @@ export async function journalRoute(ctx){
   if(route==='admin-journal-article'){res.json({article:await getJournalDraft(db,text(req.query,'id',64)),...await journalLookups(db)});return true;}
   if(route==='admin-journal-relations'){
    const term='%'+text(req.query,'q',120,false).replace(/[\\%_]/g,'\\$&')+'%';
-   res.json({products:(await db.q("SELECT p.* FROM products p LEFT JOIN users u ON u.id=p.artist_id WHERE p.status='active' AND (u.id IS NULL OR u.status='active') AND (JSON_UNQUOTE(JSON_EXTRACT(p.data,'$.title')) LIKE ? OR JSON_UNQUOTE(JSON_EXTRACT(p.data,'$.title_ar')) LIKE ?) LIMIT 20",[term,term])).map(product),artists:(await db.q("SELECT ar.id,ar.data FROM artists ar LEFT JOIN users u ON u.id=ar.id WHERE (u.id IS NULL OR u.status='active') AND (JSON_UNQUOTE(JSON_EXTRACT(ar.data,'$.name')) LIKE ? OR JSON_UNQUOTE(JSON_EXTRACT(ar.data,'$.name_ar')) LIKE ?) LIMIT 20",[term,term])).map(r=>publicArtistProfile({...json(r.data),id:r.id}))});return true;
+   res.json({products:(await db.q("SELECT p.* FROM products p LEFT JOIN users u ON u.id=p.artist_id WHERE p.status='active' AND (u.id IS NULL OR u.status='active') AND (JSON_UNQUOTE(JSON_EXTRACT(p.data,'$.title')) LIKE ? OR JSON_UNQUOTE(JSON_EXTRACT(p.data,'$.title_ar')) LIKE ? OR JSON_UNQUOTE(JSON_EXTRACT(p.data,'$.title_zh')) LIKE ?) LIMIT 20",[term,term,term])).map(product),artists:(await db.q("SELECT ar.id,ar.data FROM artists ar LEFT JOIN users u ON u.id=ar.id WHERE (u.id IS NULL OR u.status='active') AND (JSON_UNQUOTE(JSON_EXTRACT(ar.data,'$.name')) LIKE ? OR JSON_UNQUOTE(JSON_EXTRACT(ar.data,'$.name_ar')) LIKE ?) LIMIT 20",[term,term])).map(r=>publicArtistProfile({...json(r.data),id:r.id}))});return true;
   }
  }
  if(method==='POST'){
@@ -123,7 +124,7 @@ export async function journalRoute(ctx){
   }
   if(route==='admin-journal-save'){res.json(await saveJournalArticle(db,v,user,audit));return true;}
   if(route==='admin-journal-media'){
-   if(!['en','ar'].includes(v.locale))fail(422,'Choose English or Arabic.');
+   if(!['en','ar','zh-CN'].includes(v.locale))fail(422,'Choose a supported language.');
    const id=text(v,'id',64),upload=text(v,'upload_id',64),locale=journalLocale(v.locale);
    if(!await db.one('SELECT id FROM journal_articles WHERE id=?',[id]))fail(404,'Article not found.');
    if(!await db.one('SELECT id FROM uploads WHERE id=? AND user_id=?',[upload,user.id]))fail(403,'Only your own uploaded images can be added.');

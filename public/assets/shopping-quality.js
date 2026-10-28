@@ -1,7 +1,7 @@
 /* Shared shopping decisions, protected quick layouts and opt-in aggregate insight. */
 'use strict';
 window.VeeladShop=(()=>{
- const say=(en,ar)=>currentLanguage()==='ar'?ar:en,e=value=>esc(value??''),prefKey='shopping-measurement',returnKey='veelad-quick-return';
+ const say=(en,ar)=>currentLanguage()==='ar'?ar:t(en),e=value=>esc(value??''),prefKey='shopping-measurement',returnKey='veelad-quick-return';
  const labels={product_view:['Product views','مشاهدات المنتجات'],personalisation_start:['Personalisation started','بدايات التخصيص'],design_saved:['Designs saved','التصاميم المحفوظة'],cart_add:['Items added to bag','الإضافات للسلة'],cart_view:['Bag views','مشاهدات السلة'],checkout_view:['Order form views','مشاهدات نموذج الطلب'],order_received:['Orders received','الطلبات المستلمة'],request_error:['Request errors','أخطاء الطلبات'],render_error:['Page errors','أخطاء الصفحات'],page_ready:['Page loads measured','تحميلات الصفحات المقاسة']};
  const checks={english_copy:['Clear English copy','وصف إنجليزي واضح'],arabic_copy:['Clear Arabic copy','وصف عربي واضح'],preview:['Product preview','معاينة المنتج'],discovery:['Tags and design style','الوسوم ونوع التصميم'],specifications:['Materials, dimensions and care','الخامة والأبعاد والعناية'],final_price:['Final selling price','سعر بيع نهائي'],options:['Product options','خيارات المنتج']};
  let pending=[],flushTimer=null,started=0,firstRoute=true,lastVisit='',quick=null,routeToken=0;
