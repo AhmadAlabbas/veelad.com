@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 import {fail,hash,equal,uid,now,product,safeUser} from './security.js';
 import {verifiedEmail} from './email-verification.js';
 import {queueMail,recipientAllowed,mailStatus} from './mail.js';
+import {languageCodes,translatedField} from './international-locales.js';
 
 const parse=value=>typeof value==='string'?JSON.parse(value):value;
 const fields={name:100,name_ar:100,bio:500,bio_ar:500,location:100,location_ar:100,story:3000,story_ar:3000};
@@ -59,8 +60,8 @@ export async function runArtistUpdates(c,db){
     if(follow.status!=='active')continue;
     const id=hash(follow.user_id+'|'+p.id),insert=await db.q('INSERT IGNORE INTO artist_notifications VALUES (?,?,?,?,NULL,0,?)',[id,follow.user_id,release.artist_id,p.id,now()],conn);if(!insert.affectedRows)continue;
     if(follow.email_updates&&mailStatus(c).ready&&recipientAllowed(c,follow.email)&&await verifiedEmail(db,{id:follow.user_id,email:follow.email},conn)){
-     const ar=follow.language==='ar',name=ar?a.name_ar||a.name:a.name,title=ar?p.title_ar||p.title:p.title,link=c.origin+'/'+follow.language+'/products/'+encodeURIComponent(p.id),stop=artistUnsubscribeLink(c,follow);
-     const mail=await queueMail(c,db,follow.email,ar?'تصميم جديد من '+name:'New work from '+name,ar?`يا هلا،\n\n${name} نشر تصميمًا جديدًا: ${title}\n${link}\n\nوصلك هذا البريد لأنك اخترت تحديثات هذا الفنان. لإيقاف رسائله:\n${stop}`:`${name} has published new work: ${title}\n${link}\n\nYou opted in to email updates from this artist. Stop these emails:\n${stop}`,conn,{kind:'artist-update',expires:Math.floor(Date.now()/1000)+7*86400});
+     const ar=follow.language==='ar',zh=follow.language==='zh-CN',name=translatedField(a,'name',follow.language),title=translatedField(p,'title',follow.language),link=c.origin+'/'+follow.language+'/products/'+encodeURIComponent(p.id),stop=artistUnsubscribeLink(c,follow);
+     const mail=await queueMail(c,db,follow.email,zh?name+' 发布了新作品':ar?'تصميم جديد من '+name:'New work from '+name,zh?`${name} 发布了新作品：${title}\n${link}\n\n你收到此邮件，是因为你订阅了这位艺术家的作品更新。取消订阅：\n${stop}`:ar?`يا هلا،\n\n${name} نشر تصميمًا جديدًا: ${title}\n${link}\n\nوصلك هذا البريد لأنك اخترت تحديثات هذا الفنان. لإيقاف رسائله:\n${stop}`:`${name} has published new work: ${title}\n${link}\n\nYou opted in to email updates from this artist. Stop these emails:\n${stop}`,conn,{kind:'artist-update',expires:Math.floor(Date.now()/1000)+7*86400});
      await db.q('UPDATE artist_notifications SET mail_id=? WHERE id=?',[mail,id],conn);
     }
     processed++;
@@ -115,7 +116,7 @@ export async function artistProfileRoute({route,method,v,req,res,db,c,me,role,th
   if(v.following&&v.email_updates&&(!await verifiedEmail(db,user)||!mailStatus(c).ready||!recipientAllowed(c,user.email)))fail(422,'Verify your email and confirm delivery is available before enabling artist emails.');
   await db.tx(async conn=>{
    await db.one('SELECT id FROM users WHERE id=? FOR UPDATE',[user.id],conn);
-   if(v.following){const count=await db.one('SELECT COUNT(*) AS total FROM artist_follows WHERE user_id=?',[user.id],conn);if(Number(count.total)>=500&&!await db.one('SELECT user_id FROM artist_follows WHERE user_id=? AND artist_id=?',[user.id,id],conn))fail(422,'You can follow up to 500 artists.');await db.q('INSERT INTO artist_follows VALUES (?,?,?,?,?) ON DUPLICATE KEY UPDATE email_updates=VALUES(email_updates),language=VALUES(language)',[user.id,id,v.email_updates?1:0,v.language==='ar'?'ar':'en',now()],conn);}
+   if(v.following){const count=await db.one('SELECT COUNT(*) AS total FROM artist_follows WHERE user_id=?',[user.id],conn);if(Number(count.total)>=500&&!await db.one('SELECT user_id FROM artist_follows WHERE user_id=? AND artist_id=?',[user.id,id],conn))fail(422,'You can follow up to 500 artists.');await db.q('INSERT INTO artist_follows VALUES (?,?,?,?,?) ON DUPLICATE KEY UPDATE email_updates=VALUES(email_updates),language=VALUES(language)',[user.id,id,v.email_updates?1:0,languageCodes.includes(v.language)?v.language:'en',now()],conn);}
    else await db.q('DELETE FROM artist_follows WHERE user_id=? AND artist_id=?',[user.id,id],conn);
    if(!v.following||!v.email_updates)await cancelUpdates(db,user.id,id,conn);
   });res.json({following:v.following,email_updates:v.following&&v.email_updates});return true;
@@ -123,7 +124,7 @@ export async function artistProfileRoute({route,method,v,req,res,db,c,me,role,th
  if(route==='artist-following'&&method==='GET'){
   const user=await me(req,true),follows=await db.q("SELECT f.artist_id,f.email_updates FROM artist_follows f JOIN artists a ON a.id=f.artist_id LEFT JOIN users u ON u.id=f.artist_id WHERE f.user_id=? AND (u.id IS NULL OR u.status='active') ORDER BY f.created_at DESC LIMIT 500",[user.id]);
   const notifications=await db.q("SELECT n.id,n.artist_id,n.product_id,n.is_read,n.created_at,p.data FROM artist_notifications n JOIN products p ON p.id=n.product_id JOIN artist_follows f ON f.user_id=n.user_id AND f.artist_id=n.artist_id LEFT JOIN users a ON a.id=n.artist_id WHERE n.user_id=? AND p.status='active' AND p.artist_id=n.artist_id AND (a.id IS NULL OR a.status='active') ORDER BY n.created_at DESC,n.id DESC LIMIT 30",[user.id]);
-  res.json({follows:follows.map(row=>({...row,email_updates:!!row.email_updates})),notifications:notifications.map(row=>{const p=parse(row.data);return{id:row.id,artist_id:row.artist_id,product_id:row.product_id,title:p.title,title_ar:p.title_ar||'',is_read:!!row.is_read,created_at:row.created_at};})});return true;
+  res.json({follows:follows.map(row=>({...row,email_updates:!!row.email_updates})),notifications:notifications.map(row=>{const p=parse(row.data);return{id:row.id,artist_id:row.artist_id,product_id:row.product_id,title:p.title,title_ar:p.title_ar||'',title_zh:p.title_zh||'',is_read:!!row.is_read,created_at:row.created_at};})});return true;
  }
  if(route==='artist-notifications-read'&&method==='POST'){const user=await me(req,true);const list=ids(v.ids,30,'notifications');for(const id of list)await db.q('UPDATE artist_notifications SET is_read=1 WHERE id=? AND user_id=?',[id,user.id]);res.json({ok:true});return true;}
  fail(405,'Choose a supported profile action.');

@@ -35,6 +35,8 @@ test('all 27 language/currency combinations retain the product and use the expec
    }
   }
   await expect(page.locator('.product-info h1')).toHaveText('星空原创设计');
+  await expect(page.locator('.destination-control')).toContainText('沙特阿拉伯');
+  await page.locator('.destination-control').click();await page.locator('[data-destination-search]').fill('中国');await expect(page.locator('[name=destination]')).toContainText('中国');await page.locator('#modal [data-action=close-modal]').first().click();
   await page.reload();await ready(page);await expect(page.locator('[data-international-currency]').first()).toHaveValue('GBP');await expect(page.locator('html')).toHaveAttribute('lang','zh-CN');
   await page.screenshot({path:info.outputPath('international-product-zh-CN.png'),fullPage:true});
   for(const path of ['/zh-CN','/zh-CN/journal','/ar/journal']){await page.goto(f.origin+path);await ready(page);await fits(page);}

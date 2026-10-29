@@ -5,9 +5,9 @@ function discoverProducts(catalog,profiles,values) {
  const styles=typeof designStyles==='undefined'?[]:designStyles;
  const result=catalog.filter(p=>{
   const a=profiles.find(a=>a.id===p.artist_id)||{};
-  const styleNames=styles.filter(style=>(p.design_styles||[]).includes(style.id)).flatMap(style=>[style.title,style.title_ar]);
-  const haystack=searchText([p.title,p.title_ar,p.description,p.description_ar,p.category,t(p.category),a.name,a.name_ar,...styleNames,...(p.tags||[]),...(p.tags_ar||[]),...(p.variants||[])].join(' '));
-  return (!values.style||(p.design_styles||[]).includes(values.style))&&(!values.category||p.category===values.category)&&(!values.artist||p.artist_id===values.artist)&&p.price>=min*100&&p.price<=max*100&&terms.every(t=>haystack.includes(t))&&(!values.tag||(p.tags||[]).includes(values.tag)||(p.tags_ar||[]).includes(values.tag))&&(!values.availability||(values.availability==='in_stock'?p.stock>0:p.stock===0));
+  const styleNames=styles.filter(style=>(p.design_styles||[]).includes(style.id)).flatMap(style=>[style.title,style.title_ar,style.title_zh]);
+  const haystack=searchText([p.title,p.title_ar,p.title_zh,p.description,p.description_ar,p.description_zh,p.category,t(p.category),a.name,a.name_ar,a.name_zh,...styleNames,...(p.tags||[]),...(p.tags_ar||[]),...(p.tags_zh||[]),...(p.variants||[])].join(' '));
+  return (!values.style||(p.design_styles||[]).includes(values.style))&&(!values.category||p.category===values.category)&&(!values.artist||p.artist_id===values.artist)&&p.price>=min*100&&p.price<=max*100&&terms.every(t=>haystack.includes(t))&&(!values.tag||(p.tags||[]).includes(values.tag)||(p.tags_ar||[]).includes(values.tag)||(p.tags_zh||[]).includes(values.tag))&&(!values.availability||(values.availability==='in_stock'?p.stock>0:p.stock===0));
  });
  if(values.sort==='low')result.sort((a,b)=>a.price-b.price);
  if(values.sort==='high')result.sort((a,b)=>b.price-a.price);
