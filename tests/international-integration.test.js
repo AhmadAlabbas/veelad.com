@@ -4,7 +4,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {journalFixture} from './helpers/journal-app.js';
 import {refreshExchangeRates} from '../src/international.js';
-import {convertBreakdown} from '../public/assets/currency-core.mjs';
+import {convertBreakdown} from '../public/assets/currency-core.js';
 import {recoveryMessage} from '../src/email-verification.js';
 import {orderMessage} from '../src/order-mail.js';
 const rates={SAR:1,AED:0.99,BHD:0.1005,KWD:0.08123,OMR:0.1026,QAR:0.9708,EUR:0.25,USD:0.266666666667,GBP:0.2};

@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {CURRENCIES,convertMinor,convertBreakdown,formatMinor,decimalRate} from '../public/assets/currency-core.mjs';
+import {CURRENCIES,convertMinor,convertBreakdown,formatMinor,decimalRate} from '../public/assets/currency-core.js';
 import {validateRateResponse,validateInternationalSettings,orderCurrencySnapshot,paymentCapabilities} from '../src/international.js';
 
 // Deterministic arithmetic fixtures, not provider rates and never public seed data.

@@ -1,4 +1,4 @@
-import {CURRENCIES,LANGUAGES,decimalRate,convertBreakdown} from '../public/assets/currency-core.mjs';
+import {CURRENCIES,LANGUAGES,decimalRate,convertBreakdown} from '../public/assets/currency-core.js';
 import {fail,uid} from './security.js';
 
 const parse=value=>{if(value&&typeof value==='object'&&!Array.isArray(value))return value;try{return JSON.parse(value||'{}');}catch{return {};}};

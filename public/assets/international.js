@@ -3,7 +3,7 @@ window.VeeladInternational=(()=>{
  let core=null,status=null,preference='SAR';
  try{preference=localStorage.getItem('veelad-currency')||'SAR';}catch{}
  const version=new URL(document.currentScript.src).search;
- const ready=Promise.all([import('/assets/currency-core.mjs'+version),fetch('/assets/locales/zh-CN.json'+version).then(response=>{if(!response.ok)throw Error('Translation library unavailable.');return response.json();})]).then(([value,chinese])=>{core=value;translations['zh-CN']=chinese;});
+ const ready=Promise.all([import('/assets/currency-core.js'+version),fetch('/assets/locales/zh-CN.json'+version).then(response=>{if(!response.ok)throw Error('Translation library unavailable.');return response.json();})]).then(([value,chinese])=>{core=value;translations['zh-CN']=chinese;});
  const names={en:'English',ar:'العربية','zh-CN':'简体中文'};
  async function load(value,accountCurrency){await ready;status=value;if(accountCurrency)preference=accountCurrency;if(!Object.hasOwn(core.CURRENCIES,preference))preference='SAR';}
  function selected(){return preference;}

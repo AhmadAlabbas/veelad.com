@@ -1,7 +1,7 @@
 import {test,expect} from '@playwright/test';
 import {journalFixture,journalPassword} from '../helpers/journal-app.js';
 import {refreshExchangeRates} from '../../src/international.js';
-import {CURRENCIES,convertMinor,formatMinor} from '../../public/assets/currency-core.mjs';
+import {CURRENCIES,convertMinor,formatMinor} from '../../public/assets/currency-core.js';
 try{process.loadEnvFile('.env');}catch(error){if(error.code!=='ENOENT')throw error;}
 // Deterministic conversion fixtures, never written to staging or used as real rates.
 const rates={SAR:1,AED:0.99,BHD:0.1005,KWD:0.08123,OMR:0.1026,QAR:0.9708,EUR:0.25,USD:0.266666666667,GBP:0.2};
