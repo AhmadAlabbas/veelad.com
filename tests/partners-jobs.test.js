@@ -19,6 +19,20 @@ test('campaign notifications honor opt-in and campaign membership and retry with
  }finally{await fixture.close();}
 });
 
+test('Chinese campaign notifications preserve original terms, Chinese links and once-only delivery',async()=>{
+ const fixture=await googleApp({partners:{enabled:true}}),{db}=fixture;
+ try{
+  const id='chinese-partner';
+  await db.q('INSERT INTO users VALUES (?,?,?,?,?,?,?)',[id,id,id+'@example.test','not-a-login-hash','buyer','active',now()]);
+  await db.q('INSERT INTO partners_profiles VALUES (?,?,?,?,?,?)',[id,'approved',null,JSON.stringify({locale:'zh-CN',email_campaigns:true}),now(),now()]);
+  await db.q('INSERT INTO partners_campaigns VALUES (?,?,?,?,?,?,0,?,?,?)',['chinese-campaign','Original campaign title','active',null,null,null,JSON.stringify({terms:'Original terms must remain unchanged.'}),now(),now()]);
+  assert.equal((await runPartnerCampaignNotifications(fixture.config,db)).notified,1);
+  assert.equal((await runPartnerCampaignNotifications(fixture.config,db)).notified,0);
+  const notice=JSON.parse((await db.one('SELECT data FROM partners_notifications WHERE user_id=?',[id])).data);
+  assert.equal(notice.locale,'zh-CN');assert.match(notice.subject,/新活动/);assert.match(notice.body,/Original terms must remain unchanged/);assert.match(notice.body,/\/zh-CN\/partners\/products/);
+ }finally{await fixture.close();}
+});
+
 test('privacy maintenance removes expired identifiers and old anonymous clicks while retaining financial references',async()=>{
  const fixture=await googleApp({partners:{enabled:true}}),{db}=fixture;
  try{

@@ -20,7 +20,9 @@ test('signing in from a fresh login page preserves the guest bag when products w
  try{
   await f.db.q('INSERT INTO users VALUES (?,?,?,?,?,?,?)',['bag-buyer','Bag fixture','bag@example.test',await passwordHash(password),'buyer','active',now()]);
   await page.goto(f.origin+'/en/products/p1');await page.getByRole('radio',{name:'M',exact:true}).check();await page.locator('[data-form=add-to-bag] [type=submit]').click();
-  const boot=page.waitForResponse(r=>r.url().includes('route=bootstrap'));await page.goto(f.origin+'/en/login');expect((await(await boot).json()).products).toBeNull();
+  // Ignore a refresh still in flight from adding to the bag on the previous page.
+  // Match the deferred login bootstrap and read its body before navigation can discard it.
+  const boot=page.waitForResponse(r=>r.url().includes('route=bootstrap')&&r.request().headers()['x-veelad-catalogue']==='deferred').then(r=>r.json());await page.goto(f.origin+'/en/login');expect((await boot).products).toBeNull();
   await page.locator('[data-form=login] [name=email]').fill('bag@example.test');await page.locator('[data-form=login] [name=password]').fill(password);await page.locator('[data-form=login] [type=submit]').click();await expect(page).toHaveURL(/\/en\/account/);
   await page.goto(f.origin+'/en/bag');await expect(page.locator('.bag-item')).toContainText('M · by Mira Studio');await expect(page.locator('.cart-quantity')).toHaveText('1');
   const state=await page.evaluate(()=>api('state'));expect(state.cart).toHaveLength(1);expect(state.cart[0].id).toBe('p1');

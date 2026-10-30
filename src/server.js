@@ -1,3 +1,4 @@
+import {refreshExchangeRates} from './international.js';
 import {publishScheduledJournal} from './journal.js';
 import {runArtistUpdates} from './artist-profiles.js';
 import {runShoppingRetention} from './shopping-quality.js';
@@ -130,11 +131,13 @@ const creativeTimer=setInterval(async()=>{if(creativeRunning||schema.status!=='r
 const shoppingTimer=setInterval(()=>{if(schema.status==='ready'&&c.shoppingEnabled)runShoppingRetention(db).catch(()=>console.error('Shopping retention check failed.'));},3600000);
 let artistUpdatesRunning=false;
 const artistUpdatesTimer=setInterval(async()=>{if(artistUpdatesRunning||schema.status!=='ready'||!c.artistProfilesEnabled)return;artistUpdatesRunning=true;try{await runArtistUpdates(c,db);}catch{console.error('Artist updates check failed.');}finally{artistUpdatesRunning=false;}},60000);
+let fxRunning=false;
+const fxTimer=setInterval(async()=>{if(fxRunning||schema.status!=='ready'||!c.international.fxEnabled)return;fxRunning=true;try{await refreshExchangeRates(c,db);}catch{console.error('Currency refresh failed; inspect International Settings.');}finally{fxRunning=false;}},60000);
 let journalRunning=false;
 const journalTimer=setInterval(async()=>{if(journalRunning||schema.status!=='ready'||!c.marketplaceEnabled)return;journalRunning=true;try{await publishScheduledJournal(db);}catch(error){console.error('Journal schedule check failed:',/^ER_[A-Z_]+$/.test(error.code||'')?error.code:'JOURNAL_SCHEDULE_FAILED');}finally{journalRunning=false;}},60000);
 let worker;
 if(mailStatus(c).ready) worker=setInterval(()=>{
  if(schema.status==='ready') work(c,db).catch(()=>console.error('Email worker failed; inspect provider configuration'));
 },c.workerInterval*1000);
-async function stop() {clearInterval(journalTimer);clearInterval(artistUpdatesTimer);clearInterval(shoppingTimer);clearInterval(creativeTimer);clearInterval(operationsTimer);clearInterval(partnersTimer);clearInterval(worker);server.close(async()=>{await app.locals.sessionStore.close();await db.pool.end();process.exit(0);});setTimeout(()=>process.exit(1),10000).unref();}
+async function stop() {clearInterval(fxTimer);clearInterval(journalTimer);clearInterval(artistUpdatesTimer);clearInterval(shoppingTimer);clearInterval(creativeTimer);clearInterval(operationsTimer);clearInterval(partnersTimer);clearInterval(worker);server.close(async()=>{await app.locals.sessionStore.close();await db.pool.end();process.exit(0);});setTimeout(()=>process.exit(1),10000).unref();}
 process.on('SIGTERM',stop);process.on('SIGINT',stop);

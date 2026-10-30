@@ -3,7 +3,7 @@
 window.VeeladPartners = (() => {
   let quoteCache=null,pickerTimer=null,pickerVersion=0,pickerPage=0,pickerSearch='';
   let data = {}, activeRoute = '', activeParams = new URLSearchParams();
-  const say = (en, ar) => currentLanguage() === 'ar' ? ar : en;
+  const say = (en, ar) => currentLanguage() === 'ar' ? ar : t(en);
   const e = value => esc(value);
   const num = value => localNumber(Number(value || 0));
   const cash = value => money(Number(value || 0));

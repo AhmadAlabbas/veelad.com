@@ -64,7 +64,10 @@ test('payouts reserve actual entitlement, require a receipt and separate reconci
   let evidenceDigest,batchId;
   await t.test('unprivileged admins cannot approve; approved requests are not paid',async()=>{
    assert.equal((await ordinary.call('admin-partners-payout',{id:payoutId,action:'approve',current_password:pw})).status,403);
+   await db.q('UPDATE partners_profiles SET data=? WHERE user_id=?',[JSON.stringify({locale:'zh-CN'}),'owner']);
    const approved=await success(finance,'admin-partners-payout',{id:payoutId,action:'approve',current_password:pw});assert.equal(approved.payout.status,'approved');assert.equal((await db.one('SELECT paid_minor FROM partners_commissions WHERE id=?',['earned'])).paid_minor,0);
+   const approvalNotice=JSON.parse((await db.one('SELECT data FROM partners_notifications WHERE event_key=?',['payout:'+payoutId+':approved'])).data);assert.equal(approvalNotice.locale,'zh-CN');assert.match(approvalNotice.body,/并不代表银行转账已完成/);assert.match(approvalNotice.body,/\/zh-CN\/partners\/payouts/);
+   await db.q('UPDATE partners_profiles SET data=? WHERE user_id=?',[JSON.stringify({locale:'ar'}),'owner']);
    const batch=await success(finance,'admin-partners-payout-batch',{period:now().slice(0,7),current_password:pw});batchId=batch.batch.id;
    assert.equal((await finance.call('admin-partners-payout-export',undefined,{batch:batchId})).status,403);
    await success(finance,'admin-partners-authorize-export',{current_password:pw});const exported=await success(finance,'admin-partners-payout-export',undefined,{batch:batchId});assert.match(exported,new RegExp(iban));

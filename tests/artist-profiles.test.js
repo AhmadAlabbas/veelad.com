@@ -71,6 +71,20 @@ test('following is private, email is an explicit verified preference, publicatio
  }finally{await f.close();}
 });
 
+test('Chinese follow preferences persist and localize publication email and inbox without changing the artwork',async()=>{
+ const f=await fixture();try{
+  const call=f.users.buyer.call;
+  const original=JSON.parse((await f.db.one('SELECT data FROM products WHERE id=?',['p1'])).data);
+  await f.db.q('UPDATE products SET data=? WHERE id=?',[JSON.stringify({...original,title_zh:'阳光与海洋'}),'p1']);
+  await ok(call,'artist-follow',{id:'artist-1',following:true,email_updates:true,language:'zh-CN'});
+  const follow=await f.db.one('SELECT * FROM artist_follows WHERE user_id=? AND artist_id=?',['profile-buyer','artist-1']);assert.equal(follow.language,'zh-CN');
+  await recordArtistRelease(f.db,f.config,'p1','artist-1');await runArtistUpdates(f.config,f.db);await runArtistUpdates(f.config,f.db);
+  const messages=await f.db.q("SELECT m.* FROM mail_queue m JOIN mail_delivery d ON d.id=m.id WHERE d.kind='artist-update'");assert.equal(messages.length,1);assert.match(messages[0].body,/阳光与海洋/);assert.match(messages[0].body,/取消订阅/);assert.match(messages[0].body,/\/zh-CN\/products\/p1/);
+  assert.match(artistUnsubscribeLink(f.config,follow),/\/zh-CN\/account/);
+  const inbox=await ok(call,'artist-following');assert.equal(inbox.notifications[0].title_zh,'阳光与海洋');assert.equal(inbox.notifications[0].title,original.title);
+ }finally{await f.close();}
+});
+
 test('the mail worker rechecks consent and product visibility immediately before sending; staging keeps its recipient restriction',async()=>{
  const f=await fixture();try{
   const call=f.users.buyer.call;await ok(call,'artist-follow',{id:'artist-1',following:true,email_updates:true});await recordArtistRelease(f.db,f.config,'p1','artist-1');await runArtistUpdates(f.config,f.db);

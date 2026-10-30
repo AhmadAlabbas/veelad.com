@@ -2,15 +2,15 @@
 'use strict';
 const translations = window.VEELAD_LOCALES || { en: {}, ar: {} };
 let veeladLanguage = (() => {
-  const prefix = location.pathname.match(/^\/(ar|en)(?:\/|$)/)?.[1];
+  const prefix = location.pathname.match(/^\/(ar|en|zh-CN)(?:\/|$)/)?.[1];
   if (prefix) return prefix;
   const demoLanguage = new URLSearchParams(location.hash.split('?')[1] || '').get('lang');
-  if (['ar', 'en'].includes(demoLanguage)) return demoLanguage;
-  try { return localStorage.getItem('veelad-language') === 'ar' ? 'ar' : 'en'; } catch { return 'en'; }
+  if (['ar', 'en', 'zh-CN'].includes(demoLanguage)) return demoLanguage;
+  try { const stored=localStorage.getItem('veelad-language');return ['en','ar','zh-CN'].includes(stored)?stored:'en'; } catch { return 'en'; }
 })();
 function currentLanguage() { return veeladLanguage; }
 function setLanguage(language) {
-  veeladLanguage = language === 'ar' ? 'ar' : 'en';
+  veeladLanguage = ['en','ar','zh-CN'].includes(language)?language:'en';
   document.documentElement.lang = veeladLanguage;
   document.documentElement.dir = veeladLanguage === 'ar' ? 'rtl' : 'ltr';
   const skip=document.querySelector('.skip');if(skip)skip.textContent=t('Skip to content');const modal=document.getElementById('modal');if(modal&&!modal.open)modal.setAttribute('aria-label',t('Veelad dialog'));
@@ -21,21 +21,22 @@ function setLanguage(language) {
 function t(source, values = {}) {
   const text = String(source ?? '');
   const dictionary=translations[currentLanguage()]||{};
-  const translated=Object.hasOwn(dictionary,text)?dictionary[text]:Object.hasOwn(dictionary,text.trim())?text.replace(text.trim(),dictionary[text.trim()]):text;
+  const categoryLabel=window.VeeladProductTranslations?.categoryLabel(text);
+  const translated=categoryLabel!==null&&categoryLabel!==undefined?categoryLabel:Object.hasOwn(dictionary,text)?dictionary[text]:Object.hasOwn(dictionary,text.trim())?text.replace(text.trim(),dictionary[text.trim()]):text;
   return translated.replace(/\{([a-zA-Z][a-zA-Z0-9_]*)\}/g, (token, name) => Object.hasOwn(values, name) ? String(values[name] ?? '') : token);
 }
 function localField(record, key) {
   const base = record?.[key] ?? '';
-  const arabic = record?.[key + '_ar'];
-  return currentLanguage() === 'ar' && typeof arabic === 'string' && arabic.trim() ? arabic : base;
+  const translated = record?.[key + (currentLanguage()==='ar'?'_ar':currentLanguage()==='zh-CN'?'_zh':'')];
+  return typeof translated === 'string' && translated.trim() ? translated : base;
 }
 function localVariant(product, value) {
-  if (currentLanguage() !== 'ar') return value;
+  if (currentLanguage() === 'en') return value;
   const index = (product?.variants || []).indexOf(value);
-  const translated = product?.variants_ar?.[index];
+  const translated = product?.[currentLanguage()==='zh-CN'?'variants_zh':'variants_ar']?.[index];
   return typeof translated === 'string' && translated.trim() ? translated : t(value);
 }
-function localeCode() { return currentLanguage() === 'ar' ? 'ar-SA' : 'en'; }
+function localeCode() { return currentLanguage() === 'ar' ? 'ar-SA' : currentLanguage(); }
 function numeralSystem() {
   const configured = window.VEELAD_NUMERAL_SYSTEM || document.documentElement.dataset.numerals || 'latn';
   return configured === 'arab' ? 'arab' : 'latn';

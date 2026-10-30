@@ -122,7 +122,7 @@ window.VeeladProductGallery=(()=>{
   if(action==='gallery-zoom-reset'){event.preventDefault();reset();}
  });
  document.addEventListener('keydown',event=>{
-  const forward=currentLanguage()==='ar'?'ArrowLeft':'ArrowRight',backward=currentLanguage()==='ar'?'ArrowRight':'ArrowLeft';
+  const forward=currentLanguage()==='ar'?'ArrowLeft':t('ArrowRight'),backward=currentLanguage()==='ar'?'ArrowRight':t('ArrowLeft');
   if(viewer&&document.getElementById('modal').open){
    const state=states.get(viewer.gallery);if([forward,backward,'Home','End'].includes(event.key)){event.preventDefault();select(viewer.gallery,event.key==='Home'?0:event.key==='End'?state.views.length-1:state.index+(event.key===forward?1:-1));paintViewer();}
    if(event.key==='+'||event.key==='='){event.preventDefault();viewer.zoom=Math.min(3,viewer.zoom+.5);applyZoom();}if(event.key==='-'){event.preventDefault();viewer.zoom=Math.max(1,viewer.zoom-.5);applyZoom();}if(event.key==='0'){event.preventDefault();reset();}return;

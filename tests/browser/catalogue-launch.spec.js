@@ -30,7 +30,7 @@ test('empty home offers twelve honest style destinations, seven product types an
    await expect(page.locator('.shop-intro h1')).toHaveText(language==='ar'?'مدن ورحلات':'Vintage travel');
    await expect(page.locator('.product-card')).toHaveCount(0);
    await expect(page.locator('main .empty h2')).toHaveText(language==='ar'?'تصاميم جديدة من هالنوع، في الطريق.':'This style is taking shape.');
-   await page.locator('[data-action=language-switch]').first().click();
+   await page.locator('[data-international-language]').first().selectOption(await page.locator('html').getAttribute('lang')==='ar'?'en':'ar');
    expect(new URL(page.url()).searchParams.get('style')).toBe('vintage-travel');
   }
   expect((await fixture.db.one('SELECT COUNT(*) AS n FROM products')).n).toBe(0);

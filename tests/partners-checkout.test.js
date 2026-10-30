@@ -48,13 +48,14 @@ before(async()=>{
 });
 after(async()=>{if(fixture)await fixture.close();});
 
-const application={name:'Partner artist',country:'SA',contact:'partner-checkout@example.test',channels:['instagram'],websites:['https://instagram.com/veelad-test'],promotion_plan:'Share original product recommendations with clear affiliate disclosures.',terms_accepted:true,locale:'en'};
+const application={name:'Partner artist',country:'SA',contact:'partner-checkout@example.test',channels:['instagram'],websites:['https://instagram.com/veelad-test'],promotion_plan:'Share original product recommendations with clear affiliate disclosures.',terms_accepted:true,locale:'zh-CN'};
 
 test('one verified artist account can apply, be approved and retain its artist identity',async()=>{
  assert.equal((await guest.call('partners-apply',application)).status,401);
  assert.equal((await affiliate.call('partners-apply',application)).status,403,'Partners requires verified email even when ordinary checkout enforcement is optional');
  await verified(affiliateUser);
  const applied=await success(affiliate,'partners-apply',application);assert.equal(applied.profile.status,'pending');
+ const notice=JSON.parse((await fixture.db.one('SELECT data FROM partners_notifications WHERE user_id=?',[affiliateUser.id])).data);assert.equal(notice.locale,'zh-CN');assert.match(notice.subject,/申请/);assert.match(notice.body,/并不保证获得收入/);
  assert.equal((await affiliate.call('partners-link',{product_id:'p1',channel:'instagram',label:'Too early'})).status,403);
  assert.equal((await affiliate.call('partners-apply',application)).status,409);
  assert.equal((await buyer.call('admin-partners-application',{user_id:affiliateUser.id,status:'approved',reason:'Not permitted'})).status,403);
@@ -70,6 +71,8 @@ test('an explicit consented referral survives sign-in and concurrent checkout cr
  approvedLink=(await success(affiliate,'partners-link',{product_id:'p1',channel:'instagram',label:'Original product guide'})).link;
  const redirect=await guest.request('/r/'+approvedLink.code);assert.equal(redirect.status,302);assert.equal(redirect.headers.get('set-cookie'),null);assert.match(redirect.headers.get('location'),/^\/en\/partners\/referral\?code=/);
  const viewed=await success(guest,'partners-referral',undefined,{code:approvedLink.code});assert.equal(viewed.consent_required,true);
+ const chineseRedirect=await guest.request('/r/'+approvedLink.code+'?lang=zh-CN');assert.match(chineseRedirect.headers.get('location'),/^\/zh-CN\/partners\/referral/);
+ const chineseView=await success(guest,'partners-referral',undefined,{code:approvedLink.code,locale:'zh-CN'});assert.match(chineseView.destination,/^\/zh-CN\/products\//);
  assert.equal(Number((await fixture.db.one('SELECT COUNT(*) AS total FROM partners_clicks')).total),0,'Viewing a referral must not create a tracking record');
  const consent=await success(guest,'partners-consent',{code:approvedLink.code,consent:true,remember_account:false,locale:'en'});assert.equal(consent.tracked,true);
  await success(guest,'login',{email:customer.email,password});
@@ -80,6 +83,7 @@ test('an explicit consented referral survives sign-in and concurrent checkout cr
  assert.equal(Number((await fixture.db.one('SELECT stock FROM products WHERE id=?',['p1'])).stock),initialStock-1);
  const rows=await commissions(referredOrder);assert.equal(rows.length,1);assert.equal(rows[0].affiliate_id,affiliateUser.id);assert.equal(rows[0].link_id,approvedLink.id);assert.equal(rows[0].state,'pending_payment');assert.equal(Number(rows[0].amount_minor),500);
  const snapshot=JSON.parse(rows[0].data);assert.equal(snapshot.product_id,'p1');assert.equal(snapshot.economics.artist_royalty_minor,2300);assert.equal(snapshot.economics.vat_minor,1500);assert.equal(snapshot.economics.net_sales_minor,10000);assert.equal(snapshot.economics.commission_minor,500);assert.ok(snapshot.economics.remaining_margin_minor>=snapshot.economics.minimum_margin_minor);
+ const notification=JSON.parse((await fixture.db.one("SELECT data FROM partners_notifications WHERE user_id=? AND kind='commission' ORDER BY created_at LIMIT 1",[affiliateUser.id])).data);assert.equal(notification.locale,'zh-CN');assert.match(notification.body,/尚未发起任何转账/);
  const captures=await fixture.db.q("SELECT * FROM partners_ledger WHERE commission_id=? AND kind='pending_payment'",[rows[0].id]);assert.equal(captures.length,1);
  const stored=JSON.parse((await fixture.db.one('SELECT data FROM orders WHERE id=?',[referredOrder])).data);assert.equal(stored.items.length,2);assert.equal(stored.payment_status,'awaiting_payment');
 });

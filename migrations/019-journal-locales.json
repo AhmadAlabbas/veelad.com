@@ -1,0 +1,5 @@
+[
+ "ALTER TABLE journal_translations MODIFY locale VARCHAR(5) NOT NULL",
+ "ALTER TABLE journal_redirects MODIFY locale VARCHAR(5) NOT NULL",
+ "ALTER TABLE journal_media MODIFY locale VARCHAR(5) NOT NULL"
+]
