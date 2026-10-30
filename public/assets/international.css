@@ -7,7 +7,7 @@
 .international-currencies{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px}
 .international-currencies label{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .international-currencies small{flex-basis:100%;color:#625a6c}
-:lang(zh-CN){font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei","Noto Sans CJK SC",sans-serif;word-break:normal;line-break:auto}
+:lang(zh-CN){font-family:'Veelad Riyal',system-ui,-apple-system,"PingFang SC","Microsoft YaHei","Noto Sans CJK SC",sans-serif;word-break:normal;line-break:auto}
 @media(max-width:600px){.international-selectors{gap:4px}.international-selectors select{max-width:102px;font-size:12px;padding-inline:6px}.global-nav .nav-actions{flex-wrap:wrap}.admin-topbar .international-selectors{flex-basis:auto}.international-notice{overflow-wrap:anywhere}}
 
 span.international-notice{display:block}
