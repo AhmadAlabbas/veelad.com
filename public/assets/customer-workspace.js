@@ -11,6 +11,7 @@ const workspaceArabic = {
   "Colour palettes":"لوحات الألوان", "Session checkpoints":"نقاط حفظ الجلسة", "Restore an earlier design state while this editor remains open.":"استعد نسخة سابقة من هذا التصميم أثناء فتح المحرر.", "Save checkpoint":"حفظ نقطة", "Checkpoint":"نقطة حفظ", "No session checkpoints yet.":"لا توجد نقاط حفظ بعد.",
   "Select all editable":"تحديد كل الطبقات القابلة للتعديل", "Clear selection":"إلغاء التحديد", "Select layer for arrangement":"تحديد طبقة للمحاذاة",
   "Typography combinations":"تراكيب خطية جاهزة", "Add editable title and subtitle layers using production-supported fonts.":"أضف عناوين ونصوصاً فرعية قابلة للتعديل بخطوط معتمدة من المحرر.",
+  "Group selected":"تجميع المحدد", "Ungroup":"فك التجميع", "Grouped":"ضمن مجموعة", "Select two or more editable layers to group.":"اختر طبقتين أو أكثر لتجميعها.", "Select a group to ungroup.":"اختر مجموعة لفكها.", "Layers grouped":"تم تجميع الطبقات", "Layers ungrouped":"تم فك التجميع",
   "Creative studio":"استوديو التصميم", "Make room for your imagination.":"خلّ لخيالك مساحة.", "Design":"التصميم", "Product preview":"معاينة القطعة", "Review item":"راجع قطعتك", "Uploads":"الصور", "Text":"النصوص", "Fonts":"الخطوط", "Layers":"الطبقات", "Layouts":"القوالب", "Canvas":"لوحة التصميم", "Add images":"أضف صور", "Upload images":"ارفع صورك", "Drop your images here":"اسحب صورك هنا", "PNG or JPEG · multiple files welcome":"PNG أو JPEG · تقدر تضيف أكثر من صورة", "Your originals stay private.":"ملفاتك الأصلية تبقى خاصة فيك.", "Add text":"أضف نص", "Add a heading":"أضف عنوان", "Add a little detail":"أضف عبارة صغيرة", "Your words, your style.":"كلماتك، بأسلوبك.", "Mix languages, play with type, make it yours.":"اجمع أكثر من لغة، وجرّب الخطوط على ذوقك.", "Write something wonderful":"اكتب شيء يشبهك", "A little more you":"تفصيلة منك", "Search fonts":"ابحث عن خط", "All scripts":"كل اللغات", "All styles":"كل الأنماط", "No fonts match. Try another search.":"ما لقينا خط يطابق بحثك. جرّب كلمة ثانية.", "Choose text on the canvas to apply a font.":"اختر نص من اللوحة عشان تغيّر خطه.", "Loading fonts…":"نجهّز مكتبة الخطوط…", "Font library is unavailable. Try again shortly.":"مكتبة الخطوط غير متاحة حاليًا. جرّب بعد شوي.", "Some characters are not included in this font. Choose a font for this script.":"بعض الحروف مو موجودة في هالخط. اختر خط يدعم لغة النص.", "Front":"الأمام", "Back":"الخلف", "Wrap":"التصميم الكامل", "Independent designs on each side":"تصميم مستقل لكل جهة", "One continuous wrap":"تصميم واحد يلتف حول الكوب", "Undo":"تراجع", "Redo":"إعادة", "Zoom":"التكبير", "Fit":"ملاءمة", "Fit to screen":"ناسب حجم الشاشة", "Safe area":"المساحة الآمنة", "Snap to centre":"محاذاة للمنتصف", "Add a photo. Make a statement.":"صورة منك. وتصميم على ذوقك.", "Start with an image, a few words, or both.":"ابدأ بصورة، أو كلمات، أو اجمعهم مع بعض.", "Select a layer to fine-tune it.":"اختر طبقة عشان تعدّل تفاصيلها.", "Drag to move · corners to resize · top handle to rotate":"اسحب للتحريك · الزوايا لتغيير الحجم · المقبض العلوي للتدوير", "Drag to move. Use the corner handles to resize.":"اسحب للتحريك. واستخدم مقابض الزوايا لتغيير الحجم.", "Provisional product preview":"معاينة مبدئية للقطعة", "Your design is editable. Supplier print specifications still need confirmation.":"تصميمك قابل للتعديل. مقاسات الطباعة النهائية تحتاج تأكيد المورّد.", "Background":"الخلفية", "Transparent":"شفافة", "Colour":"اللون", "Opacity":"الشفافية", "Rotation":"الدوران", "Width (%)":"العرض (%)", "Height (%)":"الارتفاع (%)", "Horizontal (%)":"أفقي (%)", "Vertical (%)":"عمودي (%)", "Text size (%)":"حجم النص (%)", "Your text":"النص", "Font":"الخط", "Writing direction":"اتجاه الكتابة", "Automatic":"تلقائي", "Right to left":"من اليمين لليسار", "Left to right":"من اليسار لليمين", "Alignment":"المحاذاة", "Left":"يسار", "Centre":"وسط", "Right":"يمين", "Duplicate":"انسخ", "Delete":"احذف", "Move forward":"قدّم طبقة", "Move backward":"أخّر طبقة", "Centre horizontally":"وسّط أفقيًا", "Centre vertically":"وسّط عموديًا", "Flip horizontally":"اعكس أفقيًا", "Flip vertically":"اعكس عموديًا", "Show layer":"أظهر الطبقة", "Hide layer":"أخفِ الطبقة", "Unlock layer":"افتح قفل الطبقة", "Lock layer":"اقفل الطبقة", "Image":"صورة", "Text layer":"طبقة نص", "No layers yet":"لوحتك جاهزة لأفكارك", "Add images or text. Every element stays editable.":"أضف صور أو نصوص. كل عنصر يبقى قابل للتعديل.", "Selected layer":"الطبقة المختارة", "Layer is locked. Unlock it to edit.":"الطبقة مقفلة. افتح القفل عشان تعدّلها.", "Your own text":"كلماتك هنا", "Add up to 24 layers on each side.":"تقدر تضيف حتى 24 طبقة لكل جهة.", "Preparing your images…":"نجهّز صورك…", "Images added":"أضفنا الصور", "Could not load this layer.":"ما قدرنا نحمّل هالطبقة.", "Preparing accurate text…":"نجهّز النص بدقّة…", "Close panel":"أغلق الأدوات", "Open panel":"افتح الأدوات", "Keyboard: arrows to move, Shift for larger steps, Delete to remove.":"بالكيبورد: الأسهم للتحريك، وShift لخطوة أكبر، وDelete للحذف.", "This side is empty":"هالجهة فاضية", "Layer":"طبقة", "Ready to create":"جاهز لأفكارك", "Image quality is checked again before printing.":"جودة الصور تنفحص مرة ثانية قبل الطباعة.", "Print safe area":"حدود الطباعة الآمنة", "Shown above the layer below it":"تظهر فوق الطبقة اللي تحتها", "Your image":"صورتك", "Keep proportions":"حافظ على النسبة", "Edit on a flat canvas, then preview your item.":"عدّل على لوحة مسطّحة، وبعدها شوف التصميم على قطعتك.", "Choose a layout":"اختر قالب", "No layouts available":"القوالب غير متاحة حاليًا", "Sample text":"نص تجريبي", "Layers on this side":"طبقات هالجهة", "Changes save automatically":"تعديلاتك تنحفظ تلقائيًا", "Move and resize artwork":"حرّك التصميم وغيّر حجمه", "Printing area":"مساحة الطباعة", "Load more fonts":"اعرض خطوط أكثر", "Font style":"نمط الخط", "sans":"بسيط", "serif":"كلاسيكي", "display":"عناوين", "handwriting":"يدوي", "mono":"متساوي العرض", "arabic":"عربي", "Image uploads are private and stay linked to this design.":"صورك خاصة وتبقى مرتبطة بهالتصميم.", "Choose a font":"اختر خط", "Uploading":"جارٍ الرفع", "Template applied":"أضفنا القالب", "Preview":"معاينة", "No artwork on this side yet.":"ما فيه تصميم على هالجهة للحين."
 };
 function workspaceT(value) {
@@ -83,7 +84,7 @@ const libraryPanel=document.createElement("section");
   checkpointsPanel.className='cw-checkpoints';
   checkpointsPanel.innerHTML='<h5>'+esc(tr("Session checkpoints"))+'</h5><p>'+esc(tr("Restore an earlier design state while this editor remains open."))+'</p><button type="button" class="cw-button" data-ws-save-checkpoint>'+esc(tr("Save checkpoint"))+'</button><div data-ws-checkpoints></div>';
   const selectionTools=document.createElement("div");selectionTools.className="cw-multi-tools";
-  selectionTools.innerHTML='<button type="button" data-ws-select-all>'+esc(tr("Select all editable"))+'</button><button type="button" data-ws-clear-selected>'+esc(tr("Clear selection"))+'</button>';
+  selectionTools.innerHTML='<button type="button" data-ws-select-all>'+esc(tr("Select all editable"))+'</button><button type="button" data-ws-clear-selected>'+esc(tr("Clear selection"))+'</button><button type="button" data-ws-group>'+esc(tr("Group selected"))+'</button><button type="button" data-ws-ungroup>'+esc(tr("Ungroup"))+'</button>';
   shell.querySelector('[data-ws-layer-list]').before(selectionTools);
   const templatesPanel=document.createElement('section');templatesPanel.className='cw-original-layouts';templatesPanel.dataset.wsOriginalLayouts='';
   shell.querySelector('[data-ws-layouts]').append(templatesPanel);
@@ -321,7 +322,7 @@ const libraryPanel=document.createElement("section");
     const layer=current();
     if(!layer||layer.locked||layer.visible===false)return;
     const kind=handle?.dataset.wsPreviewHandle||"move",d=logical(),bounds=dimensions(layer),original=cloneState(layer);
-    gesture={preview:true,id:layer.id,kind,point:{x:point.x,y:point.y},original,bounds,before:snapshot(),pointer:event.pointerId};
+    gesture={preview:true,id:layer.id,kind,point:{x:point.x,y:point.y},original,bounds,before:snapshot(),pointer:event.pointerId,groupOriginals:kind==="move"?captureGroup(layer):null};
     if(kind!=="move"&&kind!=="rotate"){
       const sx=kind.includes("e")?1:-1,sy=kind.includes("s")?1:-1,angle=layer.rotation*Math.PI/180,
         opposite=rotatePoint({x:-sx*bounds.width/2,y:-sy*bounds.height/2},angle);
@@ -503,7 +504,7 @@ function renderElements(){
     const node=shell.querySelector("[data-ws-layer-list]"),list=layers();
     node.innerHTML=list.length?[...list].reverse().map((layer,index)=>{
       const asset=layerAssets.get(layer.id),label=layer.type==="text"?(layer.text||tr("Text layer")):layer.library_element?(window.VeeladElements?.label(layer.library_element.id,currentLanguage())||tr("Element")):tr("Image")+" "+(list.length-index);
-      return `<article class="cw-layer-row" data-selected="${layer.id===selected}" data-multi="${multi.has(layer.id)}"><label class="cw-layer-multi"><input type="checkbox" data-ws-multiselect="${esc(layer.id)}" aria-label="${esc(tr("Select layer for arrangement"))}: ${esc(label.slice(0,45))}" ${multi.has(layer.id)?"checked":""} ${layer.locked||layer.visible===false?"disabled":""}></label><button type="button" class="cw-layer-pick" data-ws-select="${esc(layer.id)}" aria-pressed="${layer.id===selected}"><span class="cw-layer-thumb">${asset?.image?`<img src="${esc(asset.image.src)}" alt="">`:workspaceIcon(layer.type==="text"?"text":"image")}</span><span dir="auto">${esc(label.slice(0,45))}</span></button><button type="button" class="cw-layer-toggle" data-ws-toggle-visible="${esc(layer.id)}" aria-label="${esc(tr(layer.visible===false?"Show layer":"Hide layer"))}" title="${esc(tr(layer.visible===false?"Show layer":"Hide layer"))}">${workspaceIcon(layer.visible===false?"hidden":"eye")}</button><button type="button" class="cw-layer-toggle" data-ws-toggle-lock="${esc(layer.id)}" aria-label="${esc(tr(layer.locked?"Unlock layer":"Lock layer"))}" title="${esc(tr(layer.locked?"Unlock layer":"Lock layer"))}">${workspaceIcon(layer.locked?"lock":"unlock")}</button></article>`;
+      return `<article class="cw-layer-row" data-selected="${layer.id===selected}" data-multi="${multi.has(layer.id)}" data-grouped="${!!layer.group_id}"><label class="cw-layer-multi"><input type="checkbox" data-ws-multiselect="${esc(layer.id)}" aria-label="${esc(tr("Select layer for arrangement"))}: ${esc(label.slice(0,45))}" ${multi.has(layer.id)?"checked":""} ${layer.locked||layer.visible===false?"disabled":""}></label><button type="button" class="cw-layer-pick" data-ws-select="${esc(layer.id)}" aria-pressed="${layer.id===selected}"><span class="cw-layer-thumb">${asset?.image?`<img src="${esc(asset.image.src)}" alt="">`:workspaceIcon(layer.type==="text"?"text":"image")}</span><span dir="auto">${esc(label.slice(0,45))}${layer.group_id?` <span class="cw-group-pill">${esc(tr("Grouped"))}</span>`:""}</span></button><button type="button" class="cw-layer-toggle" data-ws-toggle-visible="${esc(layer.id)}" aria-label="${esc(tr(layer.visible===false?"Show layer":"Hide layer"))}" title="${esc(tr(layer.visible===false?"Show layer":"Hide layer"))}">${workspaceIcon(layer.visible===false?"hidden":"eye")}</button><button type="button" class="cw-layer-toggle" data-ws-toggle-lock="${esc(layer.id)}" aria-label="${esc(tr(layer.locked?"Unlock layer":"Lock layer"))}" title="${esc(tr(layer.locked?"Unlock layer":"Lock layer"))}">${workspaceIcon(layer.locked?"lock":"unlock")}</button></article>`;
     }).join(""):`<div class="cw-empty-panel">${workspaceIcon("layers")}<strong>${tr("No layers yet")}</strong><p>${tr("Add images or text. Every element stays editable.")}</p></div>`;
   }
   function renderUploads(){
@@ -606,6 +607,23 @@ function renderElements(){
     layers().push(layer);selected=layer.id;switchTool("text");commit();
     requestAnimationFrame(()=>{const field=inspector.querySelector("[data-ws-prop=text]");field?.focus({preventScroll:true});field?.select();});
   }
+  function groupSelected(){
+    const chosen=layers().filter(layer=>multi.has(layer.id)&&!layer.locked&&layer.visible!==false);
+    if(chosen.length<2){setStatus("Select two or more editable layers to group.",true);return;}
+    const group_id="grp-"+crypto.randomUUID().replace(/-/g,"").slice(0,20);
+    for(const layer of chosen)layer.group_id=group_id;
+    selected=chosen.at(-1).id;commit();setStatus("Layers grouped");
+  }
+  function ungroupSelected(){
+    const selectedGroups=new Set(layers().filter(layer=>multi.has(layer.id)||layer.id===selected).map(layer=>layer.group_id).filter(Boolean));
+    if(!selectedGroups.size){setStatus("Select a group to ungroup.",true);return;}
+    for(const layer of layers())if(selectedGroups.has(layer.group_id))delete layer.group_id;
+    multi.clear();commit();setStatus("Layers ungrouped");
+  }
+  function captureGroup(layer){
+    if(!layer?.group_id)return null;
+    return layers().filter(item=>item.group_id===layer.group_id&&!item.locked&&item.visible!==false).map(item=>({id:item.id,x:item.x,y:item.y}));
+  }
   function selectedAction(name){
     const layer=current();
     if(name==="undo"){restore(-1);return;}if(name==="redo"){restore(1);return;}
@@ -614,7 +632,7 @@ function renderElements(){
     if(name==="delete"){list.splice(index,1);selected=null;}
     else if(name==="duplicate"){
       if(!canAdd())return;
-      const copy={...cloneState(layer),id:uid(),x:clamp(layer.x+.025,0,1),y:clamp(layer.y+.025,0,1)};
+      const copy={...cloneState(layer),id:uid(),x:clamp(layer.x+.025,0,1),y:clamp(layer.y+.025,0,1)};delete copy.group_id;
       list.splice(index+1,0,copy);selected=copy.id;
     }else if(name==="forward"&&index<list.length-1){list.splice(index,1);list.splice(index+1,0,layer);}
     else if(name==="backward"&&index>0){list.splice(index,1);list.splice(index-1,0,layer);}
@@ -683,7 +701,7 @@ function renderElements(){
     if(node)selectLayer(node.dataset.wsLayer,{focus:true});
     const layer=current();if(!layer||layer.locked||layer.visible===false)return;
     const point=handlePoint(event),d=logical(),bounds=dimensions(layer),original=cloneState(layer),kind=handle?.dataset.wsHandle||"move";
-    gesture={id:layer.id,kind,point,original,bounds,before:snapshot(),pointer:event.pointerId};
+    gesture={id:layer.id,kind,point,original,bounds,before:snapshot(),pointer:event.pointerId,groupOriginals:kind==="move"?captureGroup(layer):null};
     if(kind!=="move"&&kind!=="rotate"){
       const sx=kind.includes("e")?1:-1,sy=kind.includes("s")?1:-1,angle=layer.rotation*Math.PI/180,
         opposite=rotatePoint({x:-sx*bounds.width/2,y:-sy*bounds.height/2},angle);
@@ -703,7 +721,7 @@ function renderElements(){
         const snap=window.VeeladPreviewSnap;
         if(useSnap&&snap){
           const measures=item=>{const size=dimensions(item);return{width:size.width/d.width,height:size.height/d.height};};
-          const proposed=snap.snap({x:layer.x,y:layer.y},layer,layers(),measures,{
+          const proposed=snap.snap({x:layer.x,y:layer.y},layer,layers().filter(peer=>!layer.group_id||peer.group_id!==layer.group_id),measures,{
             aspect:d.height/d.width,tolerance:.016
           });
           layer.x=proposed.x;layer.y=proposed.y;
@@ -711,11 +729,19 @@ function renderElements(){
         }else renderPreviewGuides();
       }else{
         for(const axis of ["x","y"]){
-          const peers=layers().filter(other=>other.id!==layer.id&&other.visible!==false).map(other=>other[axis]);
+          const peers=layers().filter(other=>other.id!==layer.id&&other.visible!==false&&(!layer.group_id||other.group_id!==layer.group_id)).map(other=>other[axis]);
           const next=useSnap&&window.VeeladStudioPro?.snap(layer[axis],[.5,...peers],.012);
           if(next?.hit)layer[axis]=next.value;
           const hit=useSnap&&Math.abs(layer[axis]-.5)<.00001;
           shell.querySelector(".cw-centre-"+axis).hidden=!hit;
+        }
+      }
+      if(g.groupOriginals?.length>1){
+        const dx=layer.x-o.x,dy=layer.y-o.y;
+        for(const origin of g.groupOriginals){
+          if(origin.id===layer.id)continue;
+          const sibling=layers().find(item=>item.id===origin.id);
+          if(sibling){sibling.x=clamp(origin.x+dx,0,1);sibling.y=clamp(origin.y+dy,0,1);}
         }
       }
     }else if(g.kind==="rotate"){
@@ -737,7 +763,13 @@ function renderElements(){
     const g=gesture;gesture=null;
     shell.querySelectorAll(".cw-centre-line").forEach(node=>node.hidden=true);
     renderPreviewGuides();
-    if(event.type==="pointercancel")Object.assign(layers().find(l=>l.id===g.id)||{},g.original);
+    if(event.type==="pointercancel"){
+      Object.assign(layers().find(l=>l.id===g.id)||{},g.original);
+      for(const origin of g.groupOriginals||[]){
+        const sibling=layers().find(item=>item.id===origin.id);
+        if(sibling){sibling.x=origin.x;sibling.y=origin.y;}
+      }
+    }
     else if(snapshot()!==g.before)commit();
     renderInspector();render();
     if(g.preview){renderPreviewSelection();void instance.render?.();}
@@ -760,7 +792,9 @@ function renderElements(){
     if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==="d"){event.preventDefault();selectedAction("duplicate");return;}
     const move={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[event.key];
     if(!move)return;event.preventDefault();const amount=event.shiftKey?.02:.002;
-    layer.x=clamp(layer.x+move[0]*amount,0,1);layer.y=clamp(layer.y+move[1]*amount,0,1);commit("keyboard:"+layer.id);
+    const targets=layer.group_id?layers().filter(item=>item.group_id===layer.group_id&&!item.locked&&item.visible!==false):[layer];
+    for(const target of targets){target.x=clamp(target.x+move[0]*amount,0,1);target.y=clamp(target.y+move[1]*amount,0,1);}
+    commit("keyboard:"+layer.id);
   }
   function renderFonts(){
     if(!fontsReady||tool!=="fonts")return;
@@ -809,6 +843,8 @@ function renderElements(){
       multi.clear();for(const layer of layers())if(!layer.locked&&layer.visible!==false)multi.add(layer.id);renderLayerList();
     }
     else if(button.hasAttribute("data-ws-clear-selected")){multi.clear();renderLayerList();}
+    else if(button.hasAttribute("data-ws-group"))groupSelected();
+    else if(button.hasAttribute("data-ws-ungroup"))ungroupSelected();
     else if(button.hasAttribute("data-ws-quick-filter")){
       const categorySelect=shell.querySelector("[data-ws-element-category]"),filter=button.dataset.wsQuickFilter;
       categorySelect.value=categorySelect.value===filter?"":filter;
