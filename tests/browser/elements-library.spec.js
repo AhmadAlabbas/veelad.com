@@ -96,6 +96,24 @@ test('creators insert, recolour and persist a private vector element in the desi
   await studio.locator('[data-ws-pro-layout=floral-type]').click();
   await expect.poll(async()=> (await scene()).layers.length).toBe(3);
   expect((await scene()).layers.some(layer=>layer.type==='text'&&layer.text==='MAKE IT BLOOM')).toBe(true);
+  // Arrange all unlocked, visible layers through the same persisted scene and
+  // verify the normal undo stack restores each original coordinate.
+  const beforeAlign=(await scene()).layers.map(layer=>({id:layer.id,x:layer.x,y:layer.y}));
+  await studio.locator('[data-ws-tool=canvas]').click();
+  await expect(studio.locator('[data-ws-layout-action=center-x]')).toBeVisible();
+  await studio.locator('[data-ws-layout-action=center-x]').click();
+  await expect.poll(async()=>{
+    const layers=(await scene()).layers;
+    return layers.every(layer=>Math.abs(layer.x-.5)<.000001);
+  }).toBe(true);
+  await studio.locator('[data-ws-action=undo]').click();
+  await expect.poll(async()=>JSON.stringify((await scene()).layers.map(layer=>({id:layer.id,x:layer.x,y:layer.y})))).toBe(JSON.stringify(beforeAlign));
+  await studio.locator('[data-ws-tool=elements]').click();
+  await studio.locator('[data-ws-element-search]').fill('قطة');
+  await expect(studio.locator('[data-ws-element=cat-0]')).toBeVisible();
+  await studio.locator('[data-ws-element-search]').fill('London city');
+  await expect(studio.locator('[data-ws-element-list] [data-ws-element]')).toHaveCount(1);
+
 
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
   expect(errors).toEqual([]);
