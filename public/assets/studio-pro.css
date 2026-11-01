@@ -113,3 +113,28 @@
  .cw-preview-overlay [data-ws-preview-handle="rotate"]{width:31px;height:31px}
  .cw-preview-edit-hint{font-size:11px!important}
 }
+
+/* Creation and precise alignment directly on the product mockup.
+   The mockup remains the shared print-scene renderer, never a second design. */
+.cw-preview-tools{width:100%;max-width:470px;margin:0 auto 12px;display:flex;flex-direction:column;gap:7px;padding:11px;border:1px solid #e6e0ed;border-radius:12px;background:#fff;box-shadow:0 2px 9px #281c390c}
+.cw-preview-tools-row{display:flex;flex-wrap:wrap;gap:6px}
+.cw-preview-tools-row button{border:1px solid #e0daeb!important;background:#fbfaff!important;min-height:36px;padding:7px 10px!important;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;gap:5px;color:#3f3350!important;font-size:10.5px!important;font-weight:650!important;cursor:pointer;line-height:1.2}
+.cw-preview-create{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+.cw-preview-create button{width:100%;white-space:normal}
+.cw-preview-create button .cw-icon{width:15px;height:15px;flex-shrink:0;color:#754bcc}
+.cw-preview-align{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
+.cw-preview-align button{min-width:0;min-height:34px;padding:6px!important;white-space:normal}
+.cw-preview-align [data-ws-preview-align="centre-both"]{grid-column:span 2;background:#f1ebfc!important;border-color:#d5c6e9!important;color:#593892!important}
+.cw-preview-tools button:hover:not(:disabled){background:#eee8fa!important;border-color:#b39bd9!important}
+.cw-preview-tools button:focus-visible{outline:3px solid #8f6ac9;outline-offset:2px}
+.cw-preview-tools button:disabled{cursor:not-allowed;opacity:.48;background:#f6f5f8!important;color:#8e8496!important}
+.cw-preview-tools-hint{margin:1px 2px 0;font-size:10px;line-height:1.6;color:#70677f;text-align:center}
+.cw-preview-overlay.cw-preview-drop-active{outline:3px dashed #8655d8;outline-offset:2px;background:#8e69d91a}
+@media(max-width:700px){
+ .cw-preview-tools{margin-bottom:8px;padding:8px;gap:7px;border-radius:9px}
+ .cw-preview-tools-row button{min-height:43px;padding:8px 6px!important;font-size:10.5px!important}
+ .cw-preview-align{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .cw-preview-align [data-ws-preview-align="centre-both"]{grid-column:span 2}
+ .cw-preview-tools-hint{font-size:10px}
+}
+@media(max-width:370px){.cw-preview-create button{gap:2px}.cw-preview-create button .cw-icon{width:13px;height:13px}.cw-preview-align button{font-size:10px!important}}

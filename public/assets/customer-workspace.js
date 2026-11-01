@@ -5,6 +5,7 @@ const workspaceArabic = {
   "Place artwork within the provisional safe region. Final supplier dimensions are not yet approved.":"ضع التصميم داخل المنطقة الآمنة المبدئية. لم تُعتمد مقاسات المورد النهائية.", "Artwork approaches the provisional print boundary; check supplier-safe placement.":"التصميم قريب من حدود الطباعة المبدئية؛ تحقق من منطقة طباعة المورد.", "Some artwork is very small on the canvas; confirm its print size.":"بعض الرسوم صغيرة جدًا على اللوحة؛ راجع حجم الطباعة.", "An empty text layer will not print.":"لن تتم طباعة طبقة النص الفارغة.", "Align to safe left":"حاذِ لليسار الآمن", "Align to safe right":"حاذِ لليمين الآمن", "Align to safe top":"حاذِ للأعلى الآمن", "Align to safe bottom":"حاذِ للأسفل الآمن",
   "My favourites":"المفضلة", "Recently used":"المستخدمة مؤخرًا", "Explore all":"استكشف الكل", "Curated collection":"مجموعة مختارة", "Apply design":"طبّق التصميم", "Ready-made designs":"تصاميم جاهزة", "Original editable starting points":"قوالب أصلية قابلة للتعديل", "Print positioning":"موضع الطباعة", "Print preflight":"فحص الطباعة",
   "Elements":"العناصر", "Element":"عنصر", "Search elements":"ابحث عن العناصر", "All categories":"كل التصنيفات", "More elements":"المزيد من العناصر", "Element colours":"ألوان العنصر", "Primary":"الأساسي", "Secondary":"الثانوي", "Accent":"التفاصيل", "Preparing element…":"نجهّز العنصر…", "Element updated":"تم تعديل العنصر", "Elements are original and can be recoloured.":"عناصر أصلية ويمكنك تغيير ألوانها.",
+  "Product editing tools":"أدوات تعديل القطعة", "Add photo":"إضافة صورة", "Add element":"إضافة عنصر", "Align selected artwork":"محاذاة العنصر المحدد", "Centre on product":"توسيط على القطعة", "Align left":"محاذاة لليسار", "Align right":"محاذاة لليمين", "Align top":"محاذاة للأعلى", "Align bottom":"محاذاة للأسفل", "Select an element or text on the product to align it.":"اختر عنصرًا أو نصًا على القطعة لمحاذاته.", "Unlock this layer to align it.":"افتح قفل هذه الطبقة حتى تتمكن من محاذاتها.", "Drag on the product or use the alignment buttons above.":"اسحب العنصر على القطعة أو استخدم أزرار المحاذاة أعلاه.",
   "Move, resize and rotate design on product":"حرّك التصميم على المنتج وغيّر حجمه ودوّره", "Select artwork on the product to drag, resize or rotate it.":"اختر التصميم على القطعة واسحبه أو غيّر حجمه أو دوّره.", "Rotate selected artwork":"تدوير العنصر المحدد", "Resize selected artwork":"تغيير حجم العنصر المحدد",
   "Move artwork on the garment or edit it on the flat canvas.":"حرّك العناصر مباشرة على القطعة أو عدّلها على مساحة التصميم المسطحة.",
   "Creative studio":"استوديو التصميم", "Make room for your imagination.":"خلّ لخيالك مساحة.", "Design":"التصميم", "Product preview":"معاينة القطعة", "Review item":"راجع قطعتك", "Uploads":"الصور", "Text":"النصوص", "Fonts":"الخطوط", "Layers":"الطبقات", "Layouts":"القوالب", "Canvas":"لوحة التصميم", "Add images":"أضف صور", "Upload images":"ارفع صورك", "Drop your images here":"اسحب صورك هنا", "PNG or JPEG · multiple files welcome":"PNG أو JPEG · تقدر تضيف أكثر من صورة", "Your originals stay private.":"ملفاتك الأصلية تبقى خاصة فيك.", "Add text":"أضف نص", "Add a heading":"أضف عنوان", "Add a little detail":"أضف عبارة صغيرة", "Your words, your style.":"كلماتك، بأسلوبك.", "Mix languages, play with type, make it yours.":"اجمع أكثر من لغة، وجرّب الخطوط على ذوقك.", "Write something wonderful":"اكتب شيء يشبهك", "A little more you":"تفصيلة منك", "Search fonts":"ابحث عن خط", "All scripts":"كل اللغات", "All styles":"كل الأنماط", "No fonts match. Try another search.":"ما لقينا خط يطابق بحثك. جرّب كلمة ثانية.", "Choose text on the canvas to apply a font.":"اختر نص من اللوحة عشان تغيّر خطه.", "Loading fonts…":"نجهّز مكتبة الخطوط…", "Font library is unavailable. Try again shortly.":"مكتبة الخطوط غير متاحة حاليًا. جرّب بعد شوي.", "Some characters are not included in this font. Choose a font for this script.":"بعض الحروف مو موجودة في هالخط. اختر خط يدعم لغة النص.", "Front":"الأمام", "Back":"الخلف", "Wrap":"التصميم الكامل", "Independent designs on each side":"تصميم مستقل لكل جهة", "One continuous wrap":"تصميم واحد يلتف حول الكوب", "Undo":"تراجع", "Redo":"إعادة", "Zoom":"التكبير", "Fit":"ملاءمة", "Fit to screen":"ناسب حجم الشاشة", "Safe area":"المساحة الآمنة", "Snap to centre":"محاذاة للمنتصف", "Add a photo. Make a statement.":"صورة منك. وتصميم على ذوقك.", "Start with an image, a few words, or both.":"ابدأ بصورة، أو كلمات، أو اجمعهم مع بعض.", "Select a layer to fine-tune it.":"اختر طبقة عشان تعدّل تفاصيلها.", "Drag to move · corners to resize · top handle to rotate":"اسحب للتحريك · الزوايا لتغيير الحجم · المقبض العلوي للتدوير", "Drag to move. Use the corner handles to resize.":"اسحب للتحريك. واستخدم مقابض الزوايا لتغيير الحجم.", "Provisional product preview":"معاينة مبدئية للقطعة", "Your design is editable. Supplier print specifications still need confirmation.":"تصميمك قابل للتعديل. مقاسات الطباعة النهائية تحتاج تأكيد المورّد.", "Background":"الخلفية", "Transparent":"شفافة", "Colour":"اللون", "Opacity":"الشفافية", "Rotation":"الدوران", "Width (%)":"العرض (%)", "Height (%)":"الارتفاع (%)", "Horizontal (%)":"أفقي (%)", "Vertical (%)":"عمودي (%)", "Text size (%)":"حجم النص (%)", "Your text":"النص", "Font":"الخط", "Writing direction":"اتجاه الكتابة", "Automatic":"تلقائي", "Right to left":"من اليمين لليسار", "Left to right":"من اليسار لليمين", "Alignment":"المحاذاة", "Left":"يسار", "Centre":"وسط", "Right":"يمين", "Duplicate":"انسخ", "Delete":"احذف", "Move forward":"قدّم طبقة", "Move backward":"أخّر طبقة", "Centre horizontally":"وسّط أفقيًا", "Centre vertically":"وسّط عموديًا", "Flip horizontally":"اعكس أفقيًا", "Flip vertically":"اعكس عموديًا", "Show layer":"أظهر الطبقة", "Hide layer":"أخفِ الطبقة", "Unlock layer":"افتح قفل الطبقة", "Lock layer":"اقفل الطبقة", "Image":"صورة", "Text layer":"طبقة نص", "No layers yet":"لوحتك جاهزة لأفكارك", "Add images or text. Every element stays editable.":"أضف صور أو نصوص. كل عنصر يبقى قابل للتعديل.", "Selected layer":"الطبقة المختارة", "Layer is locked. Unlock it to edit.":"الطبقة مقفلة. افتح القفل عشان تعدّلها.", "Your own text":"كلماتك هنا", "Add up to 24 layers on each side.":"تقدر تضيف حتى 24 طبقة لكل جهة.", "Preparing your images…":"نجهّز صورك…", "Images added":"أضفنا الصور", "Could not load this layer.":"ما قدرنا نحمّل هالطبقة.", "Preparing accurate text…":"نجهّز النص بدقّة…", "Close panel":"أغلق الأدوات", "Open panel":"افتح الأدوات", "Keyboard: arrows to move, Shift for larger steps, Delete to remove.":"بالكيبورد: الأسهم للتحريك، وShift لخطوة أكبر، وDelete للحذف.", "This side is empty":"هالجهة فاضية", "Layer":"طبقة", "Ready to create":"جاهز لأفكارك", "Image quality is checked again before printing.":"جودة الصور تنفحص مرة ثانية قبل الطباعة.", "Print safe area":"حدود الطباعة الآمنة", "Shown above the layer below it":"تظهر فوق الطبقة اللي تحتها", "Your image":"صورتك", "Keep proportions":"حافظ على النسبة", "Edit on a flat canvas, then preview your item.":"عدّل على لوحة مسطّحة، وبعدها شوف التصميم على قطعتك.", "Choose a layout":"اختر قالب", "No layouts available":"القوالب غير متاحة حاليًا", "Sample text":"نص تجريبي", "Layers on this side":"طبقات هالجهة", "Changes save automatically":"تعديلاتك تنحفظ تلقائيًا", "Move and resize artwork":"حرّك التصميم وغيّر حجمه", "Printing area":"مساحة الطباعة", "Load more fonts":"اعرض خطوط أكثر", "Font style":"نمط الخط", "sans":"بسيط", "serif":"كلاسيكي", "display":"عناوين", "handwriting":"يدوي", "mono":"متساوي العرض", "arabic":"عربي", "Image uploads are private and stay linked to this design.":"صورك خاصة وتبقى مرتبطة بهالتصميم.", "Choose a font":"اختر خط", "Uploading":"جارٍ الرفع", "Template applied":"أضفنا القالب", "Preview":"معاينة", "No artwork on this side yet.":"ما فيه تصميم على هالجهة للحين."
@@ -98,6 +99,20 @@ const libraryPanel=document.createElement("section");
   previewOverlay.innerHTML='<svg class="cw-preview-outline" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true"><polygon points="" /></svg>'+
     ["nw","ne","se","sw","rotate"].map(handle=>'<button type="button" data-ws-preview-handle="'+handle+'" aria-label="'+esc(tr(handle==="rotate"?"Rotate selected artwork":"Resize selected artwork"))+'" hidden></button>').join("");
   previewFrame?.append(previewOverlay);
+  // Keep creation and precision positioning available while looking at the
+  // garment. These controls edit the same private scene as Design mode.
+  const previewTools=document.createElement("div");
+  previewTools.className="cw-preview-tools";
+  previewTools.setAttribute("aria-label",tr("Product editing tools"));
+  previewTools.innerHTML='<div class="cw-preview-tools-row cw-preview-create">'+
+    '<button type="button" data-ws-preview-create="photo">'+workspaceIcon("upload")+'<span>'+esc(tr("Add photo"))+'</span></button>'+
+    '<button type="button" data-ws-preview-create="element">'+workspaceIcon("sparkle")+'<span>'+esc(tr("Add element"))+'</span></button>'+
+    '<button type="button" data-ws-preview-create="text">'+workspaceIcon("text")+'<span>'+esc(tr("Add text"))+'</span></button>'+
+    '</div><div class="cw-preview-tools-row cw-preview-align" role="group" aria-label="'+esc(tr("Align selected artwork"))+'">'+
+    [['centre-both','Centre on product'],['centre-x','Centre horizontally'],['centre-y','Centre vertically'],['safe-left','Align left'],['safe-right','Align right'],['safe-top','Align top'],['safe-bottom','Align bottom']].map(([action,label])=>'<button type="button" data-ws-preview-align="'+action+'" title="'+esc(tr(label))+'">'+esc(tr(label))+'</button>').join('')+
+    '</div><p class="cw-preview-tools-hint" data-ws-preview-tools-hint aria-live="polite">'+esc(tr("Select an element or text on the product to align it."))+'</p>';
+  previewFrame?.before(previewTools);
+
   const previewHelp=document.createElement("p");
   previewHelp.className="cw-preview-edit-hint";
   previewHelp.textContent=tr("Select artwork on the product to drag, resize or rotate it.");
@@ -202,7 +217,14 @@ const libraryPanel=document.createElement("section");
   }
   // Project the flat scene's selected corners through the exact garment UV
   // mesh. The outline/handles are a UI overlay, not part of the print design.
+  function updatePreviewTools(){
+    const layer=current(),editable=!!layer&&!layer.locked&&layer.visible!==false;
+    previewTools.querySelectorAll("[data-ws-preview-align]").forEach(button=>button.disabled=!editable);
+    const hint=previewTools.querySelector("[data-ws-preview-tools-hint]");
+    if(hint)hint.textContent=tr(!layer?"Select an element or text on the product to align it.":layer.locked?"Unlock this layer to align it.":"Drag on the product or use the alignment buttons above.");
+  }
   function renderPreviewSelection(){
+    updatePreviewTools();
     if(!previewCanvas||!previewFrame||!previewOverlay)return;
     const visible=mode==="preview"&&!!instance.asset?.projection;
     previewOverlay.hidden=!visible;
@@ -499,13 +521,22 @@ function renderElements(){
     if(!gesture)render();else paint();
     updateHistory();renderPreviewSelection();
   }
-  async function addImages(files){
+  async function addImages(files,point=null){
     if(!files?.length)return;
     if(!canAdd(files.length))return;
     if(shell.dataset.uploading)return;
     shell.dataset.uploading="true";setStatus("Preparing your images…");
     shell.querySelector("[data-ws-upload]").disabled=true;
-    try{const added=await adapter.addImages(files);if(!root.isConnected)return;selected=added?.at(-1)?.id||layers().at(-1)?.id||null;commit();setStatus("Images added");}
+    const targetProduct=instance.product().id,targetSide=adapter.surface();
+    try{
+      const added=await adapter.addImages(files);
+      if(!root.isConnected)return;
+      if(point&&instance.product().id===targetProduct&&adapter.surface()===targetSide){
+        added?.forEach((layer,index)=>{layer.x=clamp(point.x+.024*index,0,1);layer.y=clamp(point.y+.024*index,0,1);});
+      }
+      selected=added?.at(-1)?.id||layers().at(-1)?.id||null;
+      commit();setStatus("Images added");
+    }
     catch(error){setStatus(error.message||"Could not load this layer.",true);}
     finally{delete shell.dataset.uploading;shell.querySelector("[data-ws-upload]").disabled=false;shell.querySelector("[data-ws-upload]").value="";}
   }
@@ -527,6 +558,7 @@ function renderElements(){
       list.splice(index+1,0,copy);selected=copy.id;
     }else if(name==="forward"&&index<list.length-1){list.splice(index,1);list.splice(index+1,0,layer);}
     else if(name==="backward"&&index>0){list.splice(index,1);list.splice(index-1,0,layer);}
+    else if(name==="centre-both"){layer.x=.5;layer.y=.5;}
     else if(name==="centre-x")layer.x=.5;
     else if(name==="centre-y")layer.y=.5;
     else if(["safe-left","safe-right","safe-top","safe-bottom"].includes(name)){
@@ -672,6 +704,13 @@ function renderElements(){
     else if(button.hasAttribute("data-ws-confirm-copy"))copyOtherSide(true);
     else if(button.hasAttribute("data-ws-cancel-copy"))copyControls.querySelector("[data-ws-copy-confirm]").hidden=true;
     else if(button.hasAttribute("data-ws-choose-files"))shell.querySelector("[data-ws-upload]").click();
+    else if(button.hasAttribute("data-ws-preview-create")){
+      const kind=button.dataset.wsPreviewCreate;
+      if(kind==="photo"){switchTool("uploads");shell.querySelector("[data-ws-upload]").click();}
+      else if(kind==="element"){switchTool("elements");shell.querySelector("[data-ws-element-search]")?.focus({preventScroll:true});}
+      else if(kind==="text")addText("body");
+    }
+    else if(button.hasAttribute("data-ws-preview-align"))selectedAction(button.dataset.wsPreviewAlign);
     else if(button.hasAttribute("data-ws-element"))await addElement(button.dataset.wsElement);
     else if(button.hasAttribute("data-ws-elements-view")){elementsView=button.dataset.wsElementsView;elementLimit=48;renderElements();}
     else if(button.hasAttribute("data-ws-favourite")){window.VeeladStudioPro?.favourite(button.dataset.wsFavourite);renderElements();}
@@ -738,6 +777,31 @@ shell.addEventListener("dragstart",event=>{
     event.preventDefault();event.stopPropagation();
     const rect=artboard.getBoundingClientRect();
     void addElement(value,{x:(event.clientX-rect.left)/rect.width,y:(event.clientY-rect.top)/rect.height});
+  });
+  // Drag in original assets or private photos directly onto the garment.
+  // Convert the drop position to print-space UV, not mockup pixels.
+  previewOverlay.addEventListener("dragover",event=>{
+    const types=event.dataTransfer?.types;
+    if(types?.includes("application/x-veelad-element")||types?.includes("Files")){
+      event.preventDefault();event.dataTransfer.dropEffect="copy";
+      previewOverlay.classList.add("cw-preview-drop-active");
+    }
+  });
+  previewOverlay.addEventListener("dragleave",event=>{
+    if(!previewOverlay.contains(event.relatedTarget))previewOverlay.classList.remove("cw-preview-drop-active");
+  });
+  previewOverlay.addEventListener("drop",event=>{
+    previewOverlay.classList.remove("cw-preview-drop-active");
+    shell.classList.remove("cw-is-dragging");
+    const value=event.dataTransfer?.getData("application/x-veelad-element");
+    const files=event.dataTransfer?.files,point=previewPoint(event)?.uv;
+    if(value&&window.VeeladElements?.find(value)){
+      event.preventDefault();event.stopPropagation();
+      void addElement(value,point||{x:.5,y:.5});
+    }else if(files?.length){
+      event.preventDefault();event.stopPropagation();
+      void addImages(files,point||{x:.5,y:.5});
+    }
   });
   previewOverlay.addEventListener("pointerdown",beginPreviewGesture);
   previewOverlay.addEventListener("pointermove",movePreviewGesture);
