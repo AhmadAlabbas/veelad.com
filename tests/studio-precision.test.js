@@ -32,9 +32,9 @@ const library={catalog:items,searchText(item){
  return item.name;
 }};
 test('twelve independent clothing design starters use distinct editable illustrations',()=>{
- assert.equal(pro.templates.length,12);
- assert.equal(new Set(pro.templates.map(template=>template.id)).size,12);
- assert.equal(new Set(pro.templates.map(template=>template.element)).size,12);
+ assert.equal(pro.templates.length,18);
+ assert.equal(new Set(pro.templates.map(template=>template.id)).size,18);
+ assert.equal(new Set(pro.templates.map(template=>template.element)).size,18);
  for(const template of pro.templates){
   assert.match(template.color,/^#[a-f0-9]{6}$/i);
   assert.ok(template.label.length>=7&&template.label.length<=50);
