@@ -147,3 +147,38 @@
  transform:scale(1.06);transition:transform .19s ease;
 }
 @media(prefers-reduced-motion:reduce){.cw-element-entry .cw-element-tile[data-ws-element^="botanical-"]:hover .cw-element-visual svg{transform:none;transition:none}}
+
+/* Professional z-order panel: one motion, no extra confirmation toolbar. */
+.cw-layer-row[draggable="true"]{cursor:grab;transition:border-color .12s ease,background .12s ease}
+.cw-layer-row[draggable="true"]:active{cursor:grabbing}
+.cw-layer-row[data-dragging="true"]{opacity:.55}
+.cw-layer-row[data-drop-edge="before"]{border-top:3px solid #895ad4!important}
+.cw-layer-row[data-drop-edge="after"]{border-bottom:3px solid #895ad4!important}
+.cw-layer-row:focus-within{outline:2px solid #a48bdf;outline-offset:2px}
+@media(prefers-reduced-motion:reduce){.cw-layer-row[draggable="true"]{transition:none}}
+
+/* Curated palette swatches remain confined to the inspector; garment preview
+   intentionally remains drag-and-snap, without an alignment toolbar. */
+.cw-palette-presets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:12px 0}
+.cw-palette-presets>button{display:flex;min-width:0;flex-direction:column;align-items:center;gap:6px;padding:8px!important;min-height:58px;border:1px solid #e5dfed!important;background:#fff!important;border-radius:10px;cursor:pointer;color:#53465f!important}
+.cw-palette-presets>button:hover{background:#f8f4fe!important;border-color:#a891d5!important}
+.cw-palette-chips{display:flex;width:100%;height:20px;border-radius:6px;overflow:hidden;border:1px solid #ebe6f2}
+.cw-palette-chips i{flex:1;min-width:0}
+.cw-palette-presets small{font-size:10px;line-height:1.3;font-weight:650;text-align:center}
+.cw-palette-actions{display:grid;grid-column:1/-1;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.cw-palette-actions button{min-height:42px;border-radius:8px;border:1px solid #cbb9e4;background:#f3edf9;color:#553a79;font-size:11px;font-weight:650;padding:6px}
+.cw-palette-presets button:focus-visible{outline:3px solid #9575cb;outline-offset:2px}
+@media(max-width:600px){.cw-palette-actions{grid-template-columns:1fr}.cw-palette-actions button{min-height:46px}}
+
+/* Keep the illustration's click/touch target distinct from its favourite
+   action. Without a real-sized tile, the action can cover the hit centre. */
+.cw-element-entry .cw-element-tile{min-height:112px!important;position:relative}
+@media(max-width:700px){.cw-element-entry .cw-element-tile{min-height:98px!important}}
+/* The storefront's fixed shopping navigation must not cover interactive
+   design controls or artwork drag/drop targets on the Create page. */
+body:has(.customer-workspace) .mobile-shopping-nav{display:none!important}
+
+/* Illustration activation wins over the favourite control in the artwork area;
+   the separate favourite row remains independently clickable below it. */
+.cw-element-entry .cw-element-tile{z-index:2}
+.cw-element-entry .cw-favourite-button{position:relative!important;z-index:1}

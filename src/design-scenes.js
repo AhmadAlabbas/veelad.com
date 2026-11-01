@@ -33,7 +33,7 @@ export function validateScenes(value) {
      return {...common,upload_id:layer.upload_id,width:layer.width,height:layer.height,repeat:layer.repeat===true,...(element?{library_element:element}:{})};
     }
     const text=validateSceneTextLayers([layer])[0];
-    return {...common,text:text.text,font:text.font,color:text.color,size:text.size,align:text.align,direction:text.direction};
+    return {...common,text:text.text,font:text.font,color:text.color,size:text.size,align:text.align,direction:text.direction,...(text.tracking!==undefined?{tracking:text.tracking}:{})};
    });
    result[type][surface]={background:scene.background.toLowerCase(),layers};
   }

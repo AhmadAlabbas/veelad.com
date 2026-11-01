@@ -7,6 +7,8 @@ const workspaceArabic = {
   "Elements":"العناصر", "Element":"عنصر", "Search elements":"ابحث عن العناصر", "All categories":"كل التصنيفات", "More elements":"المزيد من العناصر", "Element colours":"ألوان العنصر", "Primary":"الأساسي", "Secondary":"الثانوي", "Accent":"التفاصيل", "Preparing element…":"نجهّز العنصر…", "Element updated":"تم تعديل العنصر", "Elements are original and can be recoloured.":"عناصر أصلية ويمكنك تغيير ألوانها.",
   "Move, resize and rotate design on product":"حرّك التصميم على المنتج وغيّر حجمه ودوّره", "Select artwork on the product to drag, resize or rotate it.":"اختر التصميم على القطعة واسحبه أو غيّر حجمه أو دوّره.", "Rotate selected artwork":"تدوير العنصر المحدد", "Resize selected artwork":"تغيير حجم العنصر المحدد",
   "Move artwork on the garment or edit it on the flat canvas.":"حرّك العناصر مباشرة على القطعة أو عدّلها على مساحة التصميم المسطحة.",
+  "Drag to reorder. Alt+Shift+Arrow keys also work.":"اسحب لإعادة ترتيب الطبقات، أو استخدم Alt+Shift مع الأسهم.", "Layer order updated":"تم تحديث ترتيب الطبقات",
+  "Save these colours":"حفظ هذه الألوان","Colours from photo":"ألوان من الصورة","Palette saved locally":"تم حفظ لوحة الألوان محليًا","Extracting palette locally…":"جارٍ استخراج الألوان محليًا…","Palette applied":"تم تطبيق لوحة الألوان","Could not extract colours from this photo.":"تعذر استخراج الألوان من هذه الصورة.",
   "Creative studio":"استوديو التصميم", "Make room for your imagination.":"خلّ لخيالك مساحة.", "Design":"التصميم", "Product preview":"معاينة القطعة", "Review item":"راجع قطعتك", "Uploads":"الصور", "Text":"النصوص", "Fonts":"الخطوط", "Layers":"الطبقات", "Layouts":"القوالب", "Canvas":"لوحة التصميم", "Add images":"أضف صور", "Upload images":"ارفع صورك", "Drop your images here":"اسحب صورك هنا", "PNG or JPEG · multiple files welcome":"PNG أو JPEG · تقدر تضيف أكثر من صورة", "Your originals stay private.":"ملفاتك الأصلية تبقى خاصة فيك.", "Add text":"أضف نص", "Add a heading":"أضف عنوان", "Add a little detail":"أضف عبارة صغيرة", "Your words, your style.":"كلماتك، بأسلوبك.", "Mix languages, play with type, make it yours.":"اجمع أكثر من لغة، وجرّب الخطوط على ذوقك.", "Write something wonderful":"اكتب شيء يشبهك", "A little more you":"تفصيلة منك", "Search fonts":"ابحث عن خط", "All scripts":"كل اللغات", "All styles":"كل الأنماط", "No fonts match. Try another search.":"ما لقينا خط يطابق بحثك. جرّب كلمة ثانية.", "Choose text on the canvas to apply a font.":"اختر نص من اللوحة عشان تغيّر خطه.", "Loading fonts…":"نجهّز مكتبة الخطوط…", "Font library is unavailable. Try again shortly.":"مكتبة الخطوط غير متاحة حاليًا. جرّب بعد شوي.", "Some characters are not included in this font. Choose a font for this script.":"بعض الحروف مو موجودة في هالخط. اختر خط يدعم لغة النص.", "Front":"الأمام", "Back":"الخلف", "Wrap":"التصميم الكامل", "Independent designs on each side":"تصميم مستقل لكل جهة", "One continuous wrap":"تصميم واحد يلتف حول الكوب", "Undo":"تراجع", "Redo":"إعادة", "Zoom":"التكبير", "Fit":"ملاءمة", "Fit to screen":"ناسب حجم الشاشة", "Safe area":"المساحة الآمنة", "Snap to centre":"محاذاة للمنتصف", "Add a photo. Make a statement.":"صورة منك. وتصميم على ذوقك.", "Start with an image, a few words, or both.":"ابدأ بصورة، أو كلمات، أو اجمعهم مع بعض.", "Select a layer to fine-tune it.":"اختر طبقة عشان تعدّل تفاصيلها.", "Drag to move · corners to resize · top handle to rotate":"اسحب للتحريك · الزوايا لتغيير الحجم · المقبض العلوي للتدوير", "Drag to move. Use the corner handles to resize.":"اسحب للتحريك. واستخدم مقابض الزوايا لتغيير الحجم.", "Provisional product preview":"معاينة مبدئية للقطعة", "Your design is editable. Supplier print specifications still need confirmation.":"تصميمك قابل للتعديل. مقاسات الطباعة النهائية تحتاج تأكيد المورّد.", "Background":"الخلفية", "Transparent":"شفافة", "Colour":"اللون", "Opacity":"الشفافية", "Rotation":"الدوران", "Width (%)":"العرض (%)", "Height (%)":"الارتفاع (%)", "Horizontal (%)":"أفقي (%)", "Vertical (%)":"عمودي (%)", "Text size (%)":"حجم النص (%)", "Your text":"النص", "Font":"الخط", "Writing direction":"اتجاه الكتابة", "Automatic":"تلقائي", "Right to left":"من اليمين لليسار", "Left to right":"من اليسار لليمين", "Alignment":"المحاذاة", "Left":"يسار", "Centre":"وسط", "Right":"يمين", "Duplicate":"انسخ", "Delete":"احذف", "Move forward":"قدّم طبقة", "Move backward":"أخّر طبقة", "Centre horizontally":"وسّط أفقيًا", "Centre vertically":"وسّط عموديًا", "Flip horizontally":"اعكس أفقيًا", "Flip vertically":"اعكس عموديًا", "Show layer":"أظهر الطبقة", "Hide layer":"أخفِ الطبقة", "Unlock layer":"افتح قفل الطبقة", "Lock layer":"اقفل الطبقة", "Image":"صورة", "Text layer":"طبقة نص", "No layers yet":"لوحتك جاهزة لأفكارك", "Add images or text. Every element stays editable.":"أضف صور أو نصوص. كل عنصر يبقى قابل للتعديل.", "Selected layer":"الطبقة المختارة", "Layer is locked. Unlock it to edit.":"الطبقة مقفلة. افتح القفل عشان تعدّلها.", "Your own text":"كلماتك هنا", "Add up to 24 layers on each side.":"تقدر تضيف حتى 24 طبقة لكل جهة.", "Preparing your images…":"نجهّز صورك…", "Images added":"أضفنا الصور", "Could not load this layer.":"ما قدرنا نحمّل هالطبقة.", "Preparing accurate text…":"نجهّز النص بدقّة…", "Close panel":"أغلق الأدوات", "Open panel":"افتح الأدوات", "Keyboard: arrows to move, Shift for larger steps, Delete to remove.":"بالكيبورد: الأسهم للتحريك، وShift لخطوة أكبر، وDelete للحذف.", "This side is empty":"هالجهة فاضية", "Layer":"طبقة", "Ready to create":"جاهز لأفكارك", "Image quality is checked again before printing.":"جودة الصور تنفحص مرة ثانية قبل الطباعة.", "Print safe area":"حدود الطباعة الآمنة", "Shown above the layer below it":"تظهر فوق الطبقة اللي تحتها", "Your image":"صورتك", "Keep proportions":"حافظ على النسبة", "Edit on a flat canvas, then preview your item.":"عدّل على لوحة مسطّحة، وبعدها شوف التصميم على قطعتك.", "Choose a layout":"اختر قالب", "No layouts available":"القوالب غير متاحة حاليًا", "Sample text":"نص تجريبي", "Layers on this side":"طبقات هالجهة", "Changes save automatically":"تعديلاتك تنحفظ تلقائيًا", "Move and resize artwork":"حرّك التصميم وغيّر حجمه", "Printing area":"مساحة الطباعة", "Load more fonts":"اعرض خطوط أكثر", "Font style":"نمط الخط", "sans":"بسيط", "serif":"كلاسيكي", "display":"عناوين", "handwriting":"يدوي", "mono":"متساوي العرض", "arabic":"عربي", "Image uploads are private and stay linked to this design.":"صورك خاصة وتبقى مرتبطة بهالتصميم.", "Choose a font":"اختر خط", "Uploading":"جارٍ الرفع", "Template applied":"أضفنا القالب", "Preview":"معاينة", "No artwork on this side yet.":"ما فيه تصميم على هالجهة للحين."
 };
 function workspaceT(value) {
@@ -171,7 +173,7 @@ const libraryPanel=document.createElement("section");
     focusButton.title=focusButton.getAttribute("aria-label");
     requestAnimationFrame(()=>{resizeStage();if(!focused)shell.scrollIntoView({block:"start",behavior:"instant"});});
   }
-  function glyphKey(layer){return JSON.stringify([layer.text,layer.font,layer.color,layer.size,layer.align,layer.direction]);}
+  function glyphKey(layer){return JSON.stringify([layer.text,layer.font,layer.color,layer.size,layer.align,layer.direction,layer.tracking??0]);}
   async function imageAsset(layer){
     const key=layer.type==="image"?"image:"+layer.upload_id:"text:"+glyphKey(layer),cache=layer.type==="image"?imageCache:glyphCache;
     if(!cache.has(key)){
@@ -421,20 +423,24 @@ function renderElements(){
     finally{elementBusy=false;}
   }
   async function recolourElement(layerId,channel,color){
+    const layer=layers().find(item=>item.id===layerId);
+    if(!layer?.library_element||!["primary","secondary","accent"].includes(channel))return;
+    if(!/^#[a-f0-9]{6}$/i.test(color))return;
+    return recolourPalette(layerId,{...layer.library_element.colors,[channel]:color.toLowerCase()});
+  }
+  async function recolourPalette(layerId,nextColors){
     const api=window.VeeladElements,layer=layers().find(item=>item.id===layerId);
-    if(!layer?.library_element||layer.locked||elementBusy||!["primary","secondary","accent"].includes(channel)||! /^#[a-f0-9]{6}$/i.test(color))return;
+    if(!layer?.library_element||layer.locked||elementBusy)return;
     const originalId=layer.library_element.id,originalColors=layer.library_element.colors;
-    const next={...originalColors,[channel]:color.toLowerCase()};
-    if(next[channel]===originalColors[channel])return;
+    if(!nextColors||!["primary","secondary","accent"].every(key=>/^#[a-f0-9]{6}$/i.test(nextColors[key]||"")))return;
+    const next=Object.fromEntries(["primary","secondary","accent"].map(key=>[key,nextColors[key].toLowerCase()]));
+    if(["primary","secondary","accent"].every(key=>next[key]===originalColors[key]))return;
     elementBusy=true;setStatus("Preparing element…");
     const product=instance.product().id,surface=adapter.surface();
     try{
-      const file=await api.file(originalId,next);
-      const generated=await adapter.addImages([file]);
-      const replacement=generated?.at(-1);
+      const file=await api.file(originalId,next),generated=await adapter.addImages([file]),replacement=generated?.at(-1);
       if(!replacement)return;
-      const scene=instance.state.scenes?.[product]?.[surface],list=scene?.layers||[];
-      const target=list.find(l=>l.id===layerId);
+      const scene=instance.state.scenes?.[product]?.[surface],list=scene?.layers||[],target=list.find(l=>l.id===layerId);
       if(target?.library_element?.id===originalId){
         target.upload_id=replacement.upload_id;
         target.library_element={id:originalId,colors:next};
@@ -450,8 +456,17 @@ function renderElements(){
     const node=shell.querySelector("[data-ws-layer-list]"),list=layers();
     node.innerHTML=list.length?[...list].reverse().map((layer,index)=>{
       const asset=layerAssets.get(layer.id),label=layer.type==="text"?(layer.text||tr("Text layer")):layer.library_element?(window.VeeladElements?.label(layer.library_element.id,currentLanguage())||tr("Element")):tr("Image")+" "+(list.length-index);
-      return `<article class="cw-layer-row" data-selected="${layer.id===selected}"><button type="button" class="cw-layer-pick" data-ws-select="${esc(layer.id)}" aria-pressed="${layer.id===selected}"><span class="cw-layer-thumb">${asset?.image?`<img src="${esc(asset.image.src)}" alt="">`:workspaceIcon(layer.type==="text"?"text":"image")}</span><span dir="auto">${esc(label.slice(0,45))}</span></button><button type="button" class="cw-layer-toggle" data-ws-toggle-visible="${esc(layer.id)}" aria-label="${esc(tr(layer.visible===false?"Show layer":"Hide layer"))}" title="${esc(tr(layer.visible===false?"Show layer":"Hide layer"))}">${workspaceIcon(layer.visible===false?"hidden":"eye")}</button><button type="button" class="cw-layer-toggle" data-ws-toggle-lock="${esc(layer.id)}" aria-label="${esc(tr(layer.locked?"Unlock layer":"Lock layer"))}" title="${esc(tr(layer.locked?"Unlock layer":"Lock layer"))}">${workspaceIcon(layer.locked?"lock":"unlock")}</button></article>`;
+      return `<article class="cw-layer-row" draggable="${!layer.locked}" data-ws-sort-layer="${esc(layer.id)}" data-selected="${layer.id===selected}" title="${esc(tr("Drag to reorder. Alt+Shift+Arrow keys also work."))}"><button type="button" class="cw-layer-pick" data-ws-select="${esc(layer.id)}" aria-pressed="${layer.id===selected}"><span class="cw-layer-thumb">${asset?.image?`<img src="${esc(asset.image.src)}" alt="">`:workspaceIcon(layer.type==="text"?"text":"image")}</span><span dir="auto">${esc(label.slice(0,45))}</span></button><button type="button" class="cw-layer-toggle" data-ws-toggle-visible="${esc(layer.id)}" aria-label="${esc(tr(layer.visible===false?"Show layer":"Hide layer"))}" title="${esc(tr(layer.visible===false?"Show layer":"Hide layer"))}">${workspaceIcon(layer.visible===false?"hidden":"eye")}</button><button type="button" class="cw-layer-toggle" data-ws-toggle-lock="${esc(layer.id)}" aria-label="${esc(tr(layer.locked?"Unlock layer":"Lock layer"))}" title="${esc(tr(layer.locked?"Unlock layer":"Lock layer"))}">${workspaceIcon(layer.locked?"lock":"unlock")}</button></article>`;
     }).join(""):`<div class="cw-empty-panel">${workspaceIcon("layers")}<strong>${tr("No layers yet")}</strong><p>${tr("Add images or text. Every element stays editable.")}</p></div>`;
+  }
+  function reorderLayers(sourceId,targetId,placeAfter=false){
+    const source=layers().find(item=>item.id===sourceId),target=layers().find(item=>item.id===targetId);
+    if(!source||!target||source.locked||target.locked||sourceId===targetId)return false;
+    const ordered=window.VeeladLayerOrder?.reorderTopFirst([...layers()].reverse(),sourceId,targetId,placeAfter);
+    if(!ordered||ordered.every((layer,i)=>layer.id===[...layers()].reverse()[i]?.id))return false;
+    const list=layers();list.splice(0,list.length,...ordered.reverse());
+    selected=sourceId;commit();setStatus("Layer order updated");
+    return true;
   }
   function renderUploads(){
     const all=new Map();
@@ -487,7 +502,27 @@ function renderElements(){
     if(inspector.contains(focus)&&focus.matches("input,textarea,select"))return;
     if(!layer){inspector.hidden=true;inspector.innerHTML="";return;}
     inspector.hidden=false;
-    inspector.innerHTML=`<div class="cw-inspector-heading"><h4>${tr("Selected layer")}</h4><span>${tr(layer.type==="text"?"Text":"Image")}</span></div>${layer.locked?`<p class="cw-lock-notice">${workspaceIcon("lock")}${tr("Layer is locked. Unlock it to edit.")}</p>`:""}<fieldset ${layer.locked?"disabled":""}><div class="cw-selection-actions">${action("duplicate","Duplicate","duplicate")}${action("delete","Delete","delete")}${action("forward","Move forward","up")}${action("backward","Move backward","down")}</div>${layer.library_element?`<div class="cw-element-inspector"><h5>${tr("Element colours")}</h5><div class="cw-element-inspector-preview" data-ws-element-preview>${window.VeeladElements?.svg(layer.library_element.id,layer.library_element.colors)||""}</div>${["emoji","flag"].includes(window.VeeladElements?.find(layer.library_element.id)?.kind)?`<p class="cw-element-immutable-note">${tr(window.VeeladElements.find(layer.library_element.id).variant===0?"Original national flag and emoji colours cannot be changed.":"Emoji and flag symbols retain their colours. Change the badge colours instead.")}</p>`:""}${(["emoji","flag"].includes(window.VeeladElements?.find(layer.library_element.id)?.kind)?({0:[],1:["secondary"],2:["secondary"],3:["secondary","accent"],4:["secondary"],5:["accent"],6:["secondary"],7:["secondary","accent"]}[window.VeeladElements.find(layer.library_element.id).variant]||[]):["primary","secondary","accent"]).map(key=>`<label class="cw-element-colour"><span>${tr(key==="primary"?"Primary":key==="secondary"?"Secondary":"Accent")}</span><input type="color" data-ws-element-colour="${key}" value="${esc(layer.library_element.colors[key])}" aria-label="${esc(tr(key==="primary"?"Primary":key==="secondary"?"Secondary":"Accent"))}"></label>`).join("")}</div>`:""}${layer.type==="text"?`<label class="cw-property"><span>${tr("Your text")}</span><textarea data-ws-prop="text" maxlength="500" rows="3" dir="auto">${esc(layer.text||"")}</textarea><small><span data-ws-character-count>${layer.text?.length||0}</span>/500</small></label><button type="button" class="cw-selected-font" data-ws-open-fonts><span>${tr("Font")}</span><strong>${esc(window.VeeladFonts?.get(layer.font)?.label||layer.font)}</strong>${workspaceIcon("fonts")}</button><p class="cw-glyph-warning" data-ws-glyph-warning hidden></p><div class="cw-property-grid">${prop("Colour","color",layer.color,{type:"color"})}${prop("Text size (%)","size",Math.round(layer.size*1000)/10,{min:.5,max:50,step:.1})}</div><label class="cw-property"><span>${tr("Alignment")}</span><select data-ws-prop="align">${["left","center","right"].map(align=>`<option value="${align}" ${layer.align===align?"selected":""}>${tr(align==="center"?"Centre":align==="left"?"Left":"Right")}</option>`).join("")}</select></label><label class="cw-property"><span>${tr("Writing direction")}</span><select data-ws-prop="direction">${[["auto","Automatic"],["rtl","Right to left"],["ltr","Left to right"]].map(([key,label])=>`<option value="${key}" ${layer.direction===key?"selected":""}>${tr(label)}</option>`).join("")}</select></label>`:`<div class="cw-property-grid">${prop("Width (%)","width",Math.round(layer.width*1000)/10,{min:1,max:300,step:.1})}${prop("Height (%)","height",Math.round(layer.height*1000)/10,{min:1,max:300,step:.1})}</div><label class="cw-check"><input type="checkbox" data-ws-proportions checked>${tr("Keep proportions")}</label>`}<div class="cw-property-grid">${prop("Horizontal (%)","x",Math.round(layer.x*1000)/10,{step:.1})}${prop("Vertical (%)","y",Math.round(layer.y*1000)/10,{step:.1})}${prop("Rotation","rotation",Math.round(layer.rotation||0),{min:-180,max:180})}${prop("Opacity","opacity",Math.round((layer.opacity??1)*100))}</div><div class="cw-centre-actions"><button type="button" data-ws-action="centre-x">${workspaceIcon("centre")}${tr("Centre horizontally")}</button><button type="button" data-ws-action="centre-y">${workspaceIcon("centre")}${tr("Centre vertically")}</button><button type="button" data-ws-action="safe-left">${workspaceIcon("centre")}${tr("Align to safe left")}</button><button type="button" data-ws-action="safe-right">${workspaceIcon("centre")}${tr("Align to safe right")}</button><button type="button" data-ws-action="safe-top">${workspaceIcon("centre")}${tr("Align to safe top")}</button><button type="button" data-ws-action="safe-bottom">${workspaceIcon("centre")}${tr("Align to safe bottom")}</button></div><p class="cw-studio-print-note">${tr("Place artwork within the provisional safe region. Final supplier dimensions are not yet approved.")}</p></fieldset>`;
+    inspector.innerHTML=`<div class="cw-inspector-heading"><h4>${tr("Selected layer")}</h4><span>${tr(layer.type==="text"?"Text":"Image")}</span></div>${layer.locked?`<p class="cw-lock-notice">${workspaceIcon("lock")}${tr("Layer is locked. Unlock it to edit.")}</p>`:""}<fieldset ${layer.locked?"disabled":""}><div class="cw-selection-actions">${action("duplicate","Duplicate","duplicate")}${action("delete","Delete","delete")}${action("forward","Move forward","up")}${action("backward","Move backward","down")}</div>${layer.library_element?`<div class="cw-element-inspector"><h5>${tr("Element colours")}</h5><div class="cw-element-inspector-preview" data-ws-element-preview>${window.VeeladElements?.svg(layer.library_element.id,layer.library_element.colors)||""}</div>${["emoji","flag"].includes(window.VeeladElements?.find(layer.library_element.id)?.kind)?`<p class="cw-element-immutable-note">${tr(window.VeeladElements.find(layer.library_element.id).variant===0?"Original national flag and emoji colours cannot be changed.":"Emoji and flag symbols retain their colours. Change the badge colours instead.")}</p>`:""}${(["emoji","flag"].includes(window.VeeladElements?.find(layer.library_element.id)?.kind)?({0:[],1:["secondary"],2:["secondary"],3:["secondary","accent"],4:["secondary"],5:["accent"],6:["secondary"],7:["secondary","accent"]}[window.VeeladElements.find(layer.library_element.id).variant]||[]):["primary","secondary","accent"]).map(key=>`<label class="cw-element-colour"><span>${tr(key==="primary"?"Primary":key==="secondary"?"Secondary":"Accent")}</span><input type="color" data-ws-element-colour="${key}" value="${esc(layer.library_element.colors[key])}" aria-label="${esc(tr(key==="primary"?"Primary":key==="secondary"?"Secondary":"Accent"))}"></label>`).join("")}</div>`:""}${layer.type==="text"?`<label class="cw-property"><span>${tr("Your text")}</span><textarea data-ws-prop="text" maxlength="500" rows="3" dir="auto">${esc(layer.text||"")}</textarea><small><span data-ws-character-count>${layer.text?.length||0}</span>/500</small></label><button type="button" class="cw-selected-font" data-ws-open-fonts><span>${tr("Font")}</span><strong>${esc(window.VeeladFonts?.get(layer.font)?.label||layer.font)}</strong>${workspaceIcon("fonts")}</button><p class="cw-glyph-warning" data-ws-glyph-warning hidden></p><div class="cw-property-grid">${prop("Colour","color",layer.color,{type:"color"})}${prop("Text size (%)","size",Math.round(layer.size*1000)/10,{min:.5,max:50,step:.1})}${prop("Letter spacing (%)","tracking",Math.round((layer.tracking??0)*1000)/10,{min:-8,max:30,step:.5})}</div><label class="cw-property"><span>${tr("Alignment")}</span><select data-ws-prop="align">${["left","center","right"].map(align=>`<option value="${align}" ${layer.align===align?"selected":""}>${tr(align==="center"?"Centre":align==="left"?"Left":"Right")}</option>`).join("")}</select></label><label class="cw-property"><span>${tr("Writing direction")}</span><select data-ws-prop="direction">${[["auto","Automatic"],["rtl","Right to left"],["ltr","Left to right"]].map(([key,label])=>`<option value="${key}" ${layer.direction===key?"selected":""}>${tr(label)}</option>`).join("")}</select></label>`:`<div class="cw-property-grid">${prop("Width (%)","width",Math.round(layer.width*1000)/10,{min:1,max:300,step:.1})}${prop("Height (%)","height",Math.round(layer.height*1000)/10,{min:1,max:300,step:.1})}</div><label class="cw-check"><input type="checkbox" data-ws-proportions checked>${tr("Keep proportions")}</label>`}<div class="cw-property-grid">${prop("Horizontal (%)","x",Math.round(layer.x*1000)/10,{step:.1})}${prop("Vertical (%)","y",Math.round(layer.y*1000)/10,{step:.1})}${prop("Rotation","rotation",Math.round(layer.rotation||0),{min:-180,max:180})}${prop("Opacity","opacity",Math.round((layer.opacity??1)*100))}</div><div class="cw-centre-actions"><button type="button" data-ws-action="centre-x">${workspaceIcon("centre")}${tr("Centre horizontally")}</button><button type="button" data-ws-action="centre-y">${workspaceIcon("centre")}${tr("Centre vertically")}</button><button type="button" data-ws-action="safe-left">${workspaceIcon("centre")}${tr("Align to safe left")}</button><button type="button" data-ws-action="safe-right">${workspaceIcon("centre")}${tr("Align to safe right")}</button><button type="button" data-ws-action="safe-top">${workspaceIcon("centre")}${tr("Align to safe top")}</button><button type="button" data-ws-action="safe-bottom">${workspaceIcon("centre")}${tr("Align to safe bottom")}</button></div><p class="cw-studio-print-note">${tr("Place artwork within the provisional safe region. Final supplier dimensions are not yet approved.")}</p></fieldset>`;
+    const paletteParent=inspector.querySelector(".cw-element-inspector");
+    if(paletteParent&&layer.library_element&&!layer.locked&&window.VeeladStudioPro&&!["emoji","flag"].includes(window.VeeladElements.find(layer.library_element.id)?.kind)){
+      const paletteBox=document.createElement("div");paletteBox.className="cw-palette-presets";
+      const palettes=[...(window.VeeladStudioPro.palettes||[]),...(window.VeeladColourTools?.read()||[])];
+      for(const palette of palettes){
+        const colors=palette.colors||Object.values(window.VeeladElements.defaults(layer.library_element.id));
+        const button=document.createElement("button");button.type="button";button.dataset.wsPalette=palette.id;
+        button.title=button.ariaLabel=palette.title;
+        const chips=document.createElement("span");chips.className="cw-palette-chips";
+        for(const color of colors){const chip=document.createElement("i");chip.style.background=color;chips.append(chip);}
+        const label=document.createElement("small");label.textContent=window.VeeladStudioPro.title(palette,currentLanguage())||palette.title;
+        button.append(chips,label);paletteBox.append(button);
+      }
+      const actions=document.createElement("div");actions.className="cw-palette-actions";
+      const saved=document.createElement("button");saved.type="button";saved.dataset.wsSavePalette="";saved.textContent=tr("Save these colours");actions.append(saved);
+      if(layers().some(item=>item.type==="image"&&!item.library_element)){
+        const extraction=document.createElement("button");extraction.type="button";extraction.dataset.wsExtractPalette="";extraction.textContent=tr("Colours from photo");actions.append(extraction);
+      }
+      paletteBox.append(actions);paletteParent.append(paletteBox);
+    }
     checkGlyphs();
   }
   function checkGlyphs(){
@@ -586,6 +621,7 @@ function renderElements(){
       const value=Number(input.value);if(!Number.isFinite(value)||input.value==="")return;
       if(key==="rotation")layer.rotation=clamp(value,-180,180);
       else if(key==="size")layer.size=clamp(value/100,.005,.5);
+      else if(key==="tracking")layer.tracking=clamp(value/100,-.08,.3);
       else if(["width","height"].includes(key)){
         const next=clamp(value/100,.01,3),previous=layer[key];
         if(inspector.querySelector("[data-ws-proportions]")?.checked){const other=key==="width"?"height":"width";layer[other]=clamp(layer[other]*next/previous,.01,3);}
@@ -598,7 +634,7 @@ function renderElements(){
   function handlePoint(event){if(gesture?.preview){const point=previewPoint(event);return point&&{x:point.x,y:point.y};}const rect=artboard.getBoundingClientRect(),d=logical();return{x:(event.clientX-rect.left)/rect.width*d.width,y:(event.clientY-rect.top)/rect.height*d.height};}
   function rotatePoint(point,angle){const c=Math.cos(angle),s=Math.sin(angle);return{x:point.x*c-point.y*s,y:point.x*s+point.y*c};}
   function beginGesture(event){
-    if(event.button!==0||mode!=="edit")return;
+    if(event.button!==0||mode!=="edit"||pinch)return;
     const handle=event.target.closest("[data-ws-handle]"),node=event.target.closest("[data-ws-layer]");
     if(!handle&&!node){selectLayer(null,{focus:true});return;}
     if(node)selectLayer(node.dataset.wsLayer,{focus:true});
@@ -625,7 +661,7 @@ function renderElements(){
         if(useSnap&&snap){
           const measures=item=>{const size=dimensions(item);return{width:size.width/d.width,height:size.height/d.height};};
           const proposed=snap.snap({x:layer.x,y:layer.y},layer,layers(),measures,{
-            aspect:d.height/d.width,tolerance:.016
+            aspect:d.height/d.width,tolerance:Math.max(.016,8/Math.max(1,previewOverlay.clientWidth))
           });
           layer.x=proposed.x;layer.y=proposed.y;
           renderPreviewGuides(proposed.guides);
@@ -719,6 +755,32 @@ function renderElements(){
     else if(button.hasAttribute("data-ws-elements-view")){elementsView=button.dataset.wsElementsView;elementLimit=48;renderElements();}
     else if(button.hasAttribute("data-ws-favourite")){window.VeeladStudioPro?.favourite(button.dataset.wsFavourite);renderElements();}
     else if(button.hasAttribute("data-ws-pro-layout"))await applyProLayout(button.dataset.wsProLayout);
+    else if(button.hasAttribute("data-ws-save-palette")){
+      const layer=current(),colour=window.VeeladColourTools;
+      if(layer?.library_element&&colour){const c=layer.library_element.colors;colour.save([c.primary,c.secondary,c.accent]);renderInspector();setStatus("Palette saved locally");}
+    }
+    else if(button.hasAttribute("data-ws-extract-palette")){
+      const layer=current(),imageLayer=layers().find(item=>item.type==="image"&&!item.library_element),tools=window.VeeladColourTools;
+      if(layer?.library_element&&imageLayer?.upload_id&&tools){
+        try{
+          setStatus("Extracting palette locally…");const image=await adapter.image(imageLayer.upload_id);
+          const canvas=document.createElement("canvas");canvas.width=canvas.height=64;
+          const context=canvas.getContext("2d",{willReadFrequently:true});if(!context)throw Error("Canvas unavailable");
+          context.clearRect(0,0,64,64);context.drawImage(image,0,0,64,64);
+          const colors=tools.extract(context.getImageData(0,0,64,64).data);tools.save(colors);
+          await recolourPalette(layer.id,{primary:colors[0],secondary:colors[1],accent:colors[2]});
+          setStatus("Palette applied");
+        }catch{setStatus("Could not extract colours from this photo.",true);}
+      }
+    }
+    else if(button.hasAttribute("data-ws-palette")){
+      const layer=current(),palette=[...(window.VeeladStudioPro?.palettes||[]),...(window.VeeladColourTools?.read()||[])].find(p=>p.id===button.dataset.wsPalette);
+      if(layer?.library_element&&palette){
+        const original=window.VeeladElements.defaults(layer.library_element.id),colors=palette.colors||[original.primary,original.secondary,original.accent];
+        await recolourPalette(layer.id,{primary:colors[0],secondary:colors[1],accent:colors[2]});
+      }
+    }
+
     else if(button.hasAttribute("data-ws-element-more")){elementLimit+=48;renderElements();}
     else if(button.hasAttribute("data-ws-add-text"))addText(button.dataset.wsAddText);
     else if(button.hasAttribute("data-ws-open-fonts"))switchTool("fonts");
@@ -761,11 +823,57 @@ shell.addEventListener("dragstart",event=>{
     if(!event.dataTransfer)return;
     const element=event.target.closest("[data-ws-element]"),
       upload=event.target.closest("[data-ws-reuse]");
+    const row=event.target.closest("[data-ws-sort-layer]");
+    if(row&&!event.target.closest("[data-ws-toggle-lock], [data-ws-toggle-visible]")){
+      const layer=layers().find(item=>item.id===row.dataset.wsSortLayer);
+      if(!layer||layer.locked){event.preventDefault();return;}
+      event.dataTransfer.setData("application/x-veelad-layer",layer.id);
+      event.dataTransfer.effectAllowed="move";
+      row.dataset.dragging="true";return;
+    }
     if(element)event.dataTransfer.setData("application/x-veelad-element",element.dataset.wsElement);
     else if(upload)event.dataTransfer.setData("application/x-veelad-upload",upload.dataset.wsReuse);
     else return;
     event.dataTransfer.effectAllowed="copy";
   });
+  shell.addEventListener("dragover",event=>{
+    const row=event.target.closest("[data-ws-sort-layer]");
+    if(!row||!event.dataTransfer?.types.includes("application/x-veelad-layer"))return;
+    const rect=row.getBoundingClientRect();
+    const after=event.clientY>rect.top+rect.height/2;
+    event.preventDefault();event.dataTransfer.dropEffect="move";
+    shell.querySelectorAll("[data-ws-sort-layer]").forEach(other=>{
+      if(other!==row)delete other.dataset.dropEdge;
+    });
+    row.dataset.dropEdge=after?"after":"before";
+  });
+  shell.addEventListener("drop",event=>{
+    const row=event.target.closest("[data-ws-sort-layer]");
+    if(!row||!event.dataTransfer?.types.includes("application/x-veelad-layer"))return;
+    const source=event.dataTransfer.getData("application/x-veelad-layer");
+    const target=row.dataset.wsSortLayer;
+    const rect=row.getBoundingClientRect(),after=event.clientY>rect.top+rect.height/2;
+    event.preventDefault();event.stopPropagation();
+    shell.querySelectorAll("[data-ws-sort-layer]").forEach(item=>delete item.dataset.dropEdge);
+    reorderLayers(source,target,after);
+  });
+  shell.addEventListener("dragend",()=>{
+    shell.querySelectorAll("[data-ws-sort-layer]").forEach(item=>{
+      delete item.dataset.dropEdge;delete item.dataset.dragging;
+    });
+  });
+  shell.addEventListener("keydown",event=>{
+    if(!event.altKey||!event.shiftKey||!["ArrowUp","ArrowDown"].includes(event.key))return;
+    const row=event.target.closest("[data-ws-sort-layer]");if(!row)return;
+    const shown=[...layers()].reverse(),index=shown.findIndex(l=>l.id===row.dataset.wsSortLayer);
+    const target=shown[index+(event.key==="ArrowUp"?-1:1)];
+    if(!target)return;
+    event.preventDefault();event.stopImmediatePropagation();
+    const id=row.dataset.wsSortLayer;
+    if(reorderLayers(id,target.id,event.key==="ArrowDown"))requestAnimationFrame(()=>{
+      [...shell.querySelectorAll("[data-ws-sort-layer]")].find(x=>x.dataset.wsSortLayer===id)?.querySelector(".cw-layer-pick")?.focus();
+    });
+  },true);
   artboard.addEventListener("dragover",event=>{
     if(event.dataTransfer?.types.includes("application/x-veelad-element")){event.preventDefault();event.dataTransfer.dropEffect="copy";}
   });
@@ -811,6 +919,46 @@ shell.addEventListener("dragstart",event=>{
   root.addEventListener("customer-scene-rendered",()=>{if(mode==="preview")renderPreviewSelection();});
   artboard.addEventListener("pointerdown",beginGesture);artboard.addEventListener("pointermove",moveGesture);
   for(const name of ["pointerup","pointercancel","lostpointercapture"])artboard.addEventListener(name,finishGesture);
+  // Two-finger zoom works on touch screens without generating layer edits.
+  // A second pointer cancels the first layer gesture, preserving undo history.
+  const touchPointers=new Map();
+  let pinch=null;
+  function touchStart(event){
+    if(event.pointerType!=="touch"||mode!=="edit")return;
+    touchPointers.set(event.pointerId,{x:event.clientX,y:event.clientY});
+    if(touchPointers.size===2){
+      if(gesture)finishGesture({type:"pointercancel",pointerId:gesture.pointer});
+      const points=[...touchPointers.values()],distance=Math.hypot(points[0].x-points[1].x,points[0].y-points[1].y);
+      pinch={distance:Math.max(distance,8),factor:zoom==="fit"?1:Number(zoom)};
+      event.stopImmediatePropagation();event.preventDefault();
+    }
+  }
+  function touchMove(event){
+    if(event.pointerType!=="touch"||!touchPointers.has(event.pointerId))return;
+    touchPointers.set(event.pointerId,{x:event.clientX,y:event.clientY});
+    if(!pinch||touchPointers.size<2)return;
+    const points=[...touchPointers.values()],
+      distance=Math.hypot(points[0].x-points[1].x,points[0].y-points[1].y),
+      factor=clamp(pinch.factor*distance/pinch.distance,.5,3);
+    if(Number.isFinite(factor)){
+      zoom=String(Math.round(factor*20)/20);
+      const control=shell.querySelector("[data-ws-zoom]");
+      if(control){let option=[...control.options].find(o=>o.value===zoom);if(!option){
+        option=document.createElement("option");option.value=zoom;option.textContent=Math.round(factor*100)+"%";
+        control.append(option);
+      }control.value=zoom;}
+      resizeStage();
+    }
+    event.stopImmediatePropagation();event.preventDefault();
+  }
+  function touchEnd(event){
+    if(event.pointerType!=="touch")return;
+    touchPointers.delete(event.pointerId);
+    if(touchPointers.size<2)pinch=null;
+  }
+  for(const name of ["pointerdown"])artboard.addEventListener(name,touchStart,true);
+  artboard.addEventListener("pointermove",touchMove,true);
+  for(const name of ["pointerup","pointercancel","lostpointercapture"])artboard.addEventListener(name,touchEnd,true);
   shell.addEventListener("keydown",keyboard);
   root.addEventListener("scene-editor-change",()=>{if(!gesture){record();refresh();}});
   const resizeObserver=typeof ResizeObserver!=="undefined"?new ResizeObserver(()=>resizeStage()):null;

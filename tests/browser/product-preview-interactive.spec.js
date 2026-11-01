@@ -28,6 +28,8 @@ test('direct product preview edits share the saved design and support drag, resi
   await shell.locator('[data-ws-mode=preview]').click();
   const overlay=shell.locator('[data-ws-preview-overlay]');
   await expect(overlay).toBeVisible();
+  await overlay.scrollIntoViewIfNeeded();
+  await expect(overlay).toBeInViewport();
   const polygon=overlay.locator('polygon');
   await expect.poll(async()=>polygon.getAttribute('points')).not.toBe('');
   const initial=(await scene()).layers[0];
@@ -69,6 +71,7 @@ test('direct product preview edits share the saved design and support drag, resi
   await shell.locator('[data-ws-mode=preview]').click();
   await expect(rotate).toBeVisible();
   const beforeText=(await scene()).layers.find(layer=>layer.type==='text');
+  await overlay.scrollIntoViewIfNeeded();
   const tc=await overlay.evaluate(node=>{
    const rect=node.getBoundingClientRect();
    const pts=node.querySelector('polygon').getAttribute('points').trim().split(/\s+/).map(pair=>pair.split(',').map(Number));

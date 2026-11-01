@@ -48,6 +48,7 @@ export function validateTextLayers(value = {}, options = {}) {
           layer[key] > max
         )
           fail(422, "Please check the text layers.");
+      if(scene&&layer.tracking!==undefined&&(!Number.isFinite(layer.tracking)||layer.tracking<-.08||layer.tracking>.3))fail(422,"Letter spacing is outside the safe range.");
       if(scene&&!supportsText(legacyFontForText(layer)?.id||layer.font,layer.text))fail(422,"This font does not include every character in your text. Choose a font for that language.");
       const id =
         typeof layer.id === "string" && /^[a-zA-Z0-9_-]{1,48}$/.test(layer.id)
@@ -64,6 +65,7 @@ export function validateTextLayers(value = {}, options = {}) {
         y: layer.y,
         size: layer.size,
         rotation: layer.rotation,
+        ...(scene&&layer.tracking!==undefined?{tracking:layer.tracking}:{}),
       };
     });
     if (new Set(result[type].map((layer) => layer.id)).size !== layers.length)
@@ -120,7 +122,7 @@ async function prepareTextGlyph(layer, width = 900) {
   const fontSize=Math.max(1,Math.round(width*layer.size));
   const glyphInput=size=>({
     text: {
-      text: `<span foreground="${layer.color}">${escape(direction + layer.text)}</span>`,
+      text: `<span foreground="${layer.color}" letter_spacing="${Math.round(size*(layer.tracking??0)*1024)}">${escape(direction + layer.text)}</span>`,
       font: font.family + " " + size,
       fontfile,
       align: layer.align,
