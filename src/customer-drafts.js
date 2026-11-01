@@ -171,7 +171,8 @@ export async function customerDraftRoute({
       [id,u.id,revision]
     );
     if(!snapshot)fail(404,"Draft version not found.");
-    res.json({draft:{...json(snapshot.data),id,product_id:snapshot.product_id,revision:snapshot.revision,updated_at:snapshot.created_at}});
+    const p=await db.one("SELECT * FROM products WHERE id=?",[snapshot.product_id]);
+    res.json({draft:{...json(snapshot.data),id,product_id:snapshot.product_id,revision:snapshot.revision,updated_at:snapshot.created_at},product:baseValue(productOrNull(p))});
     return;
   }
   if (route === "customer-draft" && method === "POST") {
