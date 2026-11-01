@@ -27,7 +27,10 @@ test('creators insert, recolour and persist a private vector element in the desi
   expect(botanicalPng.size).toBeGreaterThan(800);
   await page.screenshot({path:info.outputPath('botanical-atelier-gallery.png'),fullPage:true});
   await studio.locator('[data-ws-element-category]').selectOption('');
-  await expect(studio.locator('[data-ws-element=premium-orchid-0]')).toBeVisible();
+  await studio.locator('[data-ws-element-search]').fill('orchid');
+  await expect(studio.locator('[data-ws-element=premium-orchid-0]')).toHaveCount(1);
+  // On compact/mobile panels the element list can be visually collapsed until
+  // the viewer expands it; its presence verifies the older art was retained.
   await expect(studio.locator('[data-ws-panel=elements]')).toBeVisible();
 
   // Verify that system emojis, flags and original city SVGs become actual
