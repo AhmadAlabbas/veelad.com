@@ -700,6 +700,7 @@ function renderElements(){
     if(event.type==="pointercancel")Object.assign(layers().find(l=>l.id===g.id)||{},g.original);
     else if(snapshot()!==g.before)commit();
     renderInspector();render();
+    if(g.preview){renderPreviewSelection();void instance.render?.();}
   }
   function keyboard(event){
     if(event.key==="Escape"&&focused){event.preventDefault();setFocus(false);return;}
