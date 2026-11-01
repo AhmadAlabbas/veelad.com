@@ -110,3 +110,41 @@ test('desktop header gives search useful width without overlapping navigation',a
   }
  }finally{await page.goto('about:blank').catch(()=>{});await fixture.close();}
 });
+
+
+test('clothing browse groups only real listings, filters confirmed choices and labels planned ranges honestly',async({page})=>{
+ test.setTimeout(90000);
+ const fixture=await storefrontApp(),errors=[];
+ page.on('pageerror',error=>errors.push(error.message));
+ try{
+  await page.goto(fixture.origin+'/en');
+  await expect(page.locator('.home-wardrobe-entry')).toBeVisible();
+  await page.locator('.home-wardrobe-entry a').click();
+  await expect(page).toHaveURL(/department=wearables/);
+  await expect(page.locator('.wardrobe-intro')).toBeVisible();
+  await expect(page.locator('.product-card')).toHaveCount(1);
+  await expect(page.locator('.wardrobe-type.available')).toContainText('T-shirts');
+  await expect(page.locator('.wardrobe-type.planned').first()).toContainText('In preparation');
+  await expect(page.locator('.wardrobe-type.planned a')).toHaveCount(0);
+  const filters=page.locator('form[data-form=filters]');
+  await expect(filters.locator('[name=size] option')).toContainText('XL');
+  await filters.locator('[name=size]').selectOption('M');
+  await filters.locator('[name=color]').selectOption('white');
+  await filters.locator('[type=submit]').click();
+  await expect(page).toHaveURL(/size=M/);
+  await expect(page).toHaveURL(/color=white/);
+  await expect(page.locator('.product-card')).toHaveCount(1);
+  await expect(page.locator('.wardrobe-card-colours>span')).toHaveCount(1);
+  await page.goto(fixture.origin+'/en/shop?department=wearables&view=products&size=XXL');
+  await expect(page.locator('.product-card')).toHaveCount(0);
+  await page.goto(fixture.origin+'/en/shop?view=products');
+  await expect(page.locator('.product-card')).toHaveCount(3);
+  for(const lang of ['ar','zh-CN']){
+   await page.goto(fixture.origin+'/'+lang+'/shop?department=wearables&view=products');
+   await expect(page.locator('.wardrobe-intro')).toBeVisible();
+   await expect(page.locator('.product-card')).toHaveCount(1);
+   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+  }
+  expect(errors).toEqual([]);
+ }finally{await page.goto('about:blank').catch(()=>{});await fixture.close();}
+});
