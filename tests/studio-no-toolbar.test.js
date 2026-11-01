@@ -11,7 +11,7 @@ test('product preview must never regress to large Add photo/Align button bar',()
  assert.ok(!css.includes('.cw-preview-tools{'), 'do not style a preview button toolbar');
  assert.ok(js.includes('data-ws-preview-guide="x"'), 'mouse alignment guides must stay');
  assert.ok(js.includes('data-ws-preview-guide="y"'), 'two-axis alignment guides must stay');
- assert.ok(js.includes('data-ws-preview-overlay'), 'real print region overlay must stay');
+ assert.ok(js.includes('previewOverlay.addEventListener("pointerdown",beginPreviewGesture)'), 'actual print selection overlay must stay');
  assert.ok(js.includes('void reuseImage(upload,point)'), 'users can drop their uploaded photos');
  assert.ok(js.includes('void addElement(value,point)'), 'users can drop library art');
  assert.ok(js.includes('void addImages(files,point)'), 'users can drop OS photo files');
