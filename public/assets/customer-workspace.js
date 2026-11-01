@@ -7,6 +7,12 @@ const workspaceArabic = {
   "Elements":"العناصر", "Element":"عنصر", "Search elements":"ابحث عن العناصر", "All categories":"كل التصنيفات", "More elements":"المزيد من العناصر", "Element colours":"ألوان العنصر", "Primary":"الأساسي", "Secondary":"الثانوي", "Accent":"التفاصيل", "Preparing element…":"نجهّز العنصر…", "Element updated":"تم تعديل العنصر", "Elements are original and can be recoloured.":"عناصر أصلية ويمكنك تغيير ألوانها.",
   "Move, resize and rotate design on product":"حرّك التصميم على المنتج وغيّر حجمه ودوّره", "Select artwork on the product to drag, resize or rotate it.":"اختر التصميم على القطعة واسحبه أو غيّر حجمه أو دوّره.", "Rotate selected artwork":"تدوير العنصر المحدد", "Resize selected artwork":"تغيير حجم العنصر المحدد",
   "Move artwork on the garment or edit it on the flat canvas.":"حرّك العناصر مباشرة على القطعة أو عدّلها على مساحة التصميم المسطحة.",
+  "Quick categories":"تصنيفات سريعة", "Originals":"رسومات أصلية", "Animals":"حيوانات", "Cities":"مدن", "Flags":"أعلام", "Emojis":"رموز تعبيرية",
+  "Colour palettes":"لوحات الألوان", "Session checkpoints":"نقاط حفظ الجلسة", "Restore an earlier design state while this editor remains open.":"استعد نسخة سابقة من هذا التصميم أثناء فتح المحرر.", "Save checkpoint":"حفظ نقطة", "Checkpoint":"نقطة حفظ", "No session checkpoints yet.":"لا توجد نقاط حفظ بعد.",
+  "Select all editable":"تحديد كل الطبقات القابلة للتعديل", "Clear selection":"إلغاء التحديد", "Select layer for arrangement":"تحديد طبقة للمحاذاة",
+  "Typography combinations":"تراكيب خطية جاهزة", "Add editable title and subtitle layers using production-supported fonts.":"أضف عناوين ونصوصاً فرعية قابلة للتعديل بخطوط معتمدة من المحرر.",
+  "Group selected":"تجميع المحدد", "Ungroup":"فك التجميع", "Grouped":"ضمن مجموعة", "Select two or more editable layers to group.":"اختر طبقتين أو أكثر لتجميعها.", "Select a group to ungroup.":"اختر مجموعة لفكها.", "Layers grouped":"تم تجميع الطبقات", "Layers ungrouped":"تم فك التجميع",
+  "Save these colours":"حفظ هذه الألوان", "Pick colours from photo":"استخراج ألوان من صورة", "Palette saved on this device":"تم حفظ اللوحة على هذا الجهاز", "Colours extracted privately":"تم استخراج الألوان محلياً", "Analysing colours on this device…":"جاري تحليل الألوان على هذا الجهاز…", "Could not read photo colours. Please choose another image.":"تعذر قراءة ألوان الصورة، اختر صورة أخرى.",
   "Creative studio":"استوديو التصميم", "Make room for your imagination.":"خلّ لخيالك مساحة.", "Design":"التصميم", "Product preview":"معاينة القطعة", "Review item":"راجع قطعتك", "Uploads":"الصور", "Text":"النصوص", "Fonts":"الخطوط", "Layers":"الطبقات", "Layouts":"القوالب", "Canvas":"لوحة التصميم", "Add images":"أضف صور", "Upload images":"ارفع صورك", "Drop your images here":"اسحب صورك هنا", "PNG or JPEG · multiple files welcome":"PNG أو JPEG · تقدر تضيف أكثر من صورة", "Your originals stay private.":"ملفاتك الأصلية تبقى خاصة فيك.", "Add text":"أضف نص", "Add a heading":"أضف عنوان", "Add a little detail":"أضف عبارة صغيرة", "Your words, your style.":"كلماتك، بأسلوبك.", "Mix languages, play with type, make it yours.":"اجمع أكثر من لغة، وجرّب الخطوط على ذوقك.", "Write something wonderful":"اكتب شيء يشبهك", "A little more you":"تفصيلة منك", "Search fonts":"ابحث عن خط", "All scripts":"كل اللغات", "All styles":"كل الأنماط", "No fonts match. Try another search.":"ما لقينا خط يطابق بحثك. جرّب كلمة ثانية.", "Choose text on the canvas to apply a font.":"اختر نص من اللوحة عشان تغيّر خطه.", "Loading fonts…":"نجهّز مكتبة الخطوط…", "Font library is unavailable. Try again shortly.":"مكتبة الخطوط غير متاحة حاليًا. جرّب بعد شوي.", "Some characters are not included in this font. Choose a font for this script.":"بعض الحروف مو موجودة في هالخط. اختر خط يدعم لغة النص.", "Front":"الأمام", "Back":"الخلف", "Wrap":"التصميم الكامل", "Independent designs on each side":"تصميم مستقل لكل جهة", "One continuous wrap":"تصميم واحد يلتف حول الكوب", "Undo":"تراجع", "Redo":"إعادة", "Zoom":"التكبير", "Fit":"ملاءمة", "Fit to screen":"ناسب حجم الشاشة", "Safe area":"المساحة الآمنة", "Snap to centre":"محاذاة للمنتصف", "Add a photo. Make a statement.":"صورة منك. وتصميم على ذوقك.", "Start with an image, a few words, or both.":"ابدأ بصورة، أو كلمات، أو اجمعهم مع بعض.", "Select a layer to fine-tune it.":"اختر طبقة عشان تعدّل تفاصيلها.", "Drag to move · corners to resize · top handle to rotate":"اسحب للتحريك · الزوايا لتغيير الحجم · المقبض العلوي للتدوير", "Drag to move. Use the corner handles to resize.":"اسحب للتحريك. واستخدم مقابض الزوايا لتغيير الحجم.", "Provisional product preview":"معاينة مبدئية للقطعة", "Your design is editable. Supplier print specifications still need confirmation.":"تصميمك قابل للتعديل. مقاسات الطباعة النهائية تحتاج تأكيد المورّد.", "Background":"الخلفية", "Transparent":"شفافة", "Colour":"اللون", "Opacity":"الشفافية", "Rotation":"الدوران", "Width (%)":"العرض (%)", "Height (%)":"الارتفاع (%)", "Horizontal (%)":"أفقي (%)", "Vertical (%)":"عمودي (%)", "Text size (%)":"حجم النص (%)", "Your text":"النص", "Font":"الخط", "Writing direction":"اتجاه الكتابة", "Automatic":"تلقائي", "Right to left":"من اليمين لليسار", "Left to right":"من اليسار لليمين", "Alignment":"المحاذاة", "Left":"يسار", "Centre":"وسط", "Right":"يمين", "Duplicate":"انسخ", "Delete":"احذف", "Move forward":"قدّم طبقة", "Move backward":"أخّر طبقة", "Centre horizontally":"وسّط أفقيًا", "Centre vertically":"وسّط عموديًا", "Flip horizontally":"اعكس أفقيًا", "Flip vertically":"اعكس عموديًا", "Show layer":"أظهر الطبقة", "Hide layer":"أخفِ الطبقة", "Unlock layer":"افتح قفل الطبقة", "Lock layer":"اقفل الطبقة", "Image":"صورة", "Text layer":"طبقة نص", "No layers yet":"لوحتك جاهزة لأفكارك", "Add images or text. Every element stays editable.":"أضف صور أو نصوص. كل عنصر يبقى قابل للتعديل.", "Selected layer":"الطبقة المختارة", "Layer is locked. Unlock it to edit.":"الطبقة مقفلة. افتح القفل عشان تعدّلها.", "Your own text":"كلماتك هنا", "Add up to 24 layers on each side.":"تقدر تضيف حتى 24 طبقة لكل جهة.", "Preparing your images…":"نجهّز صورك…", "Images added":"أضفنا الصور", "Could not load this layer.":"ما قدرنا نحمّل هالطبقة.", "Preparing accurate text…":"نجهّز النص بدقّة…", "Close panel":"أغلق الأدوات", "Open panel":"افتح الأدوات", "Keyboard: arrows to move, Shift for larger steps, Delete to remove.":"بالكيبورد: الأسهم للتحريك، وShift لخطوة أكبر، وDelete للحذف.", "This side is empty":"هالجهة فاضية", "Layer":"طبقة", "Ready to create":"جاهز لأفكارك", "Image quality is checked again before printing.":"جودة الصور تنفحص مرة ثانية قبل الطباعة.", "Print safe area":"حدود الطباعة الآمنة", "Shown above the layer below it":"تظهر فوق الطبقة اللي تحتها", "Your image":"صورتك", "Keep proportions":"حافظ على النسبة", "Edit on a flat canvas, then preview your item.":"عدّل على لوحة مسطّحة، وبعدها شوف التصميم على قطعتك.", "Choose a layout":"اختر قالب", "No layouts available":"القوالب غير متاحة حاليًا", "Sample text":"نص تجريبي", "Layers on this side":"طبقات هالجهة", "Changes save automatically":"تعديلاتك تنحفظ تلقائيًا", "Move and resize artwork":"حرّك التصميم وغيّر حجمه", "Printing area":"مساحة الطباعة", "Load more fonts":"اعرض خطوط أكثر", "Font style":"نمط الخط", "sans":"بسيط", "serif":"كلاسيكي", "display":"عناوين", "handwriting":"يدوي", "mono":"متساوي العرض", "arabic":"عربي", "Image uploads are private and stay linked to this design.":"صورك خاصة وتبقى مرتبطة بهالتصميم.", "Choose a font":"اختر خط", "Uploading":"جارٍ الرفع", "Template applied":"أضفنا القالب", "Preview":"معاينة", "No artwork on this side yet.":"ما فيه تصميم على هالجهة للحين."
 };
 function workspaceT(value) {
@@ -60,15 +66,41 @@ const libraryPanel=document.createElement("section");
   libraryPanel.id="cw-panel-elements";libraryPanel.dataset.wsPanel="elements";libraryPanel.hidden=true;
   libraryPanel.innerHTML=`<p class="cw-panel-intro">${tr("Editable graphics, emojis, flags and city badges. Emoji and flag symbols keep their original colours; decoration can be recoloured.")}</p><label class="cw-font-search">${workspaceIcon("search")}<input type="search" data-ws-element-search placeholder="${esc(tr("Search elements"))}" aria-label="${esc(tr("Search elements"))}"></label><label class="cw-element-category-label"><span>${tr("All categories")}</span><select data-ws-element-category aria-label="${esc(tr("All categories"))}"></select></label><p class="cw-element-count" data-ws-element-count></p><div class="cw-elements-grid" data-ws-element-list></div><button type="button" class="cw-button cw-element-more" data-ws-element-more hidden>${tr("More elements")}</button>`;
   shell.querySelector('[data-ws-panel="text"]').before(libraryPanel);
+  const quickFilters=document.createElement("div");quickFilters.className="cw-library-quick-filters";
+  quickFilters.setAttribute("role","group");quickFilters.setAttribute("aria-label",tr("Quick categories"));
+  quickFilters.innerHTML=[["Entertainment","Originals"],["Flowers","Flowers"],["Animals","Animals"],["Cities","Cities"],["Flags","Flags"],["Smileys","Emojis"]]
+    .map(([category,label])=>'<button type="button" data-ws-quick-filter="'+category+'" aria-pressed="false">'+esc(tr(label))+'</button>').join('');
+  libraryPanel.querySelector('[data-ws-element-category]').closest('label').before(quickFilters);
+
+
   const smartControls=document.createElement('div');
   smartControls.className='cw-smart-controls';
   smartControls.innerHTML='<div class="cw-saved-view" role="group" aria-label="Collections"><button type="button" data-ws-elements-view="all" aria-pressed="true">'+tr("Explore all")+'</button><button type="button" data-ws-elements-view="favourites" aria-pressed="false">'+tr("My favourites")+'</button><button type="button" data-ws-elements-view="recent" aria-pressed="false">'+tr("Recently used")+'</button></div><label class="cw-element-category-label"><span>'+tr("Curated collection")+'</span><select data-ws-element-collection aria-label="'+esc(tr("Curated collection"))+'"></select></label>';
   libraryPanel.querySelector('[data-ws-element-count]').before(smartControls);
+  const pairingsPanel=document.createElement("section");
+  pairingsPanel.className="cw-type-pairings";
+  pairingsPanel.innerHTML='<h5>'+esc(tr("Typography combinations"))+'</h5><p>'+esc(tr("Add editable title and subtitle layers using production-supported fonts."))+'</p><div>'+((window.VeeladStudioPro?.pairings)||[]).map(pair=>'<button type="button" data-ws-type-pair="'+esc(pair.id)+'"><strong>'+esc(window.VeeladStudioPro.title(pair,currentLanguage()))+'</strong><small>'+esc(pair.heading)+'</small></button>').join("")+'</div>';
+  shell.querySelector('[data-ws-panel="text"]').append(pairingsPanel);
+  const checkpointsPanel=document.createElement('section');
+  checkpointsPanel.className='cw-checkpoints';
+  checkpointsPanel.innerHTML='<h5>'+esc(tr("Session checkpoints"))+'</h5><p>'+esc(tr("Restore an earlier design state while this editor remains open."))+'</p><button type="button" class="cw-button" data-ws-save-checkpoint>'+esc(tr("Save checkpoint"))+'</button><div data-ws-checkpoints></div>';
+  const selectionTools=document.createElement("div");selectionTools.className="cw-multi-tools";
+  selectionTools.innerHTML='<button type="button" data-ws-select-all>'+esc(tr("Select all editable"))+'</button><button type="button" data-ws-clear-selected>'+esc(tr("Clear selection"))+'</button><button type="button" data-ws-group>'+esc(tr("Group selected"))+'</button><button type="button" data-ws-ungroup>'+esc(tr("Ungroup"))+'</button>';
+  shell.querySelector('[data-ws-layer-list]').before(selectionTools);
   const templatesPanel=document.createElement('section');templatesPanel.className='cw-original-layouts';templatesPanel.dataset.wsOriginalLayouts='';
   shell.querySelector('[data-ws-layouts]').append(templatesPanel);
+  shell.querySelector('[data-ws-layouts]').append(checkpointsPanel);
   let elementsView='all';
 
   root.append(shell);
+  const arrangePanel=document.createElement('section');
+  arrangePanel.className='cw-pro-arrange';
+  arrangePanel.innerHTML='<h5>'+esc(tr("Arrange layers"))+'</h5><p>'+esc(tr("Align and distribute unlocked artwork. Undo any change."))+'</p>'+
+    '<div class="cw-pro-arrange-grid" role="group" aria-label="'+esc(tr("Arrange layers"))+'">'+
+    [['left','Align left'],['right','Align right'],['top','Align top'],['bottom','Align bottom'],['center-x','Centre horizontal'],['center-y','Centre vertical'],['distribute-x','Distribute horizontally'],['distribute-y','Distribute vertically']]
+    .map(([value,label])=>'<button type="button" data-ws-layout-action="'+value+'">'+esc(tr(label))+'</button>').join('')+'</div>';
+  shell.querySelector('[data-ws-panel="canvas"]').append(arrangePanel);
+
   const uploadProgress=document.createElement('progress');
   uploadProgress.className='cw-upload-progress';uploadProgress.dataset.wsProgress='';uploadProgress.max=100;uploadProgress.value=0;uploadProgress.hidden=true;
   uploadProgress.setAttribute('aria-label',tr('Upload progress'));
@@ -107,7 +139,7 @@ const libraryPanel=document.createElement("section");
   let elementLimit=48,elementBusy=false;
   let selected=null,tool="uploads",mode="edit",zoom="fit",fitScale=.5,renderSerial=0,gesture=null,fontsReady=false,fontLimit=60,
     lastHistoryGroup=null,lastHistoryTime=0,restoring=false,activeKey="",fontObserver=null,disposed=false,focused=false;
-  const history=[],future=[];
+  const history=[],future=[],checkpoints=[],multi=new Set();
   let qualityTimer=null,qualitySerial=0;
   let previewRenderAt=0;
   const logical=()=>({width:900,height:900*instance.product().preview[1]/instance.product().preview[0]}),
@@ -140,6 +172,24 @@ const libraryPanel=document.createElement("section");
     selected=null;lastHistoryGroup=null;
     instance.syncControls?.();adapter.commit({history:false});refresh();restoring=false;updateHistory();
   }
+  function renderCheckpoints(){
+    const node=checkpointsPanel.querySelector("[data-ws-checkpoints]");
+    node.innerHTML=checkpoints.length?checkpoints.map((point,index)=>'<button type="button" class="cw-checkpoint" data-ws-restore-checkpoint="'+index+'"><span>'+esc(tr("Checkpoint"))+' '+(index+1)+'</span><small>'+esc(point.time)+'</small></button>').join(''):'<p class="cw-muted">'+esc(tr("No session checkpoints yet."))+'</p>';
+  }
+  function saveCheckpoint(){
+    const date=new Date(),time=date.toLocaleTimeString(currentLanguage?.()==='ar'?'ar-SA':'en-GB',{hour:'2-digit',minute:'2-digit'});
+    checkpoints.push({time,state:snapshot()});
+    if(checkpoints.length>12)checkpoints.shift();
+    renderCheckpoints();setStatus("Checkpoint saved");
+  }
+  function restoreCheckpoint(index){
+    const point=checkpoints[index];
+    if(!point||point.state===snapshot())return;
+    restoring=true;
+    try{Object.assign(instance.state,JSON.parse(point.state));selected=null;lastHistoryGroup=null;instance.syncControls?.();adapter.commit({history:false});}
+    finally{restoring=false;}
+    record();refresh();setStatus("Checkpoint restored");
+  }
   function selectLayer(layerId,{focus=false}={}){
     selected=layers().some(layer=>layer.id===layerId)?layerId:null;
     shell.dataset.selectedLayer=selected||"";
@@ -154,7 +204,7 @@ const libraryPanel=document.createElement("section");
     shell.querySelectorAll("[data-ws-panel]").forEach(panel=>panel.hidden=panel.dataset.wsPanel!==tool);
     if(tool==="fonts")renderFonts();
     if(tool==="elements")renderElements();
-    if(tool==="layouts")renderProLayouts();
+    if(tool==="layouts"){renderProLayouts();renderCheckpoints();}
     if(tool==="layers")renderLayerList();
   }
   function setMode(value){
@@ -273,7 +323,7 @@ const libraryPanel=document.createElement("section");
     const layer=current();
     if(!layer||layer.locked||layer.visible===false)return;
     const kind=handle?.dataset.wsPreviewHandle||"move",d=logical(),bounds=dimensions(layer),original=cloneState(layer);
-    gesture={preview:true,id:layer.id,kind,point:{x:point.x,y:point.y},original,bounds,before:snapshot(),pointer:event.pointerId};
+    gesture={preview:true,id:layer.id,kind,point:{x:point.x,y:point.y},original,bounds,before:snapshot(),pointer:event.pointerId,groupOriginals:kind==="move"?captureGroup(layer):null};
     if(kind!=="move"&&kind!=="rotate"){
       const sx=kind.includes("e")?1:-1,sy=kind.includes("s")?1:-1,angle=layer.rotation*Math.PI/180,
         opposite=rotatePoint({x:-sx*bounds.width/2,y:-sy*bounds.height/2},angle);
@@ -376,6 +426,7 @@ function renderElements(){
     if(!categorySelect.options.length)categorySelect.innerHTML='<option value="">'+esc(tr("All categories"))+'</option>'+api.categories.map(name=>'<option value="'+esc(name)+'">'+esc(api.categoryLabel(name,currentLanguage()))+'</option>').join("");
     if(pro&&!collectionSelect.options.length)collectionSelect.innerHTML='<option value="">'+esc(tr("Explore all"))+'</option>'+pro.folders.map(folder=>'<option value="'+esc(folder.id)+'">'+esc(pro.title(folder,currentLanguage()))+'</option>').join("");
     const search=shell.querySelector("[data-ws-element-search]").value.trim(),category=categorySelect.value;
+    quickFilters.querySelectorAll("[data-ws-quick-filter]").forEach(button=>button.setAttribute("aria-pressed",String(button.dataset.wsQuickFilter===category)));
     const matched=pro?pro.search(api,search,category,collectionSelect.value,elementsView):api.search(search,category);
     const visible=matched.slice(0,elementLimit),favorites=new Set(pro?.read().favourites||[]);
     shell.querySelector("[data-ws-element-count]").textContent=visible.length.toLocaleString()+" / "+matched.length.toLocaleString()+(search?"":" · "+api.catalog.length.toLocaleString()+" total");
@@ -386,18 +437,42 @@ function renderElements(){
   function renderProLayouts(){
     const pro=window.VeeladStudioPro,api=window.VeeladElements,target=shell.querySelector('[data-ws-original-layouts]');
     if(!pro||!target)return;
-    target.innerHTML='<h5>'+esc(tr("Ready-made designs"))+'</h5><p class="cw-muted">'+esc(tr("Original editable starting points"))+'</p><div class="cw-original-layout-grid">'+pro.templates.map(template=>`<button type="button" class="cw-original-layout" data-ws-pro-layout="${esc(template.id)}"><span class="cw-original-layout-art">${api.svg(template.element)}</span><strong>${esc(pro.title(template,currentLanguage()))}</strong><small>${esc(template.tag)}</small></button>`).join('')+'</div>';
+    target.innerHTML='<h5>'+esc(tr("Ready-made designs"))+'</h5><p class="cw-muted">'+esc(tr("Original editable starting points"))+'</p><div class="cw-original-layout-grid">'+pro.templates.map(template=>`<button type="button" class="cw-original-layout" data-ws-pro-layout="${esc(template.id)}"><span class="cw-original-layout-art">${api.svg(template.element)}${template.secondary?`<span class="cw-template-art-companion">${api.svg(template.secondary)}</span>`:""}</span><strong>${esc(pro.title(template,currentLanguage()))}</strong><small>${esc(template.tag)}</small></button>`).join('')+'</div>';
   }
   async function applyProLayout(templateId){
-    const pro=window.VeeladStudioPro,template=pro?.templates.find(item=>item.id===templateId);
-    if(!template||elementBusy||!canAdd()||totalLayers()>118)return;
-    const item=await addElement(template.element);
-    if(!item||!root.isConnected||!canAdd())return;
-    item.x=template.x;item.y=template.y;
-    item.width=Math.min(item.width,.35);item.height=Math.min(item.height,.35);
-    const layer={id:uid(),type:'text',text:template.label,font:'manrope',color:template.color,size:.055,x:.5,y:.73,rotation:0,opacity:1,visible:true,locked:false,align:'center',direction:'auto'};
-    layers().push(layer);selected=layer.id;commit();
-    setStatus("Template applied");
+    const pro=window.VeeladStudioPro,api=window.VeeladElements,
+      template=pro?.templates.find(item=>item.id===templateId);
+    if(!template||elementBusy)return;
+    const design=[template.element,...(template.secondary?[template.secondary]:[])],
+      count=design.length+1+(template.subtitle?1:0);
+    if(!canAdd(count))return;
+    elementBusy=true;setStatus("Preparing your editable composition…");
+    const product=instance.product().id,surface=adapter.surface();
+    try{
+      const files=await Promise.all(design.map(id=>api.file(id,api.defaults(id))));
+      if(!root.isConnected||instance.product().id!==product||adapter.surface()!==surface)return;
+      const images=await adapter.addImages(files);
+      if(!images||images.length!==design.length)throw Error("Could not add the complete design");
+      if(!root.isConnected||instance.product().id!==product||adapter.surface()!==surface)return;
+      for(let i=0;i<images.length;i++){
+        const layer=images[i],id=design[i],colours=api.defaults(id);
+        layer.library_element={id,colors:colours};
+        layer.x=template.x+(i===1?.21:0);
+        layer.y=template.y+(i===1?.13:0);
+        const maxSize=i===0?.34:.23;
+        const factor=Math.min(maxSize/layer.width,maxSize/layer.height,1);
+        layer.width*=factor;layer.height*=factor;
+        window.VeeladStudioPro?.used(id);
+      }
+      const label={id:uid(),type:"text",text:template.label,font:"manrope",color:template.color,
+        size:.048,x:.5,y:.72,rotation:0,opacity:1,visible:true,locked:false,align:"center",direction:"auto"};
+      layers().push(label);
+      if(template.subtitle)layers().push({id:uid(),type:"text",text:template.subtitle,
+        font:"manrope",color:template.color,size:.028,x:.5,y:.81,rotation:0,
+        opacity:1,visible:true,locked:false,align:"center",direction:"auto"});
+      selected=label.id;commit();setStatus("Editable composition added");
+    }catch(error){setStatus(error.message||"Could not add the complete design.",true);}
+    finally{elementBusy=false;}
   }
   async function addElement(elementId,point=null){
     const api=window.VeeladElements,entry=api?.find(elementId);
@@ -421,20 +496,24 @@ function renderElements(){
     finally{elementBusy=false;}
   }
   async function recolourElement(layerId,channel,color){
+    const layer=layers().find(item=>item.id===layerId);
+    if(!layer?.library_element||!["primary","secondary","accent"].includes(channel))return;
+    if(!/^#[a-f0-9]{6}$/i.test(color))return;
+    return recolourPalette(layerId,{...layer.library_element.colors,[channel]:color.toLowerCase()});
+  }
+  async function recolourPalette(layerId,nextColors){
     const api=window.VeeladElements,layer=layers().find(item=>item.id===layerId);
-    if(!layer?.library_element||layer.locked||elementBusy||!["primary","secondary","accent"].includes(channel)||! /^#[a-f0-9]{6}$/i.test(color))return;
+    if(!layer?.library_element||layer.locked||elementBusy)return;
     const originalId=layer.library_element.id,originalColors=layer.library_element.colors;
-    const next={...originalColors,[channel]:color.toLowerCase()};
-    if(next[channel]===originalColors[channel])return;
+    if(!nextColors||!["primary","secondary","accent"].every(key=>/^#[a-f0-9]{6}$/i.test(nextColors[key]||"")))return;
+    const next=Object.fromEntries(["primary","secondary","accent"].map(key=>[key,nextColors[key].toLowerCase()]));
+    if(["primary","secondary","accent"].every(key=>next[key]===originalColors[key]))return;
     elementBusy=true;setStatus("Preparing element…");
     const product=instance.product().id,surface=adapter.surface();
     try{
-      const file=await api.file(originalId,next);
-      const generated=await adapter.addImages([file]);
-      const replacement=generated?.at(-1);
+      const file=await api.file(originalId,next),generated=await adapter.addImages([file]),replacement=generated?.at(-1);
       if(!replacement)return;
-      const scene=instance.state.scenes?.[product]?.[surface],list=scene?.layers||[];
-      const target=list.find(l=>l.id===layerId);
+      const scene=instance.state.scenes?.[product]?.[surface],list=scene?.layers||[],target=list.find(l=>l.id===layerId);
       if(target?.library_element?.id===originalId){
         target.upload_id=replacement.upload_id;
         target.library_element={id:originalId,colors:next};
@@ -450,7 +529,7 @@ function renderElements(){
     const node=shell.querySelector("[data-ws-layer-list]"),list=layers();
     node.innerHTML=list.length?[...list].reverse().map((layer,index)=>{
       const asset=layerAssets.get(layer.id),label=layer.type==="text"?(layer.text||tr("Text layer")):layer.library_element?(window.VeeladElements?.label(layer.library_element.id,currentLanguage())||tr("Element")):tr("Image")+" "+(list.length-index);
-      return `<article class="cw-layer-row" data-selected="${layer.id===selected}"><button type="button" class="cw-layer-pick" data-ws-select="${esc(layer.id)}" aria-pressed="${layer.id===selected}"><span class="cw-layer-thumb">${asset?.image?`<img src="${esc(asset.image.src)}" alt="">`:workspaceIcon(layer.type==="text"?"text":"image")}</span><span dir="auto">${esc(label.slice(0,45))}</span></button><button type="button" class="cw-layer-toggle" data-ws-toggle-visible="${esc(layer.id)}" aria-label="${esc(tr(layer.visible===false?"Show layer":"Hide layer"))}" title="${esc(tr(layer.visible===false?"Show layer":"Hide layer"))}">${workspaceIcon(layer.visible===false?"hidden":"eye")}</button><button type="button" class="cw-layer-toggle" data-ws-toggle-lock="${esc(layer.id)}" aria-label="${esc(tr(layer.locked?"Unlock layer":"Lock layer"))}" title="${esc(tr(layer.locked?"Unlock layer":"Lock layer"))}">${workspaceIcon(layer.locked?"lock":"unlock")}</button></article>`;
+      return `<article class="cw-layer-row" data-selected="${layer.id===selected}" data-multi="${multi.has(layer.id)}" data-grouped="${!!layer.group_id}"><label class="cw-layer-multi"><input type="checkbox" data-ws-multiselect="${esc(layer.id)}" aria-label="${esc(tr("Select layer for arrangement"))}: ${esc(label.slice(0,45))}" ${multi.has(layer.id)?"checked":""} ${layer.locked||layer.visible===false?"disabled":""}></label><button type="button" class="cw-layer-pick" data-ws-select="${esc(layer.id)}" aria-pressed="${layer.id===selected}"><span class="cw-layer-thumb">${asset?.image?`<img src="${esc(asset.image.src)}" alt="">`:workspaceIcon(layer.type==="text"?"text":"image")}</span><span dir="auto">${esc(label.slice(0,45))}${layer.group_id?` <span class="cw-group-pill">${esc(tr("Grouped"))}</span>`:""}</span></button><button type="button" class="cw-layer-toggle" data-ws-toggle-visible="${esc(layer.id)}" aria-label="${esc(tr(layer.visible===false?"Show layer":"Hide layer"))}" title="${esc(tr(layer.visible===false?"Show layer":"Hide layer"))}">${workspaceIcon(layer.visible===false?"hidden":"eye")}</button><button type="button" class="cw-layer-toggle" data-ws-toggle-lock="${esc(layer.id)}" aria-label="${esc(tr(layer.locked?"Unlock layer":"Lock layer"))}" title="${esc(tr(layer.locked?"Unlock layer":"Lock layer"))}">${workspaceIcon(layer.locked?"lock":"unlock")}</button></article>`;
     }).join(""):`<div class="cw-empty-panel">${workspaceIcon("layers")}<strong>${tr("No layers yet")}</strong><p>${tr("Add images or text. Every element stays editable.")}</p></div>`;
   }
   function renderUploads(){
@@ -487,7 +566,25 @@ function renderElements(){
     if(inspector.contains(focus)&&focus.matches("input,textarea,select"))return;
     if(!layer){inspector.hidden=true;inspector.innerHTML="";return;}
     inspector.hidden=false;
-    inspector.innerHTML=`<div class="cw-inspector-heading"><h4>${tr("Selected layer")}</h4><span>${tr(layer.type==="text"?"Text":"Image")}</span></div>${layer.locked?`<p class="cw-lock-notice">${workspaceIcon("lock")}${tr("Layer is locked. Unlock it to edit.")}</p>`:""}<fieldset ${layer.locked?"disabled":""}><div class="cw-selection-actions">${action("duplicate","Duplicate","duplicate")}${action("delete","Delete","delete")}${action("forward","Move forward","up")}${action("backward","Move backward","down")}</div>${layer.library_element?`<div class="cw-element-inspector"><h5>${tr("Element colours")}</h5><div class="cw-element-inspector-preview" data-ws-element-preview>${window.VeeladElements?.svg(layer.library_element.id,layer.library_element.colors)||""}</div>${["emoji","flag"].includes(window.VeeladElements?.find(layer.library_element.id)?.kind)?`<p class="cw-element-immutable-note">${tr(window.VeeladElements.find(layer.library_element.id).variant===0?"Original national flag and emoji colours cannot be changed.":"Emoji and flag symbols retain their colours. Change the badge colours instead.")}</p>`:""}${(["emoji","flag"].includes(window.VeeladElements?.find(layer.library_element.id)?.kind)?({0:[],1:["secondary"],2:["secondary"],3:["secondary","accent"],4:["secondary"],5:["accent"],6:["secondary"],7:["secondary","accent"]}[window.VeeladElements.find(layer.library_element.id).variant]||[]):["primary","secondary","accent"]).map(key=>`<label class="cw-element-colour"><span>${tr(key==="primary"?"Primary":key==="secondary"?"Secondary":"Accent")}</span><input type="color" data-ws-element-colour="${key}" value="${esc(layer.library_element.colors[key])}" aria-label="${esc(tr(key==="primary"?"Primary":key==="secondary"?"Secondary":"Accent"))}"></label>`).join("")}</div>`:""}${layer.type==="text"?`<label class="cw-property"><span>${tr("Your text")}</span><textarea data-ws-prop="text" maxlength="500" rows="3" dir="auto">${esc(layer.text||"")}</textarea><small><span data-ws-character-count>${layer.text?.length||0}</span>/500</small></label><button type="button" class="cw-selected-font" data-ws-open-fonts><span>${tr("Font")}</span><strong>${esc(window.VeeladFonts?.get(layer.font)?.label||layer.font)}</strong>${workspaceIcon("fonts")}</button><p class="cw-glyph-warning" data-ws-glyph-warning hidden></p><div class="cw-property-grid">${prop("Colour","color",layer.color,{type:"color"})}${prop("Text size (%)","size",Math.round(layer.size*1000)/10,{min:.5,max:50,step:.1})}</div><label class="cw-property"><span>${tr("Alignment")}</span><select data-ws-prop="align">${["left","center","right"].map(align=>`<option value="${align}" ${layer.align===align?"selected":""}>${tr(align==="center"?"Centre":align==="left"?"Left":"Right")}</option>`).join("")}</select></label><label class="cw-property"><span>${tr("Writing direction")}</span><select data-ws-prop="direction">${[["auto","Automatic"],["rtl","Right to left"],["ltr","Left to right"]].map(([key,label])=>`<option value="${key}" ${layer.direction===key?"selected":""}>${tr(label)}</option>`).join("")}</select></label>`:`<div class="cw-property-grid">${prop("Width (%)","width",Math.round(layer.width*1000)/10,{min:1,max:300,step:.1})}${prop("Height (%)","height",Math.round(layer.height*1000)/10,{min:1,max:300,step:.1})}</div><label class="cw-check"><input type="checkbox" data-ws-proportions checked>${tr("Keep proportions")}</label>`}<div class="cw-property-grid">${prop("Horizontal (%)","x",Math.round(layer.x*1000)/10,{step:.1})}${prop("Vertical (%)","y",Math.round(layer.y*1000)/10,{step:.1})}${prop("Rotation","rotation",Math.round(layer.rotation||0),{min:-180,max:180})}${prop("Opacity","opacity",Math.round((layer.opacity??1)*100))}</div><div class="cw-centre-actions"><button type="button" data-ws-action="centre-x">${workspaceIcon("centre")}${tr("Centre horizontally")}</button><button type="button" data-ws-action="centre-y">${workspaceIcon("centre")}${tr("Centre vertically")}</button><button type="button" data-ws-action="safe-left">${workspaceIcon("centre")}${tr("Align to safe left")}</button><button type="button" data-ws-action="safe-right">${workspaceIcon("centre")}${tr("Align to safe right")}</button><button type="button" data-ws-action="safe-top">${workspaceIcon("centre")}${tr("Align to safe top")}</button><button type="button" data-ws-action="safe-bottom">${workspaceIcon("centre")}${tr("Align to safe bottom")}</button></div><p class="cw-studio-print-note">${tr("Place artwork within the provisional safe region. Final supplier dimensions are not yet approved.")}</p></fieldset>`;
+    inspector.innerHTML=`<div class="cw-inspector-heading"><h4>${tr("Selected layer")}</h4><span>${tr(layer.type==="text"?"Text":"Image")}</span></div>${layer.locked?`<p class="cw-lock-notice">${workspaceIcon("lock")}${tr("Layer is locked. Unlock it to edit.")}</p>`:""}<fieldset ${layer.locked?"disabled":""}><div class="cw-selection-actions">${action("duplicate","Duplicate","duplicate")}${action("delete","Delete","delete")}${action("forward","Move forward","up")}${action("backward","Move backward","down")}</div>${layer.library_element?`<div class="cw-element-inspector"><h5>${tr("Element colours")}</h5><div class="cw-element-inspector-preview" data-ws-element-preview>${window.VeeladElements?.svg(layer.library_element.id,layer.library_element.colors)||""}</div>${!["emoji","flag"].includes(window.VeeladElements?.find(layer.library_element.id)?.kind)?`<div class="cw-palette-presets" role="group" aria-label="${esc(tr("Colour palettes"))}">${(window.VeeladStudioPro?.palettes||[]).map(palette=>{const original=window.VeeladElements.defaults(layer.library_element.id),colors=palette.colors||[original.primary,original.secondary,original.accent];return `<button type="button" data-ws-palette="${esc(palette.id)}" title="${esc(window.VeeladStudioPro.title(palette,currentLanguage()))}"><span class="cw-palette-chips">${colors.map(hex=>`<i style="background:${hex}"></i>`).join("")}</span><small>${esc(window.VeeladStudioPro.title(palette,currentLanguage()))}</small></button>`;}).join("")}</div>`:""}${["emoji","flag"].includes(window.VeeladElements?.find(layer.library_element.id)?.kind)?`<p class="cw-element-immutable-note">${tr(window.VeeladElements.find(layer.library_element.id).variant===0?"Original national flag and emoji colours cannot be changed.":"Emoji and flag symbols retain their colours. Change the badge colours instead.")}</p>`:""}${(["emoji","flag"].includes(window.VeeladElements?.find(layer.library_element.id)?.kind)?({0:[],1:["secondary"],2:["secondary"],3:["secondary","accent"],4:["secondary"],5:["accent"],6:["secondary"],7:["secondary","accent"]}[window.VeeladElements.find(layer.library_element.id).variant]||[]):["primary","secondary","accent"]).map(key=>`<label class="cw-element-colour"><span>${tr(key==="primary"?"Primary":key==="secondary"?"Secondary":"Accent")}</span><input type="color" data-ws-element-colour="${key}" value="${esc(layer.library_element.colors[key])}" aria-label="${esc(tr(key==="primary"?"Primary":key==="secondary"?"Secondary":"Accent"))}"></label>`).join("")}</div>`:""}${layer.type==="text"?`<label class="cw-property"><span>${tr("Your text")}</span><textarea data-ws-prop="text" maxlength="500" rows="3" dir="auto">${esc(layer.text||"")}</textarea><small><span data-ws-character-count>${layer.text?.length||0}</span>/500</small></label><button type="button" class="cw-selected-font" data-ws-open-fonts><span>${tr("Font")}</span><strong>${esc(window.VeeladFonts?.get(layer.font)?.label||layer.font)}</strong>${workspaceIcon("fonts")}</button><p class="cw-glyph-warning" data-ws-glyph-warning hidden></p><div class="cw-property-grid">${prop("Colour","color",layer.color,{type:"color"})}${prop("Text size (%)","size",Math.round(layer.size*1000)/10,{min:.5,max:50,step:.1})}</div><label class="cw-property"><span>${tr("Alignment")}</span><select data-ws-prop="align">${["left","center","right"].map(align=>`<option value="${align}" ${layer.align===align?"selected":""}>${tr(align==="center"?"Centre":align==="left"?"Left":"Right")}</option>`).join("")}</select></label><label class="cw-property"><span>${tr("Writing direction")}</span><select data-ws-prop="direction">${[["auto","Automatic"],["rtl","Right to left"],["ltr","Left to right"]].map(([key,label])=>`<option value="${key}" ${layer.direction===key?"selected":""}>${tr(label)}</option>`).join("")}</select></label>`:`<div class="cw-property-grid">${prop("Width (%)","width",Math.round(layer.width*1000)/10,{min:1,max:300,step:.1})}${prop("Height (%)","height",Math.round(layer.height*1000)/10,{min:1,max:300,step:.1})}</div><label class="cw-check"><input type="checkbox" data-ws-proportions checked>${tr("Keep proportions")}</label>`}<div class="cw-property-grid">${prop("Horizontal (%)","x",Math.round(layer.x*1000)/10,{step:.1})}${prop("Vertical (%)","y",Math.round(layer.y*1000)/10,{step:.1})}${prop("Rotation","rotation",Math.round(layer.rotation||0),{min:-180,max:180})}${prop("Opacity","opacity",Math.round((layer.opacity??1)*100))}</div><div class="cw-centre-actions"><button type="button" data-ws-action="centre-x">${workspaceIcon("centre")}${tr("Centre horizontally")}</button><button type="button" data-ws-action="centre-y">${workspaceIcon("centre")}${tr("Centre vertically")}</button><button type="button" data-ws-action="safe-left">${workspaceIcon("centre")}${tr("Align to safe left")}</button><button type="button" data-ws-action="safe-right">${workspaceIcon("centre")}${tr("Align to safe right")}</button><button type="button" data-ws-action="safe-top">${workspaceIcon("centre")}${tr("Align to safe top")}</button><button type="button" data-ws-action="safe-bottom">${workspaceIcon("centre")}${tr("Align to safe bottom")}</button></div><p class="cw-studio-print-note">${tr("Place artwork within the provisional safe region. Final supplier dimensions are not yet approved.")}</p></fieldset>`;
+    const paletteNode=inspector.querySelector(".cw-palette-presets");
+    if(paletteNode&&window.VeeladColourTools){
+      for(const palette of window.VeeladColourTools.read()){
+        const button=document.createElement("button");button.type="button";button.dataset.wsPalette=palette.id;
+        button.title=button.ariaLabel=palette.title;
+        const chips=document.createElement("span");chips.className="cw-palette-chips";
+        for(const hex of palette.colors){const chip=document.createElement("i");chip.style.background=hex;chips.append(chip);}
+        const title=document.createElement("small");title.textContent=palette.title;
+        button.append(chips,title);paletteNode.append(button);
+      }
+      const actions=document.createElement("div");actions.className="cw-palette-actions";
+      const saved=document.createElement("button");saved.type="button";saved.dataset.wsSavePalette="";saved.textContent=tr("Save these colours");actions.append(saved);
+      if(layers().some(item=>item.type==="image"&&!item.library_element)){
+        const extract=document.createElement("button");extract.type="button";extract.dataset.wsExtractPalette="";
+        extract.textContent=tr("Pick colours from photo");actions.append(extract);
+      }
+      paletteNode.append(actions);
+    }
     checkGlyphs();
   }
   function checkGlyphs(){
@@ -538,11 +635,37 @@ function renderElements(){
     catch(error){setStatus(error.message||"Could not load this layer.",true);}
     finally{delete shell.dataset.uploading;shell.querySelector("[data-ws-upload]").disabled=false;shell.querySelector("[data-ws-upload]").value="";}
   }
+  function applyTypePair(pairId){
+    const pair=window.VeeladStudioPro?.pairings.find(item=>item.id===pairId);
+    if(!pair||!canAdd(2))return;
+    const direction=pairId==='arabic'?'rtl':'auto';
+    const common={type:'text',rotation:0,opacity:1,visible:true,locked:false,align:'center',direction};
+    const title={...common,id:uid(),text:pair.heading,font:pair.headingFont,color:pair.colour,size:.082,x:.5,y:.43};
+    const subtitle={...common,id:uid(),text:pair.detail,font:pair.detailFont,color:pair.colour,size:.038,x:.5,y:.62};
+    layers().push(title,subtitle);selected=title.id;commit();setStatus("Typography added");
+  }
   function addText(style="body"){
     if(!canAdd())return;
     const layer={id:uid(),type:"text",text:tr(style==="heading"?"Write something wonderful":style==="detail"?"A little more you":"Your own text"),font:typeof currentLanguage==="function"&&currentLanguage()==="ar"?"arabic":"manrope",color:"#24212b",size:style==="heading"?.13:style==="detail"?.035:.075,x:.5,y:.5,rotation:0,opacity:1,visible:true,locked:false,align:"center",direction:"auto"};
     layers().push(layer);selected=layer.id;switchTool("text");commit();
     requestAnimationFrame(()=>{const field=inspector.querySelector("[data-ws-prop=text]");field?.focus({preventScroll:true});field?.select();});
+  }
+  function groupSelected(){
+    const chosen=layers().filter(layer=>multi.has(layer.id)&&!layer.locked&&layer.visible!==false);
+    if(chosen.length<2){setStatus("Select two or more editable layers to group.",true);return;}
+    const group_id="grp-"+crypto.randomUUID().replace(/-/g,"").slice(0,20);
+    for(const layer of chosen)layer.group_id=group_id;
+    selected=chosen.at(-1).id;commit();setStatus("Layers grouped");
+  }
+  function ungroupSelected(){
+    const selectedGroups=new Set(layers().filter(layer=>multi.has(layer.id)||layer.id===selected).map(layer=>layer.group_id).filter(Boolean));
+    if(!selectedGroups.size){setStatus("Select a group to ungroup.",true);return;}
+    for(const layer of layers())if(selectedGroups.has(layer.group_id))delete layer.group_id;
+    multi.clear();commit();setStatus("Layers ungrouped");
+  }
+  function captureGroup(layer){
+    if(!layer?.group_id)return null;
+    return layers().filter(item=>item.group_id===layer.group_id&&!item.locked&&item.visible!==false).map(item=>({id:item.id,x:item.x,y:item.y}));
   }
   function selectedAction(name){
     const layer=current();
@@ -552,7 +675,7 @@ function renderElements(){
     if(name==="delete"){list.splice(index,1);selected=null;}
     else if(name==="duplicate"){
       if(!canAdd())return;
-      const copy={...cloneState(layer),id:uid(),x:clamp(layer.x+.025,0,1),y:clamp(layer.y+.025,0,1)};
+      const copy={...cloneState(layer),id:uid(),x:clamp(layer.x+.025,0,1),y:clamp(layer.y+.025,0,1)};delete copy.group_id;
       list.splice(index+1,0,copy);selected=copy.id;
     }else if(name==="forward"&&index<list.length-1){list.splice(index,1);list.splice(index+1,0,layer);}
     else if(name==="backward"&&index>0){list.splice(index,1);list.splice(index-1,0,layer);}
@@ -568,6 +691,23 @@ function renderElements(){
       else layer.y=clamp(1-margin-h,0,1);
     }else return;
     commit();
+  }
+  function arrangeUnlocked(command){
+    const api=window.VeeladStudioPro,eligible=layers().filter(layer=>layer.visible!==false&&!layer.locked&&(!multi.size||multi.has(layer.id)));
+    if(!api?.arrange||eligible.length<2){setStatus("Add at least two unlocked visible layers to arrange them.",true);return;}
+    const placements=api.arrange(eligible,command);
+    if(!placements.length){setStatus("Layers are too large to distribute without overlap.",true);return;}
+    let changed=false;
+    const byId=new Map(layers().map(layer=>[layer.id,layer]));
+    for(const update of placements){
+      const layer=byId.get(update.id);
+      if(!layer||layer.locked)continue;
+      if(Math.abs(layer.x-update.x)>0.000001||Math.abs(layer.y-update.y)>0.000001){
+        layer.x=update.x;layer.y=update.y;changed=true;
+      }
+    }
+    if(changed)commit();
+    else setStatus("Changes save automatically");
   }
   function copyOtherSide(confirm=false){
     const sourceId=copyControls.querySelector("[data-ws-copy-side]").dataset.source,
@@ -598,13 +738,13 @@ function renderElements(){
   function handlePoint(event){if(gesture?.preview){const point=previewPoint(event);return point&&{x:point.x,y:point.y};}const rect=artboard.getBoundingClientRect(),d=logical();return{x:(event.clientX-rect.left)/rect.width*d.width,y:(event.clientY-rect.top)/rect.height*d.height};}
   function rotatePoint(point,angle){const c=Math.cos(angle),s=Math.sin(angle);return{x:point.x*c-point.y*s,y:point.x*s+point.y*c};}
   function beginGesture(event){
-    if(event.button!==0||mode!=="edit")return;
+    if(event.button!==0||mode!=="edit"||pinch)return;
     const handle=event.target.closest("[data-ws-handle]"),node=event.target.closest("[data-ws-layer]");
     if(!handle&&!node){selectLayer(null,{focus:true});return;}
     if(node)selectLayer(node.dataset.wsLayer,{focus:true});
     const layer=current();if(!layer||layer.locked||layer.visible===false)return;
     const point=handlePoint(event),d=logical(),bounds=dimensions(layer),original=cloneState(layer),kind=handle?.dataset.wsHandle||"move";
-    gesture={id:layer.id,kind,point,original,bounds,before:snapshot(),pointer:event.pointerId};
+    gesture={id:layer.id,kind,point,original,bounds,before:snapshot(),pointer:event.pointerId,groupOriginals:kind==="move"?captureGroup(layer):null};
     if(kind!=="move"&&kind!=="rotate"){
       const sx=kind.includes("e")?1:-1,sy=kind.includes("s")?1:-1,angle=layer.rotation*Math.PI/180,
         opposite=rotatePoint({x:-sx*bounds.width/2,y:-sy*bounds.height/2},angle);
@@ -624,7 +764,7 @@ function renderElements(){
         const snap=window.VeeladPreviewSnap;
         if(useSnap&&snap){
           const measures=item=>{const size=dimensions(item);return{width:size.width/d.width,height:size.height/d.height};};
-          const proposed=snap.snap({x:layer.x,y:layer.y},layer,layers(),measures,{
+          const proposed=snap.snap({x:layer.x,y:layer.y},layer,layers().filter(peer=>!layer.group_id||peer.group_id!==layer.group_id),measures,{
             aspect:d.height/d.width,tolerance:.016
           });
           layer.x=proposed.x;layer.y=proposed.y;
@@ -632,11 +772,19 @@ function renderElements(){
         }else renderPreviewGuides();
       }else{
         for(const axis of ["x","y"]){
-          const peers=layers().filter(other=>other.id!==layer.id&&other.visible!==false).map(other=>other[axis]);
+          const peers=layers().filter(other=>other.id!==layer.id&&other.visible!==false&&(!layer.group_id||other.group_id!==layer.group_id)).map(other=>other[axis]);
           const next=useSnap&&window.VeeladStudioPro?.snap(layer[axis],[.5,...peers],.012);
           if(next?.hit)layer[axis]=next.value;
           const hit=useSnap&&Math.abs(layer[axis]-.5)<.00001;
           shell.querySelector(".cw-centre-"+axis).hidden=!hit;
+        }
+      }
+      if(g.groupOriginals?.length>1){
+        const dx=layer.x-o.x,dy=layer.y-o.y;
+        for(const origin of g.groupOriginals){
+          if(origin.id===layer.id)continue;
+          const sibling=layers().find(item=>item.id===origin.id);
+          if(sibling){sibling.x=clamp(origin.x+dx,0,1);sibling.y=clamp(origin.y+dy,0,1);}
         }
       }
     }else if(g.kind==="rotate"){
@@ -658,13 +806,22 @@ function renderElements(){
     const g=gesture;gesture=null;
     shell.querySelectorAll(".cw-centre-line").forEach(node=>node.hidden=true);
     renderPreviewGuides();
-    if(event.type==="pointercancel")Object.assign(layers().find(l=>l.id===g.id)||{},g.original);
+    if(event.type==="pointercancel"){
+      Object.assign(layers().find(l=>l.id===g.id)||{},g.original);
+      for(const origin of g.groupOriginals||[]){
+        const sibling=layers().find(item=>item.id===origin.id);
+        if(sibling){sibling.x=origin.x;sibling.y=origin.y;}
+      }
+    }
     else if(snapshot()!==g.before)commit();
     renderInspector();render();
     if(g.preview){renderPreviewSelection();void instance.render?.();}
   }
   function keyboard(event){
     if(event.key==="Escape"&&focused){event.preventDefault();setFocus(false);return;}
+    if(event.key==="/"&&!event.ctrlKey&&!event.metaKey&&!event.altKey&&!event.target.closest("input,textarea,select,[contenteditable=true]")){
+      event.preventDefault();switchTool("elements");shell.querySelector("[data-ws-element-search]")?.focus();return;
+    }
     if(event.target.closest("input,textarea,select,[contenteditable=true]"))return;
     if(event.target.closest('[data-ws-font]')&&['ArrowUp','ArrowDown','Home','End'].includes(event.key)){
       const options=[...shell.querySelectorAll('[data-ws-font]')],index=options.indexOf(event.target.closest('[data-ws-font]'));
@@ -678,7 +835,9 @@ function renderElements(){
     if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==="d"){event.preventDefault();selectedAction("duplicate");return;}
     const move={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[event.key];
     if(!move)return;event.preventDefault();const amount=event.shiftKey?.02:.002;
-    layer.x=clamp(layer.x+move[0]*amount,0,1);layer.y=clamp(layer.y+move[1]*amount,0,1);commit("keyboard:"+layer.id);
+    const targets=layer.group_id?layers().filter(item=>item.group_id===layer.group_id&&!item.locked&&item.visible!==false):[layer];
+    for(const target of targets){target.x=clamp(target.x+move[0]*amount,0,1);target.y=clamp(target.y+move[1]*amount,0,1);}
+    commit("keyboard:"+layer.id);
   }
   function renderFonts(){
     if(!fontsReady||tool!=="fonts")return;
@@ -719,6 +878,57 @@ function renderElements(){
     else if(button.hasAttribute("data-ws-elements-view")){elementsView=button.dataset.wsElementsView;elementLimit=48;renderElements();}
     else if(button.hasAttribute("data-ws-favourite")){window.VeeladStudioPro?.favourite(button.dataset.wsFavourite);renderElements();}
     else if(button.hasAttribute("data-ws-pro-layout"))await applyProLayout(button.dataset.wsProLayout);
+    else if(button.hasAttribute("data-ws-type-pair"))applyTypePair(button.dataset.wsTypePair);
+    else if(button.hasAttribute("data-ws-save-checkpoint"))saveCheckpoint();
+    else if(button.hasAttribute("data-ws-restore-checkpoint"))restoreCheckpoint(Number(button.dataset.wsRestoreCheckpoint));
+    else if(button.hasAttribute("data-ws-layout-action"))arrangeUnlocked(button.dataset.wsLayoutAction);
+    else if(button.hasAttribute("data-ws-select-all")){
+      multi.clear();for(const layer of layers())if(!layer.locked&&layer.visible!==false)multi.add(layer.id);renderLayerList();
+    }
+    else if(button.hasAttribute("data-ws-clear-selected")){multi.clear();renderLayerList();}
+    else if(button.hasAttribute("data-ws-group"))groupSelected();
+    else if(button.hasAttribute("data-ws-ungroup"))ungroupSelected();
+    else if(button.hasAttribute("data-ws-quick-filter")){
+      const categorySelect=shell.querySelector("[data-ws-element-category]"),filter=button.dataset.wsQuickFilter;
+      categorySelect.value=categorySelect.value===filter?"":filter;
+      shell.querySelector("[data-ws-element-search]").value="";
+      shell.querySelector("[data-ws-element-collection]").value="";
+      elementLimit=48;renderElements();
+    }
+    else if(button.hasAttribute("data-ws-save-palette")){
+      const layer=current(),colour=window.VeeladColourTools;
+      if(layer?.library_element&&colour){
+        const colors=layer.library_element.colors;
+        colour.save([colors.primary,colors.secondary,colors.accent]);
+        renderInspector();setStatus("Palette saved on this device");
+      }
+    }
+    else if(button.hasAttribute("data-ws-extract-palette")){
+      const layer=current(),source=layers().find(item=>item.type==="image"&&!item.library_element),tools=window.VeeladColourTools;
+      if(layer?.library_element&&source?.upload_id&&tools){
+        try{
+          setStatus("Analysing colours on this device…");
+          const image=await adapter.image(source.upload_id);
+          const canvas=document.createElement("canvas");
+          canvas.width=canvas.height=64;
+          const ctx=canvas.getContext("2d",{willReadFrequently:true});
+          if(!ctx)throw Error("Canvas unavailable");
+          ctx.clearRect(0,0,64,64);ctx.drawImage(image,0,0,64,64);
+          const swatches=tools.extract(ctx.getImageData(0,0,64,64).data);
+          tools.save(swatches);
+          await recolourPalette(layer.id,{primary:swatches[0],secondary:swatches[1],accent:swatches[2]});
+          setStatus("Colours extracted privately");
+        }catch{setStatus("Could not read photo colours. Please choose another image.",true);}
+      }
+    }
+    else if(button.hasAttribute("data-ws-palette")){
+      const palette=[...(window.VeeladStudioPro?.palettes||[]),...(window.VeeladColourTools?.read()||[])].find(item=>item.id===button.dataset.wsPalette),layer=current();
+      if(palette&&layer?.library_element){
+        const original=window.VeeladElements?.defaults(layer.library_element.id);
+        const colours=palette.colors||[original.primary,original.secondary,original.accent];
+        await recolourPalette(layer.id,{primary:colours[0],secondary:colours[1],accent:colours[2]});
+      }
+    }
     else if(button.hasAttribute("data-ws-element-more")){elementLimit+=48;renderElements();}
     else if(button.hasAttribute("data-ws-add-text"))addText(button.dataset.wsAddText);
     else if(button.hasAttribute("data-ws-open-fonts"))switchTool("fonts");
@@ -747,6 +957,7 @@ function renderElements(){
     else if(input.hasAttribute("data-ws-element-category")){elementLimit=48;renderElements();}
     else if(input.hasAttribute("data-ws-element-collection")){elementLimit=48;renderElements();}
     else if(input.hasAttribute("data-ws-element-colour")){const layer=current();if(layer)void recolourElement(layer.id,input.dataset.wsElementColour,input.value);}
+    else if(input.hasAttribute("data-ws-multiselect")){if(input.checked)multi.add(input.dataset.wsMultiselect);else multi.delete(input.dataset.wsMultiselect);renderLayerList();}
     else if(input.hasAttribute("data-ws-zoom")){zoom=input.value;resizeStage();}
     else if(input.matches("[data-ws-font-script],[data-ws-font-category]")){fontLimit=60;renderFonts();}
     else if(input.hasAttribute("data-ws-transparent")){adapter.scene().background=input.checked?"transparent":shell.querySelector("[data-ws-background]").value;commit();}
@@ -811,6 +1022,46 @@ shell.addEventListener("dragstart",event=>{
   root.addEventListener("customer-scene-rendered",()=>{if(mode==="preview")renderPreviewSelection();});
   artboard.addEventListener("pointerdown",beginGesture);artboard.addEventListener("pointermove",moveGesture);
   for(const name of ["pointerup","pointercancel","lostpointercapture"])artboard.addEventListener(name,finishGesture);
+  // Two-finger zoom works on touch screens without generating layer edits.
+  // A second pointer cancels the first layer gesture, preserving undo history.
+  const touchPointers=new Map();
+  let pinch=null;
+  function touchStart(event){
+    if(event.pointerType!=="touch"||mode!=="edit")return;
+    touchPointers.set(event.pointerId,{x:event.clientX,y:event.clientY});
+    if(touchPointers.size===2){
+      if(gesture)finishGesture({type:"pointercancel",pointerId:gesture.pointer});
+      const points=[...touchPointers.values()],distance=Math.hypot(points[0].x-points[1].x,points[0].y-points[1].y);
+      pinch={distance:Math.max(distance,8),factor:zoom==="fit"?1:Number(zoom)};
+      event.stopImmediatePropagation();event.preventDefault();
+    }
+  }
+  function touchMove(event){
+    if(event.pointerType!=="touch"||!touchPointers.has(event.pointerId))return;
+    touchPointers.set(event.pointerId,{x:event.clientX,y:event.clientY});
+    if(!pinch||touchPointers.size<2)return;
+    const points=[...touchPointers.values()],
+      distance=Math.hypot(points[0].x-points[1].x,points[0].y-points[1].y),
+      factor=clamp(pinch.factor*distance/pinch.distance,.5,3);
+    if(Number.isFinite(factor)){
+      zoom=String(Math.round(factor*20)/20);
+      const control=shell.querySelector("[data-ws-zoom]");
+      if(control){let option=[...control.options].find(o=>o.value===zoom);if(!option){
+        option=document.createElement("option");option.value=zoom;option.textContent=Math.round(factor*100)+"%";
+        control.append(option);
+      }control.value=zoom;}
+      resizeStage();
+    }
+    event.stopImmediatePropagation();event.preventDefault();
+  }
+  function touchEnd(event){
+    if(event.pointerType!=="touch")return;
+    touchPointers.delete(event.pointerId);
+    if(touchPointers.size<2)pinch=null;
+  }
+  for(const name of ["pointerdown"])artboard.addEventListener(name,touchStart,true);
+  artboard.addEventListener("pointermove",touchMove,true);
+  for(const name of ["pointerup","pointercancel","lostpointercapture"])artboard.addEventListener(name,touchEnd,true);
   shell.addEventListener("keydown",keyboard);
   root.addEventListener("scene-editor-change",()=>{if(!gesture){record();refresh();}});
   const resizeObserver=typeof ResizeObserver!=="undefined"?new ResizeObserver(()=>resizeStage()):null;
