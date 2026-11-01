@@ -81,3 +81,14 @@ test('distribution uses available print-safe space and refuses overlap',()=>{
  assert.ok(Math.abs(result[2].x-.82)<.000001);
  assert.equal(pro.arrange(layers.map(layer=>({...layer,width:.4})),'distribute-x').length,0);
 });
+
+test('preflight respects rotated bounds, faint elements and tiny text',()=>{
+ const tilted={id:'turn',type:'image',width:.5,height:.1,x:.8,y:.5,rotation:45,visible:true,opacity:1};
+ const warnings=pro.preflight([tilted]);
+ assert.ok(warnings.some(w=>/boundary/.test(w)),'Rotated art near edge should warn');
+ const text={id:'caption',type:'text',text:'details',x:.5,y:.5,rotation:0,size:.01,opacity:.09,visible:true};
+ const quality=pro.preflight([text]);
+ assert.ok(quality.some(w=>/lettering/.test(w)));
+ assert.ok(quality.some(w=>/transparent/.test(w)));
+ assert.equal(pro.preflight([{...tilted,visible:false}]).length,0);
+});
