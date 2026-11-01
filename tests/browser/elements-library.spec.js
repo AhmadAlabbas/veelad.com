@@ -103,7 +103,7 @@ test('creators insert, recolour and persist a private vector element in the desi
   await studio.locator('[data-ws-action=safe-left]').click();
   await expect.poll(async()=>(await scene()).layers.find(layer=>layer.id===saved.id)?.x).toBeLessThan(.5);
   await studio.locator('[data-ws-tool=layouts]').click();
-  await expect(studio.locator('[data-ws-original-layouts] .cw-original-layout')).toHaveCount(6);
+  await expect(studio.locator('[data-ws-original-layouts] .cw-original-layout')).toHaveCount(12);
   await studio.locator('[data-ws-pro-layout=floral-type]').click();
   await expect.poll(async()=> (await scene()).layers.length).toBe(3);
   expect((await scene()).layers.some(layer=>layer.type==='text'&&layer.text==='MAKE IT BLOOM')).toBe(true);
