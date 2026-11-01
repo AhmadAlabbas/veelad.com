@@ -5,6 +5,7 @@ import {googleApp} from './helpers/google-app.js';
 import {passwordHash,now} from '../src/security.js';
 import {markEmailVerified} from '../src/email-verification.js';
 import {catalogueChecklist,runShoppingRetention} from '../src/shopping-quality.js';
+import {assessCataloguePrelaunch,summarizeCataloguePrelaunch,pendingExternalApprovals} from '../src/catalogue-readiness.js';
 const password='Isolated shopping improvement password 123';
 function client(origin){const cookies=new Map();let csrf='';return async(route,data,query={})=>{const response=await fetch(origin+'/api.php?'+new URLSearchParams({route,...query}),{method:data===undefined?'GET':'POST',headers:{...(cookies.size?{Cookie:[...cookies].map(([key,value])=>key+'='+value).join('; ')}:{}),...(data===undefined?{}:{'Content-Type':'application/json','X-CSRF-Token':csrf,Origin:origin})},body:data===undefined?undefined:JSON.stringify(data)});for(const value of response.headers.getSetCookie()){const pair=value.split(';')[0],index=pair.indexOf('=');cookies.set(pair.slice(0,index),pair.slice(index+1));}const body=await response.json();if(body.csrf)csrf=body.csrf;return{status:response.status,body};};}
 async function fixture(){const f=await googleApp({shoppingEnabled:true});const users={admin:{id:'shop-admin',role:'admin'},artist:{id:'artist-1',role:'artist'},buyer:{id:'shop-buyer',role:'buyer'}};for(const [name,user]of Object.entries(users)){Object.assign(user,{name,email:name+'@shopping.example.test',password:await passwordHash(password),status:'active',created_at:now()});await f.db.q('INSERT INTO users VALUES (?,?,?,?,?,?,?)',[user.id,user.name,user.email,user.password,user.role,user.status,user.created_at]);await markEmailVerified(f.db,user);user.call=client(f.origin);await user.call('bootstrap');assert.equal((await user.call('login',{email:user.email,password})).status,200);}const row=await f.db.one('SELECT * FROM products WHERE id=?',['p1']),p=JSON.parse(row.data);await f.db.q('UPDATE products SET data=? WHERE id=?',[JSON.stringify({...p,customer_customizable:true}),row.id]);return{...f,users};}
@@ -49,4 +50,25 @@ test('quick personalisation exposes reviewed layouts, renders an owned preview a
 test('catalogue content checklist never treats sample prices or missing specifications as complete',()=>{
  const sample={title:'Real title',description:'A clear and genuinely useful description of the original artwork.',title_ar:'اسم التصميم',description_ar:'وصف واضح للتصميم الأصلي وتفاصيله الفنية ومعناه للعميل.',sheet:0,tags:['art','nature'],design_styles:['nature-botanical'],variants:['Standard'],price:4900,sample_pricing:true};
  const check=catalogueChecklist(sample);assert.equal(check.complete,false);assert.equal(check.checks.final_price,false);assert.equal(check.checks.specifications,false);
+});
+
+test('catalogue data preflight does not confuse product completeness with supplier or payment approval',()=>{
+ const base={status:'active',category:'T-shirts',upload_id:'art-1',price:4900,stock:5,price_is_placeholder:false,sample_pricing:false,stock_is_simulated:false,materials:'Cotton',dimensions:'Regular fit',care_instructions:'Cold wash',size_guide:'S to XXL',purchase_options:{confirmed:true}};
+ const ready=assessCataloguePrelaunch(base);
+ assert.equal(ready.data_preflight_complete,true);
+ assert.equal(ready.external_approval_required,true);
+ assert.ok(pendingExternalApprovals.includes('live_payment_activation'));
+ const samples=[
+  {...base,sample_pricing:true},
+  {...base,stock_is_simulated:true},
+  {...base,purchase_options:{confirmed:false}},
+  {...base,upload_id:null},
+  {...base,size_guide:''},
+  {...base,status:'draft'},
+  {...base,stock:0}
+ ];
+ for(const item of samples)assert.equal(assessCataloguePrelaunch(item).data_preflight_complete,false);
+ const results=summarizeCataloguePrelaunch([{prelaunch:ready},...samples.map(p=>({prelaunch:assessCataloguePrelaunch(p)}))]);
+ assert.deepEqual(results,{reviewed:8,complete:1,needs_review:7});
+ assert.equal(assessCataloguePrelaunch({...base,category:'Mugs',size_guide:''}).checks.size_guide,true);
 });
