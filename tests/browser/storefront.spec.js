@@ -82,3 +82,29 @@ test('customer editor keeps print-side choices, placement controls and bilingual
   expect(errors).toEqual([]);
  }finally{await page.goto('about:blank').catch(()=>{});await fixture.close();}
 });
+
+
+test('desktop header gives search useful width without overlapping navigation',async({page},info)=>{
+ test.setTimeout(90000);
+ const fixture=await googleApp();
+ try{
+  for(const width of [1024,1366,1600,1920]){
+   await page.setViewportSize({width,height:900});
+   await page.goto(fixture.origin+'/en/shop');
+   const geometry=await page.evaluate(()=>{
+    const search=document.querySelector('.global-search'),header=document.querySelector('.global-nav .container');
+    const r=el=>{const x=el.getBoundingClientRect();return {left:x.left,right:x.right,top:x.top,bottom:x.bottom,width:x.width};};
+    return {search:r(search),brand:r(header.querySelector('.wordmark')),destination:r(header.querySelector('.destination-control')),actions:r(header.querySelector('.nav-actions')),scroll:document.documentElement.scrollWidth};
+   });
+   expect(geometry.scroll,JSON.stringify({width,geometry})).toBeLessThanOrEqual(width+1);
+   expect(geometry.search.width,JSON.stringify({width,geometry})).toBeGreaterThanOrEqual(width>=1700?360:Math.min(600,width-200));
+   for(const name of ['brand','destination','actions']){
+    const other=geometry[name],a=geometry.search;
+    const overlap=Math.min(a.right,other.right)-Math.max(a.left,other.left)>1&&Math.min(a.bottom,other.bottom)-Math.max(a.top,other.top)>1;
+    expect(overlap,JSON.stringify({width,name,geometry})).toBe(false);
+   }
+   await expect(page.locator('.global-search input[name=q]')).toBeVisible();
+   await expect(page.locator('.global-nav .nav-actions')).toBeVisible();
+  }
+ }finally{await page.goto('about:blank').catch(()=>{});await fixture.close();}
+});
