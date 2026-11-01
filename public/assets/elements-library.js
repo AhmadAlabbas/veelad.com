@@ -8,7 +8,7 @@
  const categories=["Flowers","Pets","Buildings","Nature","Space","Food","Travel","Celebration","Geometric"];
  const variants=['Classic','Tilt left','Tilt right','Medallion','Sparkle','Duo','Frame','Underline'];
  const safeColor=(color,fallback)=>/^#[0-9a-f]{6}$/i.test(color||'')?color.toLowerCase():fallback;
- const catalog=Object.freeze(motifs.flatMap(motif=>variants.map((variant,index)=>Object.freeze({
+ const catalog=Object.freeze(variants.flatMap((variant,index)=>motifs.map(motif=>Object.freeze({
   id:motif.id+'-'+index,name:motif.name+(index?' · '+variant:''),category:motif.category,base:motif.id,variant:index
  }))));
  const byId=new Map(catalog.map(item=>[item.id,item]));
