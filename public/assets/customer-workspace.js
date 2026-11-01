@@ -661,7 +661,7 @@ function renderElements(){
         if(useSnap&&snap){
           const measures=item=>{const size=dimensions(item);return{width:size.width/d.width,height:size.height/d.height};};
           const proposed=snap.snap({x:layer.x,y:layer.y},layer,layers(),measures,{
-            aspect:d.height/d.width,tolerance:.016
+            aspect:d.height/d.width,tolerance:Math.max(.016,8/Math.max(1,previewOverlay.clientWidth))
           });
           layer.x=proposed.x;layer.y=proposed.y;
           renderPreviewGuides(proposed.guides);
