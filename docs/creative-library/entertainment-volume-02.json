@@ -1,0 +1,2087 @@
+{
+  "schema": "veelad.original-entertainment-blueprint.v1",
+  "status": "concept_briefs_not_production_art",
+  "license_policy": "first_party_original_no_franchise_likenesses",
+  "volume": 2,
+  "packs": [
+    {
+      "id": "ocean-expeditions",
+      "name": "Ocean Expeditions",
+      "locales": {
+        "ar": "رحلات البحار",
+        "zh_CN": "海洋探险"
+      },
+      "palette": {
+        "primary": "#205A73",
+        "secondary": "#A6DED5",
+        "accent": "#F1B56B"
+      },
+      "art_direction": "Aquatic naturalism with original sea-crew personalities and illustrated marine engineering",
+      "items": [
+        {
+          "id": "ent-ocean-expeditions-coral-atlas-keeper",
+          "name": "Coral Atlas Keeper",
+          "kind": "original_character",
+          "art_direction": "Ocean scientist in patch-pocket wetsuit balancing a rolled reef map and a specimen board",
+          "search_terms": [
+            "ocean",
+            "research"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-ocean-expeditions-shell-cartographer",
+          "name": "Shell Cartographer",
+          "kind": "original_character",
+          "art_direction": "Friendly diver with asymmetric shell-shaped diving helmet and ink-stained notebook",
+          "search_terms": [
+            "diver",
+            "maps"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-ocean-expeditions-tidal-radio-operator",
+          "name": "Tidal Radio Operator",
+          "kind": "original_character",
+          "art_direction": "Coastal lighthouse assistant with shortwave radio and seabird companion",
+          "search_terms": [
+            "marine",
+            "radio"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-ocean-expeditions-spiral-nautilus",
+          "name": "Spiral Nautilus",
+          "kind": "illustrated_motif",
+          "art_direction": "Cutaway nautilus shell with differentiated chamber geometry",
+          "search_terms": [
+            "shell",
+            "spiral"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-ocean-expeditions-seagrass-submarine",
+          "name": "Seagrass Submarine",
+          "kind": "illustrated_motif",
+          "art_direction": "Rounded exploratory mini-sub with fin-like side windows and kelp decals",
+          "search_terms": [
+            "submarine",
+            "sea"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-ocean-expeditions-glass-bottom-dinghy",
+          "name": "Glass-Bottom Dinghy",
+          "kind": "illustrated_motif",
+          "art_direction": "Tiny sailboat with oval underwater window and wave shadow",
+          "search_terms": [
+            "boat",
+            "sailing"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-ocean-expeditions-tidepool-microscope",
+          "name": "Tidepool Microscope",
+          "kind": "illustrated_motif",
+          "art_direction": "Portable microscope revealing simple anemone patterns",
+          "search_terms": [
+            "tidepool",
+            "science"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-ocean-expeditions-deep-sea-anglerfish",
+          "name": "Deep-Sea Anglerfish",
+          "kind": "illustrated_motif",
+          "art_direction": "Smiling imaginary anglerfish with petal-shaped bioluminescent lure",
+          "search_terms": [
+            "deepsea",
+            "fish"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-ocean-expeditions-coral-lantern",
+          "name": "Coral Lantern",
+          "kind": "illustrated_motif",
+          "art_direction": "Branching coral structure holding small glowing jelly-like bubbles",
+          "search_terms": [
+            "reef",
+            "coral"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-ocean-expeditions-beneath-the-surface",
+          "name": "Beneath the Surface",
+          "kind": "scene_or_badge",
+          "art_direction": "Underwater scene with layered sea arches and distant rays",
+          "search_terms": [
+            "underwater",
+            "landscape"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-ocean-expeditions-far-harbour-patch",
+          "name": "Far Harbour Patch",
+          "kind": "scene_or_badge",
+          "art_direction": "Travel badge featuring a lighthouse on a rocky breakwater",
+          "search_terms": [
+            "coast",
+            "lighthouse"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-ocean-expeditions-the-blue-expedition",
+          "name": "The Blue Expedition",
+          "kind": "scene_or_badge",
+          "art_direction": "Panoramic badge showing open-water vessel beneath flying birds",
+          "search_terms": [
+            "marine",
+            "journey"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        }
+      ]
+    },
+    {
+      "id": "playful-monsters",
+      "name": "Friendly Monsters & Oddballs",
+      "locales": {
+        "ar": "وحوش لطيفة وغريبة",
+        "zh_CN": "可爱怪物与奇想"
+      },
+      "palette": {
+        "primary": "#4D6684",
+        "secondary": "#F9D79C",
+        "accent": "#E9949F"
+      },
+      "art_direction": "Original creature design with clearly distinct bodies, expressions and physical structure",
+      "items": [
+        {
+          "id": "ent-playful-monsters-milo-the-map-muncher",
+          "name": "Milo the Map Muncher",
+          "kind": "original_character",
+          "art_direction": "Round three-eared creature nibbling paper corners; oversized pockets for saved maps",
+          "search_terms": [
+            "friendly",
+            "monster"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-playful-monsters-waffleback-wanderer",
+          "name": "Waffleback Wanderer",
+          "kind": "original_character",
+          "art_direction": "Short-legged reptilian creature with checkerboard backplates and bright scarf",
+          "search_terms": [
+            "creature",
+            "fantasy"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-playful-monsters-cloud-tail-collector",
+          "name": "Cloud-Tail Collector",
+          "kind": "original_character",
+          "art_direction": "Fluffy birdlike companion collecting rainclouds in translucent jars",
+          "search_terms": [
+            "cute",
+            "creature"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-playful-monsters-biscuit-moon-beast",
+          "name": "Biscuit Moon Beast",
+          "kind": "illustrated_motif",
+          "art_direction": "Sleepy horned creature curling around a crescent-shaped biscuit",
+          "search_terms": [
+            "cute",
+            "moon"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-playful-monsters-three-eyed-gardener",
+          "name": "Three-Eyed Gardener",
+          "kind": "illustrated_motif",
+          "art_direction": "Oval garden critter with three eyes in an arc and a watering snout",
+          "search_terms": [
+            "garden",
+            "monster"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-playful-monsters-jellybean-glider",
+          "name": "Jellybean Glider",
+          "kind": "illustrated_motif",
+          "art_direction": "Floating creature with two sail-like ears and dotted belly",
+          "search_terms": [
+            "floating",
+            "creature"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-playful-monsters-puddle-gobbler",
+          "name": "Puddle Gobbler",
+          "kind": "illustrated_motif",
+          "art_direction": "Amphibious character shaped like a droplet with toothless smile",
+          "search_terms": [
+            "puddle",
+            "cute"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-playful-monsters-socks-on-tentacles",
+          "name": "Socks on Tentacles",
+          "kind": "illustrated_motif",
+          "art_direction": "Tiny octopus wearing mismatched striped socks on two arms",
+          "search_terms": [
+            "octopus",
+            "whimsical"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-playful-monsters-umbrella-snail",
+          "name": "Umbrella Snail",
+          "kind": "illustrated_motif",
+          "art_direction": "Spiral-shelled snail whose shell unfolds like a miniature umbrella",
+          "search_terms": [
+            "snail",
+            "rain"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-playful-monsters-little-weirdos-club",
+          "name": "Little Weirdos Club",
+          "kind": "scene_or_badge",
+          "art_direction": "Badge composed of three uniquely shaped original creature heads",
+          "search_terms": [
+            "monster",
+            "team"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-playful-monsters-monster-tea-party",
+          "name": "Monster Tea Party",
+          "kind": "scene_or_badge",
+          "art_direction": "Café vignette featuring two fuzzy critters and a tiny teacup",
+          "search_terms": [
+            "cute",
+            "cafe"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-playful-monsters-the-cloud-parade",
+          "name": "The Cloud Parade",
+          "kind": "scene_or_badge",
+          "art_direction": "A playful procession of four invented creatures crossing windy clouds",
+          "search_terms": [
+            "creature",
+            "parade"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        }
+      ]
+    },
+    {
+      "id": "romantic-comedy",
+      "name": "Romantic Comedy Moments",
+      "locales": {
+        "ar": "لحظات الكوميديا الرومانسية",
+        "zh_CN": "浪漫喜剧情景"
+      },
+      "palette": {
+        "primary": "#89516D",
+        "secondary": "#FFE0D4",
+        "accent": "#74A59E"
+      },
+      "art_direction": "Personality and light-hearted relationships without reproducing any movie scene",
+      "items": [
+        {
+          "id": "ent-romantic-comedy-the-accidental-florist",
+          "name": "The Accidental Florist",
+          "kind": "original_character",
+          "art_direction": "Person in oversized apron struggling to hold a bouquet and a bicycle bell",
+          "search_terms": [
+            "florist",
+            "comedy"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-romantic-comedy-coffee-shop-poet",
+          "name": "Coffee-Shop Poet",
+          "kind": "original_character",
+          "art_direction": "Daydreaming writer with sleeve-rolled jacket and heart-shaped notebook clip",
+          "search_terms": [
+            "poet",
+            "coffee"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-romantic-comedy-the-late-train-romantic",
+          "name": "The Late-Train Romantic",
+          "kind": "original_character",
+          "art_direction": "Commuter racing for train while carrying a taped-up paper gift bag",
+          "search_terms": [
+            "romance",
+            "travel"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-romantic-comedy-two-mismatched-mugs",
+          "name": "Two Mismatched Mugs",
+          "kind": "illustrated_motif",
+          "art_direction": "Pair of distinct coffee mugs with complementary handles forming a loop",
+          "search_terms": [
+            "coffee",
+            "couple"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-romantic-comedy-paper-crane-letter",
+          "name": "Paper Crane Letter",
+          "kind": "illustrated_motif",
+          "art_direction": "Love note folding into an original geometric bird in midair",
+          "search_terms": [
+            "love",
+            "stationery"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-romantic-comedy-umbrella-for-two",
+          "name": "Umbrella for Two",
+          "kind": "illustrated_motif",
+          "art_direction": "Single tilted umbrella casting two different shoe shadows",
+          "search_terms": [
+            "rain",
+            "romance"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-romantic-comedy-heart-shaped-detour",
+          "name": "Heart-Shaped Detour",
+          "kind": "illustrated_motif",
+          "art_direction": "Winding street map whose traffic route makes a gentle heart curve",
+          "search_terms": [
+            "map",
+            "love"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-romantic-comedy-flower-market-tickets",
+          "name": "Flower Market Tickets",
+          "kind": "illustrated_motif",
+          "art_direction": "Illustrated tickets to an imaginary florist market with leaf stamps",
+          "search_terms": [
+            "tickets",
+            "flowers"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-romantic-comedy-awkward-bouquet",
+          "name": "Awkward Bouquet",
+          "kind": "illustrated_motif",
+          "art_direction": "An off-center bouquet tied with enormous ribbon and one falling petal",
+          "search_terms": [
+            "bouquet",
+            "humour"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-romantic-comedy-meet-cute-cafe",
+          "name": "Meet-Cute Café",
+          "kind": "scene_or_badge",
+          "art_direction": "Café exterior with two intersecting window reflections and a bicycle",
+          "search_terms": [
+            "romance",
+            "cafe"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-romantic-comedy-first-date-weather",
+          "name": "First Date Weather",
+          "kind": "scene_or_badge",
+          "art_direction": "Rain-and-sun split scene with matching rain boots by a doorway",
+          "search_terms": [
+            "date",
+            "weather"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-romantic-comedy-almost-perfect-timing",
+          "name": "Almost Perfect Timing",
+          "kind": "scene_or_badge",
+          "art_direction": "Badge of two clock hands creating a subtle heart silhouette",
+          "search_terms": [
+            "timing",
+            "love"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        }
+      ]
+    },
+    {
+      "id": "cinema-craft",
+      "name": "Cinema & Filmmaking",
+      "locales": {
+        "ar": "السينما وصناعة الأفلام",
+        "zh_CN": "电影制作艺术"
+      },
+      "palette": {
+        "primary": "#333C52",
+        "secondary": "#EAE3D6",
+        "accent": "#D99060"
+      },
+      "art_direction": "Cinema equipment, behind-the-scenes craft, and stories about creative teams",
+      "items": [
+        {
+          "id": "ent-cinema-craft-storyboard-dreamer",
+          "name": "Storyboard Dreamer",
+          "kind": "original_character",
+          "art_direction": "Artist holding three unprinted storyboard cards and mechanical pencil",
+          "search_terms": [
+            "film",
+            "director"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-cinema-craft-practical-effects-maker",
+          "name": "Practical Effects Maker",
+          "kind": "original_character",
+          "art_direction": "Workshop creator wearing goggles and shaping a soft foam creature head",
+          "search_terms": [
+            "effects",
+            "artist"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-cinema-craft-projectionist-of-stars",
+          "name": "Projectionist of Stars",
+          "kind": "original_character",
+          "art_direction": "Theatre operator with vintage projector and tiny constellation patterned vest",
+          "search_terms": [
+            "projection",
+            "movie"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-cinema-craft-fold-out-director-chair",
+          "name": "Fold-Out Director Chair",
+          "kind": "illustrated_motif",
+          "art_direction": "Graphic of a folding chair with striped canvas and original star emblem",
+          "search_terms": [
+            "cinema",
+            "chair"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-cinema-craft-light-meter-dial",
+          "name": "Light Meter Dial",
+          "kind": "illustrated_motif",
+          "art_direction": "Stylised analog exposure meter with graphic radial ticks",
+          "search_terms": [
+            "camera",
+            "meter"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-cinema-craft-script-and-coffee",
+          "name": "Script and Coffee",
+          "kind": "illustrated_motif",
+          "art_direction": "Rolled screenplay beside pen and a coffee cup with a moon motif",
+          "search_terms": [
+            "screenwriting"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-cinema-craft-miniature-movie-set",
+          "name": "Miniature Movie Set",
+          "kind": "illustrated_motif",
+          "art_direction": "Cutaway tiny room with removable wall, light stands and table",
+          "search_terms": [
+            "movie",
+            "production"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-cinema-craft-looped-filmstrip",
+          "name": "Looped Filmstrip",
+          "kind": "illustrated_motif",
+          "art_direction": "Ribbon of blank film frames winding into a three-loop spiral",
+          "search_terms": [
+            "filmstrip",
+            "movie"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-cinema-craft-sound-boom-silhouette",
+          "name": "Sound Boom Silhouette",
+          "kind": "illustrated_motif",
+          "art_direction": "Boom microphone casting a long diagonal shadow across floor markings",
+          "search_terms": [
+            "sound",
+            "recording"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-cinema-craft-behind-the-camera",
+          "name": "Behind the Camera",
+          "kind": "scene_or_badge",
+          "art_direction": "Wide studio vignette with softbox, marks and silhouette of a camera operator",
+          "search_terms": [
+            "film",
+            "production"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-cinema-craft-make-believe-club",
+          "name": "Make Believe Club",
+          "kind": "scene_or_badge",
+          "art_direction": "Crest of mask, camera iris, and hand-drawn star in original arrangement",
+          "search_terms": [
+            "creative",
+            "badge"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-cinema-craft-the-final-take",
+          "name": "The Final Take",
+          "kind": "scene_or_badge",
+          "art_direction": "Three simple frame borders closing around an applauding crew silhouette",
+          "search_terms": [
+            "film",
+            "studio"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        }
+      ]
+    },
+    {
+      "id": "stunts-adventure",
+      "name": "Action & Adventure Stunts",
+      "locales": {
+        "ar": "الأكشن والمغامرات",
+        "zh_CN": "动作与冒险"
+      },
+      "palette": {
+        "primary": "#3A5262",
+        "secondary": "#E1D7BD",
+        "accent": "#E88556"
+      },
+      "art_direction": "Athletic movement, rope systems, adventure geometry, zero licensed heroes or costumes",
+      "items": [
+        {
+          "id": "ent-stunts-adventure-rooftop-parkour-guide",
+          "name": "Rooftop Parkour Guide",
+          "kind": "original_character",
+          "art_direction": "Agile runner in loose cargo trousers vaulting between low urban platforms",
+          "search_terms": [
+            "parkour",
+            "run"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-stunts-adventure-river-rescue-pilot",
+          "name": "River Rescue Pilot",
+          "kind": "original_character",
+          "art_direction": "Canoe guide in bright life vest holding a double-ended paddle",
+          "search_terms": [
+            "rescue",
+            "river"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-stunts-adventure-mountain-zipline-operator",
+          "name": "Mountain Zipline Operator",
+          "kind": "original_character",
+          "art_direction": "Safety instructor with distinctive triangular harness and zipped supply pack",
+          "search_terms": [
+            "zipline",
+            "mountain"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-stunts-adventure-crosswind-paraglider",
+          "name": "Crosswind Paraglider",
+          "kind": "illustrated_motif",
+          "art_direction": "Wing and pilot silhouette with three braided airflow trails",
+          "search_terms": [
+            "paragliding",
+            "wind"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-stunts-adventure-rope-bridge-traverse",
+          "name": "Rope Bridge Traverse",
+          "kind": "illustrated_motif",
+          "art_direction": "Minimal rope bridge arcing between two rock towers",
+          "search_terms": [
+            "bridge",
+            "adventure"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-stunts-adventure-broken-compass-quest",
+          "name": "Broken Compass Quest",
+          "kind": "illustrated_motif",
+          "art_direction": "Weathered compass whose needle has been replaced by a leaf",
+          "search_terms": [
+            "quest",
+            "compass"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-stunts-adventure-trail-climber-kit",
+          "name": "Trail Climber Kit",
+          "kind": "illustrated_motif",
+          "art_direction": "Carabiners, helmet, knotted rope and trail tag as a balanced still life",
+          "search_terms": [
+            "climbing",
+            "gear"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-stunts-adventure-waterfall-descent",
+          "name": "Waterfall Descent",
+          "kind": "illustrated_motif",
+          "art_direction": "Waterfall with zigzag ascent/descent hiking path on surrounding cliff",
+          "search_terms": [
+            "waterfall",
+            "outdoors"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-stunts-adventure-night-river-raft",
+          "name": "Night River Raft",
+          "kind": "illustrated_motif",
+          "art_direction": "Angular raft with three paddles under reflected moonlight",
+          "search_terms": [
+            "rafting",
+            "adventure"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-stunts-adventure-find-your-footing",
+          "name": "Find Your Footing",
+          "kind": "scene_or_badge",
+          "art_direction": "Patch with two stepping stones crossing a canyon",
+          "search_terms": [
+            "adventure",
+            "patch"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-stunts-adventure-the-great-crossing",
+          "name": "The Great Crossing",
+          "kind": "scene_or_badge",
+          "art_direction": "Wide suspension bridge over stylised mountain valley",
+          "search_terms": [
+            "journey",
+            "landscape"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-stunts-adventure-momentum-lines",
+          "name": "Momentum Lines",
+          "kind": "scene_or_badge",
+          "art_direction": "Dynamic visual of three moving body silhouettes in different poses",
+          "search_terms": [
+            "athletic",
+            "action"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        }
+      ]
+    },
+    {
+      "id": "kitchen-stories",
+      "name": "Kitchen Stories",
+      "locales": {
+        "ar": "حكايات المطابخ",
+        "zh_CN": "厨房物语"
+      },
+      "palette": {
+        "primary": "#9A503B",
+        "secondary": "#F9DCA6",
+        "accent": "#6D9786"
+      },
+      "art_direction": "Cozy cooking culture, chef personalities and warm still-life drawings",
+      "items": [
+        {
+          "id": "ent-kitchen-stories-midnight-bread-baker",
+          "name": "Midnight Bread Baker",
+          "kind": "original_character",
+          "art_direction": "Night baker with folded cap balancing five different loaf shapes",
+          "search_terms": [
+            "bakery",
+            "cooking"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-kitchen-stories-spice-market-illustrator",
+          "name": "Spice Market Illustrator",
+          "kind": "original_character",
+          "art_direction": "Merchant-artist with vest and rolling sketch board of imaginary spice symbols",
+          "search_terms": [
+            "spices",
+            "artist"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-kitchen-stories-soup-inventor",
+          "name": "Soup Inventor",
+          "kind": "original_character",
+          "art_direction": "Experimental home cook carrying huge ladle and handwritten recipe tiles",
+          "search_terms": [
+            "chef",
+            "food"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-kitchen-stories-rolling-pin-constellation",
+          "name": "Rolling Pin Constellation",
+          "kind": "illustrated_motif",
+          "art_direction": "Pin crossing over scattered flour-stars in precise crescent arrangement",
+          "search_terms": [
+            "baking",
+            "stars"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-kitchen-stories-three-layer-cake",
+          "name": "Three-Layer Cake",
+          "kind": "illustrated_motif",
+          "art_direction": "Cross-section cake with dotted icing and geometric garnish",
+          "search_terms": [
+            "cake",
+            "dessert"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-kitchen-stories-kitchen-window-herbs",
+          "name": "Kitchen Window Herbs",
+          "kind": "illustrated_motif",
+          "art_direction": "Three differently shaped herb pots on a moonlit window sill",
+          "search_terms": [
+            "herbs",
+            "garden"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-kitchen-stories-tea-kettle-chorus",
+          "name": "Tea Kettle Chorus",
+          "kind": "illustrated_motif",
+          "art_direction": "Whistling kettle emitting musical notes made of steam loops",
+          "search_terms": [
+            "kettle",
+            "music"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-kitchen-stories-dancing-pasta",
+          "name": "Dancing Pasta",
+          "kind": "illustrated_motif",
+          "art_direction": "Spiralling noodles arranged like a theatrical ribbon",
+          "search_terms": [
+            "pasta",
+            "cooking"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-kitchen-stories-whisk-and-whirl",
+          "name": "Whisk and Whirl",
+          "kind": "illustrated_motif",
+          "art_direction": "Two crossed whisks with radiating flour clouds",
+          "search_terms": [
+            "whisk",
+            "baking"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-kitchen-stories-dinner-at-nine",
+          "name": "Dinner at Nine",
+          "kind": "scene_or_badge",
+          "art_direction": "Badge of candlelit round table with two mismatched chairs",
+          "search_terms": [
+            "dinner",
+            "evening"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-kitchen-stories-recipe-in-progress",
+          "name": "Recipe in Progress",
+          "kind": "scene_or_badge",
+          "art_direction": "Illustrated recipe card surrounded by vegetables and a tiny clock",
+          "search_terms": [
+            "recipe",
+            "food"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-kitchen-stories-the-happy-pantry",
+          "name": "The Happy Pantry",
+          "kind": "scene_or_badge",
+          "art_direction": "Cutaway pantry of jars, baskets and patterned textiles",
+          "search_terms": [
+            "kitchen",
+            "pantry"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        }
+      ]
+    },
+    {
+      "id": "sports-stories",
+      "name": "Underdog Sports Stories",
+      "locales": {
+        "ar": "قصص الرياضة والتحدي",
+        "zh_CN": "热血运动故事"
+      },
+      "palette": {
+        "primary": "#265F62",
+        "secondary": "#E8E4CE",
+        "accent": "#E8A45B"
+      },
+      "art_direction": "Community athletics and perseverance without real teams, jerseys or athlete likenesses",
+      "items": [
+        {
+          "id": "ent-sports-stories-rooftop-runner",
+          "name": "Rooftop Runner",
+          "kind": "original_character",
+          "art_direction": "Runner in loose windbreaker tying a shoelace on a city stairwell",
+          "search_terms": [
+            "running",
+            "sport"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-sports-stories-volunteer-goalkeeper",
+          "name": "Volunteer Goalkeeper",
+          "kind": "original_character",
+          "art_direction": "Amateur keeper wearing a bold color-block sweater and gloves",
+          "search_terms": [
+            "football",
+            "goalie"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-sports-stories-hill-course-cyclist",
+          "name": "Hill-Course Cyclist",
+          "kind": "original_character",
+          "art_direction": "Cyclist climbing a hill with dotted route tape attached to bike",
+          "search_terms": [
+            "biking",
+            "endurance"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-sports-stories-last-lap-stopwatch",
+          "name": "Last-Lap Stopwatch",
+          "kind": "illustrated_motif",
+          "art_direction": "Stopwatch whose hand becomes a curved running track",
+          "search_terms": [
+            "race",
+            "timing"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-sports-stories-community-goalpost",
+          "name": "Community Goalpost",
+          "kind": "illustrated_motif",
+          "art_direction": "Patch-style football goal with rounded corners and flying ball",
+          "search_terms": [
+            "football",
+            "goal"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-sports-stories-pool-lane-wave",
+          "name": "Pool Lane Wave",
+          "kind": "illustrated_motif",
+          "art_direction": "Four swimming lane stripes curling into a wave motif",
+          "search_terms": [
+            "swimming",
+            "pool"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-sports-stories-overhead-basketball-arc",
+          "name": "Overhead Basketball Arc",
+          "kind": "illustrated_motif",
+          "art_direction": "Ball hoop viewed diagonally with one clean shooting trajectory",
+          "search_terms": [
+            "basketball",
+            "sport"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-sports-stories-half-time-water-bottle",
+          "name": "Half-Time Water Bottle",
+          "kind": "illustrated_motif",
+          "art_direction": "Reusable bottle on folded towel beside a whistle",
+          "search_terms": [
+            "training",
+            "hydration"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-sports-stories-victory-ribbon-shoes",
+          "name": "Victory Ribbon Shoes",
+          "kind": "illustrated_motif",
+          "art_direction": "Pair of athletic shoes with laces forming a looped victory ribbon",
+          "search_terms": [
+            "shoes",
+            "running"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-sports-stories-one-more-kilometer",
+          "name": "One More Kilometer",
+          "kind": "scene_or_badge",
+          "art_direction": "Mountain running badge with abstract trail mile markers",
+          "search_terms": [
+            "running",
+            "motivation"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-sports-stories-our-home-court",
+          "name": "Our Home Court",
+          "kind": "scene_or_badge",
+          "art_direction": "Isometric local sports court with different shoe footprints",
+          "search_terms": [
+            "sports",
+            "community"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-sports-stories-the-finish-together",
+          "name": "The Finish Together",
+          "kind": "scene_or_badge",
+          "art_direction": "Three silhouettes crossing a finish line holding their hands up",
+          "search_terms": [
+            "endurance",
+            "teamwork"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        }
+      ]
+    },
+    {
+      "id": "music-after-dark",
+      "name": "Music After Dark",
+      "locales": {
+        "ar": "الموسيقى بعد الغروب",
+        "zh_CN": "夜晚音乐故事"
+      },
+      "palette": {
+        "primary": "#483B6B",
+        "secondary": "#F4C87C",
+        "accent": "#76B9BA"
+      },
+      "art_direction": "Original musical identities rather than named artists, album covers or protected stage costumes",
+      "items": [
+        {
+          "id": "ent-music-after-dark-subway-jazz-violinist",
+          "name": "Subway Jazz Violinist",
+          "kind": "original_character",
+          "art_direction": "Street violin player with angular jacket and striped instrument case",
+          "search_terms": [
+            "violin",
+            "jazz"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-music-after-dark-moonlight-synth-maker",
+          "name": "Moonlight Synth Maker",
+          "kind": "original_character",
+          "art_direction": "Electronic musician with round goggles and custom three-knob tabletop synth",
+          "search_terms": [
+            "synth",
+            "music"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-music-after-dark-festival-sound-engineer",
+          "name": "Festival Sound Engineer",
+          "kind": "original_character",
+          "art_direction": "Audio engineer wearing utility headphones and carrying coloured cables",
+          "search_terms": [
+            "audio",
+            "festival"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-music-after-dark-vinyl-solar-system",
+          "name": "Vinyl Solar System",
+          "kind": "illustrated_motif",
+          "art_direction": "Record player disc with orbit-shaped grooves and tiny central planet",
+          "search_terms": [
+            "vinyl",
+            "planet"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-music-after-dark-dancing-equaliser",
+          "name": "Dancing Equaliser",
+          "kind": "illustrated_motif",
+          "art_direction": "Seven independent sound bars forming a sweeping mountain contour",
+          "search_terms": [
+            "sound",
+            "music"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-music-after-dark-copper-trumpet-curve",
+          "name": "Copper Trumpet Curve",
+          "kind": "illustrated_motif",
+          "art_direction": "Stylised brass instrument whose bell emits three leaf-shaped notes",
+          "search_terms": [
+            "trumpet",
+            "jazz"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-music-after-dark-stage-curtain-echo",
+          "name": "Stage Curtain Echo",
+          "kind": "illustrated_motif",
+          "art_direction": "Velvet theatre curtains with repeating concentric sound waves",
+          "search_terms": [
+            "stage",
+            "echo"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-music-after-dark-pocket-metronome",
+          "name": "Pocket Metronome",
+          "kind": "illustrated_motif",
+          "art_direction": "Wooden triangular metronome casting graphic movement trails",
+          "search_terms": [
+            "tempo",
+            "music"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-music-after-dark-midnight-cassette",
+          "name": "Midnight Cassette",
+          "kind": "illustrated_motif",
+          "art_direction": "Retro mixtape featuring an original crescent-and-cloud label",
+          "search_terms": [
+            "cassette",
+            "nostalgic"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-music-after-dark-the-last-encore",
+          "name": "The Last Encore",
+          "kind": "scene_or_badge",
+          "art_direction": "Stage scene of one empty microphone under star-shaped spotlight",
+          "search_terms": [
+            "concert",
+            "stage"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-music-after-dark-songs-of-the-city",
+          "name": "Songs of the City",
+          "kind": "scene_or_badge",
+          "art_direction": "Original music patch merging a train line and abstract melody staff",
+          "search_terms": [
+            "music",
+            "city"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-music-after-dark-harmony-in-motion",
+          "name": "Harmony in Motion",
+          "kind": "scene_or_badge",
+          "art_direction": "Three flowing melodic ribbons passing through differently shaped bells",
+          "search_terms": [
+            "music",
+            "harmony"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        }
+      ]
+    },
+    {
+      "id": "cozy-mysteries",
+      "name": "Cozy Mysteries & Bookshops",
+      "locales": {
+        "ar": "ألغاز لطيفة ومكتبات",
+        "zh_CN": "温馨推理与书店"
+      },
+      "palette": {
+        "primary": "#5D576C",
+        "secondary": "#E5D7B6",
+        "accent": "#A7BE9A"
+      },
+      "art_direction": "Wholesome reading and puzzling, expressive small details, literary but original",
+      "items": [
+        {
+          "id": "ent-cozy-mysteries-bookshop-nightkeeper",
+          "name": "Bookshop Nightkeeper",
+          "kind": "original_character",
+          "art_direction": "Shopkeeper in cable-knit cardigan holding a lantern and pile of odd books",
+          "search_terms": [
+            "library",
+            "mystery"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-cozy-mysteries-pencil-sketch-sleuth",
+          "name": "Pencil-Sketch Sleuth",
+          "kind": "original_character",
+          "art_direction": "Friendly investigator with wide round glasses and roll of tracing paper",
+          "search_terms": [
+            "detective",
+            "drawing"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-cozy-mysteries-clocktower-librarian",
+          "name": "Clocktower Librarian",
+          "kind": "original_character",
+          "art_direction": "Librarian with pocket watch and dramatic folded-paper hairpin",
+          "search_terms": [
+            "library",
+            "clock"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-cozy-mysteries-unfinished-crossword",
+          "name": "Unfinished Crossword",
+          "kind": "illustrated_motif",
+          "art_direction": "Open crossword with scattered clean fictional letters and a pencil",
+          "search_terms": [
+            "crossword",
+            "puzzle"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-cozy-mysteries-lost-bookmark-trail",
+          "name": "Lost Bookmark Trail",
+          "kind": "illustrated_motif",
+          "art_direction": "Series of mismatched bookmarks connecting a shelf to an open book",
+          "search_terms": [
+            "bookmark",
+            "book"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-cozy-mysteries-tea-and-clues",
+          "name": "Tea and Clues",
+          "kind": "illustrated_motif",
+          "art_direction": "Steaming teacup beside a folded notecard and magnifier",
+          "search_terms": [
+            "tea",
+            "mystery"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-cozy-mysteries-the-secret-shelf",
+          "name": "The Secret Shelf",
+          "kind": "illustrated_motif",
+          "art_direction": "Shelf revealing a tiny door between oversized volumes",
+          "search_terms": [
+            "books",
+            "secret"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-cozy-mysteries-window-seat-cat",
+          "name": "Window-Seat Cat",
+          "kind": "illustrated_motif",
+          "art_direction": "Curled feline creature on a cushion with rainlit bookshelf backdrop",
+          "search_terms": [
+            "cat",
+            "window"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-cozy-mysteries-compass-bookplate",
+          "name": "Compass Bookplate",
+          "kind": "illustrated_motif",
+          "art_direction": "Original decorative bookplate including small compass and leaf",
+          "search_terms": [
+            "bookplate",
+            "bibliophile"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-cozy-mysteries-the-reading-hour",
+          "name": "The Reading Hour",
+          "kind": "scene_or_badge",
+          "art_direction": "Quiet room badge with one curved floor lamp and armchair",
+          "search_terms": [
+            "reading",
+            "cozy"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-cozy-mysteries-one-more-chapter",
+          "name": "One More Chapter",
+          "kind": "scene_or_badge",
+          "art_direction": "Emblem of winding ribbon around a book and five little stars",
+          "search_terms": [
+            "read",
+            "book"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-cozy-mysteries-the-bookshop-at-dawn",
+          "name": "The Bookshop at Dawn",
+          "kind": "scene_or_badge",
+          "art_direction": "Narrow bookshop storefront glowing in a misty morning street",
+          "search_terms": [
+            "bookshop",
+            "city"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        }
+      ]
+    },
+    {
+      "id": "eerie-folklore",
+      "name": "Eerie Folklore & Atmospheric Horror",
+      "locales": {
+        "ar": "حكايات غامضة وأساطير",
+        "zh_CN": "民俗怪谈与神秘氛围"
+      },
+      "palette": {
+        "primary": "#323C4B",
+        "secondary": "#A6BDB2",
+        "accent": "#C86B66"
+      },
+      "art_direction": "Atmosphere, moonlit nature and entirely invented creatures, no franchise-specific monsters",
+      "items": [
+        {
+          "id": "ent-eerie-folklore-the-lantern-listener",
+          "name": "The Lantern Listener",
+          "kind": "original_character",
+          "art_direction": "Tall folkloric traveller with wooden mask and lantern woven into their staff",
+          "search_terms": [
+            "folklore",
+            "wanderer"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-eerie-folklore-moth-mantle-storyteller",
+          "name": "Moth-Mantle Storyteller",
+          "kind": "original_character",
+          "art_direction": "Masked village storyteller with moth-wing cape and scroll of ink symbols",
+          "search_terms": [
+            "moth",
+            "fable"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-eerie-folklore-fog-orchard-watcher",
+          "name": "Fog Orchard Watcher",
+          "kind": "original_character",
+          "art_direction": "Cloaked orchard guardian carrying a woven branch basket and bell",
+          "search_terms": [
+            "orchard",
+            "fog"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-eerie-folklore-whispering-window",
+          "name": "Whispering Window",
+          "kind": "illustrated_motif",
+          "art_direction": "Half-open attic window with hanging paper charms and cold moonlight",
+          "search_terms": [
+            "window",
+            "spooky"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-eerie-folklore-clock-without-numbers",
+          "name": "Clock without Numbers",
+          "kind": "illustrated_motif",
+          "art_direction": "Old clock face replaced with tiny symbolic leaves and stars",
+          "search_terms": [
+            "clock",
+            "mysterious"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-eerie-folklore-shallow-lake-reflection",
+          "name": "Shallow Lake Reflection",
+          "kind": "illustrated_motif",
+          "art_direction": "Moonlit reeds with an impossible second reflection that differs slightly",
+          "search_terms": [
+            "lake",
+            "eerie"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-eerie-folklore-the-listening-tree",
+          "name": "The Listening Tree",
+          "kind": "illustrated_motif",
+          "art_direction": "Bark knots arranged as original imaginary listening faces",
+          "search_terms": [
+            "tree",
+            "atmosphere"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-eerie-folklore-midnight-weather-vane",
+          "name": "Midnight Weather Vane",
+          "kind": "illustrated_motif",
+          "art_direction": "Crooked rooftop weather vane pointing toward an unusual cloud",
+          "search_terms": [
+            "roof",
+            "night"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-eerie-folklore-long-hallway-light",
+          "name": "Long Hallway Light",
+          "kind": "illustrated_motif",
+          "art_direction": "Receding doors with one small pool of warm light at corridor end",
+          "search_terms": [
+            "hallway",
+            "mood"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-eerie-folklore-tales-by-firelight",
+          "name": "Tales by Firelight",
+          "kind": "scene_or_badge",
+          "art_direction": "Camping vignette with three silhouettes and smoke becoming abstract stars",
+          "search_terms": [
+            "campfire",
+            "story"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-eerie-folklore-folk-mask-collection",
+          "name": "Folk Mask Collection",
+          "kind": "scene_or_badge",
+          "art_direction": "Badge with three wholly invented angular carnival-like masks",
+          "search_terms": [
+            "folklore",
+            "masks"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-eerie-folklore-moon-over-the-marsh",
+          "name": "Moon over the Marsh",
+          "kind": "scene_or_badge",
+          "art_direction": "Panoramic wetlands with crooked grass and distant lantern light",
+          "search_terms": [
+            "marsh",
+            "moon"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        }
+      ]
+    }
+  ]
+}
