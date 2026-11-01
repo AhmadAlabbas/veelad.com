@@ -6,7 +6,7 @@ function textLayersFor(instance) {
 }
 function textGlyphKey(layers) {
   return JSON.stringify(
-    layers.map(({ id, text, font, color, size, align, direction }) => ({
+    layers.map(({ id, text, font, color, size, align, direction, tracking }) => ({
       id,
       text,
       font,
@@ -14,6 +14,7 @@ function textGlyphKey(layers) {
       size,
       align,
       direction,
+      tracking,
     })),
   );
 }
