@@ -792,6 +792,7 @@ shell.addEventListener("dragstart",event=>{
   });
   previewOverlay.addEventListener("drop",event=>{
     previewOverlay.classList.remove("cw-preview-drop-active");
+    shell.classList.remove("cw-is-dragging");
     const value=event.dataTransfer?.getData("application/x-veelad-element");
     const files=event.dataTransfer?.files,point=previewPoint(event)?.uv;
     if(value&&window.VeeladElements?.find(value)){
