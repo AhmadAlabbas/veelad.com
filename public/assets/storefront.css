@@ -161,3 +161,20 @@ html[lang=ar] .global-nav .wordmark{font-family:Manrope,sans-serif;letter-spacin
 .social-settings>p{margin-bottom:16px}
 @media(max-width:600px){.footer-social{align-items:flex-start;flex-direction:column}.footer-social-list{gap:8px}}
 @media(max-width:359px){.footer-social-list{display:grid;grid-template-columns:repeat(3,44px)}}
+
+/* Roomier search at desktop widths: use the available header space rather
+   than squeezing the input between language, destination and account links.
+   On compact desktops the search gets its own centered, full-width row.
+   Mobile keeps its existing three-row navigation and touch targets. */
+@media (min-width:1700px) {
+ .global-nav .container{max-width:1920px;padding-inline:clamp(36px,3.5vw,76px);gap:clamp(12px,1.2vw,22px)}
+ .global-search{flex:1 1 440px;min-width:360px;max-width:610px;min-height:56px;margin-inline-start:0;padding-inline:18px 9px;border-radius:13px}
+ .global-nav .nav-actions{gap:10px}
+}
+@media (min-width:761px) and (max-width:1699px) {
+ .global-nav .container{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-rows:auto auto;align-items:center;gap:12px 20px;padding-block:14px}
+ .global-nav .wordmark{grid-column:1;grid-row:1}
+ .global-nav .destination-control{grid-column:2;grid-row:1;justify-self:end}
+ .global-nav .nav-actions{grid-column:3;grid-row:1;min-width:0;margin-inline-start:0}
+ .global-search{grid-column:1/-1;grid-row:2;justify-self:center;width:100%;min-width:0;max-width:780px;min-height:54px;margin:0;padding-inline:18px 9px;border-radius:13px}
+}
