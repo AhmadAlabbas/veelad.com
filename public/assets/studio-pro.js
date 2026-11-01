@@ -8,7 +8,8 @@ const folders=Object.freeze([
  {id:'cute',title:'Cute animals',ar:'حيوانات لطيفة',zh:'可爱动物',keys:['cat-0','dog-0','rabbit-0','paw-0','bird-0','fish-0']},
  {id:'travel',title:'Travel essentials',ar:'لوازم السفر',zh:'旅行主题',keys:['camera-0','compass-0','airplane-0','skyline-0','cottage-0','lighthouse-0']},
  {id:'celebrate',title:'Celebrations',ar:'المناسبات',zh:'庆祝主题',keys:['heart-0','gift-0','balloon-0','confetti-0','star-0']},
- {id:'minimal',title:'Minimal shapes',ar:'الأشكال البسيطة',zh:'极简图案',keys:['diamond-0','arches-0','checker-0','spiral-0']}
+ {id:'minimal',title:'Minimal shapes',ar:'الأشكال البسيطة',zh:'极简图案',keys:['diamond-0','arches-0','checker-0','spiral-0']},
+ {id:'botanical-atelier',title:'Botanical Atelier',ar:'مرسم الزهور والنباتات',zh:'植物艺术工坊',keys:['botanical-sunflower-0','botanical-poppies-0','botanical-tulips-0','botanical-monstera-0','botanical-orchid-0','botanical-fern-0','botanical-mushrooms-0','botanical-butterfly-0','botanical-citrus-0','botanical-roses-0','botanical-coral-0','botanical-lotus-0','botanical-lavender-0','botanical-maple-0','botanical-daisy-0']}
 ]);
 const templates=Object.freeze([
  {id:'floral-type',title:'Botanical Words',ar:'كلمات مزهرة',zh:'花卉文字',label:'MAKE IT BLOOM',element:'botanical-0',color:'#244F40',tag:'Floral / Minimal',x:.36,y:.38},
