@@ -5,6 +5,8 @@ const workspaceArabic = {
   "Place artwork within the provisional safe region. Final supplier dimensions are not yet approved.":"ضع التصميم داخل المنطقة الآمنة المبدئية. لم تُعتمد مقاسات المورد النهائية.", "Artwork approaches the provisional print boundary; check supplier-safe placement.":"التصميم قريب من حدود الطباعة المبدئية؛ تحقق من منطقة طباعة المورد.", "Some artwork is very small on the canvas; confirm its print size.":"بعض الرسوم صغيرة جدًا على اللوحة؛ راجع حجم الطباعة.", "An empty text layer will not print.":"لن تتم طباعة طبقة النص الفارغة.", "Align to safe left":"حاذِ لليسار الآمن", "Align to safe right":"حاذِ لليمين الآمن", "Align to safe top":"حاذِ للأعلى الآمن", "Align to safe bottom":"حاذِ للأسفل الآمن",
   "My favourites":"المفضلة", "Recently used":"المستخدمة مؤخرًا", "Explore all":"استكشف الكل", "Curated collection":"مجموعة مختارة", "Apply design":"طبّق التصميم", "Ready-made designs":"تصاميم جاهزة", "Original editable starting points":"قوالب أصلية قابلة للتعديل", "Print positioning":"موضع الطباعة", "Print preflight":"فحص الطباعة",
   "Elements":"العناصر", "Element":"عنصر", "Search elements":"ابحث عن العناصر", "All categories":"كل التصنيفات", "More elements":"المزيد من العناصر", "Element colours":"ألوان العنصر", "Primary":"الأساسي", "Secondary":"الثانوي", "Accent":"التفاصيل", "Preparing element…":"نجهّز العنصر…", "Element updated":"تم تعديل العنصر", "Elements are original and can be recoloured.":"عناصر أصلية ويمكنك تغيير ألوانها.",
+  "Move, resize and rotate design on product":"حرّك التصميم على المنتج وغيّر حجمه ودوّره", "Select artwork on the product to drag, resize or rotate it.":"اختر التصميم على القطعة واسحبه أو غيّر حجمه أو دوّره.", "Rotate selected artwork":"تدوير العنصر المحدد", "Resize selected artwork":"تغيير حجم العنصر المحدد",
+  "Move artwork on the garment or edit it on the flat canvas.":"حرّك العناصر مباشرة على القطعة أو عدّلها على مساحة التصميم المسطحة.",
   "Creative studio":"استوديو التصميم", "Make room for your imagination.":"خلّ لخيالك مساحة.", "Design":"التصميم", "Product preview":"معاينة القطعة", "Review item":"راجع قطعتك", "Uploads":"الصور", "Text":"النصوص", "Fonts":"الخطوط", "Layers":"الطبقات", "Layouts":"القوالب", "Canvas":"لوحة التصميم", "Add images":"أضف صور", "Upload images":"ارفع صورك", "Drop your images here":"اسحب صورك هنا", "PNG or JPEG · multiple files welcome":"PNG أو JPEG · تقدر تضيف أكثر من صورة", "Your originals stay private.":"ملفاتك الأصلية تبقى خاصة فيك.", "Add text":"أضف نص", "Add a heading":"أضف عنوان", "Add a little detail":"أضف عبارة صغيرة", "Your words, your style.":"كلماتك، بأسلوبك.", "Mix languages, play with type, make it yours.":"اجمع أكثر من لغة، وجرّب الخطوط على ذوقك.", "Write something wonderful":"اكتب شيء يشبهك", "A little more you":"تفصيلة منك", "Search fonts":"ابحث عن خط", "All scripts":"كل اللغات", "All styles":"كل الأنماط", "No fonts match. Try another search.":"ما لقينا خط يطابق بحثك. جرّب كلمة ثانية.", "Choose text on the canvas to apply a font.":"اختر نص من اللوحة عشان تغيّر خطه.", "Loading fonts…":"نجهّز مكتبة الخطوط…", "Font library is unavailable. Try again shortly.":"مكتبة الخطوط غير متاحة حاليًا. جرّب بعد شوي.", "Some characters are not included in this font. Choose a font for this script.":"بعض الحروف مو موجودة في هالخط. اختر خط يدعم لغة النص.", "Front":"الأمام", "Back":"الخلف", "Wrap":"التصميم الكامل", "Independent designs on each side":"تصميم مستقل لكل جهة", "One continuous wrap":"تصميم واحد يلتف حول الكوب", "Undo":"تراجع", "Redo":"إعادة", "Zoom":"التكبير", "Fit":"ملاءمة", "Fit to screen":"ناسب حجم الشاشة", "Safe area":"المساحة الآمنة", "Snap to centre":"محاذاة للمنتصف", "Add a photo. Make a statement.":"صورة منك. وتصميم على ذوقك.", "Start with an image, a few words, or both.":"ابدأ بصورة، أو كلمات، أو اجمعهم مع بعض.", "Select a layer to fine-tune it.":"اختر طبقة عشان تعدّل تفاصيلها.", "Drag to move · corners to resize · top handle to rotate":"اسحب للتحريك · الزوايا لتغيير الحجم · المقبض العلوي للتدوير", "Drag to move. Use the corner handles to resize.":"اسحب للتحريك. واستخدم مقابض الزوايا لتغيير الحجم.", "Provisional product preview":"معاينة مبدئية للقطعة", "Your design is editable. Supplier print specifications still need confirmation.":"تصميمك قابل للتعديل. مقاسات الطباعة النهائية تحتاج تأكيد المورّد.", "Background":"الخلفية", "Transparent":"شفافة", "Colour":"اللون", "Opacity":"الشفافية", "Rotation":"الدوران", "Width (%)":"العرض (%)", "Height (%)":"الارتفاع (%)", "Horizontal (%)":"أفقي (%)", "Vertical (%)":"عمودي (%)", "Text size (%)":"حجم النص (%)", "Your text":"النص", "Font":"الخط", "Writing direction":"اتجاه الكتابة", "Automatic":"تلقائي", "Right to left":"من اليمين لليسار", "Left to right":"من اليسار لليمين", "Alignment":"المحاذاة", "Left":"يسار", "Centre":"وسط", "Right":"يمين", "Duplicate":"انسخ", "Delete":"احذف", "Move forward":"قدّم طبقة", "Move backward":"أخّر طبقة", "Centre horizontally":"وسّط أفقيًا", "Centre vertically":"وسّط عموديًا", "Flip horizontally":"اعكس أفقيًا", "Flip vertically":"اعكس عموديًا", "Show layer":"أظهر الطبقة", "Hide layer":"أخفِ الطبقة", "Unlock layer":"افتح قفل الطبقة", "Lock layer":"اقفل الطبقة", "Image":"صورة", "Text layer":"طبقة نص", "No layers yet":"لوحتك جاهزة لأفكارك", "Add images or text. Every element stays editable.":"أضف صور أو نصوص. كل عنصر يبقى قابل للتعديل.", "Selected layer":"الطبقة المختارة", "Layer is locked. Unlock it to edit.":"الطبقة مقفلة. افتح القفل عشان تعدّلها.", "Your own text":"كلماتك هنا", "Add up to 24 layers on each side.":"تقدر تضيف حتى 24 طبقة لكل جهة.", "Preparing your images…":"نجهّز صورك…", "Images added":"أضفنا الصور", "Could not load this layer.":"ما قدرنا نحمّل هالطبقة.", "Preparing accurate text…":"نجهّز النص بدقّة…", "Close panel":"أغلق الأدوات", "Open panel":"افتح الأدوات", "Keyboard: arrows to move, Shift for larger steps, Delete to remove.":"بالكيبورد: الأسهم للتحريك، وShift لخطوة أكبر، وDelete للحذف.", "This side is empty":"هالجهة فاضية", "Layer":"طبقة", "Ready to create":"جاهز لأفكارك", "Image quality is checked again before printing.":"جودة الصور تنفحص مرة ثانية قبل الطباعة.", "Print safe area":"حدود الطباعة الآمنة", "Shown above the layer below it":"تظهر فوق الطبقة اللي تحتها", "Your image":"صورتك", "Keep proportions":"حافظ على النسبة", "Edit on a flat canvas, then preview your item.":"عدّل على لوحة مسطّحة، وبعدها شوف التصميم على قطعتك.", "Choose a layout":"اختر قالب", "No layouts available":"القوالب غير متاحة حاليًا", "Sample text":"نص تجريبي", "Layers on this side":"طبقات هالجهة", "Changes save automatically":"تعديلاتك تنحفظ تلقائيًا", "Move and resize artwork":"حرّك التصميم وغيّر حجمه", "Printing area":"مساحة الطباعة", "Load more fonts":"اعرض خطوط أكثر", "Font style":"نمط الخط", "sans":"بسيط", "serif":"كلاسيكي", "display":"عناوين", "handwriting":"يدوي", "mono":"متساوي العرض", "arabic":"عربي", "Image uploads are private and stay linked to this design.":"صورك خاصة وتبقى مرتبطة بهالتصميم.", "Choose a font":"اختر خط", "Uploading":"جارٍ الرفع", "Template applied":"أضفنا القالب", "Preview":"معاينة", "No artwork on this side yet.":"ما فيه تصميم على هالجهة للحين."
 };
 function workspaceT(value) {
@@ -52,7 +54,7 @@ function mountCustomerWorkspace(instance) {
   shell.setAttribute("aria-label",tr("Creative studio"));
   const tools=[["uploads","upload","Uploads"],["elements","sparkle","Elements"],["text","text","Text"],["fonts","fonts","Fonts"],["layers","layers","Layers"],["layouts","layouts","Layouts"],["canvas","canvas","Canvas"]];
   const action=(name,label,symbol,extra="")=>`<button type="button" class="cw-icon-button" data-ws-action="${name}" title="${esc(tr(label))}" aria-label="${esc(tr(label))}" ${extra}>${workspaceIcon(symbol)}</button>`;
-  shell.innerHTML=`<header class="cw-header"><div class="cw-studio-title"><span class="cw-brand-mark">${workspaceIcon("sparkle")}</span><div><h3>${tr("Creative studio")}</h3><span>${tr("Make room for your imagination.")}</span></div></div><div class="cw-history">${action("undo","Undo","undo","disabled")}${action("redo","Redo","redo","disabled")}</div><div class="cw-mode-switch" role="group" aria-label="${esc(tr("Preview"))}"><button type="button" data-ws-mode="edit" aria-pressed="true">${tr("Design")}</button><button type="button" data-ws-mode="preview" aria-pressed="false">${tr("Product preview")}</button></div><button type="button" class="cw-review-button" data-ws-review>${tr("Review item")} <span aria-hidden="true">↗</span></button></header><div class="cw-layout"><nav class="cw-tool-rail" aria-label="${esc(tr("Editing tools"))}">${tools.map(([key,symbol,label],i)=>`<button type="button" data-ws-tool="${key}" aria-pressed="${i===0}" aria-controls="cw-panel-${key}">${workspaceIcon(symbol)}<span>${tr(label)}</span></button>`).join("")}</nav><aside class="cw-panel"><header class="cw-panel-header"><h4 data-ws-panel-title>${tr("Uploads")}</h4><button type="button" class="cw-icon-button cw-panel-close" data-ws-close-panel aria-label="${esc(tr("Close panel"))}">${workspaceIcon("close")}</button></header><div class="cw-panel-content"><section class="cw-tool-panel" id="cw-panel-uploads" data-ws-panel="uploads"><label class="cw-upload-drop" data-ws-drop>${workspaceIcon("upload")}<strong>${tr("Drop your images here")}</strong><span>${tr("PNG or JPEG · multiple files welcome")}</span><span class="cw-button cw-button-primary">${tr("Upload images")}</span><input type="file" accept="image/png,image/jpeg" multiple data-ws-upload aria-label="${esc(tr("Upload images"))}"></label><p class="cw-private-note">${workspaceIcon("lock")}${tr("Your originals stay private.")}</p><div class="cw-upload-library" data-ws-upload-library></div><p class="cw-muted">${tr("Image quality is checked again before printing.")}</p></section><section class="cw-tool-panel" id="cw-panel-text" data-ws-panel="text" hidden><p class="cw-panel-intro">${tr("Your words, your style.")}</p><p class="cw-muted">${tr("Mix languages, play with type, make it yours.")}</p><button type="button" class="cw-text-preset cw-text-heading" data-ws-add-text="heading">${tr("Add a heading")}</button><button type="button" class="cw-text-preset" data-ws-add-text="body">${tr("Add text")}</button><button type="button" class="cw-text-preset cw-text-detail" data-ws-add-text="detail">${tr("Add a little detail")}</button><button type="button" class="cw-font-library-link" data-ws-open-fonts>${workspaceIcon("fonts")}${tr("Choose a font")} <span aria-hidden="true">↗</span></button></section><section class="cw-tool-panel" id="cw-panel-fonts" data-ws-panel="fonts" hidden><label class="cw-font-search">${workspaceIcon("search")}<input type="search" data-ws-font-search placeholder="${esc(tr("Search fonts"))}" aria-label="${esc(tr("Search fonts"))}"></label><div class="cw-font-filters"><select data-ws-font-script aria-label="${esc(tr("All scripts"))}"><option value="">${tr("All scripts")}</option></select><select data-ws-font-category aria-label="${esc(tr("Font style"))}"><option value="">${tr("All styles")}</option>${["arabic","sans","serif","display","handwriting","mono"].map(style=>`<option value="${style}">${tr(style)}</option>`).join("")}</select></div><p class="cw-muted" data-ws-font-hint>${tr("Choose text on the canvas to apply a font.")}</p><div class="cw-font-results" data-ws-font-results role="listbox" aria-label="${esc(tr("Fonts"))}"><p class="cw-muted">${tr("Loading fonts…")}</p></div></section><section class="cw-tool-panel" id="cw-panel-layers" data-ws-panel="layers" hidden><p class="cw-muted">${tr("Shown above the layer below it")}</p><div class="cw-layer-list" data-ws-layer-list></div></section><section class="cw-tool-panel" id="cw-panel-layouts" data-ws-panel="layouts" hidden><p class="cw-panel-intro">${tr("Choose a layout")}</p><div data-ws-layouts></div></section><section class="cw-tool-panel" id="cw-panel-canvas" data-ws-panel="canvas" hidden><p class="cw-panel-intro">${tr("Background")}</p><label class="cw-check"><input type="checkbox" data-ws-transparent checked>${tr("Transparent")}</label><label class="cw-colour-field"><span>${tr("Colour")}</span><input type="color" data-ws-background value="#ffffff"></label><hr><label class="cw-check"><input type="checkbox" data-ws-guides checked>${tr("Print safe area")}</label><label class="cw-check"><input type="checkbox" data-ws-snap checked>${tr("Snap to centre")}</label><p class="cw-muted">${tr("Your design is editable. Supplier print specifications still need confirmation.")}</p></section><section class="cw-inspector" data-ws-inspector></section></div></aside><div class="cw-stage-column"><div class="cw-stage-toolbar"><div class="cw-surface-tabs" data-ws-surfaces role="group" aria-label="${esc(tr("Printing area"))}"></div><span class="cw-surface-note" data-ws-surface-note></span><label class="cw-zoom-control"><span>${tr("Zoom")}</span><select data-ws-zoom aria-label="${esc(tr("Zoom"))}"><option value="fit">${tr("Fit")}</option><option value=".5">50%</option><option value=".75">75%</option><option value="1">100%</option><option value="1.5">150%</option><option value="2">200%</option><option value="3">300%</option></select></label></div><div class="cw-stage" data-ws-stage><div class="cw-design-pane" data-ws-design-pane><div class="cw-stage-scroll" data-ws-scroll><div class="cw-artboard-shell"><div class="cw-artboard" data-ws-artboard tabindex="0" role="application" aria-label="${esc(tr("Move and resize artwork"))}" aria-describedby="cw-stage-help"><div class="cw-artboard-layers" data-ws-artboard-layers></div><div class="cw-safe-area" aria-hidden="true"></div><div class="cw-centre-line cw-centre-x" hidden></div><div class="cw-centre-line cw-centre-y" hidden></div><div class="cw-selection" data-ws-selection hidden><span class="cw-rotation-stem"></span><button type="button" class="cw-transform-handle cw-rotate-handle" data-ws-handle="rotate" aria-label="${esc(tr("Rotation"))}">${workspaceIcon("rotate")}</button>${["nw","ne","se","sw"].map(corner=>`<button type="button" class="cw-transform-handle cw-resize-handle cw-handle-${corner}" data-ws-handle="${corner}" aria-label="${esc(tr("Scale"))}"></button>`).join("")}</div></div><div class="cw-empty-canvas" data-ws-empty><span>${workspaceIcon("sparkle")}</span><strong>${tr("Add a photo. Make a statement.")}</strong><p>${tr("Start with an image, a few words, or both.")}</p><div><button type="button" class="cw-button cw-button-primary" data-ws-choose-files>${workspaceIcon("plus")}${tr("Add images")}</button><button type="button" class="cw-button" data-ws-add-text="body">${tr("Add text")}</button></div></div></div></div><p class="cw-stage-help" id="cw-stage-help">${tr("Drag to move · corners to resize · top handle to rotate")}</p></div><div class="cw-preview-pane" data-ws-preview-pane hidden></div></div><footer class="cw-stage-footer"><span class="cw-stage-status" data-ws-status role="status" aria-live="polite">${workspaceIcon("check")}${tr("Ready to create")}</span><span>${workspaceIcon("lock")}${tr("Changes save automatically")}</span><button type="button" class="cw-fit-button" data-ws-fit title="${esc(tr("Fit to screen"))}">${workspaceIcon("canvas")}${tr("Fit")}</button></footer></div></div><p class="cw-provisional">${workspaceIcon("eye")}<strong>${tr("Provisional product preview")}</strong><span>${tr("Edit on a flat canvas, then preview your item.")}</span></p>`;
+  shell.innerHTML=`<header class="cw-header"><div class="cw-studio-title"><span class="cw-brand-mark">${workspaceIcon("sparkle")}</span><div><h3>${tr("Creative studio")}</h3><span>${tr("Make room for your imagination.")}</span></div></div><div class="cw-history">${action("undo","Undo","undo","disabled")}${action("redo","Redo","redo","disabled")}</div><div class="cw-mode-switch" role="group" aria-label="${esc(tr("Preview"))}"><button type="button" data-ws-mode="edit" aria-pressed="true">${tr("Design")}</button><button type="button" data-ws-mode="preview" aria-pressed="false">${tr("Product preview")}</button></div><button type="button" class="cw-review-button" data-ws-review>${tr("Review item")} <span aria-hidden="true">↗</span></button></header><div class="cw-layout"><nav class="cw-tool-rail" aria-label="${esc(tr("Editing tools"))}">${tools.map(([key,symbol,label],i)=>`<button type="button" data-ws-tool="${key}" aria-pressed="${i===0}" aria-controls="cw-panel-${key}">${workspaceIcon(symbol)}<span>${tr(label)}</span></button>`).join("")}</nav><aside class="cw-panel"><header class="cw-panel-header"><h4 data-ws-panel-title>${tr("Uploads")}</h4><button type="button" class="cw-icon-button cw-panel-close" data-ws-close-panel aria-label="${esc(tr("Close panel"))}">${workspaceIcon("close")}</button></header><div class="cw-panel-content"><section class="cw-tool-panel" id="cw-panel-uploads" data-ws-panel="uploads"><label class="cw-upload-drop" data-ws-drop>${workspaceIcon("upload")}<strong>${tr("Drop your images here")}</strong><span>${tr("PNG or JPEG · multiple files welcome")}</span><span class="cw-button cw-button-primary">${tr("Upload images")}</span><input type="file" accept="image/png,image/jpeg" multiple data-ws-upload aria-label="${esc(tr("Upload images"))}"></label><p class="cw-private-note">${workspaceIcon("lock")}${tr("Your originals stay private.")}</p><div class="cw-upload-library" data-ws-upload-library></div><p class="cw-muted">${tr("Image quality is checked again before printing.")}</p></section><section class="cw-tool-panel" id="cw-panel-text" data-ws-panel="text" hidden><p class="cw-panel-intro">${tr("Your words, your style.")}</p><p class="cw-muted">${tr("Mix languages, play with type, make it yours.")}</p><button type="button" class="cw-text-preset cw-text-heading" data-ws-add-text="heading">${tr("Add a heading")}</button><button type="button" class="cw-text-preset" data-ws-add-text="body">${tr("Add text")}</button><button type="button" class="cw-text-preset cw-text-detail" data-ws-add-text="detail">${tr("Add a little detail")}</button><button type="button" class="cw-font-library-link" data-ws-open-fonts>${workspaceIcon("fonts")}${tr("Choose a font")} <span aria-hidden="true">↗</span></button></section><section class="cw-tool-panel" id="cw-panel-fonts" data-ws-panel="fonts" hidden><label class="cw-font-search">${workspaceIcon("search")}<input type="search" data-ws-font-search placeholder="${esc(tr("Search fonts"))}" aria-label="${esc(tr("Search fonts"))}"></label><div class="cw-font-filters"><select data-ws-font-script aria-label="${esc(tr("All scripts"))}"><option value="">${tr("All scripts")}</option></select><select data-ws-font-category aria-label="${esc(tr("Font style"))}"><option value="">${tr("All styles")}</option>${["arabic","sans","serif","display","handwriting","mono"].map(style=>`<option value="${style}">${tr(style)}</option>`).join("")}</select></div><p class="cw-muted" data-ws-font-hint>${tr("Choose text on the canvas to apply a font.")}</p><div class="cw-font-results" data-ws-font-results role="listbox" aria-label="${esc(tr("Fonts"))}"><p class="cw-muted">${tr("Loading fonts…")}</p></div></section><section class="cw-tool-panel" id="cw-panel-layers" data-ws-panel="layers" hidden><p class="cw-muted">${tr("Shown above the layer below it")}</p><div class="cw-layer-list" data-ws-layer-list></div></section><section class="cw-tool-panel" id="cw-panel-layouts" data-ws-panel="layouts" hidden><p class="cw-panel-intro">${tr("Choose a layout")}</p><div data-ws-layouts></div></section><section class="cw-tool-panel" id="cw-panel-canvas" data-ws-panel="canvas" hidden><p class="cw-panel-intro">${tr("Background")}</p><label class="cw-check"><input type="checkbox" data-ws-transparent checked>${tr("Transparent")}</label><label class="cw-colour-field"><span>${tr("Colour")}</span><input type="color" data-ws-background value="#ffffff"></label><hr><label class="cw-check"><input type="checkbox" data-ws-guides checked>${tr("Print safe area")}</label><label class="cw-check"><input type="checkbox" data-ws-snap checked>${tr("Snap to centre")}</label><p class="cw-muted">${tr("Your design is editable. Supplier print specifications still need confirmation.")}</p></section><section class="cw-inspector" data-ws-inspector></section></div></aside><div class="cw-stage-column"><div class="cw-stage-toolbar"><div class="cw-surface-tabs" data-ws-surfaces role="group" aria-label="${esc(tr("Printing area"))}"></div><span class="cw-surface-note" data-ws-surface-note></span><label class="cw-zoom-control"><span>${tr("Zoom")}</span><select data-ws-zoom aria-label="${esc(tr("Zoom"))}"><option value="fit">${tr("Fit")}</option><option value=".5">50%</option><option value=".75">75%</option><option value="1">100%</option><option value="1.5">150%</option><option value="2">200%</option><option value="3">300%</option></select></label></div><div class="cw-stage" data-ws-stage><div class="cw-design-pane" data-ws-design-pane><div class="cw-stage-scroll" data-ws-scroll><div class="cw-artboard-shell"><div class="cw-artboard" data-ws-artboard tabindex="0" role="application" aria-label="${esc(tr("Move and resize artwork"))}" aria-describedby="cw-stage-help"><div class="cw-artboard-layers" data-ws-artboard-layers></div><div class="cw-safe-area" aria-hidden="true"></div><div class="cw-centre-line cw-centre-x" hidden></div><div class="cw-centre-line cw-centre-y" hidden></div><div class="cw-selection" data-ws-selection hidden><span class="cw-rotation-stem"></span><button type="button" class="cw-transform-handle cw-rotate-handle" data-ws-handle="rotate" aria-label="${esc(tr("Rotation"))}">${workspaceIcon("rotate")}</button>${["nw","ne","se","sw"].map(corner=>`<button type="button" class="cw-transform-handle cw-resize-handle cw-handle-${corner}" data-ws-handle="${corner}" aria-label="${esc(tr("Scale"))}"></button>`).join("")}</div></div><div class="cw-empty-canvas" data-ws-empty><span>${workspaceIcon("sparkle")}</span><strong>${tr("Add a photo. Make a statement.")}</strong><p>${tr("Start with an image, a few words, or both.")}</p><div><button type="button" class="cw-button cw-button-primary" data-ws-choose-files>${workspaceIcon("plus")}${tr("Add images")}</button><button type="button" class="cw-button" data-ws-add-text="body">${tr("Add text")}</button></div></div></div></div><p class="cw-stage-help" id="cw-stage-help">${tr("Drag to move · corners to resize · top handle to rotate")}</p></div><div class="cw-preview-pane" data-ws-preview-pane hidden></div></div><footer class="cw-stage-footer"><span class="cw-stage-status" data-ws-status role="status" aria-live="polite">${workspaceIcon("check")}${tr("Ready to create")}</span><span>${workspaceIcon("lock")}${tr("Changes save automatically")}</span><button type="button" class="cw-fit-button" data-ws-fit title="${esc(tr("Fit to screen"))}">${workspaceIcon("canvas")}${tr("Fit")}</button></footer></div></div><p class="cw-provisional">${workspaceIcon("eye")}<strong>${tr("Provisional product preview")}</strong><span>${tr("Move artwork on the garment or edit it on the flat canvas.")}</span></p>`;
 const libraryPanel=document.createElement("section");
   libraryPanel.className="cw-tool-panel cw-elements-panel";
   libraryPanel.id="cw-panel-elements";libraryPanel.dataset.wsPanel="elements";libraryPanel.hidden=true;
@@ -82,6 +84,26 @@ const libraryPanel=document.createElement("section");
   shell.querySelector(".cw-stage-toolbar").insertBefore(copyControls,shell.querySelector(".cw-zoom-control"));
   const originalVisual=root.querySelector(".studio-workspace > .studio-visual");
   if (originalVisual) shell.querySelector("[data-ws-preview-pane]").append(originalVisual);
+  // The interactive preview covers the actual 1000x1000 projected garment
+  // canvas. No duplicate artwork is drawn: manipulations change the same
+  // private scene used for production and the ordinary flat editor.
+  const previewCanvas=shell.querySelector("[data-ws-preview-pane] .studio-canvas"),
+    previewFrame=previewCanvas?.closest(".design-mockup");
+  const previewOverlay=document.createElement("div");
+  previewOverlay.className="cw-preview-overlay";
+  previewOverlay.dataset.wsPreviewOverlay="";
+  previewOverlay.tabIndex=0;
+  previewOverlay.setAttribute("role","application");
+  previewOverlay.setAttribute("aria-label",tr("Move, resize and rotate design on product"));
+  previewOverlay.innerHTML='<svg class="cw-preview-outline" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true"><polygon points="" /></svg>'+
+    ["nw","ne","se","sw","rotate"].map(handle=>'<button type="button" data-ws-preview-handle="'+handle+'" aria-label="'+esc(tr(handle==="rotate"?"Rotate selected artwork":"Resize selected artwork"))+'" hidden></button>').join("");
+  previewFrame?.append(previewOverlay);
+  const previewHelp=document.createElement("p");
+  previewHelp.className="cw-preview-edit-hint";
+  previewHelp.textContent=tr("Select artwork on the product to drag, resize or rotate it.");
+  previewFrame?.querySelector("figcaption")?.before(previewHelp);
+
+
   const starters=form.querySelector(".customer-starters");
   if (starters) { starters.open=true; shell.querySelector("[data-ws-layouts]").append(starters); }
   // The first-party editable starters must remain available even if legacy layouts are absent.
@@ -93,6 +115,7 @@ const libraryPanel=document.createElement("section");
     lastHistoryGroup=null,lastHistoryTime=0,restoring=false,activeKey="",fontObserver=null,disposed=false,focused=false;
   const history=[],future=[];
   let qualityTimer=null,qualitySerial=0;
+  let previewRenderAt=0;
   const logical=()=>({width:900,height:900*instance.product().preview[1]/instance.product().preview[0]}),
     layers=()=>adapter.layers(), current=()=>layers().find(layer=>layer.id===selected),
     snapshot=()=>JSON.stringify({creative_personalisation:instance.state.creative_personalisation||null,scenes:instance.state.scenes,scene_version:instance.state.scene_version,active_product:instance.state.active_product,placements:instance.state.placements});
@@ -127,7 +150,8 @@ const libraryPanel=document.createElement("section");
     selected=layers().some(layer=>layer.id===layerId)?layerId:null;
     shell.dataset.selectedLayer=selected||"";
     renderSelection();renderLayerList();renderInspector();
-    if(focus)artboard.focus({preventScroll:true});
+    renderPreviewSelection();
+    if(focus)(mode==="preview"?previewOverlay:artboard).focus({preventScroll:true});
   }
   function switchTool(value){
     tool=value;shell.dataset.tool=tool;shell.dataset.panelOpen="true";
@@ -144,7 +168,7 @@ const libraryPanel=document.createElement("section");
     shell.querySelector("[data-ws-design-pane]").hidden=mode!=="edit";
     shell.querySelector("[data-ws-preview-pane]").hidden=mode!=="preview";
     shell.querySelectorAll("[data-ws-mode]").forEach(button=>button.setAttribute("aria-pressed",String(button.dataset.wsMode===mode)));
-    if(mode==="preview"){adapter.commit({history:false});instance.render?.();}else resizeStage();
+    if(mode==="preview"){adapter.commit({history:false});instance.render?.();requestAnimationFrame(renderPreviewSelection);}else resizeStage();
   }
   function setFocus(value){
     focused=value;shell.classList.toggle("cw-focus-mode",focused);document.body.classList.toggle("has-studio-focus",focused);
@@ -175,6 +199,89 @@ const libraryPanel=document.createElement("section");
     node.style.left=layer.x*100+"%";node.style.top=layer.y*100+"%";
     node.style.width=bounds.width/d.width*100+"%";node.style.height=bounds.height/d.height*100+"%";
     node.style.transform=`translate(-50%,-50%) rotate(${layer.rotation||0}deg)`;
+  }
+  // Project the flat scene's selected corners through the exact garment UV
+  // mesh. The outline/handles are a UI overlay, not part of the print design.
+  function renderPreviewSelection(){
+    if(!previewCanvas||!previewFrame||!previewOverlay)return;
+    const visible=mode==="preview"&&!!instance.asset?.projection;
+    previewOverlay.hidden=!visible;
+    if(!visible)return;
+    const canvasRect=previewCanvas.getBoundingClientRect(),frameRect=previewFrame.getBoundingClientRect();
+    if(!canvasRect.width||!canvasRect.height)return;
+    previewOverlay.style.left=(canvasRect.left-frameRect.left)+"px";
+    previewOverlay.style.top=(canvasRect.top-frameRect.top)+"px";
+    previewOverlay.style.width=canvasRect.width+"px";
+    previewOverlay.style.height=canvasRect.height+"px";
+    const layer=current(),geom=window.VeeladPreviewGeometry,d=logical();
+    const polygon=previewOverlay.querySelector("polygon");
+    const handles=[...previewOverlay.querySelectorAll("[data-ws-preview-handle]")];
+    if(!layer||layer.visible===false||!geom){polygon.setAttribute("points","");handles.forEach(button=>button.hidden=true);return;}
+    const bounds=dimensions(layer);
+    const quad=geom.corners(layer,bounds.width/d.width,bounds.height/d.height,instance.asset.projection,d.height/d.width);
+    if(quad.length!==4){polygon.setAttribute("points","");handles.forEach(button=>button.hidden=true);return;}
+    polygon.setAttribute("points",quad.map(p=>[p.x*1000,p.y*1000].join(",")).join(" "));
+    handles.forEach((button,index)=>{
+      if(layer.locked){button.hidden=true;return;}
+      let p=quad[index];
+      if(index===4){
+        const middle={x:(quad[0].x+quad[1].x)/2,y:(quad[0].y+quad[1].y)/2},
+          center={x:quad.reduce((sum,v)=>sum+v.x,0)/4,y:quad.reduce((sum,v)=>sum+v.y,0)/4};
+        const vector={x:(middle.x-center.x)*canvasRect.width,y:(middle.y-center.y)*canvasRect.height};
+        const length=Math.hypot(vector.x,vector.y)||1;
+        p={x:middle.x+vector.x/length*28/canvasRect.width,y:middle.y+vector.y/length*28/canvasRect.height};
+      }
+      button.style.left=p.x*100+"%";
+      button.style.top=p.y*100+"%";
+      button.hidden=false;
+    });
+  }
+  function previewPoint(event){
+    if(!previewCanvas||!instance.asset?.projection||!window.VeeladPreviewGeometry)return null;
+    const rect=previewCanvas.getBoundingClientRect();
+    if(!rect.width||!rect.height)return null;
+    const uv=window.VeeladPreviewGeometry.toUV((event.clientX-rect.left)/rect.width,(event.clientY-rect.top)/rect.height,instance.asset.projection);
+    if(!uv)return null;
+    const d=logical();
+    return {x:uv.x*d.width,y:uv.y*d.height,uv};
+  }
+  function schedulePreviewRender(){
+    const now=Date.now();
+    if(now-previewRenderAt<110)return;
+    previewRenderAt=now;
+    void instance.render?.();
+  }
+  function beginPreviewGesture(event){
+    if(event.button!==0||mode!=="preview"||!instance.asset?.projection)return;
+    const geom=window.VeeladPreviewGeometry,point=previewPoint(event);
+    if(!point||!geom)return;
+    const handle=event.target.closest("[data-ws-preview-handle]");
+    if(!handle){
+      const d=logical();
+      const matching=[...layers()].reverse().find(layer=>{
+        if(layer.visible===false||(layer.opacity??1)<=0)return false;
+        const size=dimensions(layer);
+        return geom.hit(layer,point.uv,size.width/d.width,size.height/d.height,d.height/d.width);
+      });
+      selectLayer(matching?.id||null);
+    }
+    const layer=current();
+    if(!layer||layer.locked||layer.visible===false)return;
+    const kind=handle?.dataset.wsPreviewHandle||"move",d=logical(),bounds=dimensions(layer),original=cloneState(layer);
+    gesture={preview:true,id:layer.id,kind,point:{x:point.x,y:point.y},original,bounds,before:snapshot(),pointer:event.pointerId};
+    if(kind!=="move"&&kind!=="rotate"){
+      const sx=kind.includes("e")?1:-1,sy=kind.includes("s")?1:-1,angle=layer.rotation*Math.PI/180,
+        opposite=rotatePoint({x:-sx*bounds.width/2,y:-sy*bounds.height/2},angle);
+      gesture.anchor={x:layer.x*d.width+opposite.x,y:layer.y*d.height+opposite.y};
+      gesture.sx=sx;gesture.sy=sy;
+    }
+    previewOverlay.setPointerCapture(event.pointerId);
+    previewOverlay.focus({preventScroll:true});
+    event.preventDefault();
+  }
+  function movePreviewGesture(event){
+    if(!gesture?.preview||gesture.pointer!==event.pointerId)return;
+    moveGesture(event);
   }
   function paint(){
     const ids=new Set(layers().map(layer=>layer.id));
@@ -390,7 +497,7 @@ function renderElements(){
     shell.dataset.selectedLayer=selected||"";
     renderSurfaces();renderLayerList();renderInspector();resizeStage();
     if(!gesture)render();else paint();
-    updateHistory();
+    updateHistory();renderPreviewSelection();
   }
   async function addImages(files){
     if(!files?.length)return;
@@ -458,7 +565,7 @@ function renderElements(){
     const count=inspector.querySelector("[data-ws-character-count]");if(count)count.textContent=layer.text?.length||0;
     checkGlyphs();commit("property:"+layer.id+":"+key);
   }
-  function handlePoint(event){const rect=artboard.getBoundingClientRect(),d=logical();return{x:(event.clientX-rect.left)/rect.width*d.width,y:(event.clientY-rect.top)/rect.height*d.height};}
+  function handlePoint(event){if(gesture?.preview){const point=previewPoint(event);return point&&{x:point.x,y:point.y};}const rect=artboard.getBoundingClientRect(),d=logical();return{x:(event.clientX-rect.left)/rect.width*d.width,y:(event.clientY-rect.top)/rect.height*d.height};}
   function rotatePoint(point,angle){const c=Math.cos(angle),s=Math.sin(angle);return{x:point.x*c-point.y*s,y:point.x*s+point.y*c};}
   function beginGesture(event){
     if(event.button!==0||mode!=="edit")return;
@@ -479,6 +586,7 @@ function renderElements(){
     if(!gesture||gesture.pointer!==event.pointerId)return;
     const layer=layers().find(l=>l.id===gesture.id);if(!layer)return;
     const point=handlePoint(event),d=logical(),o=gesture.original,g=gesture;
+    if(!point)return;
     if(g.kind==="move"){
       layer.x=clamp(o.x+(point.x-g.point.x)/d.width,0,1);layer.y=clamp(o.y+(point.y-g.point.y)/d.height,0,1);
       const snap=shell.querySelector("[data-ws-snap]").checked;
@@ -501,7 +609,7 @@ function renderElements(){
       const delta=rotatePoint({x:g.sx*w/2,y:g.sy*h/2},o.rotation*Math.PI/180);
       layer.x=clamp((g.anchor.x+delta.x)/d.width,0,1);layer.y=clamp((g.anchor.y+delta.y)/d.height,0,1);
     }
-    paint();event.preventDefault();
+    if(gesture.preview){renderPreviewSelection();schedulePreviewRender();}else paint();event.preventDefault();
   }
   function finishGesture(event){
     if(!gesture||event.pointerId!==gesture.pointer)return;
@@ -510,6 +618,7 @@ function renderElements(){
     if(event.type==="pointercancel")Object.assign(layers().find(l=>l.id===g.id)||{},g.original);
     else if(snapshot()!==g.before)commit();
     renderInspector();render();
+    if(g.preview){renderPreviewSelection();void instance.render?.();}
   }
   function keyboard(event){
     if(event.key==="Escape"&&focused){event.preventDefault();setFocus(false);return;}
@@ -630,12 +739,17 @@ shell.addEventListener("dragstart",event=>{
     const rect=artboard.getBoundingClientRect();
     void addElement(value,{x:(event.clientX-rect.left)/rect.width,y:(event.clientY-rect.top)/rect.height});
   });
+  previewOverlay.addEventListener("pointerdown",beginPreviewGesture);
+  previewOverlay.addEventListener("pointermove",movePreviewGesture);
+  for(const name of ["pointerup","pointercancel","lostpointercapture"])previewOverlay.addEventListener(name,finishGesture);
+  root.addEventListener("customer-scene-rendered",()=>{if(mode==="preview")renderPreviewSelection();});
   artboard.addEventListener("pointerdown",beginGesture);artboard.addEventListener("pointermove",moveGesture);
   for(const name of ["pointerup","pointercancel","lostpointercapture"])artboard.addEventListener(name,finishGesture);
   shell.addEventListener("keydown",keyboard);
   root.addEventListener("scene-editor-change",()=>{if(!gesture){record();refresh();}});
   const resizeObserver=typeof ResizeObserver!=="undefined"?new ResizeObserver(()=>resizeStage()):null;
   resizeObserver?.observe(scroll);
+  if(previewCanvas)resizeObserver?.observe(previewCanvas);
   const lifecycle=new MutationObserver(()=>{if(!root.isConnected)instance.workspace?.dispose();});
   lifecycle.observe(document.querySelector("#app")||document.body,{childList:true});
   instance.workspace={refresh,render,addText,select:selectLayer,selected:()=>selected,undo:()=>restore(-1),redo:()=>restore(1),dispose(){disposed=true;document.body.classList.remove("has-studio-focus");clearTimeout(qualityTimer);resizeObserver?.disconnect();fontObserver?.disconnect();lifecycle.disconnect();}};
