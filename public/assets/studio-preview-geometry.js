@@ -43,13 +43,13 @@ function toUV(x,y,projection){
  const [a,b,c]=nearest.vertices,[p,q,r]=nearest.weights;
  return {x:p*a[2]+q*b[2]+r*c[2],y:p*a[3]+q*b[3]+r*c[3]};
 }
-function corners(layer,width,height,projection){
+function corners(layer,width,height,projection,aspect=1){
  if(!layer||!width||!height)return [];
  const theta=(Number(layer.rotation)||0)*Math.PI/180,c=Math.cos(theta),s=Math.sin(theta);
  const result=[];
  for(const [dx,dy] of [[-1,-1],[1,-1],[1,1],[-1,1]]){
-  const px=dx*width/2,py=dy*height/2;
-  const u=Number(layer.x)+(px*c-py*s),v=Number(layer.y)+(px*s+py*c);
+  const px=dx*width/2,py=dy*height*aspect/2;
+  const u=Number(layer.x)+(px*c-py*s),v=Number(layer.y)+(px*s+py*c)/aspect;
   const projected=toXY(u,v,projection);
   if(!projected)return [];
   result.push(projected);
