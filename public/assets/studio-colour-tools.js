@@ -38,7 +38,7 @@ function read(){
  try{
   const parsed=JSON.parse(localStorage.getItem("veelad-studio-user-palettes-v1")||"[]");
   if(!Array.isArray(parsed))return [];
-  return parsed.slice(0,12).filter(item=>typeof item?.id==="string"&&/^user-[0-9]{1,12}$/.test(item.id)&&Array.isArray(item.colors)&&item.colors.length===3&&item.colors.every(x=>/^#[0-9a-f]{6}$/i.test(x))).map(item=>({...item,title:String(item.title||"Saved palette").slice(0,35)}));
+  return parsed.slice(0,12).filter(item=>typeof item?.id==="string"&&/^user-[0-9]{1,16}$/.test(item.id)&&Array.isArray(item.colors)&&item.colors.length===3&&item.colors.every(x=>/^#[0-9a-f]{6}$/i.test(x))).map(item=>({...item,title:String(item.title||"Saved palette").slice(0,35)}));
  }catch{return [];}
 }
 function save(colors){
