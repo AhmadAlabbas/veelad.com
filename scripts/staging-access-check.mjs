@@ -1,5 +1,6 @@
 // Read-only external reachability check. No credentials, cookies or mutations.
 const origin='https://staging.veelad.com';
+const expectedRevision='36b82a959002a10e90071024f6977d76eea2f8b9';
 const cases=[
  {path:'/api.php?route=health',type:'json'},
  {path:'/',type:'html'},
@@ -20,6 +21,7 @@ for(const {path,type} of cases){
    try{
     const payload=await response.json();
     if(payload?.ok!==true||payload?.environment!=='staging'||!payload?.revision)result='FAILED';
+    if(payload?.revision!==expectedRevision){result='FAILED';summary+=' unexpected_revision expected='+expectedRevision.slice(0,12);}
     summary=' app='+String(payload?.environment||'missing')+' ready='+String(payload?.ok===true)+' revision='+String(payload?.revision||'missing').slice(0,12)+' storage='+String(payload?.storage?.ready===true)+' backup='+String(payload?.backup?.status||'missing')+' restore='+String(payload?.restore?.status||'missing');
    }catch{result='FAILED';summary=' invalid_health_json';}
   }else{
