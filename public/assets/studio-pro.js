@@ -144,5 +144,15 @@ function title(object,language){
  if(language==='zh-CN')return object.zh||object.title;
  return object.title;
 }
-window.VeeladStudioPro=Object.freeze({folders,templates,read,favourite,used,search,preflight,snap,title});
+const palettes=Object.freeze([
+ {id:'original',title:'Original colours',ar:'الألوان الأصلية',zh:'原始配色',colors:null},
+ {id:'ocean',title:'Ocean blue',ar:'أزرق المحيط',zh:'海洋蓝',colors:['#164966','#C7EDF0','#DFAE65']},
+ {id:'sunset',title:'Warm sunset',ar:'ألوان الغروب',zh:'日落暖色',colors:['#AA4B3A','#FFD4A5','#C27B87']},
+ {id:'forest',title:'Forest',ar:'ألوان الغابة',zh:'森林绿',colors:['#285F4B','#D6E9BE','#B68B53']},
+ {id:'lavender',title:'Lavender',ar:'الخزامى',zh:'薰衣草',colors:['#604A86','#EBE0F9','#B895CA']},
+ {id:'sand',title:'Sandstone',ar:'الحجر الرملي',zh:'砂岩色',colors:['#7A553D','#EEDAB2','#B68B78']},
+ {id:'pastel',title:'Soft pastel',ar:'ألوان هادئة',zh:'柔和粉彩',colors:['#507E87','#F5D6D9','#D59A5F']},
+ {id:'mono',title:'Black and white',ar:'أبيض وأسود',zh:'黑白',colors:['#22222A','#F6F6F5','#99999F']}
+].map(item=>Object.freeze({...item,colors:item.colors&&Object.freeze(item.colors)})));
+window.VeeladStudioPro=Object.freeze({folders,templates,read,favourite,used,search,preflight,snap,title,palettes,normalize});
 })();
