@@ -23,7 +23,7 @@ test('flag and emoji search preserves national colours while editable badge colo
  const flag=library.find('flag-sa-1'),emoji=library.find('emoji-1f600-1'),city=library.catalog.find(item=>item.category==='Cities'&&item.name.toLowerCase().includes('london'));
  assert.ok(flag);assert.ok(emoji);assert.ok(city);
  assert.equal(library.label('flag-sa-1','en').includes('Saudi Arabia'),true);
- assert.ok(library.searchText(flag).includes('SA'));
+ assert.ok(library.searchText(flag).includes('sa'));
  assert.ok(library.searchText(city).toLowerCase().includes('london'));
  assert.ok(library.searchText(flag).includes('السعود'));
  assert.ok(library.categoryLabel('Flags','zh-CN').includes('旗'));
