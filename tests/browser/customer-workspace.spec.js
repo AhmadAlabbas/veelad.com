@@ -105,6 +105,17 @@ test("layered workspace keeps multiple originals and independent sides through e
       (layer) => layer.type === "image",
     );
     expect(new Set(firstImages.map((layer) => layer.upload_id)).size).toBe(2);
+    // Select specific layers and align them as one undoable edit.
+    await shell.locator("[data-ws-tool=layers]").click();
+    await shell.locator("[data-ws-select-all]").click();
+    await expect(shell.locator("[data-ws-multiselect]:checked")).toHaveCount(2);
+    await shell.locator("[data-ws-tool=canvas]").click();
+    await shell.locator('[data-ws-layout-action=center-x]').click();
+    await expect.poll(async () => (await scene("front")).layers.every(layer => Math.abs(layer.x - .5) < 0.000001)).toBe(true);
+    await shell.locator("[data-ws-tool=layers]").click();
+    await shell.locator("[data-ws-clear-selected]").click();
+    await expect(shell.locator("[data-ws-multiselect]:checked")).toHaveCount(0);
+
     const selectedImage = firstImages[1];
     await shell.locator("[data-ws-tool=layers]").click();
     await shell.locator(`[data-ws-select="${selectedImage.id}"]`).click();
