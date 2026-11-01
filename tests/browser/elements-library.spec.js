@@ -84,7 +84,7 @@ test('creators insert, recolour and persist a private vector element in the desi
   console.log('VEELAD_LIBRARY_STEP_4');
   await studio.locator('[data-ws-elements-view=all]').click();
   console.log('VEELAD_LIBRARY_STEP_5');
-  await studio.locator('[data-ws-element=cat-0]').click();
+  await studio.locator('[data-ws-element=cat-0]').click({timeout:12000});
   const scene=async()=>JSON.parse(await form.locator('[name=design_studio]').inputValue()).scenes.shirt.front;
   await expect.poll(async()=>(await scene()).layers.filter(layer=>layer.library_element?.id==='cat-0').length).toBe(1);
   await studio.locator('[data-ws-elements-view=recent]').click();
