@@ -28,6 +28,8 @@ test('direct product preview edits share the saved design and support drag, resi
   await shell.locator('[data-ws-mode=preview]').click();
   const overlay=shell.locator('[data-ws-preview-overlay]');
   await expect(overlay).toBeVisible();
+  await overlay.scrollIntoViewIfNeeded();
+  await expect(overlay).toBeInViewport();
   const polygon=overlay.locator('polygon');
   await expect.poll(async()=>polygon.getAttribute('points')).not.toBe('');
   const initial=(await scene()).layers[0];
