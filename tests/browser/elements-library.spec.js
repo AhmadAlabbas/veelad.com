@@ -14,7 +14,7 @@ test('creators insert, recolour and persist a private vector element in the desi
   await page.goto(fixture.origin+'/en/create?product=p1');
   const form=page.locator('[data-form=customer-design]'),studio=form.locator('.customer-workspace');
   await expect(form.locator('.design-studio')).toHaveAttribute('data-ready','true');
-  await expect.poll(()=>page.evaluate(()=>window.VeeladElements?.catalog.length)).toBeGreaterThanOrEqual(10000);
+  await expect.poll(()=>page.evaluate(()=>window.VeeladElements?.catalog.length)).toBe(4263);
   await studio.locator('[data-ws-tool=elements]').click();
   await expect(studio.locator('[data-ws-panel=elements]')).toBeVisible();
 
@@ -26,6 +26,22 @@ test('creators insert, recolour and persist a private vector element in the desi
     return Promise.all(ids.map(async id=>{const file=await api.file(id,api.defaults(id));return {id,type:file.type,size:file.size};}));
   });
   for(const sample of exported){expect(sample.type).toBe('image/png');expect(sample.size,sample.id).toBeGreaterThan(800);}
+  // Verify exactly one card per emoji/country and an actual vector flag (not letters).
+  const quality=await page.evaluate(()=>{
+    const api=window.VeeladElements,rat=api.catalog.filter(item=>item.base==='emoji-1f400'),sa=api.catalog.filter(item=>item.base==='flag-sa');
+    const svg=api.svg('flag-sa-0');
+    return {rat:rat.length,sa:sa.length,ratLabel:api.label('emoji-1f400-0','en'),flagPath:/<path\b/.test(svg),flagText:/<text\b/.test(svg)};
+  });
+  expect(quality).toEqual({rat:1,sa:1,ratLabel:'rat',flagPath:true,flagText:false});
+  const pixels=await page.evaluate(async()=>{
+    const file=await window.VeeladElements.file('flag-sa-0');
+    const bitmap=await createImageBitmap(file),canvas=document.createElement('canvas');canvas.width=canvas.height=256;
+    const ctx=canvas.getContext('2d');ctx.drawImage(bitmap,0,0,256,256);
+    const [r,g,b,a]=ctx.getImageData(40,125,1,1).data;
+    return {red:r,green:g,blue:b,alpha:a};
+  });
+  expect(pixels.alpha).toBeGreaterThan(240);
+  expect(pixels.green).toBeGreaterThan(pixels.red*1.2);
   await studio.locator('[data-ws-element-category]').selectOption('Flags');
   await studio.locator('[data-ws-element-search]').fill('Saudi Arabia');
   await expect(studio.locator('[data-ws-element=flag-sa-0]')).toBeVisible();
@@ -35,6 +51,13 @@ test('creators insert, recolour and persist a private vector element in the desi
   await studio.locator('[data-ws-element-category]').selectOption('Smileys');
   await studio.locator('[data-ws-element-search]').fill('grinning');
   await expect(studio.locator('[data-ws-element=emoji-1f600-0]')).toBeVisible();
+  await studio.locator('[data-ws-element-category]').selectOption('Animals');
+  await studio.locator('[data-ws-element-search]').fill('rat');
+  await expect(studio.locator('[data-ws-element=emoji-1f400-0]')).toBeVisible();
+  await expect(studio.locator('[data-ws-element^=emoji-1f400-]')).toHaveCount(1);
+  await expect(studio.locator('[data-ws-element=emoji-1f400-0]')).toContainText('rat');
+  await studio.locator('[data-ws-element-search]').fill('mouse');
+  await expect(studio.locator('[data-ws-element=emoji-1f400-0]')).toBeVisible();
   await studio.locator('[data-ws-element-category]').selectOption('Pets');
   await studio.locator('[data-ws-element-search]').fill('cat');
   await expect(studio.locator('[data-ws-element=cat-0]')).toBeVisible();
