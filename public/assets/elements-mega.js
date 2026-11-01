@@ -30,7 +30,12 @@ for(const [start,end] of [[0x2300,0x27ff],[0x1f000,0x1faff]]){
 const persons=['👋','👍','👎','👏','🙌','🙏','🤝','✌️','👌','🤞','🤘','🤙','🫶','🫰','🤌','🤏','💪','🫵','👊','✊','🤛','🤜','✍️','🖐️','✋','🤚','🫲','🫱','🖖','☝️','👆','👇','👉','👈','🙋','🙇','🤦','🤷','💁','🙆','🙅','🧏','🧑','👨','👩','🧒','👶','🧓','🧔','🧑‍💻','🧑‍🚀','🧑‍🎓','🧑‍🍳','🧑‍⚕️','🧑‍🏫','🧑‍🔧','🏊','🚴','🏃','🏋️','🧘','🤸'];
 const tones=['🏻','🏼','🏽','🏾','🏿'];
 const composites=[...known.keys()].filter(x=>[...x].length>1);
-const emojis=[...new Set([...standalone,...composites,...persons.flatMap(glyph=>tones.map(tone=>glyph+tone))])];
+function tonedEmoji(glyph,tone){
+ const parts=glyph.split('\u200d');
+ const first=parts[0].replace(/\ufe0f/g,'');
+ return first+tone+(parts.length>1?'\u200d'+parts.slice(1).join('\u200d'):'');
+}
+const emojis=[...new Set([...standalone,...composites,...persons.flatMap(glyph=>tones.map(tone=>tonedEmoji(glyph,tone)))])];
 function categoryEmoji(glyph){
  const cp=glyph.codePointAt(0);
  if(known.get(glyph)?.match(/heart|love|smil|face|laugh|cry|angry|kiss/))return 'Smileys';
