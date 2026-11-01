@@ -36,10 +36,25 @@ test('direct product preview edits share the saved design and support drag, resi
    const pts=node.querySelector('polygon').getAttribute('points').trim().split(/\s+/).map(pair=>pair.split(',').map(Number));
    return {x:rect.left+pts.reduce((sum,p)=>sum+p[0],0)/4*rect.width/1000,y:rect.top+pts.reduce((sum,p)=>sum+p[1],0)/4*rect.height/1000};
   });
+  // Diagnostic guard: the visible artwork must own the hit target before dragging.
+  // Pointer events are also sampled to distinguish overlay interception from UV/scene errors.
+  const centreProbe=await overlay.evaluate((node,point)=>{
+    const top=document.elementFromPoint(point.x,point.y);
+    const style=getComputedStyle(node);
+    return {insideOverlay:top===node||node.contains(top),target:top?.tagName||null,className:String(top?.getAttribute('class')||''),pointerEvents:style.pointerEvents,overlayRect:{x:node.getBoundingClientRect().x,y:node.getBoundingClientRect().y,w:node.getBoundingClientRect().width,h:node.getBoundingClientRect().height}};
+  },centre);
+  const captured=[];
+  await page.evaluate(()=>{
+    window.__veeladPointerProbe=[];
+    for(const type of ['pointerdown','pointermove','pointerup','lostpointercapture'])document.addEventListener(type,event=>{
+      if(window.__veeladPointerProbe.length<24)window.__veeladPointerProbe.push({type,target:event.target?.tagName,cls:String(event.target?.getAttribute?.('class')||''),pointerId:event.pointerId});
+    },true);
+  });
   await page.mouse.move(centre.x,centre.y);
   await page.mouse.down();
   await page.mouse.move(centre.x+18,centre.y+10,{steps:5});
   await page.mouse.up();
+  console.log('Veelad preview pointer diagnostic',JSON.stringify({centreProbe,events:await page.evaluate(()=>window.__veeladPointerProbe),after:(await scene()).layers.find(layer=>layer.id===id)}));
   await expect.poll(async()=>(await scene()).layers.find(layer=>layer.id===id).x).toBeGreaterThan(initial.x+.003);
   const beforeResize=(await scene()).layers.find(layer=>layer.id===id).width;
   const resize=overlay.locator('[data-ws-preview-handle=se]');
