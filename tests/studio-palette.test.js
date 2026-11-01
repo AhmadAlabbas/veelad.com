@@ -41,3 +41,16 @@ test('palette interface uses one source regeneration and is keyboard accessible'
  assert.match(js,/await recolourPalette\(layer\.id/);
  assert.match(css,/\.cw-palette-presets button:focus-visible/);
 });
+
+test('multilingual typography combinations only reference actual production fonts',()=>{
+ const manifest=JSON.parse(fs.readFileSync(new URL('../public/assets/design-fonts.json',import.meta.url),'utf8'));
+ const ids=new Set(manifest.fonts.map(font=>font.id));
+ assert.equal(pro.pairings.length,5);
+ assert.equal(new Set(pro.pairings.map(pair=>pair.id)).size,5);
+ for(const pair of pro.pairings){
+  assert.ok(ids.has(pair.headingFont),'Unknown headline font: '+pair.headingFont);
+  assert.ok(ids.has(pair.detailFont),'Unknown subtitle font: '+pair.detailFont);
+  assert.match(pair.colour,/^#[0-9a-f]{6}$/i);
+  assert.ok(pair.heading.length>=4&&pair.detail.length>=4);
+ }
+});
