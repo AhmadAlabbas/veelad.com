@@ -147,3 +147,12 @@
  transform:scale(1.06);transition:transform .19s ease;
 }
 @media(prefers-reduced-motion:reduce){.cw-element-entry .cw-element-tile[data-ws-element^="botanical-"]:hover .cw-element-visual svg{transform:none;transition:none}}
+
+/* Curated multi-part botanical posters: independent SVG illustrations are
+   layered in the card, while clicking inserts independently editable layers. */
+.cw-original-layout-art{position:relative;display:grid;place-items:center;overflow:hidden}
+.cw-original-layout-art>svg{width:77%!important;max-height:95%;filter:drop-shadow(0 5px 4px #1c14311b)}
+.cw-template-art-companion{position:absolute;right:4%;bottom:3%;width:40%;height:48%;display:grid;place-items:center;transform:rotate(13deg);filter:drop-shadow(0 5px 4px #1c143122)}
+.cw-template-art-companion>svg{width:100%;height:100%}
+.cw-original-layout:hover .cw-template-art-companion{transform:rotate(8deg) translateY(-2px);transition:transform .2s ease}
+@media(prefers-reduced-motion:reduce){.cw-original-layout:hover .cw-template-art-companion{transition:none;transform:rotate(13deg)}}
