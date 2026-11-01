@@ -109,3 +109,15 @@
  .cw-palette-presets small{font-size:11px}
 }
 @media(max-width:360px){.cw-palette-presets{grid-template-columns:1fr 1fr}.cw-palette-chips i{width:12px}}
+
+/* In-session checkpoints: deliberately not presented as cloud version history. */
+.cw-checkpoints{padding-block:17px 6px;margin-top:18px;border-top:1px solid #e8e3ed}
+.cw-checkpoints h5{font-size:13px;font-weight:750;margin:0 0 5px;color:#332a3d}
+.cw-checkpoints>p{font-size:11px;line-height:1.55;color:#6c6675;margin:0 0 11px}
+.cw-checkpoints [data-ws-save-checkpoint]{width:100%;min-height:40px;background:#f7f4fb!important;border:1px solid #d8cfe6!important;border-radius:8px;font-weight:650}
+.cw-checkpoints [data-ws-checkpoints]{display:grid;gap:6px;margin-top:10px}
+.cw-checkpoints .cw-checkpoint{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-height:41px;text-align:start;padding:8px 10px;border:1px solid #e3deea!important;border-radius:8px;background:#fff!important}
+.cw-checkpoints .cw-checkpoint:hover{border-color:#9a81c4!important;background:#f8f5fd!important}
+.cw-checkpoints .cw-checkpoint:focus-visible{outline:3px solid #8765cb;outline-offset:2px}
+.cw-checkpoints .cw-checkpoint small{color:#77707d;font-size:10px}
+@media(max-width:700px){.cw-checkpoints [data-ws-save-checkpoint],.cw-checkpoints .cw-checkpoint{min-height:46px}}
