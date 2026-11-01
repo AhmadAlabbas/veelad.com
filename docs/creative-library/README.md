@@ -1,10 +1,10 @@
 # Veelad Originals — Entertainment & Storytelling Library
 
-**Status:** Creative production plan, **not published artwork**.  
+**Status:** Production plan plus **20 implemented original SVG illustrations in development**. The remaining 220 concepts are not drawn and no artwork is published to the live store.  
 **Scope:** 20 genre collections, 240 separately art-directed concepts: **60 new fictional characters**, **120 props/illustrated motifs** and **60 scenes/badges**.  
 **Source of truth:** [Volume 01](./entertainment-volume-01.json), [Volume 02](./entertainment-volume-02.json), and the [32-concept flagship wave](./flagship-wave-01.json).
 
-This is a proposed **first-party illustration programme for a clothing-design studio**, not a collection of screenshots, franchise art, celebrity portraits or branded merchandise. Concepts become commercial assets **only after** original artwork has been drawn, rights verified, translations approved, and production exports tested.
+This is a proposed **first-party illustration programme for a clothing-design studio**, not a collection of screenshots, franchise art, celebrity portraits or branded merchandise. Twenty first-party illustrations now exist in `public/assets/entertainment-originals.js` and are connected to the development editor. They have individual SVG geometry, editable colours and raster export code. They are **not live or commercially cleared** until rights, translations and export QA are approved. The remaining 220 concepts have not been illustrated.
 
 ## Creative north star
 
@@ -107,4 +107,4 @@ Track zero duplicate art signatures, 100% recorded provenance, 100% export parit
 
 ## Important project state
 
-The JSON files contain **240 creative briefs only**: no SVG image assets have been drawn or integrated by this plan. They must not be imported into `window.VeeladElements.catalog` as live artwork until the acceptance gate above has been met. Parent studio changes may still have outstanding browser test issues; assess independently before merging or deploying. No payment, storefront or account settings should be changed by editorial planning.
+The two JSON files remain **240 creative briefs**. Of those, **20 now have SVG source implementations** in `public/assets/entertainment-originals.js`. The other 220 concepts have **no source artwork**. Do not list those 220 as available, and do not claim the new 20 are deployed to the live store until the release gate has passed. Parent studio changes may still have outstanding browser test issues; assess independently before merging or deploying. No payment, storefront or account settings should be changed by editorial planning.
