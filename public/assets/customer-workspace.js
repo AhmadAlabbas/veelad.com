@@ -247,12 +247,12 @@ function renderElements(){
     const api=window.VeeladElements,list=shell.querySelector("[data-ws-element-list]");
     if(!api){list.textContent="Element library unavailable.";return;}
     const select=shell.querySelector("[data-ws-element-category]");
-    if(!select.options.length)select.innerHTML='<option value="">'+esc(tr("All categories"))+'</option>'+api.categories.map(name=>'<option value="'+esc(name)+'">'+esc(name)+'</option>').join("");
+    if(!select.options.length)select.innerHTML='<option value="">'+esc(tr("All categories"))+'</option>'+api.categories.map(name=>'<option value="'+esc(name)+'">'+esc(api.categoryLabel(name,currentLanguage()))+'</option>').join("");
     const search=shell.querySelector("[data-ws-element-search]").value.trim().toLowerCase(),category=select.value;
-    const matched=api.catalog.filter(item=>(!category||item.category===category)&&(!search||(item.name+' '+item.category+' '+item.id).toLowerCase().includes(search)));
+    const matched=api.catalog.filter(item=>(!category||item.category===category)&&(!search||(item.name+' '+item.category+' '+item.id+' '+api.label(item.id,'ar')+' '+api.label(item.id,'zh-CN')+' '+api.categoryLabel(item.category,'ar')+' '+api.categoryLabel(item.category,'zh-CN')).toLowerCase().includes(search)));
     const visible=matched.slice(0,elementLimit);
     shell.querySelector("[data-ws-element-count]").textContent=visible.length+" / "+matched.length;
-    list.innerHTML=visible.map(item=>`<button type="button" class="cw-element-tile" draggable="true" data-ws-element="${esc(item.id)}" title="${esc(item.name)}" aria-label="${esc("Add element "+item.name)}"><span class="cw-element-visual">${api.svg(item.id)}</span><small>${esc(item.name)}</small></button>`).join("");
+    list.innerHTML=visible.map(item=>`<button type="button" class="cw-element-tile" draggable="true" data-ws-element="${esc(item.id)}" title="${esc(api.label(item.id,currentLanguage()))}" aria-label="${esc("Add element "+api.label(item.id,currentLanguage()))}"><span class="cw-element-visual">${api.svg(item.id)}</span><small>${esc(api.label(item.id,currentLanguage()))}</small></button>`).join("");
     shell.querySelector("[data-ws-element-more]").hidden=matched.length<=visible.length;
   }
   async function addElement(elementId,point=null){
@@ -305,7 +305,7 @@ function renderElements(){
   function renderLayerList(){
     const node=shell.querySelector("[data-ws-layer-list]"),list=layers();
     node.innerHTML=list.length?[...list].reverse().map((layer,index)=>{
-      const asset=layerAssets.get(layer.id),label=layer.type==="text"?(layer.text||tr("Text layer")):layer.library_element?(window.VeeladElements?.find(layer.library_element.id)?.name||tr("Element")):tr("Image")+" "+(list.length-index);
+      const asset=layerAssets.get(layer.id),label=layer.type==="text"?(layer.text||tr("Text layer")):layer.library_element?(window.VeeladElements?.label(layer.library_element.id,currentLanguage())||tr("Element")):tr("Image")+" "+(list.length-index);
       return `<article class="cw-layer-row" data-selected="${layer.id===selected}"><button type="button" class="cw-layer-pick" data-ws-select="${esc(layer.id)}" aria-pressed="${layer.id===selected}"><span class="cw-layer-thumb">${asset?.image?`<img src="${esc(asset.image.src)}" alt="">`:workspaceIcon(layer.type==="text"?"text":"image")}</span><span dir="auto">${esc(label.slice(0,45))}</span></button><button type="button" class="cw-layer-toggle" data-ws-toggle-visible="${esc(layer.id)}" aria-label="${esc(tr(layer.visible===false?"Show layer":"Hide layer"))}" title="${esc(tr(layer.visible===false?"Show layer":"Hide layer"))}">${workspaceIcon(layer.visible===false?"hidden":"eye")}</button><button type="button" class="cw-layer-toggle" data-ws-toggle-lock="${esc(layer.id)}" aria-label="${esc(tr(layer.locked?"Unlock layer":"Lock layer"))}" title="${esc(tr(layer.locked?"Unlock layer":"Lock layer"))}">${workspaceIcon(layer.locked?"lock":"unlock")}</button></article>`;
     }).join(""):`<div class="cw-empty-panel">${workspaceIcon("layers")}<strong>${tr("No layers yet")}</strong><p>${tr("Add images or text. Every element stays editable.")}</p></div>`;
   }
