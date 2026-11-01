@@ -28,6 +28,8 @@ test('product preview is a clean drag-and-drop canvas with magnetic guides',asyn
   await shell.locator('[data-ws-mode=preview]').click();
   const canvas=shell.locator('[data-ws-preview-overlay]');
   await expect(canvas).toBeVisible();
+  await canvas.scrollIntoViewIfNeeded();
+  await expect(canvas).toBeInViewport();
   await expect(shell.locator('.cw-preview-tools')).toHaveCount(0);
   await expect(shell.locator('[data-ws-preview-align]')).toHaveCount(0);
 
