@@ -3,18 +3,19 @@
    of the same drawing are not mistaken for genuinely new assets. */
 import sharp from 'sharp';
 
-const unsafe=/<(?:script|image|foreignObject|iframe|object|use|animate)\b|\bon\w+\s*=|javascript:|url\s*\(|https?:\/\//i;
+const unsafe=/<(?:script|image|foreignObject|iframe|object|use|animate)\\b|\\bon\\w+\\s*=|javascript:|url\\s*\\(|https?:\\/\\//i;
+const hasUnsafeContent=svg=>unsafe.test(String(svg||'').replaceAll('xmlns="http://www.w3.org/2000/svg"',''));
 export function validateOriginalArtwork({id,title,svg,colors}){
  const reasons=[];
  if(typeof id!=='string'||!/^[-a-z0-9]{5,110}$/.test(id))reasons.push('invalid identifier');
  if(typeof title!=='string'||title.trim().length<5)reasons.push('missing descriptive title');
  if(typeof svg!=='string'||!/^<svg[\s>]/.test(svg)||!svg.includes('</svg>'))reasons.push('invalid SVG');
- if(unsafe.test(svg||''))reasons.push('external or active content');
+ if(hasUnsafeContent(svg))reasons.push('external or active content');
  if(!colors||!['primary','secondary','accent'].every(key=>/^#[a-f0-9]{6}$/i.test(colors[key]||'')))reasons.push('missing editable colour channels');
  return reasons;
 }
 export async function alphaSignature(svg,size=48){
- if(typeof svg!=='string'||unsafe.test(svg)||!/^<svg[\s>]/.test(svg))throw Error('SVG contains unsupported content');
+ if(typeof svg!=='string'||hasUnsafeContent(svg)||!/^<svg[\s>]/.test(svg))throw Error('SVG contains unsupported content');
  const {data,info}=await sharp(Buffer.from(svg)).resize(size,size,{fit:'contain'}).ensureAlpha().raw().toBuffer({resolveWithObject:true});
  const pixels=new Uint8Array(size*size);
  for(let i=0;i<pixels.length;i++)pixels[i]=data[i*info.channels+3];
