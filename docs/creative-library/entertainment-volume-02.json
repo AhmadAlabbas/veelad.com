@@ -19,7 +19,7 @@
       "art_direction": "Aquatic naturalism with original sea-crew personalities and illustrated marine engineering",
       "items": [
         {
-          "id": "ent-ocean-expeditions-coral-atlas-keeper",
+          "id": "ent-ocean-expeditions-coral-atlas-keeper-0",
           "name": "Coral Atlas Keeper",
           "kind": "original_character",
           "art_direction": "Ocean scientist in patch-pocket wetsuit balancing a rolled reef map and a specimen board",
@@ -35,7 +35,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-ocean-expeditions-shell-cartographer",
+          "id": "ent-ocean-expeditions-shell-cartographer-0",
           "name": "Shell Cartographer",
           "kind": "original_character",
           "art_direction": "Friendly diver with asymmetric shell-shaped diving helmet and ink-stained notebook",
@@ -51,7 +51,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-ocean-expeditions-tidal-radio-operator",
+          "id": "ent-ocean-expeditions-tidal-radio-operator-0",
           "name": "Tidal Radio Operator",
           "kind": "original_character",
           "art_direction": "Coastal lighthouse assistant with shortwave radio and seabird companion",
@@ -67,7 +67,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-ocean-expeditions-spiral-nautilus",
+          "id": "ent-ocean-expeditions-spiral-nautilus-0",
           "name": "Spiral Nautilus",
           "kind": "illustrated_motif",
           "art_direction": "Cutaway nautilus shell with differentiated chamber geometry",
@@ -83,7 +83,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-ocean-expeditions-seagrass-submarine",
+          "id": "ent-ocean-expeditions-seagrass-submarine-0",
           "name": "Seagrass Submarine",
           "kind": "illustrated_motif",
           "art_direction": "Rounded exploratory mini-sub with fin-like side windows and kelp decals",
@@ -99,7 +99,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-ocean-expeditions-glass-bottom-dinghy",
+          "id": "ent-ocean-expeditions-glass-bottom-dinghy-0",
           "name": "Glass-Bottom Dinghy",
           "kind": "illustrated_motif",
           "art_direction": "Tiny sailboat with oval underwater window and wave shadow",
@@ -115,7 +115,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-ocean-expeditions-tidepool-microscope",
+          "id": "ent-ocean-expeditions-tidepool-microscope-0",
           "name": "Tidepool Microscope",
           "kind": "illustrated_motif",
           "art_direction": "Portable microscope revealing simple anemone patterns",
@@ -131,7 +131,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-ocean-expeditions-deep-sea-anglerfish",
+          "id": "ent-ocean-expeditions-deep-sea-anglerfish-0",
           "name": "Deep-Sea Anglerfish",
           "kind": "illustrated_motif",
           "art_direction": "Smiling imaginary anglerfish with petal-shaped bioluminescent lure",
@@ -147,7 +147,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-ocean-expeditions-coral-lantern",
+          "id": "ent-ocean-expeditions-coral-lantern-0",
           "name": "Coral Lantern",
           "kind": "illustrated_motif",
           "art_direction": "Branching coral structure holding small glowing jelly-like bubbles",
@@ -163,7 +163,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-ocean-expeditions-beneath-the-surface",
+          "id": "ent-ocean-expeditions-beneath-the-surface-0",
           "name": "Beneath the Surface",
           "kind": "scene_or_badge",
           "art_direction": "Underwater scene with layered sea arches and distant rays",
@@ -179,7 +179,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-ocean-expeditions-far-harbour-patch",
+          "id": "ent-ocean-expeditions-far-harbour-patch-0",
           "name": "Far Harbour Patch",
           "kind": "scene_or_badge",
           "art_direction": "Travel badge featuring a lighthouse on a rocky breakwater",
@@ -195,7 +195,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-ocean-expeditions-the-blue-expedition",
+          "id": "ent-ocean-expeditions-the-blue-expedition-0",
           "name": "The Blue Expedition",
           "kind": "scene_or_badge",
           "art_direction": "Panoramic badge showing open-water vessel beneath flying birds",
@@ -227,7 +227,7 @@
       "art_direction": "Original creature design with clearly distinct bodies, expressions and physical structure",
       "items": [
         {
-          "id": "ent-playful-monsters-milo-the-map-muncher",
+          "id": "ent-playful-monsters-milo-the-map-muncher-0",
           "name": "Milo the Map Muncher",
           "kind": "original_character",
           "art_direction": "Round three-eared creature nibbling paper corners; oversized pockets for saved maps",
@@ -243,7 +243,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-playful-monsters-waffleback-wanderer",
+          "id": "ent-playful-monsters-waffleback-wanderer-0",
           "name": "Waffleback Wanderer",
           "kind": "original_character",
           "art_direction": "Short-legged reptilian creature with checkerboard backplates and bright scarf",
@@ -259,7 +259,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-playful-monsters-cloud-tail-collector",
+          "id": "ent-playful-monsters-cloud-tail-collector-0",
           "name": "Cloud-Tail Collector",
           "kind": "original_character",
           "art_direction": "Fluffy birdlike companion collecting rainclouds in translucent jars",
@@ -275,7 +275,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-playful-monsters-biscuit-moon-beast",
+          "id": "ent-playful-monsters-biscuit-moon-beast-0",
           "name": "Biscuit Moon Beast",
           "kind": "illustrated_motif",
           "art_direction": "Sleepy horned creature curling around a crescent-shaped biscuit",
@@ -291,7 +291,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-playful-monsters-three-eyed-gardener",
+          "id": "ent-playful-monsters-three-eyed-gardener-0",
           "name": "Three-Eyed Gardener",
           "kind": "illustrated_motif",
           "art_direction": "Oval garden critter with three eyes in an arc and a watering snout",
@@ -307,7 +307,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-playful-monsters-jellybean-glider",
+          "id": "ent-playful-monsters-jellybean-glider-0",
           "name": "Jellybean Glider",
           "kind": "illustrated_motif",
           "art_direction": "Floating creature with two sail-like ears and dotted belly",
@@ -323,7 +323,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-playful-monsters-puddle-gobbler",
+          "id": "ent-playful-monsters-puddle-gobbler-0",
           "name": "Puddle Gobbler",
           "kind": "illustrated_motif",
           "art_direction": "Amphibious character shaped like a droplet with toothless smile",
@@ -339,7 +339,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-playful-monsters-socks-on-tentacles",
+          "id": "ent-playful-monsters-socks-on-tentacles-0",
           "name": "Socks on Tentacles",
           "kind": "illustrated_motif",
           "art_direction": "Tiny octopus wearing mismatched striped socks on two arms",
@@ -355,7 +355,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-playful-monsters-umbrella-snail",
+          "id": "ent-playful-monsters-umbrella-snail-0",
           "name": "Umbrella Snail",
           "kind": "illustrated_motif",
           "art_direction": "Spiral-shelled snail whose shell unfolds like a miniature umbrella",
@@ -371,7 +371,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-playful-monsters-little-weirdos-club",
+          "id": "ent-playful-monsters-little-weirdos-club-0",
           "name": "Little Weirdos Club",
           "kind": "scene_or_badge",
           "art_direction": "Badge composed of three uniquely shaped original creature heads",
@@ -387,7 +387,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-playful-monsters-monster-tea-party",
+          "id": "ent-playful-monsters-monster-tea-party-0",
           "name": "Monster Tea Party",
           "kind": "scene_or_badge",
           "art_direction": "Café vignette featuring two fuzzy critters and a tiny teacup",
@@ -403,7 +403,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-playful-monsters-the-cloud-parade",
+          "id": "ent-playful-monsters-the-cloud-parade-0",
           "name": "The Cloud Parade",
           "kind": "scene_or_badge",
           "art_direction": "A playful procession of four invented creatures crossing windy clouds",
@@ -435,7 +435,7 @@
       "art_direction": "Personality and light-hearted relationships without reproducing any movie scene",
       "items": [
         {
-          "id": "ent-romantic-comedy-the-accidental-florist",
+          "id": "ent-romantic-comedy-the-accidental-florist-0",
           "name": "The Accidental Florist",
           "kind": "original_character",
           "art_direction": "Person in oversized apron struggling to hold a bouquet and a bicycle bell",
@@ -451,7 +451,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-romantic-comedy-coffee-shop-poet",
+          "id": "ent-romantic-comedy-coffee-shop-poet-0",
           "name": "Coffee-Shop Poet",
           "kind": "original_character",
           "art_direction": "Daydreaming writer with sleeve-rolled jacket and heart-shaped notebook clip",
@@ -467,7 +467,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-romantic-comedy-the-late-train-romantic",
+          "id": "ent-romantic-comedy-the-late-train-romantic-0",
           "name": "The Late-Train Romantic",
           "kind": "original_character",
           "art_direction": "Commuter racing for train while carrying a taped-up paper gift bag",
@@ -483,7 +483,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-romantic-comedy-two-mismatched-mugs",
+          "id": "ent-romantic-comedy-two-mismatched-mugs-0",
           "name": "Two Mismatched Mugs",
           "kind": "illustrated_motif",
           "art_direction": "Pair of distinct coffee mugs with complementary handles forming a loop",
@@ -499,7 +499,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-romantic-comedy-paper-crane-letter",
+          "id": "ent-romantic-comedy-paper-crane-letter-0",
           "name": "Paper Crane Letter",
           "kind": "illustrated_motif",
           "art_direction": "Love note folding into an original geometric bird in midair",
@@ -515,7 +515,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-romantic-comedy-umbrella-for-two",
+          "id": "ent-romantic-comedy-umbrella-for-two-0",
           "name": "Umbrella for Two",
           "kind": "illustrated_motif",
           "art_direction": "Single tilted umbrella casting two different shoe shadows",
@@ -531,7 +531,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-romantic-comedy-heart-shaped-detour",
+          "id": "ent-romantic-comedy-heart-shaped-detour-0",
           "name": "Heart-Shaped Detour",
           "kind": "illustrated_motif",
           "art_direction": "Winding street map whose traffic route makes a gentle heart curve",
@@ -547,7 +547,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-romantic-comedy-flower-market-tickets",
+          "id": "ent-romantic-comedy-flower-market-tickets-0",
           "name": "Flower Market Tickets",
           "kind": "illustrated_motif",
           "art_direction": "Illustrated tickets to an imaginary florist market with leaf stamps",
@@ -563,7 +563,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-romantic-comedy-awkward-bouquet",
+          "id": "ent-romantic-comedy-awkward-bouquet-0",
           "name": "Awkward Bouquet",
           "kind": "illustrated_motif",
           "art_direction": "An off-center bouquet tied with enormous ribbon and one falling petal",
@@ -579,7 +579,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-romantic-comedy-meet-cute-cafe",
+          "id": "ent-romantic-comedy-meet-cute-cafe-0",
           "name": "Meet-Cute Café",
           "kind": "scene_or_badge",
           "art_direction": "Café exterior with two intersecting window reflections and a bicycle",
@@ -595,7 +595,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-romantic-comedy-first-date-weather",
+          "id": "ent-romantic-comedy-first-date-weather-0",
           "name": "First Date Weather",
           "kind": "scene_or_badge",
           "art_direction": "Rain-and-sun split scene with matching rain boots by a doorway",
@@ -611,7 +611,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-romantic-comedy-almost-perfect-timing",
+          "id": "ent-romantic-comedy-almost-perfect-timing-0",
           "name": "Almost Perfect Timing",
           "kind": "scene_or_badge",
           "art_direction": "Badge of two clock hands creating a subtle heart silhouette",
@@ -643,7 +643,7 @@
       "art_direction": "Cinema equipment, behind-the-scenes craft, and stories about creative teams",
       "items": [
         {
-          "id": "ent-cinema-craft-storyboard-dreamer",
+          "id": "ent-cinema-craft-storyboard-dreamer-0",
           "name": "Storyboard Dreamer",
           "kind": "original_character",
           "art_direction": "Artist holding three unprinted storyboard cards and mechanical pencil",
@@ -659,7 +659,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-cinema-craft-practical-effects-maker",
+          "id": "ent-cinema-craft-practical-effects-maker-0",
           "name": "Practical Effects Maker",
           "kind": "original_character",
           "art_direction": "Workshop creator wearing goggles and shaping a soft foam creature head",
@@ -675,7 +675,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-cinema-craft-projectionist-of-stars",
+          "id": "ent-cinema-craft-projectionist-of-stars-0",
           "name": "Projectionist of Stars",
           "kind": "original_character",
           "art_direction": "Theatre operator with vintage projector and tiny constellation patterned vest",
@@ -691,7 +691,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-cinema-craft-fold-out-director-chair",
+          "id": "ent-cinema-craft-fold-out-director-chair-0",
           "name": "Fold-Out Director Chair",
           "kind": "illustrated_motif",
           "art_direction": "Graphic of a folding chair with striped canvas and original star emblem",
@@ -707,7 +707,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-cinema-craft-light-meter-dial",
+          "id": "ent-cinema-craft-light-meter-dial-0",
           "name": "Light Meter Dial",
           "kind": "illustrated_motif",
           "art_direction": "Stylised analog exposure meter with graphic radial ticks",
@@ -723,7 +723,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-cinema-craft-script-and-coffee",
+          "id": "ent-cinema-craft-script-and-coffee-0",
           "name": "Script and Coffee",
           "kind": "illustrated_motif",
           "art_direction": "Rolled screenplay beside pen and a coffee cup with a moon motif",
@@ -738,7 +738,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-cinema-craft-miniature-movie-set",
+          "id": "ent-cinema-craft-miniature-movie-set-0",
           "name": "Miniature Movie Set",
           "kind": "illustrated_motif",
           "art_direction": "Cutaway tiny room with removable wall, light stands and table",
@@ -754,7 +754,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-cinema-craft-looped-filmstrip",
+          "id": "ent-cinema-craft-looped-filmstrip-0",
           "name": "Looped Filmstrip",
           "kind": "illustrated_motif",
           "art_direction": "Ribbon of blank film frames winding into a three-loop spiral",
@@ -770,7 +770,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-cinema-craft-sound-boom-silhouette",
+          "id": "ent-cinema-craft-sound-boom-silhouette-0",
           "name": "Sound Boom Silhouette",
           "kind": "illustrated_motif",
           "art_direction": "Boom microphone casting a long diagonal shadow across floor markings",
@@ -786,7 +786,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-cinema-craft-behind-the-camera",
+          "id": "ent-cinema-craft-behind-the-camera-0",
           "name": "Behind the Camera",
           "kind": "scene_or_badge",
           "art_direction": "Wide studio vignette with softbox, marks and silhouette of a camera operator",
@@ -802,7 +802,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-cinema-craft-make-believe-club",
+          "id": "ent-cinema-craft-make-believe-club-0",
           "name": "Make Believe Club",
           "kind": "scene_or_badge",
           "art_direction": "Crest of mask, camera iris, and hand-drawn star in original arrangement",
@@ -818,7 +818,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-cinema-craft-the-final-take",
+          "id": "ent-cinema-craft-the-final-take-0",
           "name": "The Final Take",
           "kind": "scene_or_badge",
           "art_direction": "Three simple frame borders closing around an applauding crew silhouette",
@@ -850,7 +850,7 @@
       "art_direction": "Athletic movement, rope systems, adventure geometry, zero licensed heroes or costumes",
       "items": [
         {
-          "id": "ent-stunts-adventure-rooftop-parkour-guide",
+          "id": "ent-stunts-adventure-rooftop-parkour-guide-0",
           "name": "Rooftop Parkour Guide",
           "kind": "original_character",
           "art_direction": "Agile runner in loose cargo trousers vaulting between low urban platforms",
@@ -866,7 +866,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-stunts-adventure-river-rescue-pilot",
+          "id": "ent-stunts-adventure-river-rescue-pilot-0",
           "name": "River Rescue Pilot",
           "kind": "original_character",
           "art_direction": "Canoe guide in bright life vest holding a double-ended paddle",
@@ -882,7 +882,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-stunts-adventure-mountain-zipline-operator",
+          "id": "ent-stunts-adventure-mountain-zipline-operator-0",
           "name": "Mountain Zipline Operator",
           "kind": "original_character",
           "art_direction": "Safety instructor with distinctive triangular harness and zipped supply pack",
@@ -898,7 +898,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-stunts-adventure-crosswind-paraglider",
+          "id": "ent-stunts-adventure-crosswind-paraglider-0",
           "name": "Crosswind Paraglider",
           "kind": "illustrated_motif",
           "art_direction": "Wing and pilot silhouette with three braided airflow trails",
@@ -914,7 +914,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-stunts-adventure-rope-bridge-traverse",
+          "id": "ent-stunts-adventure-rope-bridge-traverse-0",
           "name": "Rope Bridge Traverse",
           "kind": "illustrated_motif",
           "art_direction": "Minimal rope bridge arcing between two rock towers",
@@ -930,7 +930,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-stunts-adventure-broken-compass-quest",
+          "id": "ent-stunts-adventure-broken-compass-quest-0",
           "name": "Broken Compass Quest",
           "kind": "illustrated_motif",
           "art_direction": "Weathered compass whose needle has been replaced by a leaf",
@@ -946,7 +946,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-stunts-adventure-trail-climber-kit",
+          "id": "ent-stunts-adventure-trail-climber-kit-0",
           "name": "Trail Climber Kit",
           "kind": "illustrated_motif",
           "art_direction": "Carabiners, helmet, knotted rope and trail tag as a balanced still life",
@@ -962,7 +962,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-stunts-adventure-waterfall-descent",
+          "id": "ent-stunts-adventure-waterfall-descent-0",
           "name": "Waterfall Descent",
           "kind": "illustrated_motif",
           "art_direction": "Waterfall with zigzag ascent/descent hiking path on surrounding cliff",
@@ -978,7 +978,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-stunts-adventure-night-river-raft",
+          "id": "ent-stunts-adventure-night-river-raft-0",
           "name": "Night River Raft",
           "kind": "illustrated_motif",
           "art_direction": "Angular raft with three paddles under reflected moonlight",
@@ -994,7 +994,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-stunts-adventure-find-your-footing",
+          "id": "ent-stunts-adventure-find-your-footing-0",
           "name": "Find Your Footing",
           "kind": "scene_or_badge",
           "art_direction": "Patch with two stepping stones crossing a canyon",
@@ -1010,7 +1010,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-stunts-adventure-the-great-crossing",
+          "id": "ent-stunts-adventure-the-great-crossing-0",
           "name": "The Great Crossing",
           "kind": "scene_or_badge",
           "art_direction": "Wide suspension bridge over stylised mountain valley",
@@ -1026,7 +1026,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-stunts-adventure-momentum-lines",
+          "id": "ent-stunts-adventure-momentum-lines-0",
           "name": "Momentum Lines",
           "kind": "scene_or_badge",
           "art_direction": "Dynamic visual of three moving body silhouettes in different poses",
@@ -1058,7 +1058,7 @@
       "art_direction": "Cozy cooking culture, chef personalities and warm still-life drawings",
       "items": [
         {
-          "id": "ent-kitchen-stories-midnight-bread-baker",
+          "id": "ent-kitchen-stories-midnight-bread-baker-0",
           "name": "Midnight Bread Baker",
           "kind": "original_character",
           "art_direction": "Night baker with folded cap balancing five different loaf shapes",
@@ -1074,7 +1074,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-kitchen-stories-spice-market-illustrator",
+          "id": "ent-kitchen-stories-spice-market-illustrator-0",
           "name": "Spice Market Illustrator",
           "kind": "original_character",
           "art_direction": "Merchant-artist with vest and rolling sketch board of imaginary spice symbols",
@@ -1090,7 +1090,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-kitchen-stories-soup-inventor",
+          "id": "ent-kitchen-stories-soup-inventor-0",
           "name": "Soup Inventor",
           "kind": "original_character",
           "art_direction": "Experimental home cook carrying huge ladle and handwritten recipe tiles",
@@ -1106,7 +1106,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-kitchen-stories-rolling-pin-constellation",
+          "id": "ent-kitchen-stories-rolling-pin-constellation-0",
           "name": "Rolling Pin Constellation",
           "kind": "illustrated_motif",
           "art_direction": "Pin crossing over scattered flour-stars in precise crescent arrangement",
@@ -1122,7 +1122,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-kitchen-stories-three-layer-cake",
+          "id": "ent-kitchen-stories-three-layer-cake-0",
           "name": "Three-Layer Cake",
           "kind": "illustrated_motif",
           "art_direction": "Cross-section cake with dotted icing and geometric garnish",
@@ -1138,7 +1138,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-kitchen-stories-kitchen-window-herbs",
+          "id": "ent-kitchen-stories-kitchen-window-herbs-0",
           "name": "Kitchen Window Herbs",
           "kind": "illustrated_motif",
           "art_direction": "Three differently shaped herb pots on a moonlit window sill",
@@ -1154,7 +1154,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-kitchen-stories-tea-kettle-chorus",
+          "id": "ent-kitchen-stories-tea-kettle-chorus-0",
           "name": "Tea Kettle Chorus",
           "kind": "illustrated_motif",
           "art_direction": "Whistling kettle emitting musical notes made of steam loops",
@@ -1170,7 +1170,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-kitchen-stories-dancing-pasta",
+          "id": "ent-kitchen-stories-dancing-pasta-0",
           "name": "Dancing Pasta",
           "kind": "illustrated_motif",
           "art_direction": "Spiralling noodles arranged like a theatrical ribbon",
@@ -1186,7 +1186,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-kitchen-stories-whisk-and-whirl",
+          "id": "ent-kitchen-stories-whisk-and-whirl-0",
           "name": "Whisk and Whirl",
           "kind": "illustrated_motif",
           "art_direction": "Two crossed whisks with radiating flour clouds",
@@ -1202,7 +1202,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-kitchen-stories-dinner-at-nine",
+          "id": "ent-kitchen-stories-dinner-at-nine-0",
           "name": "Dinner at Nine",
           "kind": "scene_or_badge",
           "art_direction": "Badge of candlelit round table with two mismatched chairs",
@@ -1218,7 +1218,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-kitchen-stories-recipe-in-progress",
+          "id": "ent-kitchen-stories-recipe-in-progress-0",
           "name": "Recipe in Progress",
           "kind": "scene_or_badge",
           "art_direction": "Illustrated recipe card surrounded by vegetables and a tiny clock",
@@ -1234,7 +1234,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-kitchen-stories-the-happy-pantry",
+          "id": "ent-kitchen-stories-the-happy-pantry-0",
           "name": "The Happy Pantry",
           "kind": "scene_or_badge",
           "art_direction": "Cutaway pantry of jars, baskets and patterned textiles",
@@ -1266,7 +1266,7 @@
       "art_direction": "Community athletics and perseverance without real teams, jerseys or athlete likenesses",
       "items": [
         {
-          "id": "ent-sports-stories-rooftop-runner",
+          "id": "ent-sports-stories-rooftop-runner-0",
           "name": "Rooftop Runner",
           "kind": "original_character",
           "art_direction": "Runner in loose windbreaker tying a shoelace on a city stairwell",
@@ -1282,7 +1282,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-sports-stories-volunteer-goalkeeper",
+          "id": "ent-sports-stories-volunteer-goalkeeper-0",
           "name": "Volunteer Goalkeeper",
           "kind": "original_character",
           "art_direction": "Amateur keeper wearing a bold color-block sweater and gloves",
@@ -1298,7 +1298,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-sports-stories-hill-course-cyclist",
+          "id": "ent-sports-stories-hill-course-cyclist-0",
           "name": "Hill-Course Cyclist",
           "kind": "original_character",
           "art_direction": "Cyclist climbing a hill with dotted route tape attached to bike",
@@ -1314,7 +1314,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-sports-stories-last-lap-stopwatch",
+          "id": "ent-sports-stories-last-lap-stopwatch-0",
           "name": "Last-Lap Stopwatch",
           "kind": "illustrated_motif",
           "art_direction": "Stopwatch whose hand becomes a curved running track",
@@ -1330,7 +1330,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-sports-stories-community-goalpost",
+          "id": "ent-sports-stories-community-goalpost-0",
           "name": "Community Goalpost",
           "kind": "illustrated_motif",
           "art_direction": "Patch-style football goal with rounded corners and flying ball",
@@ -1346,7 +1346,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-sports-stories-pool-lane-wave",
+          "id": "ent-sports-stories-pool-lane-wave-0",
           "name": "Pool Lane Wave",
           "kind": "illustrated_motif",
           "art_direction": "Four swimming lane stripes curling into a wave motif",
@@ -1362,7 +1362,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-sports-stories-overhead-basketball-arc",
+          "id": "ent-sports-stories-overhead-basketball-arc-0",
           "name": "Overhead Basketball Arc",
           "kind": "illustrated_motif",
           "art_direction": "Ball hoop viewed diagonally with one clean shooting trajectory",
@@ -1378,7 +1378,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-sports-stories-half-time-water-bottle",
+          "id": "ent-sports-stories-half-time-water-bottle-0",
           "name": "Half-Time Water Bottle",
           "kind": "illustrated_motif",
           "art_direction": "Reusable bottle on folded towel beside a whistle",
@@ -1394,7 +1394,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-sports-stories-victory-ribbon-shoes",
+          "id": "ent-sports-stories-victory-ribbon-shoes-0",
           "name": "Victory Ribbon Shoes",
           "kind": "illustrated_motif",
           "art_direction": "Pair of athletic shoes with laces forming a looped victory ribbon",
@@ -1410,7 +1410,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-sports-stories-one-more-kilometer",
+          "id": "ent-sports-stories-one-more-kilometer-0",
           "name": "One More Kilometer",
           "kind": "scene_or_badge",
           "art_direction": "Mountain running badge with abstract trail mile markers",
@@ -1426,7 +1426,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-sports-stories-our-home-court",
+          "id": "ent-sports-stories-our-home-court-0",
           "name": "Our Home Court",
           "kind": "scene_or_badge",
           "art_direction": "Isometric local sports court with different shoe footprints",
@@ -1442,7 +1442,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-sports-stories-the-finish-together",
+          "id": "ent-sports-stories-the-finish-together-0",
           "name": "The Finish Together",
           "kind": "scene_or_badge",
           "art_direction": "Three silhouettes crossing a finish line holding their hands up",
@@ -1474,7 +1474,7 @@
       "art_direction": "Original musical identities rather than named artists, album covers or protected stage costumes",
       "items": [
         {
-          "id": "ent-music-after-dark-subway-jazz-violinist",
+          "id": "ent-music-after-dark-subway-jazz-violinist-0",
           "name": "Subway Jazz Violinist",
           "kind": "original_character",
           "art_direction": "Street violin player with angular jacket and striped instrument case",
@@ -1490,7 +1490,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-music-after-dark-moonlight-synth-maker",
+          "id": "ent-music-after-dark-moonlight-synth-maker-0",
           "name": "Moonlight Synth Maker",
           "kind": "original_character",
           "art_direction": "Electronic musician with round goggles and custom three-knob tabletop synth",
@@ -1506,7 +1506,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-music-after-dark-festival-sound-engineer",
+          "id": "ent-music-after-dark-festival-sound-engineer-0",
           "name": "Festival Sound Engineer",
           "kind": "original_character",
           "art_direction": "Audio engineer wearing utility headphones and carrying coloured cables",
@@ -1522,7 +1522,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-music-after-dark-vinyl-solar-system",
+          "id": "ent-music-after-dark-vinyl-solar-system-0",
           "name": "Vinyl Solar System",
           "kind": "illustrated_motif",
           "art_direction": "Record player disc with orbit-shaped grooves and tiny central planet",
@@ -1538,7 +1538,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-music-after-dark-dancing-equaliser",
+          "id": "ent-music-after-dark-dancing-equaliser-0",
           "name": "Dancing Equaliser",
           "kind": "illustrated_motif",
           "art_direction": "Seven independent sound bars forming a sweeping mountain contour",
@@ -1554,7 +1554,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-music-after-dark-copper-trumpet-curve",
+          "id": "ent-music-after-dark-copper-trumpet-curve-0",
           "name": "Copper Trumpet Curve",
           "kind": "illustrated_motif",
           "art_direction": "Stylised brass instrument whose bell emits three leaf-shaped notes",
@@ -1570,7 +1570,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-music-after-dark-stage-curtain-echo",
+          "id": "ent-music-after-dark-stage-curtain-echo-0",
           "name": "Stage Curtain Echo",
           "kind": "illustrated_motif",
           "art_direction": "Velvet theatre curtains with repeating concentric sound waves",
@@ -1586,7 +1586,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-music-after-dark-pocket-metronome",
+          "id": "ent-music-after-dark-pocket-metronome-0",
           "name": "Pocket Metronome",
           "kind": "illustrated_motif",
           "art_direction": "Wooden triangular metronome casting graphic movement trails",
@@ -1602,7 +1602,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-music-after-dark-midnight-cassette",
+          "id": "ent-music-after-dark-midnight-cassette-0",
           "name": "Midnight Cassette",
           "kind": "illustrated_motif",
           "art_direction": "Retro mixtape featuring an original crescent-and-cloud label",
@@ -1618,7 +1618,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-music-after-dark-the-last-encore",
+          "id": "ent-music-after-dark-the-last-encore-0",
           "name": "The Last Encore",
           "kind": "scene_or_badge",
           "art_direction": "Stage scene of one empty microphone under star-shaped spotlight",
@@ -1634,7 +1634,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-music-after-dark-songs-of-the-city",
+          "id": "ent-music-after-dark-songs-of-the-city-0",
           "name": "Songs of the City",
           "kind": "scene_or_badge",
           "art_direction": "Original music patch merging a train line and abstract melody staff",
@@ -1650,7 +1650,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-music-after-dark-harmony-in-motion",
+          "id": "ent-music-after-dark-harmony-in-motion-0",
           "name": "Harmony in Motion",
           "kind": "scene_or_badge",
           "art_direction": "Three flowing melodic ribbons passing through differently shaped bells",
@@ -1682,7 +1682,7 @@
       "art_direction": "Wholesome reading and puzzling, expressive small details, literary but original",
       "items": [
         {
-          "id": "ent-cozy-mysteries-bookshop-nightkeeper",
+          "id": "ent-cozy-mysteries-bookshop-nightkeeper-0",
           "name": "Bookshop Nightkeeper",
           "kind": "original_character",
           "art_direction": "Shopkeeper in cable-knit cardigan holding a lantern and pile of odd books",
@@ -1698,7 +1698,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-cozy-mysteries-pencil-sketch-sleuth",
+          "id": "ent-cozy-mysteries-pencil-sketch-sleuth-0",
           "name": "Pencil-Sketch Sleuth",
           "kind": "original_character",
           "art_direction": "Friendly investigator with wide round glasses and roll of tracing paper",
@@ -1714,7 +1714,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-cozy-mysteries-clocktower-librarian",
+          "id": "ent-cozy-mysteries-clocktower-librarian-0",
           "name": "Clocktower Librarian",
           "kind": "original_character",
           "art_direction": "Librarian with pocket watch and dramatic folded-paper hairpin",
@@ -1730,7 +1730,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-cozy-mysteries-unfinished-crossword",
+          "id": "ent-cozy-mysteries-unfinished-crossword-0",
           "name": "Unfinished Crossword",
           "kind": "illustrated_motif",
           "art_direction": "Open crossword with scattered clean fictional letters and a pencil",
@@ -1746,7 +1746,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-cozy-mysteries-lost-bookmark-trail",
+          "id": "ent-cozy-mysteries-lost-bookmark-trail-0",
           "name": "Lost Bookmark Trail",
           "kind": "illustrated_motif",
           "art_direction": "Series of mismatched bookmarks connecting a shelf to an open book",
@@ -1762,7 +1762,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-cozy-mysteries-tea-and-clues",
+          "id": "ent-cozy-mysteries-tea-and-clues-0",
           "name": "Tea and Clues",
           "kind": "illustrated_motif",
           "art_direction": "Steaming teacup beside a folded notecard and magnifier",
@@ -1778,7 +1778,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-cozy-mysteries-the-secret-shelf",
+          "id": "ent-cozy-mysteries-the-secret-shelf-0",
           "name": "The Secret Shelf",
           "kind": "illustrated_motif",
           "art_direction": "Shelf revealing a tiny door between oversized volumes",
@@ -1794,7 +1794,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-cozy-mysteries-window-seat-cat",
+          "id": "ent-cozy-mysteries-window-seat-cat-0",
           "name": "Window-Seat Cat",
           "kind": "illustrated_motif",
           "art_direction": "Curled feline creature on a cushion with rainlit bookshelf backdrop",
@@ -1810,7 +1810,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-cozy-mysteries-compass-bookplate",
+          "id": "ent-cozy-mysteries-compass-bookplate-0",
           "name": "Compass Bookplate",
           "kind": "illustrated_motif",
           "art_direction": "Original decorative bookplate including small compass and leaf",
@@ -1826,7 +1826,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-cozy-mysteries-the-reading-hour",
+          "id": "ent-cozy-mysteries-the-reading-hour-0",
           "name": "The Reading Hour",
           "kind": "scene_or_badge",
           "art_direction": "Quiet room badge with one curved floor lamp and armchair",
@@ -1842,7 +1842,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-cozy-mysteries-one-more-chapter",
+          "id": "ent-cozy-mysteries-one-more-chapter-0",
           "name": "One More Chapter",
           "kind": "scene_or_badge",
           "art_direction": "Emblem of winding ribbon around a book and five little stars",
@@ -1858,7 +1858,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-cozy-mysteries-the-bookshop-at-dawn",
+          "id": "ent-cozy-mysteries-the-bookshop-at-dawn-0",
           "name": "The Bookshop at Dawn",
           "kind": "scene_or_badge",
           "art_direction": "Narrow bookshop storefront glowing in a misty morning street",
@@ -1890,7 +1890,7 @@
       "art_direction": "Atmosphere, moonlit nature and entirely invented creatures, no franchise-specific monsters",
       "items": [
         {
-          "id": "ent-eerie-folklore-the-lantern-listener",
+          "id": "ent-eerie-folklore-the-lantern-listener-0",
           "name": "The Lantern Listener",
           "kind": "original_character",
           "art_direction": "Tall folkloric traveller with wooden mask and lantern woven into their staff",
@@ -1906,7 +1906,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-eerie-folklore-moth-mantle-storyteller",
+          "id": "ent-eerie-folklore-moth-mantle-storyteller-0",
           "name": "Moth-Mantle Storyteller",
           "kind": "original_character",
           "art_direction": "Masked village storyteller with moth-wing cape and scroll of ink symbols",
@@ -1922,7 +1922,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-eerie-folklore-fog-orchard-watcher",
+          "id": "ent-eerie-folklore-fog-orchard-watcher-0",
           "name": "Fog Orchard Watcher",
           "kind": "original_character",
           "art_direction": "Cloaked orchard guardian carrying a woven branch basket and bell",
@@ -1938,7 +1938,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-eerie-folklore-whispering-window",
+          "id": "ent-eerie-folklore-whispering-window-0",
           "name": "Whispering Window",
           "kind": "illustrated_motif",
           "art_direction": "Half-open attic window with hanging paper charms and cold moonlight",
@@ -1954,7 +1954,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-eerie-folklore-clock-without-numbers",
+          "id": "ent-eerie-folklore-clock-without-numbers-0",
           "name": "Clock without Numbers",
           "kind": "illustrated_motif",
           "art_direction": "Old clock face replaced with tiny symbolic leaves and stars",
@@ -1970,7 +1970,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-eerie-folklore-shallow-lake-reflection",
+          "id": "ent-eerie-folklore-shallow-lake-reflection-0",
           "name": "Shallow Lake Reflection",
           "kind": "illustrated_motif",
           "art_direction": "Moonlit reeds with an impossible second reflection that differs slightly",
@@ -1986,7 +1986,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-eerie-folklore-the-listening-tree",
+          "id": "ent-eerie-folklore-the-listening-tree-0",
           "name": "The Listening Tree",
           "kind": "illustrated_motif",
           "art_direction": "Bark knots arranged as original imaginary listening faces",
@@ -2002,7 +2002,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-eerie-folklore-midnight-weather-vane",
+          "id": "ent-eerie-folklore-midnight-weather-vane-0",
           "name": "Midnight Weather Vane",
           "kind": "illustrated_motif",
           "art_direction": "Crooked rooftop weather vane pointing toward an unusual cloud",
@@ -2018,7 +2018,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-eerie-folklore-long-hallway-light",
+          "id": "ent-eerie-folklore-long-hallway-light-0",
           "name": "Long Hallway Light",
           "kind": "illustrated_motif",
           "art_direction": "Receding doors with one small pool of warm light at corridor end",
@@ -2034,7 +2034,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-eerie-folklore-tales-by-firelight",
+          "id": "ent-eerie-folklore-tales-by-firelight-0",
           "name": "Tales by Firelight",
           "kind": "scene_or_badge",
           "art_direction": "Camping vignette with three silhouettes and smoke becoming abstract stars",
@@ -2050,7 +2050,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-eerie-folklore-folk-mask-collection",
+          "id": "ent-eerie-folklore-folk-mask-collection-0",
           "name": "Folk Mask Collection",
           "kind": "scene_or_badge",
           "art_direction": "Badge with three wholly invented angular carnival-like masks",
@@ -2066,7 +2066,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-eerie-folklore-moon-over-the-marsh",
+          "id": "ent-eerie-folklore-moon-over-the-marsh-0",
           "name": "Moon over the Marsh",
           "kind": "scene_or_badge",
           "art_direction": "Panoramic wetlands with crooked grass and distant lantern light",
