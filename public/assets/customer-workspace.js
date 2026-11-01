@@ -60,15 +60,41 @@ const libraryPanel=document.createElement("section");
   libraryPanel.id="cw-panel-elements";libraryPanel.dataset.wsPanel="elements";libraryPanel.hidden=true;
   libraryPanel.innerHTML=`<p class="cw-panel-intro">${tr("Editable graphics, emojis, flags and city badges. Emoji and flag symbols keep their original colours; decoration can be recoloured.")}</p><label class="cw-font-search">${workspaceIcon("search")}<input type="search" data-ws-element-search placeholder="${esc(tr("Search elements"))}" aria-label="${esc(tr("Search elements"))}"></label><label class="cw-element-category-label"><span>${tr("All categories")}</span><select data-ws-element-category aria-label="${esc(tr("All categories"))}"></select></label><p class="cw-element-count" data-ws-element-count></p><div class="cw-elements-grid" data-ws-element-list></div><button type="button" class="cw-button cw-element-more" data-ws-element-more hidden>${tr("More elements")}</button>`;
   shell.querySelector('[data-ws-panel="text"]').before(libraryPanel);
+  const quickFilters=document.createElement("div");quickFilters.className="cw-library-quick-filters";
+  quickFilters.setAttribute("role","group");quickFilters.setAttribute("aria-label",tr("Quick categories"));
+  quickFilters.innerHTML=[["Entertainment","Originals"],["Flowers","Flowers"],["Animals","Animals"],["Cities","Cities"],["Flags","Flags"],["Smileys","Emojis"]]
+    .map(([category,label])=>'<button type="button" data-ws-quick-filter="'+category+'" aria-pressed="false">'+esc(tr(label))+'</button>').join('');
+  libraryPanel.querySelector('[data-ws-element-category]').closest('label').before(quickFilters);
+
+
   const smartControls=document.createElement('div');
   smartControls.className='cw-smart-controls';
   smartControls.innerHTML='<div class="cw-saved-view" role="group" aria-label="Collections"><button type="button" data-ws-elements-view="all" aria-pressed="true">'+tr("Explore all")+'</button><button type="button" data-ws-elements-view="favourites" aria-pressed="false">'+tr("My favourites")+'</button><button type="button" data-ws-elements-view="recent" aria-pressed="false">'+tr("Recently used")+'</button></div><label class="cw-element-category-label"><span>'+tr("Curated collection")+'</span><select data-ws-element-collection aria-label="'+esc(tr("Curated collection"))+'"></select></label>';
   libraryPanel.querySelector('[data-ws-element-count]').before(smartControls);
+  const pairingsPanel=document.createElement("section");
+  pairingsPanel.className="cw-type-pairings";
+  pairingsPanel.innerHTML='<h5>'+esc(tr("Typography combinations"))+'</h5><p>'+esc(tr("Add editable title and subtitle layers using production-supported fonts."))+'</p><div>'+((window.VeeladStudioPro?.pairings)||[]).map(pair=>'<button type="button" data-ws-type-pair="'+esc(pair.id)+'"><strong>'+esc(window.VeeladStudioPro.title(pair,currentLanguage()))+'</strong><small>'+esc(pair.heading)+'</small></button>').join("")+'</div>';
+  shell.querySelector('[data-ws-panel="text"]').append(pairingsPanel);
+  const checkpointsPanel=document.createElement('section');
+  checkpointsPanel.className='cw-checkpoints';
+  checkpointsPanel.innerHTML='<h5>'+esc(tr("Session checkpoints"))+'</h5><p>'+esc(tr("Restore an earlier design state while this editor remains open."))+'</p><button type="button" class="cw-button" data-ws-save-checkpoint>'+esc(tr("Save checkpoint"))+'</button><div data-ws-checkpoints></div>';
+  const selectionTools=document.createElement("div");selectionTools.className="cw-multi-tools";
+  selectionTools.innerHTML='<button type="button" data-ws-select-all>'+esc(tr("Select all editable"))+'</button><button type="button" data-ws-clear-selected>'+esc(tr("Clear selection"))+'</button>';
+  shell.querySelector('[data-ws-layer-list]').before(selectionTools);
   const templatesPanel=document.createElement('section');templatesPanel.className='cw-original-layouts';templatesPanel.dataset.wsOriginalLayouts='';
   shell.querySelector('[data-ws-layouts]').append(templatesPanel);
+  shell.querySelector('[data-ws-layouts]').append(checkpointsPanel);
   let elementsView='all';
 
   root.append(shell);
+  const arrangePanel=document.createElement('section');
+  arrangePanel.className='cw-pro-arrange';
+  arrangePanel.innerHTML='<h5>'+esc(tr("Arrange layers"))+'</h5><p>'+esc(tr("Align and distribute unlocked artwork. Undo any change."))+'</p>'+
+    '<div class="cw-pro-arrange-grid" role="group" aria-label="'+esc(tr("Arrange layers"))+'">'+
+    [['left','Align left'],['right','Align right'],['top','Align top'],['bottom','Align bottom'],['center-x','Centre horizontal'],['center-y','Centre vertical'],['distribute-x','Distribute horizontally'],['distribute-y','Distribute vertically']]
+    .map(([value,label])=>'<button type="button" data-ws-layout-action="'+value+'">'+esc(tr(label))+'</button>').join('')+'</div>';
+  shell.querySelector('[data-ws-panel="canvas"]').append(arrangePanel);
+
   const uploadProgress=document.createElement('progress');
   uploadProgress.className='cw-upload-progress';uploadProgress.dataset.wsProgress='';uploadProgress.max=100;uploadProgress.value=0;uploadProgress.hidden=true;
   uploadProgress.setAttribute('aria-label',tr('Upload progress'));
@@ -107,7 +133,7 @@ const libraryPanel=document.createElement("section");
   let elementLimit=48,elementBusy=false;
   let selected=null,tool="uploads",mode="edit",zoom="fit",fitScale=.5,renderSerial=0,gesture=null,fontsReady=false,fontLimit=60,
     lastHistoryGroup=null,lastHistoryTime=0,restoring=false,activeKey="",fontObserver=null,disposed=false,focused=false;
-  const history=[],future=[];
+  const history=[],future=[],checkpoints=[],multi=new Set();
   let qualityTimer=null,qualitySerial=0;
   let previewRenderAt=0;
   const logical=()=>({width:900,height:900*instance.product().preview[1]/instance.product().preview[0]}),
@@ -140,6 +166,24 @@ const libraryPanel=document.createElement("section");
     selected=null;lastHistoryGroup=null;
     instance.syncControls?.();adapter.commit({history:false});refresh();restoring=false;updateHistory();
   }
+  function renderCheckpoints(){
+    const node=checkpointsPanel.querySelector("[data-ws-checkpoints]");
+    node.innerHTML=checkpoints.length?checkpoints.map((point,index)=>'<button type="button" class="cw-checkpoint" data-ws-restore-checkpoint="'+index+'"><span>'+esc(tr("Checkpoint"))+' '+(index+1)+'</span><small>'+esc(point.time)+'</small></button>').join(''):'<p class="cw-muted">'+esc(tr("No session checkpoints yet."))+'</p>';
+  }
+  function saveCheckpoint(){
+    const date=new Date(),time=date.toLocaleTimeString(currentLanguage?.()==='ar'?'ar-SA':'en-GB',{hour:'2-digit',minute:'2-digit'});
+    checkpoints.push({time,state:snapshot()});
+    if(checkpoints.length>12)checkpoints.shift();
+    renderCheckpoints();setStatus("Checkpoint saved");
+  }
+  function restoreCheckpoint(index){
+    const point=checkpoints[index];
+    if(!point||point.state===snapshot())return;
+    restoring=true;
+    try{Object.assign(instance.state,JSON.parse(point.state));selected=null;lastHistoryGroup=null;instance.syncControls?.();adapter.commit({history:false});}
+    finally{restoring=false;}
+    record();refresh();setStatus("Checkpoint restored");
+  }
   function selectLayer(layerId,{focus=false}={}){
     selected=layers().some(layer=>layer.id===layerId)?layerId:null;
     shell.dataset.selectedLayer=selected||"";
@@ -154,7 +198,7 @@ const libraryPanel=document.createElement("section");
     shell.querySelectorAll("[data-ws-panel]").forEach(panel=>panel.hidden=panel.dataset.wsPanel!==tool);
     if(tool==="fonts")renderFonts();
     if(tool==="elements")renderElements();
-    if(tool==="layouts")renderProLayouts();
+    if(tool==="layouts"){renderProLayouts();renderCheckpoints();}
     if(tool==="layers")renderLayerList();
   }
   function setMode(value){
@@ -376,6 +420,7 @@ function renderElements(){
     if(!categorySelect.options.length)categorySelect.innerHTML='<option value="">'+esc(tr("All categories"))+'</option>'+api.categories.map(name=>'<option value="'+esc(name)+'">'+esc(api.categoryLabel(name,currentLanguage()))+'</option>').join("");
     if(pro&&!collectionSelect.options.length)collectionSelect.innerHTML='<option value="">'+esc(tr("Explore all"))+'</option>'+pro.folders.map(folder=>'<option value="'+esc(folder.id)+'">'+esc(pro.title(folder,currentLanguage()))+'</option>').join("");
     const search=shell.querySelector("[data-ws-element-search]").value.trim(),category=categorySelect.value;
+    quickFilters.querySelectorAll("[data-ws-quick-filter]").forEach(button=>button.setAttribute("aria-pressed",String(button.dataset.wsQuickFilter===category)));
     const matched=pro?pro.search(api,search,category,collectionSelect.value,elementsView):api.search(search,category);
     const visible=matched.slice(0,elementLimit),favorites=new Set(pro?.read().favourites||[]);
     shell.querySelector("[data-ws-element-count]").textContent=visible.length.toLocaleString()+" / "+matched.length.toLocaleString()+(search?"":" · "+api.catalog.length.toLocaleString()+" total");
@@ -421,20 +466,24 @@ function renderElements(){
     finally{elementBusy=false;}
   }
   async function recolourElement(layerId,channel,color){
+    const layer=layers().find(item=>item.id===layerId);
+    if(!layer?.library_element||!["primary","secondary","accent"].includes(channel))return;
+    if(!/^#[a-f0-9]{6}$/i.test(color))return;
+    return recolourPalette(layerId,{...layer.library_element.colors,[channel]:color.toLowerCase()});
+  }
+  async function recolourPalette(layerId,nextColors){
     const api=window.VeeladElements,layer=layers().find(item=>item.id===layerId);
-    if(!layer?.library_element||layer.locked||elementBusy||!["primary","secondary","accent"].includes(channel)||! /^#[a-f0-9]{6}$/i.test(color))return;
+    if(!layer?.library_element||layer.locked||elementBusy)return;
     const originalId=layer.library_element.id,originalColors=layer.library_element.colors;
-    const next={...originalColors,[channel]:color.toLowerCase()};
-    if(next[channel]===originalColors[channel])return;
+    if(!nextColors||!["primary","secondary","accent"].every(key=>/^#[a-f0-9]{6}$/i.test(nextColors[key]||"")))return;
+    const next=Object.fromEntries(["primary","secondary","accent"].map(key=>[key,nextColors[key].toLowerCase()]));
+    if(["primary","secondary","accent"].every(key=>next[key]===originalColors[key]))return;
     elementBusy=true;setStatus("Preparing element…");
     const product=instance.product().id,surface=adapter.surface();
     try{
-      const file=await api.file(originalId,next);
-      const generated=await adapter.addImages([file]);
-      const replacement=generated?.at(-1);
+      const file=await api.file(originalId,next),generated=await adapter.addImages([file]),replacement=generated?.at(-1);
       if(!replacement)return;
-      const scene=instance.state.scenes?.[product]?.[surface],list=scene?.layers||[];
-      const target=list.find(l=>l.id===layerId);
+      const scene=instance.state.scenes?.[product]?.[surface],list=scene?.layers||[],target=list.find(l=>l.id===layerId);
       if(target?.library_element?.id===originalId){
         target.upload_id=replacement.upload_id;
         target.library_element={id:originalId,colors:next};
@@ -538,6 +587,15 @@ function renderElements(){
     catch(error){setStatus(error.message||"Could not load this layer.",true);}
     finally{delete shell.dataset.uploading;shell.querySelector("[data-ws-upload]").disabled=false;shell.querySelector("[data-ws-upload]").value="";}
   }
+  function applyTypePair(pairId){
+    const pair=window.VeeladStudioPro?.pairings.find(item=>item.id===pairId);
+    if(!pair||!canAdd(2))return;
+    const direction=pairId==='arabic'?'rtl':'auto';
+    const common={type:'text',rotation:0,opacity:1,visible:true,locked:false,align:'center',direction};
+    const title={...common,id:uid(),text:pair.heading,font:pair.headingFont,color:pair.colour,size:.082,x:.5,y:.43};
+    const subtitle={...common,id:uid(),text:pair.detail,font:pair.detailFont,color:pair.colour,size:.038,x:.5,y:.62};
+    layers().push(title,subtitle);selected=title.id;commit();setStatus("Typography added");
+  }
   function addText(style="body"){
     if(!canAdd())return;
     const layer={id:uid(),type:"text",text:tr(style==="heading"?"Write something wonderful":style==="detail"?"A little more you":"Your own text"),font:typeof currentLanguage==="function"&&currentLanguage()==="ar"?"arabic":"manrope",color:"#24212b",size:style==="heading"?.13:style==="detail"?.035:.075,x:.5,y:.5,rotation:0,opacity:1,visible:true,locked:false,align:"center",direction:"auto"};
@@ -568,6 +626,23 @@ function renderElements(){
       else layer.y=clamp(1-margin-h,0,1);
     }else return;
     commit();
+  }
+  function arrangeUnlocked(command){
+    const api=window.VeeladStudioPro,eligible=layers().filter(layer=>layer.visible!==false&&!layer.locked&&(!multi.size||multi.has(layer.id)));
+    if(!api?.arrange||eligible.length<2){setStatus("Add at least two unlocked visible layers to arrange them.",true);return;}
+    const placements=api.arrange(eligible,command);
+    if(!placements.length){setStatus("Layers are too large to distribute without overlap.",true);return;}
+    let changed=false;
+    const byId=new Map(layers().map(layer=>[layer.id,layer]));
+    for(const update of placements){
+      const layer=byId.get(update.id);
+      if(!layer||layer.locked)continue;
+      if(Math.abs(layer.x-update.x)>0.000001||Math.abs(layer.y-update.y)>0.000001){
+        layer.x=update.x;layer.y=update.y;changed=true;
+      }
+    }
+    if(changed)commit();
+    else setStatus("Changes save automatically");
   }
   function copyOtherSide(confirm=false){
     const sourceId=copyControls.querySelector("[data-ws-copy-side]").dataset.source,
