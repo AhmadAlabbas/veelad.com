@@ -121,3 +121,11 @@
 .cw-checkpoints .cw-checkpoint:focus-visible{outline:3px solid #8765cb;outline-offset:2px}
 .cw-checkpoints .cw-checkpoint small{color:#77707d;font-size:10px}
 @media(max-width:700px){.cw-checkpoints [data-ws-save-checkpoint],.cw-checkpoints .cw-checkpoint{min-height:46px}}
+
+/* Shortcuts to high-intent searches: scrolling and keyboard friendly. */
+.cw-library-quick-filters{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0 12px}
+.cw-library-quick-filters button{background:#faf8fd!important;border:1px solid #e2dce9!important;padding:8px 10px!important;border-radius:999px;font-size:10.5px!important;font-weight:650;min-height:35px}
+.cw-library-quick-filters button[aria-pressed="true"]{background:#eee8fa!important;border-color:#9778c6!important;color:#4b307b}
+.cw-library-quick-filters button:hover{border-color:#ae94d7!important;background:#f1ebf9!important}
+.cw-library-quick-filters button:focus-visible{outline:3px solid #8566c2;outline-offset:2px}
+@media(max-width:700px){.cw-library-quick-filters{gap:8px}.cw-library-quick-filters button{min-height:42px;font-size:11px!important}}
