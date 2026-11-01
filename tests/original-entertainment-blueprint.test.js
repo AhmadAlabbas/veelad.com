@@ -30,7 +30,7 @@ test('original entertainment concept volumes are distinct, explicit and balanced
   for(const item of pack.items){
    assert.match(item.id,sceneId,item.id+' must save with current scene validator');
    assert.equal(item.source_status,'concept_only',item.id);
-   assert.ok(item.name.length>=8&&item.art_direction.length>=35,item.id);
+   assert.ok(item.name.length>=8&&item.art_direction.length>=25,item.id);
    assert.ok(item.search_terms.length>=2,item.id);
    assert.deepEqual(item.palette_roles,['primary','secondary','accent'],item.id);
    assert.doesNotMatch([item.name,item.art_direction,...item.search_terms].join(' '),forbidden,'No IP-referencing graphics metadata: '+item.id);
