@@ -1,0 +1,31 @@
+/* Studio Pro – compact professional catalog and touch-first starter designs. */
+.cw-smart-controls{display:grid;gap:10px;margin:10px 0 12px;min-width:0}
+.cw-saved-view{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;min-width:0}
+.cw-saved-view button{padding:9px 3px!important;border:1px solid #e1dce9!important;border-radius:8px;background:#fff;color:#565164;font-size:10px!important;line-height:1.35;min-width:0}
+.cw-saved-view button[aria-pressed="true"]{border-color:#8368d2!important;background:#f3effd;color:#38286f;font-weight:750}
+.cw-element-entry{position:relative;min-width:0}
+.cw-element-entry .cw-element-tile{width:100%;height:100%;padding-bottom:20px!important}
+.cw-favourite-button{position:absolute;top:5px;right:5px;width:28px;height:28px;border:1px solid #ddd6e6!important;border-radius:100%;font-size:20px!important;line-height:1!important;background:#fff!important;color:#6a5878!important;display:grid;place-items:center;cursor:pointer}
+.cw-favourite-button[aria-pressed="true"]{color:#b23c6d!important;border-color:#dca0b9!important;background:#fff3f8!important}
+.cw-favourite-button[aria-pressed="true"]::after{content:"";position:absolute;inset:6px;background:#b23c6d;clip-path:polygon(50% 88%,8% 47%,8% 23%,25% 12%,50% 27%,75% 12%,92% 23%,92% 47%)}
+.cw-original-layouts{padding:18px 0;border-top:1px solid #e9e5ef;margin-top:18px}
+.cw-original-layouts h5{font-size:13px;margin:0 0 5px}
+.cw-original-layout-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}
+.cw-original-layout{border:1px solid #e6e0eb!important;background:white!important;border-radius:12px;display:flex;flex-direction:column;align-items:start;padding:8px!important;gap:6px;min-width:0;text-align:start}
+.cw-original-layout:hover,.cw-original-layout:focus-visible{border-color:#856bd0!important;background:#f8f5fd!important}
+.cw-original-layout-art{height:96px;width:100%;display:grid;place-items:center;background:#f9f7fa;border-radius:8px}
+.cw-original-layout-art svg{height:80px;width:80px;max-width:100%}
+.cw-original-layout strong{font-size:11px;line-height:1.3}
+.cw-original-layout small{font-size:9px;color:#7a7383;line-height:1.5}
+.cw-studio-print-note{font-size:11px;line-height:1.6;padding:10px 12px;border-radius:9px;border:1px solid #e6d8ca;background:#fdf9f2;color:#6a5140}
+@media(max-width:700px){
+ .cw-saved-view button{min-height:42px;font-size:10px!important}
+ .cw-favourite-button{width:32px;height:32px}
+ .cw-elements-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+ .cw-element-entry .cw-element-tile{min-height:100px}
+ .cw-original-layout-art{height:84px}.cw-original-layout-art svg{height:75px;width:75px}
+ .cw-original-layout{min-height:135px}
+ .cw-inspector input[type="color"]{min-height:42px}
+}
+@media(max-width:375px){.cw-original-layout-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.cw-element-entry .cw-element-tile{min-height:91px}}
+@media(prefers-reduced-motion:reduce){.cw-element-entry *, .cw-original-layout *{transition:none!important}}
