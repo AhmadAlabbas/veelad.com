@@ -84,6 +84,12 @@ test('creators insert, recolour and persist a private vector element in the desi
   console.log('VEELAD_LIBRARY_STEP_4');
   await studio.locator('[data-ws-elements-view=all]').click();
   console.log('VEELAD_LIBRARY_STEP_5');
+  const catHit=await studio.locator('[data-ws-element=cat-0]').evaluate(node=>{
+    const fav=node.parentElement.querySelector('[data-ws-favourite]'),rect=node.getBoundingClientRect(),f=fav.getBoundingClientRect();
+    const centre={x:rect.x+rect.width/2,y:rect.y+rect.height/2};
+    return {tile:{x:rect.x,y:rect.y,w:rect.width,h:rect.height},favourite:{x:f.x,y:f.y,w:f.width,h:f.height},tileStyle:{display:getComputedStyle(node).display,minHeight:getComputedStyle(node).minHeight,position:getComputedStyle(node).position},entryStyle:{display:getComputedStyle(node.parentElement).display},centreTarget:document.elementFromPoint(centre.x,centre.y)?.outerHTML.slice(0,200)};
+  });
+  console.log('VEELAD_CAT_LAYOUT',JSON.stringify(catHit));
   await studio.locator('[data-ws-element=cat-0]').click({timeout:12000});
   const scene=async()=>JSON.parse(await form.locator('[name=design_studio]').inputValue()).scenes.shirt.front;
   await expect.poll(async()=>(await scene()).layers.filter(layer=>layer.library_element?.id==='cat-0').length).toBe(1);
