@@ -27,9 +27,7 @@ test('creators insert, recolour and persist a private vector element in the desi
   expect(botanicalPng.size).toBeGreaterThan(800);
   await page.screenshot({path:info.outputPath('botanical-atelier-gallery.png'),fullPage:true});
   await studio.locator('[data-ws-element-category]').selectOption('');
-  console.log('VEELAD_LIBRARY_STEP_0');
   await studio.locator('[data-ws-element-search]').fill('orchid');
-  console.log('VEELAD_LIBRARY_STEP_1');
   await expect(studio.locator('[data-ws-element=premium-orchid-0]')).toHaveCount(1);
   await expect(studio.locator('[data-ws-panel=elements]')).toBeVisible();
 
@@ -57,7 +55,6 @@ test('creators insert, recolour and persist a private vector element in the desi
   });
   expect(pixels.alpha).toBeGreaterThan(240);
   expect(pixels.green).toBeGreaterThan(pixels.red*1.2);
-  console.log('VEELAD_LIBRARY_STEP_2');
   await studio.locator('[data-ws-element-category]').selectOption('Flags');
   await studio.locator('[data-ws-element-search]').fill('Saudi Arabia');
   await expect(studio.locator('[data-ws-element=flag-sa-0]')).toBeVisible();
@@ -74,23 +71,14 @@ test('creators insert, recolour and persist a private vector element in the desi
   await expect(studio.locator('[data-ws-element=emoji-1f400-0]')).toContainText('rat');
   await studio.locator('[data-ws-element-search]').fill('mouse');
   await expect(studio.locator('[data-ws-element=emoji-1f400-0]')).toBeVisible();
-  console.log('VEELAD_LIBRARY_STEP_3');
   await studio.locator('[data-ws-element-category]').selectOption('Pets');
   await studio.locator('[data-ws-element-search]').fill('cat');
   await expect(studio.locator('[data-ws-element=cat-0]')).toBeVisible();
   await studio.locator('[data-ws-favourite=cat-0]').click();
   await studio.locator('[data-ws-elements-view=favourites]').click();
   await expect(studio.locator('[data-ws-element=cat-0]')).toHaveCount(1);
-  console.log('VEELAD_LIBRARY_STEP_4');
   await studio.locator('[data-ws-elements-view=all]').click();
-  console.log('VEELAD_LIBRARY_STEP_5');
-  const catHit=await studio.locator('[data-ws-element=cat-0]').evaluate(node=>{
-    const fav=node.parentElement.querySelector('[data-ws-favourite]'),rect=node.getBoundingClientRect(),f=fav.getBoundingClientRect();
-    const centre={x:rect.x+rect.width/2,y:rect.y+rect.height/2};
-    return {tile:{x:rect.x,y:rect.y,w:rect.width,h:rect.height},favourite:{x:f.x,y:f.y,w:f.width,h:f.height},tileStyle:{display:getComputedStyle(node).display,minHeight:getComputedStyle(node).minHeight,position:getComputedStyle(node).position},entryStyle:{display:getComputedStyle(node.parentElement).display},centreTarget:document.elementFromPoint(centre.x,centre.y)?.outerHTML.slice(0,200)};
-  });
-  console.log('VEELAD_CAT_LAYOUT',JSON.stringify(catHit));
-  await studio.locator('[data-ws-element=cat-0]').click({timeout:12000});
+  await studio.locator('[data-ws-element=cat-0]').click();
   const scene=async()=>JSON.parse(await form.locator('[name=design_studio]').inputValue()).scenes.shirt.front;
   await expect.poll(async()=>(await scene()).layers.filter(layer=>layer.library_element?.id==='cat-0').length).toBe(1);
   await studio.locator('[data-ws-elements-view=recent]').click();
@@ -104,7 +92,6 @@ test('creators insert, recolour and persist a private vector element in the desi
   const recoloured=(await scene()).layers.find(layer=>layer.id===original.id);
   expect(recoloured.upload_id).not.toBe(original.upload_id);
   expect(recoloured.width).toBe(original.width);
-  console.log('VEELAD_LIBRARY_STEP_6');
   await expect(form.locator('[data-customer-save-status]')).toHaveText('All changes saved',{timeout:25000});
   const url=page.url();expect(url).toContain('draft=');
   await page.reload();
@@ -116,7 +103,6 @@ test('creators insert, recolour and persist a private vector element in the desi
   await expect(studio.locator('[data-ws-element-colour=primary]')).toHaveValue('#ff2255');
   await studio.locator('[data-ws-action=safe-left]').click();
   await expect.poll(async()=>(await scene()).layers.find(layer=>layer.id===saved.id)?.x).toBeLessThan(.5);
-  console.log('VEELAD_LIBRARY_STEP_7');
   await studio.locator('[data-ws-tool=layouts]').click();
   await expect(studio.locator('[data-ws-original-layouts] .cw-original-layout')).toHaveCount(12);
   await studio.locator('[data-ws-pro-layout=floral-type]').click();
