@@ -127,7 +127,7 @@ test('clothing browse groups only real listings, filters confirmed choices and l
   await expect(page.locator('.wardrobe-type.planned').first()).toContainText('In preparation');
   await expect(page.locator('.wardrobe-type.planned a')).toHaveCount(0);
   const filters=page.locator('form[data-form=filters]');
-  await expect(filters.locator('[name=size] option')).toContainText('XL');
+  await expect(filters.locator('[name=size] option[value=XL]')).toHaveCount(1);
   await filters.locator('[name=size]').selectOption('M');
   await filters.locator('[name=color]').selectOption('white');
   await filters.locator('[type=submit]').click();
