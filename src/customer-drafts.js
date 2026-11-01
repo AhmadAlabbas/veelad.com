@@ -149,6 +149,32 @@ export async function customerDraftRoute({
     res.json({ draft: draftValue(row), product: baseValue(productOrNull(p)) });
     return;
   }
+  if(route==="customer-draft-versions"&&method==="GET"){
+    const id=String(req.query.id||""),current=await db.one(
+      "SELECT id,revision,updated_at FROM customer_design_drafts WHERE id=? AND user_id=? AND archived=0",
+      [id,u.id]
+    );
+    if(!current)fail(404,"Draft not found.");
+    const versions=await db.q(
+      "SELECT revision,created_at FROM customer_design_draft_versions WHERE draft_id=? AND user_id=? ORDER BY revision DESC LIMIT 30",
+      [id,u.id]
+    );
+    res.json({id,revision:current.revision,updated_at:current.updated_at,versions:versions.map(row=>({revision:Number(row.revision),created_at:row.created_at}))});
+    return;
+  }
+  if(route==="customer-draft-version"&&method==="GET"){
+    const id=String(req.query.id||""),revision=integer(Number(req.query.revision),1,10000000,"draft revision");
+    const current=await db.one("SELECT id FROM customer_design_drafts WHERE id=? AND user_id=? AND archived=0",[id,u.id]);
+    if(!current)fail(404,"Draft not found.");
+    const snapshot=await db.one(
+      "SELECT * FROM customer_design_draft_versions WHERE draft_id=? AND user_id=? AND revision=?",
+      [id,u.id,revision]
+    );
+    if(!snapshot)fail(404,"Draft version not found.");
+    const p=await db.one("SELECT * FROM products WHERE id=?",[snapshot.product_id]);
+    res.json({draft:{...json(snapshot.data),id,product_id:snapshot.product_id,revision:snapshot.revision,updated_at:snapshot.created_at},product:baseValue(productOrNull(p))});
+    return;
+  }
   if (route === "customer-draft" && method === "POST") {
     const id = v.id ? text(v, "id", 64) : uid("draft-");
     if (!/^draft-[a-f0-9-]{12,48}$/i.test(id))
@@ -234,6 +260,16 @@ export async function customerDraftRoute({
           [p.id, JSON.stringify(data), updated, id],
           conn,
         );
+      await db.q(
+        "INSERT INTO customer_design_draft_versions (draft_id,user_id,revision,product_id,data,created_at) VALUES (?,?,?,?,?,?)",
+        [id,u.id,revision+1,p.id,JSON.stringify(data),updated],
+        conn
+      );
+      await db.q(
+        "DELETE FROM customer_design_draft_versions WHERE draft_id=? AND revision<=?",
+        [id,revision-29],
+        conn
+      );
     });
     res.json({ id, revision: revision + 1, updated_at: updated });
     return;
