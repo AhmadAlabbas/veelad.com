@@ -633,7 +633,7 @@ function renderElements(){
   function handlePoint(event){if(gesture?.preview){const point=previewPoint(event);return point&&{x:point.x,y:point.y};}const rect=artboard.getBoundingClientRect(),d=logical();return{x:(event.clientX-rect.left)/rect.width*d.width,y:(event.clientY-rect.top)/rect.height*d.height};}
   function rotatePoint(point,angle){const c=Math.cos(angle),s=Math.sin(angle);return{x:point.x*c-point.y*s,y:point.x*s+point.y*c};}
   function beginGesture(event){
-    if(event.button!==0||mode!=="edit")return;
+    if(event.button!==0||mode!=="edit"||pinch)return;
     const handle=event.target.closest("[data-ws-handle]"),node=event.target.closest("[data-ws-layer]");
     if(!handle&&!node){selectLayer(null,{focus:true});return;}
     if(node)selectLayer(node.dataset.wsLayer,{focus:true});
@@ -918,6 +918,46 @@ shell.addEventListener("dragstart",event=>{
   root.addEventListener("customer-scene-rendered",()=>{if(mode==="preview")renderPreviewSelection();});
   artboard.addEventListener("pointerdown",beginGesture);artboard.addEventListener("pointermove",moveGesture);
   for(const name of ["pointerup","pointercancel","lostpointercapture"])artboard.addEventListener(name,finishGesture);
+  // Two-finger zoom works on touch screens without generating layer edits.
+  // A second pointer cancels the first layer gesture, preserving undo history.
+  const touchPointers=new Map();
+  let pinch=null;
+  function touchStart(event){
+    if(event.pointerType!=="touch"||mode!=="edit")return;
+    touchPointers.set(event.pointerId,{x:event.clientX,y:event.clientY});
+    if(touchPointers.size===2){
+      if(gesture)finishGesture({type:"pointercancel",pointerId:gesture.pointer});
+      const points=[...touchPointers.values()],distance=Math.hypot(points[0].x-points[1].x,points[0].y-points[1].y);
+      pinch={distance:Math.max(distance,8),factor:zoom==="fit"?1:Number(zoom)};
+      event.stopImmediatePropagation();event.preventDefault();
+    }
+  }
+  function touchMove(event){
+    if(event.pointerType!=="touch"||!touchPointers.has(event.pointerId))return;
+    touchPointers.set(event.pointerId,{x:event.clientX,y:event.clientY});
+    if(!pinch||touchPointers.size<2)return;
+    const points=[...touchPointers.values()],
+      distance=Math.hypot(points[0].x-points[1].x,points[0].y-points[1].y),
+      factor=clamp(pinch.factor*distance/pinch.distance,.5,3);
+    if(Number.isFinite(factor)){
+      zoom=String(Math.round(factor*20)/20);
+      const control=shell.querySelector("[data-ws-zoom]");
+      if(control){let option=[...control.options].find(o=>o.value===zoom);if(!option){
+        option=document.createElement("option");option.value=zoom;option.textContent=Math.round(factor*100)+"%";
+        control.append(option);
+      }control.value=zoom;}
+      resizeStage();
+    }
+    event.stopImmediatePropagation();event.preventDefault();
+  }
+  function touchEnd(event){
+    if(event.pointerType!=="touch")return;
+    touchPointers.delete(event.pointerId);
+    if(touchPointers.size<2)pinch=null;
+  }
+  for(const name of ["pointerdown"])artboard.addEventListener(name,touchStart,true);
+  artboard.addEventListener("pointermove",touchMove,true);
+  for(const name of ["pointerup","pointercancel","lostpointercapture"])artboard.addEventListener(name,touchEnd,true);
   shell.addEventListener("keydown",keyboard);
   root.addEventListener("scene-editor-change",()=>{if(!gesture){record();refresh();}});
   const resizeObserver=typeof ResizeObserver!=="undefined"?new ResizeObserver(()=>resizeStage()):null;
