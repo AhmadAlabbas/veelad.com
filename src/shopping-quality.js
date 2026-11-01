@@ -1,3 +1,4 @@
+import {assessCataloguePrelaunch,summarizeCataloguePrelaunch,pendingExternalApprovals} from './catalogue-readiness.js';
 import {fail,product,text,hash} from './security.js';
 import {validateCreativePersonalisation} from './creative-personalisation.js';
 import {renderMockup} from './mockup-renderer.js';
@@ -74,8 +75,8 @@ export async function shoppingRoute(ctx){
   res.json({days,events,timing,products,privacy:{opt_in:true,unique_visitors:false,personal_identifiers:false,retention_days:90,timezone:'UTC'},order_note:'order_received means an order was accepted, not a successful payment.'});return true;
  }
  if(route==='admin-shopping-quality'&&method==='GET'){
-  await role(req,'admin');const rows=await db.q('SELECT * FROM products ORDER BY created_at DESC LIMIT 1001');const limited=rows.length>1000,items=rows.slice(0,1000).map(row=>{const p=product(row);return{id:p.id,title:p.title,title_ar:p.title_ar||'',category:p.category,status:p.status,sample:p.sample_pricing===true,...catalogueChecklist(p)};});
-  res.json({products:items,limited,summary:{reviewed:items.length,complete:items.filter(item=>item.complete).length,published:items.filter(item=>item.status==='active').length},scope:'Content checklist only; does not certify production readiness.'});return true;
+  await role(req,'admin');const rows=await db.q('SELECT * FROM products ORDER BY created_at DESC LIMIT 1001');const limited=rows.length>1000,items=rows.slice(0,1000).map(row=>{const p=product(row);return{id:p.id,title:p.title,title_ar:p.title_ar||'',category:p.category,status:p.status,sample:p.sample_pricing===true,...catalogueChecklist(p),prelaunch:assessCataloguePrelaunch(p)};});
+  res.json({products:items,limited,summary:{reviewed:items.length,complete:items.filter(item=>item.complete).length,published:items.filter(item=>item.status==='active').length},prelaunch_summary:summarizeCataloguePrelaunch(items),external_approvals:pendingExternalApprovals,scope:'Data preflight only; this does not certify supplier, fulfillment, shipping, payment or production readiness.'});return true;
  }
  return false;
 }
