@@ -3,8 +3,15 @@
 const workspaceArabic = {
   "Editable graphics, emojis, flags and city badges. Emoji and flag symbols keep their original colours; decoration can be recoloured.":"رسومات ورموز تعبيرية وأعلام وشارات مدن. تحتفظ الإيموجي والأعلام بألوانها الأصلية ويمكن تغيير ألوان الزينة.", "Emoji and flag symbols retain their colours. Change the badge colours instead.":"تحتفظ الإيموجي والأعلام بألوانها. غيّر ألوان الإطار أو الزينة بدلاً منها.", "Original national flag and emoji colours cannot be changed.":"لا يمكن تغيير الألوان الأصلية للعلم أو الإيموجي.", "Choose a decorated style to customise this symbol.":"اختر شكلاً مزخرفاً لتغيير ألوان خلفية هذا الرمز.",
   "Place artwork within the provisional safe region. Final supplier dimensions are not yet approved.":"ضع التصميم داخل المنطقة الآمنة المبدئية. لم تُعتمد مقاسات المورد النهائية.", "Artwork approaches the provisional print boundary; check supplier-safe placement.":"التصميم قريب من حدود الطباعة المبدئية؛ تحقق من منطقة طباعة المورد.", "Some artwork is very small on the canvas; confirm its print size.":"بعض الرسوم صغيرة جدًا على اللوحة؛ راجع حجم الطباعة.", "An empty text layer will not print.":"لن تتم طباعة طبقة النص الفارغة.", "Align to safe left":"حاذِ لليسار الآمن", "Align to safe right":"حاذِ لليمين الآمن", "Align to safe top":"حاذِ للأعلى الآمن", "Align to safe bottom":"حاذِ للأسفل الآمن",
+  "Arrange layers":"رتّب الطبقات", "Align and distribute unlocked artwork. Undo any change.":"حاذِ العناصر غير المقفلة ووزعها. يمكنك التراجع عن أي تعديل.", "Align left":"محاذاة لليسار", "Align right":"محاذاة لليمين", "Align top":"محاذاة للأعلى", "Align bottom":"محاذاة للأسفل", "Distribute horizontally":"توزيع أفقي", "Distribute vertically":"توزيع عمودي", "Centre horizontal":"توسيط أفقي", "Centre vertical":"توسيط عمودي", "Add at least two unlocked visible layers to arrange them.":"أضف طبقتين ظاهرتين وغير مقفلتين على الأقل لترتيبهما.", "Layers are too large to distribute without overlap.":"العناصر كبيرة جداً للتوزيع بدون تداخل.",
+  "Colour palettes":"لوحات الألوان",
+  "Session checkpoints":"نقاط الحفظ في هذه الجلسة", "Restore an earlier design state while this editor remains open.":"استعد مرحلة سابقة من التصميم خلال فتح المحرر.", "Save checkpoint":"احفظ نقطة", "Checkpoint":"نقطة حفظ", "No session checkpoints yet.":"لا توجد نقاط محفوظة بعد.", "Checkpoint saved":"تم حفظ نقطة التصميم", "Checkpoint restored":"تمت استعادة نقطة التصميم",
+  "Quick categories":"تصنيفات سريعة", "Originals":"رسومات أصلية", "Animals":"حيوانات", "Cities":"مدن", "Flags":"أعلام", "Emojis":"رموز تعبيرية",
+  "Select all editable":"اختر جميع العناصر القابلة للتعديل", "Clear selection":"إلغاء التحديد", "Select layer for arrangement":"اختر الطبقة للمحاذاة",
+  "Typography combinations":"تنسيقات خطوط جاهزة", "Add editable title and subtitle layers using production-supported fonts.":"أضف عنوانًا وعنوانًا فرعيًا قابلين للتعديل بخطوط تدعمها الطباعة.", "Typography added":"تم إضافة تنسيق الخطوط",
   "My favourites":"المفضلة", "Recently used":"المستخدمة مؤخرًا", "Explore all":"استكشف الكل", "Curated collection":"مجموعة مختارة", "Apply design":"طبّق التصميم", "Ready-made designs":"تصاميم جاهزة", "Original editable starting points":"قوالب أصلية قابلة للتعديل", "Print positioning":"موضع الطباعة", "Print preflight":"فحص الطباعة",
   "Elements":"العناصر", "Element":"عنصر", "Search elements":"ابحث عن العناصر", "All categories":"كل التصنيفات", "More elements":"المزيد من العناصر", "Element colours":"ألوان العنصر", "Primary":"الأساسي", "Secondary":"الثانوي", "Accent":"التفاصيل", "Preparing element…":"نجهّز العنصر…", "Element updated":"تم تعديل العنصر", "Elements are original and can be recoloured.":"عناصر أصلية ويمكنك تغيير ألوانها.",
+  "Move, resize and rotate design on product":"اسحب التصميم على المنتج وحجمه ودوّره", "Select artwork on the product to drag, resize or rotate it.":"اختر الرسم على المنتج لتحريكه وتغيير حجمه أو تدويره.", "Rotate selected artwork":"تدوير الرسم المحدد", "Resize selected artwork":"تغيير حجم الرسم المحدد",
   "Creative studio":"استوديو التصميم", "Make room for your imagination.":"خلّ لخيالك مساحة.", "Design":"التصميم", "Product preview":"معاينة القطعة", "Review item":"راجع قطعتك", "Uploads":"الصور", "Text":"النصوص", "Fonts":"الخطوط", "Layers":"الطبقات", "Layouts":"القوالب", "Canvas":"لوحة التصميم", "Add images":"أضف صور", "Upload images":"ارفع صورك", "Drop your images here":"اسحب صورك هنا", "PNG or JPEG · multiple files welcome":"PNG أو JPEG · تقدر تضيف أكثر من صورة", "Your originals stay private.":"ملفاتك الأصلية تبقى خاصة فيك.", "Add text":"أضف نص", "Add a heading":"أضف عنوان", "Add a little detail":"أضف عبارة صغيرة", "Your words, your style.":"كلماتك، بأسلوبك.", "Mix languages, play with type, make it yours.":"اجمع أكثر من لغة، وجرّب الخطوط على ذوقك.", "Write something wonderful":"اكتب شيء يشبهك", "A little more you":"تفصيلة منك", "Search fonts":"ابحث عن خط", "All scripts":"كل اللغات", "All styles":"كل الأنماط", "No fonts match. Try another search.":"ما لقينا خط يطابق بحثك. جرّب كلمة ثانية.", "Choose text on the canvas to apply a font.":"اختر نص من اللوحة عشان تغيّر خطه.", "Loading fonts…":"نجهّز مكتبة الخطوط…", "Font library is unavailable. Try again shortly.":"مكتبة الخطوط غير متاحة حاليًا. جرّب بعد شوي.", "Some characters are not included in this font. Choose a font for this script.":"بعض الحروف مو موجودة في هالخط. اختر خط يدعم لغة النص.", "Front":"الأمام", "Back":"الخلف", "Wrap":"التصميم الكامل", "Independent designs on each side":"تصميم مستقل لكل جهة", "One continuous wrap":"تصميم واحد يلتف حول الكوب", "Undo":"تراجع", "Redo":"إعادة", "Zoom":"التكبير", "Fit":"ملاءمة", "Fit to screen":"ناسب حجم الشاشة", "Safe area":"المساحة الآمنة", "Snap to centre":"محاذاة للمنتصف", "Add a photo. Make a statement.":"صورة منك. وتصميم على ذوقك.", "Start with an image, a few words, or both.":"ابدأ بصورة، أو كلمات، أو اجمعهم مع بعض.", "Select a layer to fine-tune it.":"اختر طبقة عشان تعدّل تفاصيلها.", "Drag to move · corners to resize · top handle to rotate":"اسحب للتحريك · الزوايا لتغيير الحجم · المقبض العلوي للتدوير", "Drag to move. Use the corner handles to resize.":"اسحب للتحريك. واستخدم مقابض الزوايا لتغيير الحجم.", "Provisional product preview":"معاينة مبدئية للقطعة", "Your design is editable. Supplier print specifications still need confirmation.":"تصميمك قابل للتعديل. مقاسات الطباعة النهائية تحتاج تأكيد المورّد.", "Background":"الخلفية", "Transparent":"شفافة", "Colour":"اللون", "Opacity":"الشفافية", "Rotation":"الدوران", "Width (%)":"العرض (%)", "Height (%)":"الارتفاع (%)", "Horizontal (%)":"أفقي (%)", "Vertical (%)":"عمودي (%)", "Text size (%)":"حجم النص (%)", "Your text":"النص", "Font":"الخط", "Writing direction":"اتجاه الكتابة", "Automatic":"تلقائي", "Right to left":"من اليمين لليسار", "Left to right":"من اليسار لليمين", "Alignment":"المحاذاة", "Left":"يسار", "Centre":"وسط", "Right":"يمين", "Duplicate":"انسخ", "Delete":"احذف", "Move forward":"قدّم طبقة", "Move backward":"أخّر طبقة", "Centre horizontally":"وسّط أفقيًا", "Centre vertically":"وسّط عموديًا", "Flip horizontally":"اعكس أفقيًا", "Flip vertically":"اعكس عموديًا", "Show layer":"أظهر الطبقة", "Hide layer":"أخفِ الطبقة", "Unlock layer":"افتح قفل الطبقة", "Lock layer":"اقفل الطبقة", "Image":"صورة", "Text layer":"طبقة نص", "No layers yet":"لوحتك جاهزة لأفكارك", "Add images or text. Every element stays editable.":"أضف صور أو نصوص. كل عنصر يبقى قابل للتعديل.", "Selected layer":"الطبقة المختارة", "Layer is locked. Unlock it to edit.":"الطبقة مقفلة. افتح القفل عشان تعدّلها.", "Your own text":"كلماتك هنا", "Add up to 24 layers on each side.":"تقدر تضيف حتى 24 طبقة لكل جهة.", "Preparing your images…":"نجهّز صورك…", "Images added":"أضفنا الصور", "Could not load this layer.":"ما قدرنا نحمّل هالطبقة.", "Preparing accurate text…":"نجهّز النص بدقّة…", "Close panel":"أغلق الأدوات", "Open panel":"افتح الأدوات", "Keyboard: arrows to move, Shift for larger steps, Delete to remove.":"بالكيبورد: الأسهم للتحريك، وShift لخطوة أكبر، وDelete للحذف.", "This side is empty":"هالجهة فاضية", "Layer":"طبقة", "Ready to create":"جاهز لأفكارك", "Image quality is checked again before printing.":"جودة الصور تنفحص مرة ثانية قبل الطباعة.", "Print safe area":"حدود الطباعة الآمنة", "Shown above the layer below it":"تظهر فوق الطبقة اللي تحتها", "Your image":"صورتك", "Keep proportions":"حافظ على النسبة", "Edit on a flat canvas, then preview your item.":"عدّل على لوحة مسطّحة، وبعدها شوف التصميم على قطعتك.", "Choose a layout":"اختر قالب", "No layouts available":"القوالب غير متاحة حاليًا", "Sample text":"نص تجريبي", "Layers on this side":"طبقات هالجهة", "Changes save automatically":"تعديلاتك تنحفظ تلقائيًا", "Move and resize artwork":"حرّك التصميم وغيّر حجمه", "Printing area":"مساحة الطباعة", "Load more fonts":"اعرض خطوط أكثر", "Font style":"نمط الخط", "sans":"بسيط", "serif":"كلاسيكي", "display":"عناوين", "handwriting":"يدوي", "mono":"متساوي العرض", "arabic":"عربي", "Image uploads are private and stay linked to this design.":"صورك خاصة وتبقى مرتبطة بهالتصميم.", "Choose a font":"اختر خط", "Uploading":"جارٍ الرفع", "Template applied":"أضفنا القالب", "Preview":"معاينة", "No artwork on this side yet.":"ما فيه تصميم على هالجهة للحين."
 };
 function workspaceT(value) {
@@ -58,15 +65,42 @@ const libraryPanel=document.createElement("section");
   libraryPanel.id="cw-panel-elements";libraryPanel.dataset.wsPanel="elements";libraryPanel.hidden=true;
   libraryPanel.innerHTML=`<p class="cw-panel-intro">${tr("Editable graphics, emojis, flags and city badges. Emoji and flag symbols keep their original colours; decoration can be recoloured.")}</p><label class="cw-font-search">${workspaceIcon("search")}<input type="search" data-ws-element-search placeholder="${esc(tr("Search elements"))}" aria-label="${esc(tr("Search elements"))}"></label><label class="cw-element-category-label"><span>${tr("All categories")}</span><select data-ws-element-category aria-label="${esc(tr("All categories"))}"></select></label><p class="cw-element-count" data-ws-element-count></p><div class="cw-elements-grid" data-ws-element-list></div><button type="button" class="cw-button cw-element-more" data-ws-element-more hidden>${tr("More elements")}</button>`;
   shell.querySelector('[data-ws-panel="text"]').before(libraryPanel);
+  const quickFilters=document.createElement("div");quickFilters.className="cw-library-quick-filters";
+  quickFilters.setAttribute("role","group");quickFilters.setAttribute("aria-label",tr("Quick categories"));
+  quickFilters.innerHTML=[["Entertainment","Originals"],["Flowers","Flowers"],["Animals","Animals"],["Cities","Cities"],["Flags","Flags"],["Smileys","Emojis"]]
+    .map(([category,label])=>'<button type="button" data-ws-quick-filter="'+category+'" aria-pressed="false">'+esc(tr(label))+'</button>').join('');
+  libraryPanel.querySelector('[data-ws-element-category]').closest('label').before(quickFilters);
+
   const smartControls=document.createElement('div');
   smartControls.className='cw-smart-controls';
   smartControls.innerHTML='<div class="cw-saved-view" role="group" aria-label="Collections"><button type="button" data-ws-elements-view="all" aria-pressed="true">'+tr("Explore all")+'</button><button type="button" data-ws-elements-view="favourites" aria-pressed="false">'+tr("My favourites")+'</button><button type="button" data-ws-elements-view="recent" aria-pressed="false">'+tr("Recently used")+'</button></div><label class="cw-element-category-label"><span>'+tr("Curated collection")+'</span><select data-ws-element-collection aria-label="'+esc(tr("Curated collection"))+'"></select></label>';
   libraryPanel.querySelector('[data-ws-element-count]').before(smartControls);
+  const pairingsPanel=document.createElement("section");
+  pairingsPanel.className="cw-type-pairings";
+  pairingsPanel.innerHTML='<h5>'+esc(tr("Typography combinations"))+'</h5><p>'+esc(tr("Add editable title and subtitle layers using production-supported fonts."))+'</p><div>'+((window.VeeladStudioPro?.pairings)||[]).map(pair=>'<button type="button" data-ws-type-pair="'+esc(pair.id)+'"><strong>'+esc(window.VeeladStudioPro.title(pair,currentLanguage()))+'</strong><small>'+esc(pair.heading)+'</small></button>').join("")+'</div>';
+  shell.querySelector('[data-ws-panel="text"]').append(pairingsPanel);
+  const checkpointsPanel=document.createElement('section');
+  checkpointsPanel.className='cw-checkpoints';
+  checkpointsPanel.innerHTML='<h5>'+esc(tr("Session checkpoints"))+'</h5><p>'+esc(tr("Restore an earlier design state while this editor remains open."))+'</p><button type="button" class="cw-button" data-ws-save-checkpoint>'+esc(tr("Save checkpoint"))+'</button><div data-ws-checkpoints></div>';
+  const selectionTools=document.createElement("div");selectionTools.className="cw-multi-tools";
+  selectionTools.innerHTML='<button type="button" data-ws-select-all>'+esc(tr("Select all editable"))+'</button><button type="button" data-ws-clear-selected>'+esc(tr("Clear selection"))+'</button>';
+  shell.querySelector('[data-ws-layer-list]').before(selectionTools);
   const templatesPanel=document.createElement('section');templatesPanel.className='cw-original-layouts';templatesPanel.dataset.wsOriginalLayouts='';
   shell.querySelector('[data-ws-layouts]').append(templatesPanel);
+  shell.querySelector('[data-ws-layouts]').append(checkpointsPanel);
   let elementsView='all';
 
   root.append(shell);
+  // Non-destructive, multi-layer layout tools. All coordinates stay in the
+  // existing scene format and are committed through the normal undo/autosave.
+  const arrangePanel=document.createElement('section');
+  arrangePanel.className='cw-pro-arrange';
+  arrangePanel.innerHTML='<h5>'+esc(tr("Arrange layers"))+'</h5><p>'+esc(tr("Align and distribute unlocked artwork. Undo any change."))+'</p>'+
+    '<div class="cw-pro-arrange-grid" role="group" aria-label="'+esc(tr("Arrange layers"))+'">'+
+    [['left','Align left'],['right','Align right'],['top','Align top'],['bottom','Align bottom'],['center-x','Centre horizontal'],['center-y','Centre vertical'],['distribute-x','Distribute horizontally'],['distribute-y','Distribute vertically']]
+    .map(([value,label])=>'<button type="button" data-ws-layout-action="'+value+'">'+esc(tr(label))+'</button>').join('')+'</div>';
+  shell.querySelector('[data-ws-panel="canvas"]').append(arrangePanel);
+
   const uploadProgress=document.createElement('progress');
   uploadProgress.className='cw-upload-progress';uploadProgress.dataset.wsProgress='';uploadProgress.max=100;uploadProgress.value=0;uploadProgress.hidden=true;
   uploadProgress.setAttribute('aria-label',tr('Upload progress'));
@@ -82,6 +116,25 @@ const libraryPanel=document.createElement("section");
   shell.querySelector(".cw-stage-toolbar").insertBefore(copyControls,shell.querySelector(".cw-zoom-control"));
   const originalVisual=root.querySelector(".studio-workspace > .studio-visual");
   if (originalVisual) shell.querySelector("[data-ws-preview-pane]").append(originalVisual);
+  // The interactive preview covers the actual 1000x1000 projected garment
+  // canvas. No duplicate artwork is drawn: manipulations change the same
+  // private scene used for production and the ordinary flat editor.
+  const previewCanvas=shell.querySelector("[data-ws-preview-pane] .studio-canvas"),
+    previewFrame=previewCanvas?.closest(".design-mockup");
+  const previewOverlay=document.createElement("div");
+  previewOverlay.className="cw-preview-overlay";
+  previewOverlay.dataset.wsPreviewOverlay="";
+  previewOverlay.tabIndex=0;
+  previewOverlay.setAttribute("role","application");
+  previewOverlay.setAttribute("aria-label",tr("Move, resize and rotate design on product"));
+  previewOverlay.innerHTML='<svg class="cw-preview-outline" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true"><polygon points="" /></svg>'+
+    ["nw","ne","se","sw","rotate"].map(handle=>'<button type="button" data-ws-preview-handle="'+handle+'" aria-label="'+esc(tr(handle==="rotate"?"Rotate selected artwork":"Resize selected artwork"))+'" hidden></button>').join("");
+  previewFrame?.append(previewOverlay);
+  const previewHelp=document.createElement("p");
+  previewHelp.className="cw-preview-edit-hint";
+  previewHelp.textContent=tr("Select artwork on the product to drag, resize or rotate it.");
+  previewFrame?.querySelector("figcaption")?.before(previewHelp);
+
   const starters=form.querySelector(".customer-starters");
   if (starters) { starters.open=true; shell.querySelector("[data-ws-layouts]").append(starters); }
   // The first-party editable starters must remain available even if legacy layouts are absent.
@@ -91,8 +144,9 @@ const libraryPanel=document.createElement("section");
   let elementLimit=48,elementBusy=false;
   let selected=null,tool="uploads",mode="edit",zoom="fit",fitScale=.5,renderSerial=0,gesture=null,fontsReady=false,fontLimit=60,
     lastHistoryGroup=null,lastHistoryTime=0,restoring=false,activeKey="",fontObserver=null,disposed=false,focused=false;
-  const history=[],future=[];
+  const history=[],future=[],checkpoints=[],multi=new Set();
   let qualityTimer=null,qualitySerial=0;
+  let previewRenderAt=0;
   const logical=()=>({width:900,height:900*instance.product().preview[1]/instance.product().preview[0]}),
     layers=()=>adapter.layers(), current=()=>layers().find(layer=>layer.id===selected),
     snapshot=()=>JSON.stringify({creative_personalisation:instance.state.creative_personalisation||null,scenes:instance.state.scenes,scene_version:instance.state.scene_version,active_product:instance.state.active_product,placements:instance.state.placements});
@@ -123,11 +177,30 @@ const libraryPanel=document.createElement("section");
     selected=null;lastHistoryGroup=null;
     instance.syncControls?.();adapter.commit({history:false});refresh();restoring=false;updateHistory();
   }
+  function renderCheckpoints(){
+    const node=checkpointsPanel.querySelector("[data-ws-checkpoints]");
+    node.innerHTML=checkpoints.length?checkpoints.map((point,index)=>'<button type="button" class="cw-checkpoint" data-ws-restore-checkpoint="'+index+'"><span>'+esc(tr("Checkpoint"))+' '+(index+1)+'</span><small>'+esc(point.time)+'</small></button>').join(''):'<p class="cw-muted">'+esc(tr("No session checkpoints yet."))+'</p>';
+  }
+  function saveCheckpoint(){
+    const date=new Date(),time=date.toLocaleTimeString(currentLanguage?.()==='ar'?'ar-SA':'en-GB',{hour:'2-digit',minute:'2-digit'});
+    checkpoints.push({time,state:snapshot()});
+    if(checkpoints.length>12)checkpoints.shift();
+    renderCheckpoints();setStatus("Checkpoint saved");
+  }
+  function restoreCheckpoint(index){
+    const point=checkpoints[index];
+    if(!point||point.state===snapshot())return;
+    restoring=true;
+    try{Object.assign(instance.state,JSON.parse(point.state));selected=null;lastHistoryGroup=null;instance.syncControls?.();adapter.commit({history:false});}
+    finally{restoring=false;}
+    record();refresh();setStatus("Checkpoint restored");
+  }
   function selectLayer(layerId,{focus=false}={}){
     selected=layers().some(layer=>layer.id===layerId)?layerId:null;
     shell.dataset.selectedLayer=selected||"";
     renderSelection();renderLayerList();renderInspector();
-    if(focus)artboard.focus({preventScroll:true});
+    renderPreviewSelection();
+    if(focus)(mode==="preview"?previewOverlay:artboard).focus({preventScroll:true});
   }
   function switchTool(value){
     tool=value;shell.dataset.tool=tool;shell.dataset.panelOpen="true";
@@ -137,6 +210,7 @@ const libraryPanel=document.createElement("section");
     if(tool==="fonts")renderFonts();
     if(tool==="elements")renderElements();
     if(tool==="layouts")renderProLayouts();
+    if(tool==="layouts")renderCheckpoints();
     if(tool==="layers")renderLayerList();
   }
   function setMode(value){
@@ -144,7 +218,7 @@ const libraryPanel=document.createElement("section");
     shell.querySelector("[data-ws-design-pane]").hidden=mode!=="edit";
     shell.querySelector("[data-ws-preview-pane]").hidden=mode!=="preview";
     shell.querySelectorAll("[data-ws-mode]").forEach(button=>button.setAttribute("aria-pressed",String(button.dataset.wsMode===mode)));
-    if(mode==="preview"){adapter.commit({history:false});instance.render?.();}else resizeStage();
+    if(mode==="preview"){adapter.commit({history:false});instance.render?.();requestAnimationFrame(renderPreviewSelection);}else resizeStage();
   }
   function setFocus(value){
     focused=value;shell.classList.toggle("cw-focus-mode",focused);document.body.classList.toggle("has-studio-focus",focused);
@@ -175,6 +249,90 @@ const libraryPanel=document.createElement("section");
     node.style.left=layer.x*100+"%";node.style.top=layer.y*100+"%";
     node.style.width=bounds.width/d.width*100+"%";node.style.height=bounds.height/d.height*100+"%";
     node.style.transform=`translate(-50%,-50%) rotate(${layer.rotation||0}deg)`;
+  }
+
+  // Project the flat scene's selected corners through the exact garment UV
+  // mesh. The outline/handles are a UI overlay, not part of the print design.
+  function renderPreviewSelection(){
+    if(!previewCanvas||!previewFrame||!previewOverlay)return;
+    const visible=mode==="preview"&&!!instance.asset?.projection;
+    previewOverlay.hidden=!visible;
+    if(!visible)return;
+    const canvasRect=previewCanvas.getBoundingClientRect(),frameRect=previewFrame.getBoundingClientRect();
+    if(!canvasRect.width||!canvasRect.height)return;
+    previewOverlay.style.left=(canvasRect.left-frameRect.left)+"px";
+    previewOverlay.style.top=(canvasRect.top-frameRect.top)+"px";
+    previewOverlay.style.width=canvasRect.width+"px";
+    previewOverlay.style.height=canvasRect.height+"px";
+    const layer=current(),geom=window.VeeladPreviewGeometry,d=logical();
+    const polygon=previewOverlay.querySelector("polygon");
+    const handles=[...previewOverlay.querySelectorAll("[data-ws-preview-handle]")];
+    if(!layer||layer.visible===false||!geom){polygon.setAttribute("points","");handles.forEach(button=>button.hidden=true);return;}
+    const bounds=dimensions(layer);
+    const quad=geom.corners(layer,bounds.width/d.width,bounds.height/d.height,instance.asset.projection,d.height/d.width);
+    if(quad.length!==4){polygon.setAttribute("points","");handles.forEach(button=>button.hidden=true);return;}
+    polygon.setAttribute("points",quad.map(p=>[p.x*1000,p.y*1000].join(",")).join(" "));
+    handles.forEach((button,index)=>{
+      if(layer.locked){button.hidden=true;return;}
+      let p=quad[index];
+      if(index===4){
+        const middle={x:(quad[0].x+quad[1].x)/2,y:(quad[0].y+quad[1].y)/2},
+          center={x:quad.reduce((sum,v)=>sum+v.x,0)/4,y:quad.reduce((sum,v)=>sum+v.y,0)/4};
+        const vector={x:(middle.x-center.x)*canvasRect.width,y:(middle.y-center.y)*canvasRect.height};
+        const length=Math.hypot(vector.x,vector.y)||1;
+        p={x:middle.x+vector.x/length*28/canvasRect.width,y:middle.y+vector.y/length*28/canvasRect.height};
+      }
+      button.style.left=p.x*100+"%";
+      button.style.top=p.y*100+"%";
+      button.hidden=false;
+    });
+  }
+  function previewPoint(event){
+    if(!previewCanvas||!instance.asset?.projection||!window.VeeladPreviewGeometry)return null;
+    const rect=previewCanvas.getBoundingClientRect();
+    if(!rect.width||!rect.height)return null;
+    const uv=window.VeeladPreviewGeometry.toUV((event.clientX-rect.left)/rect.width,(event.clientY-rect.top)/rect.height,instance.asset.projection);
+    if(!uv)return null;
+    const d=logical();
+    return {x:uv.x*d.width,y:uv.y*d.height,uv};
+  }
+  function schedulePreviewRender(){
+    const now=Date.now();
+    if(now-previewRenderAt<110)return;
+    previewRenderAt=now;
+    void instance.render?.();
+  }
+  function beginPreviewGesture(event){
+    if(event.button!==0||mode!=="preview"||!instance.asset?.projection)return;
+    const geom=window.VeeladPreviewGeometry,point=previewPoint(event);
+    if(!point||!geom)return;
+    const handle=event.target.closest("[data-ws-preview-handle]");
+    if(!handle){
+      const d=logical();
+      const matching=[...layers()].reverse().find(layer=>{
+        if(layer.visible===false||(layer.opacity??1)<=0)return false;
+        const size=dimensions(layer);
+        return geom.hit(layer,point.uv,size.width/d.width,size.height/d.height,d.height/d.width);
+      });
+      selectLayer(matching?.id||null);
+    }
+    const layer=current();
+    if(!layer||layer.locked||layer.visible===false)return;
+    const kind=handle?.dataset.wsPreviewHandle||"move",d=logical(),bounds=dimensions(layer),original=cloneState(layer);
+    gesture={preview:true,id:layer.id,kind,point:{x:point.x,y:point.y},original,bounds,before:snapshot(),pointer:event.pointerId};
+    if(kind!=="move"&&kind!=="rotate"){
+      const sx=kind.includes("e")?1:-1,sy=kind.includes("s")?1:-1,angle=layer.rotation*Math.PI/180,
+        opposite=rotatePoint({x:-sx*bounds.width/2,y:-sy*bounds.height/2},angle);
+      gesture.anchor={x:layer.x*d.width+opposite.x,y:layer.y*d.height+opposite.y};
+      gesture.sx=sx;gesture.sy=sy;
+    }
+    previewOverlay.setPointerCapture(event.pointerId);
+    previewOverlay.focus({preventScroll:true});
+    event.preventDefault();
+  }
+  function movePreviewGesture(event){
+    if(!gesture?.preview||gesture.pointer!==event.pointerId)return;
+    moveGesture(event);
   }
   function paint(){
     const ids=new Set(layers().map(layer=>layer.id));
@@ -264,6 +422,7 @@ function renderElements(){
     if(!categorySelect.options.length)categorySelect.innerHTML='<option value="">'+esc(tr("All categories"))+'</option>'+api.categories.map(name=>'<option value="'+esc(name)+'">'+esc(api.categoryLabel(name,currentLanguage()))+'</option>').join("");
     if(pro&&!collectionSelect.options.length)collectionSelect.innerHTML='<option value="">'+esc(tr("Explore all"))+'</option>'+pro.folders.map(folder=>'<option value="'+esc(folder.id)+'">'+esc(pro.title(folder,currentLanguage()))+'</option>').join("");
     const search=shell.querySelector("[data-ws-element-search]").value.trim(),category=categorySelect.value;
+    quickFilters.querySelectorAll("[data-ws-quick-filter]").forEach(button=>button.setAttribute("aria-pressed",String(button.dataset.wsQuickFilter===category)));
     const matched=pro?pro.search(api,search,category,collectionSelect.value,elementsView):api.search(search,category);
     const visible=matched.slice(0,elementLimit),favorites=new Set(pro?.read().favourites||[]);
     shell.querySelector("[data-ws-element-count]").textContent=visible.length.toLocaleString()+" / "+matched.length.toLocaleString()+(search?"":" · "+api.catalog.length.toLocaleString()+" total");
@@ -309,20 +468,24 @@ function renderElements(){
     finally{elementBusy=false;}
   }
   async function recolourElement(layerId,channel,color){
+    const layer=layers().find(item=>item.id===layerId);
+    if(!layer?.library_element||!["primary","secondary","accent"].includes(channel))return;
+    if(!/^#[a-f0-9]{6}$/i.test(color))return;
+    return recolourPalette(layerId,{...layer.library_element.colors,[channel]:color.toLowerCase()});
+  }
+  async function recolourPalette(layerId,nextColors){
     const api=window.VeeladElements,layer=layers().find(item=>item.id===layerId);
-    if(!layer?.library_element||layer.locked||elementBusy||!["primary","secondary","accent"].includes(channel)||! /^#[a-f0-9]{6}$/i.test(color))return;
+    if(!layer?.library_element||layer.locked||elementBusy)return;
     const originalId=layer.library_element.id,originalColors=layer.library_element.colors;
-    const next={...originalColors,[channel]:color.toLowerCase()};
-    if(next[channel]===originalColors[channel])return;
+    if(!nextColors||!["primary","secondary","accent"].every(key=>/^#[a-f0-9]{6}$/i.test(nextColors[key]||"")))return;
+    const next=Object.fromEntries(["primary","secondary","accent"].map(key=>[key,nextColors[key].toLowerCase()]));
+    if(["primary","secondary","accent"].every(key=>next[key]===originalColors[key]))return;
     elementBusy=true;setStatus("Preparing element…");
     const product=instance.product().id,surface=adapter.surface();
     try{
-      const file=await api.file(originalId,next);
-      const generated=await adapter.addImages([file]);
-      const replacement=generated?.at(-1);
+      const file=await api.file(originalId,next),generated=await adapter.addImages([file]),replacement=generated?.at(-1);
       if(!replacement)return;
-      const scene=instance.state.scenes?.[product]?.[surface],list=scene?.layers||[];
-      const target=list.find(l=>l.id===layerId);
+      const scene=instance.state.scenes?.[product]?.[surface],list=scene?.layers||[],target=list.find(l=>l.id===layerId);
       if(target?.library_element?.id===originalId){
         target.upload_id=replacement.upload_id;
         target.library_element={id:originalId,colors:next};
@@ -338,7 +501,7 @@ function renderElements(){
     const node=shell.querySelector("[data-ws-layer-list]"),list=layers();
     node.innerHTML=list.length?[...list].reverse().map((layer,index)=>{
       const asset=layerAssets.get(layer.id),label=layer.type==="text"?(layer.text||tr("Text layer")):layer.library_element?(window.VeeladElements?.label(layer.library_element.id,currentLanguage())||tr("Element")):tr("Image")+" "+(list.length-index);
-      return `<article class="cw-layer-row" data-selected="${layer.id===selected}"><button type="button" class="cw-layer-pick" data-ws-select="${esc(layer.id)}" aria-pressed="${layer.id===selected}"><span class="cw-layer-thumb">${asset?.image?`<img src="${esc(asset.image.src)}" alt="">`:workspaceIcon(layer.type==="text"?"text":"image")}</span><span dir="auto">${esc(label.slice(0,45))}</span></button><button type="button" class="cw-layer-toggle" data-ws-toggle-visible="${esc(layer.id)}" aria-label="${esc(tr(layer.visible===false?"Show layer":"Hide layer"))}" title="${esc(tr(layer.visible===false?"Show layer":"Hide layer"))}">${workspaceIcon(layer.visible===false?"hidden":"eye")}</button><button type="button" class="cw-layer-toggle" data-ws-toggle-lock="${esc(layer.id)}" aria-label="${esc(tr(layer.locked?"Unlock layer":"Lock layer"))}" title="${esc(tr(layer.locked?"Unlock layer":"Lock layer"))}">${workspaceIcon(layer.locked?"lock":"unlock")}</button></article>`;
+      return `<article class="cw-layer-row" data-selected="${layer.id===selected}" data-multi="${multi.has(layer.id)}"><label class="cw-layer-multi"><input type="checkbox" data-ws-multiselect="${esc(layer.id)}" aria-label="${esc(tr("Select layer for arrangement"))}: ${esc(label.slice(0,45))}" ${multi.has(layer.id)?"checked":""} ${layer.locked||layer.visible===false?"disabled":""}></label><button type="button" class="cw-layer-pick" data-ws-select="${esc(layer.id)}" aria-pressed="${layer.id===selected}"><span class="cw-layer-thumb">${asset?.image?`<img src="${esc(asset.image.src)}" alt="">`:workspaceIcon(layer.type==="text"?"text":"image")}</span><span dir="auto">${esc(label.slice(0,45))}</span></button><button type="button" class="cw-layer-toggle" data-ws-toggle-visible="${esc(layer.id)}" aria-label="${esc(tr(layer.visible===false?"Show layer":"Hide layer"))}" title="${esc(tr(layer.visible===false?"Show layer":"Hide layer"))}">${workspaceIcon(layer.visible===false?"hidden":"eye")}</button><button type="button" class="cw-layer-toggle" data-ws-toggle-lock="${esc(layer.id)}" aria-label="${esc(tr(layer.locked?"Unlock layer":"Lock layer"))}" title="${esc(tr(layer.locked?"Unlock layer":"Lock layer"))}">${workspaceIcon(layer.locked?"lock":"unlock")}</button></article>`;
     }).join(""):`<div class="cw-empty-panel">${workspaceIcon("layers")}<strong>${tr("No layers yet")}</strong><p>${tr("Add images or text. Every element stays editable.")}</p></div>`;
   }
   function renderUploads(){
@@ -360,7 +523,7 @@ function renderElements(){
     if(inspector.contains(focus)&&focus.matches("input,textarea,select"))return;
     if(!layer){inspector.hidden=true;inspector.innerHTML="";return;}
     inspector.hidden=false;
-    inspector.innerHTML=`<div class="cw-inspector-heading"><h4>${tr("Selected layer")}</h4><span>${tr(layer.type==="text"?"Text":"Image")}</span></div>${layer.locked?`<p class="cw-lock-notice">${workspaceIcon("lock")}${tr("Layer is locked. Unlock it to edit.")}</p>`:""}<fieldset ${layer.locked?"disabled":""}><div class="cw-selection-actions">${action("duplicate","Duplicate","duplicate")}${action("delete","Delete","delete")}${action("forward","Move forward","up")}${action("backward","Move backward","down")}</div>${layer.library_element?`<div class="cw-element-inspector"><h5>${tr("Element colours")}</h5><div class="cw-element-inspector-preview" data-ws-element-preview>${window.VeeladElements?.svg(layer.library_element.id,layer.library_element.colors)||""}</div>${["emoji","flag"].includes(window.VeeladElements?.find(layer.library_element.id)?.kind)?`<p class="cw-element-immutable-note">${tr(window.VeeladElements.find(layer.library_element.id).variant===0?"Original national flag and emoji colours cannot be changed.":"Emoji and flag symbols retain their colours. Change the badge colours instead.")}</p>`:""}${(["emoji","flag"].includes(window.VeeladElements?.find(layer.library_element.id)?.kind)?({0:[],1:["secondary"],2:["secondary"],3:["secondary","accent"],4:["secondary"],5:["accent"],6:["secondary"],7:["secondary","accent"]}[window.VeeladElements.find(layer.library_element.id).variant]||[]):["primary","secondary","accent"]).map(key=>`<label class="cw-element-colour"><span>${tr(key==="primary"?"Primary":key==="secondary"?"Secondary":"Accent")}</span><input type="color" data-ws-element-colour="${key}" value="${esc(layer.library_element.colors[key])}" aria-label="${esc(tr(key==="primary"?"Primary":key==="secondary"?"Secondary":"Accent"))}"></label>`).join("")}</div>`:""}${layer.type==="text"?`<label class="cw-property"><span>${tr("Your text")}</span><textarea data-ws-prop="text" maxlength="500" rows="3" dir="auto">${esc(layer.text||"")}</textarea><small><span data-ws-character-count>${layer.text?.length||0}</span>/500</small></label><button type="button" class="cw-selected-font" data-ws-open-fonts><span>${tr("Font")}</span><strong>${esc(window.VeeladFonts?.get(layer.font)?.label||layer.font)}</strong>${workspaceIcon("fonts")}</button><p class="cw-glyph-warning" data-ws-glyph-warning hidden></p><div class="cw-property-grid">${prop("Colour","color",layer.color,{type:"color"})}${prop("Text size (%)","size",Math.round(layer.size*1000)/10,{min:.5,max:50,step:.1})}</div><label class="cw-property"><span>${tr("Alignment")}</span><select data-ws-prop="align">${["left","center","right"].map(align=>`<option value="${align}" ${layer.align===align?"selected":""}>${tr(align==="center"?"Centre":align==="left"?"Left":"Right")}</option>`).join("")}</select></label><label class="cw-property"><span>${tr("Writing direction")}</span><select data-ws-prop="direction">${[["auto","Automatic"],["rtl","Right to left"],["ltr","Left to right"]].map(([key,label])=>`<option value="${key}" ${layer.direction===key?"selected":""}>${tr(label)}</option>`).join("")}</select></label>`:`<div class="cw-property-grid">${prop("Width (%)","width",Math.round(layer.width*1000)/10,{min:1,max:300,step:.1})}${prop("Height (%)","height",Math.round(layer.height*1000)/10,{min:1,max:300,step:.1})}</div><label class="cw-check"><input type="checkbox" data-ws-proportions checked>${tr("Keep proportions")}</label>`}<div class="cw-property-grid">${prop("Horizontal (%)","x",Math.round(layer.x*1000)/10,{step:.1})}${prop("Vertical (%)","y",Math.round(layer.y*1000)/10,{step:.1})}${prop("Rotation","rotation",Math.round(layer.rotation||0),{min:-180,max:180})}${prop("Opacity","opacity",Math.round((layer.opacity??1)*100))}</div><div class="cw-centre-actions"><button type="button" data-ws-action="centre-x">${workspaceIcon("centre")}${tr("Centre horizontally")}</button><button type="button" data-ws-action="centre-y">${workspaceIcon("centre")}${tr("Centre vertically")}</button><button type="button" data-ws-action="safe-left">${workspaceIcon("centre")}${tr("Align to safe left")}</button><button type="button" data-ws-action="safe-right">${workspaceIcon("centre")}${tr("Align to safe right")}</button><button type="button" data-ws-action="safe-top">${workspaceIcon("centre")}${tr("Align to safe top")}</button><button type="button" data-ws-action="safe-bottom">${workspaceIcon("centre")}${tr("Align to safe bottom")}</button></div><p class="cw-studio-print-note">${tr("Place artwork within the provisional safe region. Final supplier dimensions are not yet approved.")}</p></fieldset>`;
+    inspector.innerHTML=`<div class="cw-inspector-heading"><h4>${tr("Selected layer")}</h4><span>${tr(layer.type==="text"?"Text":"Image")}</span></div>${layer.locked?`<p class="cw-lock-notice">${workspaceIcon("lock")}${tr("Layer is locked. Unlock it to edit.")}</p>`:""}<fieldset ${layer.locked?"disabled":""}><div class="cw-selection-actions">${action("duplicate","Duplicate","duplicate")}${action("delete","Delete","delete")}${action("forward","Move forward","up")}${action("backward","Move backward","down")}</div>${layer.library_element?`<div class="cw-element-inspector"><h5>${tr("Element colours")}</h5><div class="cw-element-inspector-preview" data-ws-element-preview>${window.VeeladElements?.svg(layer.library_element.id,layer.library_element.colors)||""}</div>${!["emoji","flag"].includes(window.VeeladElements?.find(layer.library_element.id)?.kind)?`<div class="cw-palette-presets" role="group" aria-label="${esc(tr("Colour palettes"))}">${(window.VeeladStudioPro?.palettes||[]).map(palette=>{const original=window.VeeladElements.defaults(layer.library_element.id),colors=palette.colors||[original.primary,original.secondary,original.accent];return `<button type="button" data-ws-palette="${esc(palette.id)}" title="${esc(window.VeeladStudioPro.title(palette,currentLanguage()))}" aria-label="${esc(window.VeeladStudioPro.title(palette,currentLanguage()))}"><span class="cw-palette-chips">${colors.map(hex=>`<i style="background:${hex}"></i>`).join("")}</span><small>${esc(window.VeeladStudioPro.title(palette,currentLanguage()))}</small></button>`;}).join("")}</div>`:""}${["emoji","flag"].includes(window.VeeladElements?.find(layer.library_element.id)?.kind)?`<p class="cw-element-immutable-note">${tr(window.VeeladElements.find(layer.library_element.id).variant===0?"Original national flag and emoji colours cannot be changed.":"Emoji and flag symbols retain their colours. Change the badge colours instead.")}</p>`:""}${(["emoji","flag"].includes(window.VeeladElements?.find(layer.library_element.id)?.kind)?({0:[],1:["secondary"],2:["secondary"],3:["secondary","accent"],4:["secondary"],5:["accent"],6:["secondary"],7:["secondary","accent"]}[window.VeeladElements.find(layer.library_element.id).variant]||[]):["primary","secondary","accent"]).map(key=>`<label class="cw-element-colour"><span>${tr(key==="primary"?"Primary":key==="secondary"?"Secondary":"Accent")}</span><input type="color" data-ws-element-colour="${key}" value="${esc(layer.library_element.colors[key])}" aria-label="${esc(tr(key==="primary"?"Primary":key==="secondary"?"Secondary":"Accent"))}"></label>`).join("")}</div>`:""}${layer.type==="text"?`<label class="cw-property"><span>${tr("Your text")}</span><textarea data-ws-prop="text" maxlength="500" rows="3" dir="auto">${esc(layer.text||"")}</textarea><small><span data-ws-character-count>${layer.text?.length||0}</span>/500</small></label><button type="button" class="cw-selected-font" data-ws-open-fonts><span>${tr("Font")}</span><strong>${esc(window.VeeladFonts?.get(layer.font)?.label||layer.font)}</strong>${workspaceIcon("fonts")}</button><p class="cw-glyph-warning" data-ws-glyph-warning hidden></p><div class="cw-property-grid">${prop("Colour","color",layer.color,{type:"color"})}${prop("Text size (%)","size",Math.round(layer.size*1000)/10,{min:.5,max:50,step:.1})}</div><label class="cw-property"><span>${tr("Alignment")}</span><select data-ws-prop="align">${["left","center","right"].map(align=>`<option value="${align}" ${layer.align===align?"selected":""}>${tr(align==="center"?"Centre":align==="left"?"Left":"Right")}</option>`).join("")}</select></label><label class="cw-property"><span>${tr("Writing direction")}</span><select data-ws-prop="direction">${[["auto","Automatic"],["rtl","Right to left"],["ltr","Left to right"]].map(([key,label])=>`<option value="${key}" ${layer.direction===key?"selected":""}>${tr(label)}</option>`).join("")}</select></label>`:`<div class="cw-property-grid">${prop("Width (%)","width",Math.round(layer.width*1000)/10,{min:1,max:300,step:.1})}${prop("Height (%)","height",Math.round(layer.height*1000)/10,{min:1,max:300,step:.1})}</div><label class="cw-check"><input type="checkbox" data-ws-proportions checked>${tr("Keep proportions")}</label>`}<div class="cw-property-grid">${prop("Horizontal (%)","x",Math.round(layer.x*1000)/10,{step:.1})}${prop("Vertical (%)","y",Math.round(layer.y*1000)/10,{step:.1})}${prop("Rotation","rotation",Math.round(layer.rotation||0),{min:-180,max:180})}${prop("Opacity","opacity",Math.round((layer.opacity??1)*100))}</div><div class="cw-centre-actions"><button type="button" data-ws-action="centre-x">${workspaceIcon("centre")}${tr("Centre horizontally")}</button><button type="button" data-ws-action="centre-y">${workspaceIcon("centre")}${tr("Centre vertically")}</button><button type="button" data-ws-action="safe-left">${workspaceIcon("centre")}${tr("Align to safe left")}</button><button type="button" data-ws-action="safe-right">${workspaceIcon("centre")}${tr("Align to safe right")}</button><button type="button" data-ws-action="safe-top">${workspaceIcon("centre")}${tr("Align to safe top")}</button><button type="button" data-ws-action="safe-bottom">${workspaceIcon("centre")}${tr("Align to safe bottom")}</button></div><p class="cw-studio-print-note">${tr("Place artwork within the provisional safe region. Final supplier dimensions are not yet approved.")}</p></fieldset>`;
     checkGlyphs();
   }
   function checkGlyphs(){
@@ -385,12 +548,12 @@ function renderElements(){
     // Capture those changes too, without persisting or calling the adapter again.
     if(!gesture&&!restoring)record();
     const key=instance.product().id+":"+adapter.surface();
-    if(key!==activeKey){selected=null;activeKey=key;lastHistoryGroup=null;}
+    if(key!==activeKey){selected=null;multi.clear();activeKey=key;lastHistoryGroup=null;}
     if(selected&&!current())selected=null;
     shell.dataset.selectedLayer=selected||"";
     renderSurfaces();renderLayerList();renderInspector();resizeStage();
     if(!gesture)render();else paint();
-    updateHistory();
+    updateHistory();renderPreviewSelection();
   }
   async function addImages(files){
     if(!files?.length)return;
@@ -401,6 +564,15 @@ function renderElements(){
     try{const added=await adapter.addImages(files);if(!root.isConnected)return;selected=added?.at(-1)?.id||layers().at(-1)?.id||null;commit();setStatus("Images added");}
     catch(error){setStatus(error.message||"Could not load this layer.",true);}
     finally{delete shell.dataset.uploading;shell.querySelector("[data-ws-upload]").disabled=false;shell.querySelector("[data-ws-upload]").value="";}
+  }
+  function applyTypePair(pairId){
+    const pair=window.VeeladStudioPro?.pairings.find(item=>item.id===pairId);
+    if(!pair||!canAdd(2))return;
+    const direction=pairId==='arabic'?'rtl':'auto';
+    const common={type:'text',rotation:0,opacity:1,visible:true,locked:false,align:'center',direction};
+    const title={...common,id:uid(),text:pair.heading,font:pair.headingFont,color:pair.colour,size:.082,x:.5,y:.43};
+    const subtitle={...common,id:uid(),text:pair.detail,font:pair.detailFont,color:pair.colour,size:.038,x:.5,y:.62};
+    layers().push(title,subtitle);selected=title.id;commit();setStatus("Typography added");
   }
   function addText(style="body"){
     if(!canAdd())return;
@@ -432,6 +604,23 @@ function renderElements(){
     }else return;
     commit();
   }
+  function arrangeUnlocked(command){
+    const api=window.VeeladStudioPro,eligible=layers().filter(layer=>layer.visible!==false&&!layer.locked&&(!multi.size||multi.has(layer.id)));
+    if(!api?.arrange||eligible.length<2){setStatus("Add at least two unlocked visible layers to arrange them.",true);return;}
+    const placements=api.arrange(eligible,command);
+    if(!placements.length){setStatus("Layers are too large to distribute without overlap.",true);return;}
+    let changed=false;
+    const byId=new Map(layers().map(layer=>[layer.id,layer]));
+    for(const update of placements){
+      const layer=byId.get(update.id);
+      if(!layer||layer.locked)continue;
+      if(Math.abs(layer.x-update.x)>0.000001||Math.abs(layer.y-update.y)>0.000001){
+        layer.x=update.x;layer.y=update.y;changed=true;
+      }
+    }
+    if(changed)commit();
+    else setStatus("Changes save automatically");
+  }
   function copyOtherSide(confirm=false){
     const sourceId=copyControls.querySelector("[data-ws-copy-side]").dataset.source,
       source=instance.state.scenes?.[instance.product().id]?.[sourceId],target=adapter.scene();
@@ -458,7 +647,7 @@ function renderElements(){
     const count=inspector.querySelector("[data-ws-character-count]");if(count)count.textContent=layer.text?.length||0;
     checkGlyphs();commit("property:"+layer.id+":"+key);
   }
-  function handlePoint(event){const rect=artboard.getBoundingClientRect(),d=logical();return{x:(event.clientX-rect.left)/rect.width*d.width,y:(event.clientY-rect.top)/rect.height*d.height};}
+  function handlePoint(event){if(gesture?.preview){const point=previewPoint(event);return point&&{x:point.x,y:point.y};}const rect=artboard.getBoundingClientRect(),d=logical();return{x:(event.clientX-rect.left)/rect.width*d.width,y:(event.clientY-rect.top)/rect.height*d.height};}
   function rotatePoint(point,angle){const c=Math.cos(angle),s=Math.sin(angle);return{x:point.x*c-point.y*s,y:point.x*s+point.y*c};}
   function beginGesture(event){
     if(event.button!==0||mode!=="edit")return;
@@ -479,6 +668,7 @@ function renderElements(){
     if(!gesture||gesture.pointer!==event.pointerId)return;
     const layer=layers().find(l=>l.id===gesture.id);if(!layer)return;
     const point=handlePoint(event),d=logical(),o=gesture.original,g=gesture;
+    if(!point)return;
     if(g.kind==="move"){
       layer.x=clamp(o.x+(point.x-g.point.x)/d.width,0,1);layer.y=clamp(o.y+(point.y-g.point.y)/d.height,0,1);
       const snap=shell.querySelector("[data-ws-snap]").checked;
@@ -501,7 +691,7 @@ function renderElements(){
       const delta=rotatePoint({x:g.sx*w/2,y:g.sy*h/2},o.rotation*Math.PI/180);
       layer.x=clamp((g.anchor.x+delta.x)/d.width,0,1);layer.y=clamp((g.anchor.y+delta.y)/d.height,0,1);
     }
-    paint();event.preventDefault();
+    if(gesture.preview){renderPreviewSelection();schedulePreviewRender();}else paint();event.preventDefault();
   }
   function finishGesture(event){
     if(!gesture||event.pointerId!==gesture.pointer)return;
@@ -510,9 +700,13 @@ function renderElements(){
     if(event.type==="pointercancel")Object.assign(layers().find(l=>l.id===g.id)||{},g.original);
     else if(snapshot()!==g.before)commit();
     renderInspector();render();
+    if(g.preview){renderPreviewSelection();void instance.render?.();}
   }
   function keyboard(event){
     if(event.key==="Escape"&&focused){event.preventDefault();setFocus(false);return;}
+    if(event.key==="/"&&!event.ctrlKey&&!event.metaKey&&!event.altKey&&!event.target.closest("input,textarea,select,[contenteditable=true]")){
+      event.preventDefault();switchTool("elements");shell.querySelector("[data-ws-element-search]").focus();return;
+    }
     if(event.target.closest("input,textarea,select,[contenteditable=true]"))return;
     if(event.target.closest('[data-ws-font]')&&['ArrowUp','ArrowDown','Home','End'].includes(event.key)){
       const options=[...shell.querySelectorAll('[data-ws-font]')],index=options.indexOf(event.target.closest('[data-ws-font]'));
@@ -567,9 +761,30 @@ function renderElements(){
     else if(button.hasAttribute("data-ws-elements-view")){elementsView=button.dataset.wsElementsView;elementLimit=48;renderElements();}
     else if(button.hasAttribute("data-ws-favourite")){window.VeeladStudioPro?.favourite(button.dataset.wsFavourite);renderElements();}
     else if(button.hasAttribute("data-ws-pro-layout"))await applyProLayout(button.dataset.wsProLayout);
+    else if(button.hasAttribute("data-ws-save-checkpoint"))saveCheckpoint();
+    else if(button.hasAttribute("data-ws-restore-checkpoint"))restoreCheckpoint(Number(button.dataset.wsRestoreCheckpoint));
+    else if(button.hasAttribute("data-ws-palette")){
+      const palette=window.VeeladStudioPro?.palettes.find(value=>value.id===button.dataset.wsPalette),layer=current();
+      if(layer?.library_element&&palette){
+        const source=window.VeeladElements?.defaults(layer.library_element.id);
+        const colours=palette.colors||[source?.primary,source?.secondary,source?.accent];
+        await recolourPalette(layer.id,{primary:colours[0],secondary:colours[1],accent:colours[2]});
+      }
+    }
     else if(button.hasAttribute("data-ws-element-more")){elementLimit+=48;renderElements();}
+    else if(button.hasAttribute("data-ws-quick-filter")){
+      const categorySelect=shell.querySelector("[data-ws-element-category]"),filter=button.dataset.wsQuickFilter;
+      categorySelect.value=categorySelect.value===filter?'':filter;
+      shell.querySelector("[data-ws-element-search]").value="";
+      shell.querySelector("[data-ws-element-collection]").value="";
+      elementLimit=48;renderElements();
+    }
     else if(button.hasAttribute("data-ws-add-text"))addText(button.dataset.wsAddText);
+    else if(button.hasAttribute("data-ws-type-pair"))applyTypePair(button.dataset.wsTypePair);
     else if(button.hasAttribute("data-ws-open-fonts"))switchTool("fonts");
+    else if(button.hasAttribute("data-ws-layout-action"))arrangeUnlocked(button.dataset.wsLayoutAction);
+    else if(button.hasAttribute("data-ws-select-all")){multi.clear();for(const layer of layers())if(!layer.locked&&layer.visible!==false)multi.add(layer.id);renderLayerList();}
+    else if(button.hasAttribute("data-ws-clear-selected")){multi.clear();renderLayerList();}
     else if(button.hasAttribute("data-ws-action"))selectedAction(button.dataset.wsAction);
     else if(button.hasAttribute("data-ws-select"))selectLayer(button.dataset.wsSelect,{focus:true});
     else if(button.hasAttribute("data-ws-toggle-visible")){const layer=layers().find(l=>l.id===button.dataset.wsToggleVisible);layer.visible=layer.visible===false;commit();}
@@ -604,6 +819,7 @@ function renderElements(){
     else if(input.hasAttribute("data-ws-element-category")){elementLimit=48;renderElements();}
     else if(input.hasAttribute("data-ws-element-collection")){elementLimit=48;renderElements();}
     else if(input.hasAttribute("data-ws-element-colour")){const layer=current();if(layer)void recolourElement(layer.id,input.dataset.wsElementColour,input.value);}
+    else if(input.hasAttribute("data-ws-multiselect")){if(input.checked)multi.add(input.dataset.wsMultiselect);else multi.delete(input.dataset.wsMultiselect);renderLayerList();}
     else if(input.hasAttribute("data-ws-zoom")){zoom=input.value;resizeStage();}
     else if(input.matches("[data-ws-font-script],[data-ws-font-category]")){fontLimit=60;renderFonts();}
     else if(input.hasAttribute("data-ws-transparent")){adapter.scene().background=input.checked?"transparent":shell.querySelector("[data-ws-background]").value;commit();}
@@ -630,12 +846,17 @@ shell.addEventListener("dragstart",event=>{
     const rect=artboard.getBoundingClientRect();
     void addElement(value,{x:(event.clientX-rect.left)/rect.width,y:(event.clientY-rect.top)/rect.height});
   });
+  previewOverlay.addEventListener("pointerdown",beginPreviewGesture);
+  previewOverlay.addEventListener("pointermove",movePreviewGesture);
+  for(const name of ["pointerup","pointercancel","lostpointercapture"])previewOverlay.addEventListener(name,finishGesture);
+  root.addEventListener("customer-scene-rendered",()=>{if(mode==="preview")renderPreviewSelection();});
   artboard.addEventListener("pointerdown",beginGesture);artboard.addEventListener("pointermove",moveGesture);
   for(const name of ["pointerup","pointercancel","lostpointercapture"])artboard.addEventListener(name,finishGesture);
   shell.addEventListener("keydown",keyboard);
   root.addEventListener("scene-editor-change",()=>{if(!gesture){record();refresh();}});
   const resizeObserver=typeof ResizeObserver!=="undefined"?new ResizeObserver(()=>resizeStage()):null;
   resizeObserver?.observe(scroll);
+  if(previewCanvas)resizeObserver?.observe(previewCanvas);
   const lifecycle=new MutationObserver(()=>{if(!root.isConnected)instance.workspace?.dispose();});
   lifecycle.observe(document.querySelector("#app")||document.body,{childList:true});
   instance.workspace={refresh,render,addText,select:selectLayer,selected:()=>selected,undo:()=>restore(-1),redo:()=>restore(1),dispose(){disposed=true;document.body.classList.remove("has-studio-focus");clearTimeout(qualityTimer);resizeObserver?.disconnect();fontObserver?.disconnect();lifecycle.disconnect();}};

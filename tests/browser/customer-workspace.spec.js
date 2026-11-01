@@ -105,6 +105,17 @@ test("layered workspace keeps multiple originals and independent sides through e
       (layer) => layer.type === "image",
     );
     expect(new Set(firstImages.map((layer) => layer.upload_id)).size).toBe(2);
+    // Select specific layers and align them as one undoable edit.
+    await shell.locator("[data-ws-tool=layers]").click();
+    await shell.locator("[data-ws-select-all]").click();
+    await expect(shell.locator("[data-ws-multiselect]:checked")).toHaveCount(2);
+    await shell.locator("[data-ws-tool=canvas]").click();
+    await shell.locator('[data-ws-layout-action=center-x]').click();
+    await expect.poll(async () => (await scene("front")).layers.every(layer => Math.abs(layer.x - .5) < 0.000001)).toBe(true);
+    await shell.locator("[data-ws-tool=layers]").click();
+    await shell.locator("[data-ws-clear-selected]").click();
+    await expect(shell.locator("[data-ws-multiselect]:checked")).toHaveCount(0);
+
     const selectedImage = firstImages[1];
     await shell.locator("[data-ws-tool=layers]").click();
     await shell.locator(`[data-ws-select="${selectedImage.id}"]`).click();
@@ -123,6 +134,18 @@ test("layered workspace keeps multiple originals and independent sides through e
     await expect.poll(async () => (await scene("front")).layers.length).toBe(3);
     await shell.locator("[data-ws-action=undo]").click();
     await expect.poll(async () => (await scene("front")).layers.length).toBe(2);
+    // Session checkpoints restore a complete scene without destroying the undo chain.
+    await shell.locator("[data-ws-tool=layouts]").click();
+    await shell.locator("[data-ws-save-checkpoint]").click();
+    await expect(shell.locator('[data-ws-restore-checkpoint="0"]')).toBeVisible();
+    await shell.locator("[data-ws-tool=layers]").click();
+    await shell.locator(`[data-ws-select="${selectedImage.id}"]`).click();
+    await shell.locator("[data-ws-action=duplicate]").click();
+    await expect.poll(async () => (await scene("front")).layers.length).toBe(3);
+    await shell.locator("[data-ws-tool=layouts]").click();
+    await shell.locator('[data-ws-restore-checkpoint="0"]').click();
+    await expect.poll(async () => (await scene("front")).layers.length).toBe(2);
+    await shell.locator("[data-ws-tool=layers]").click();
     await shell.locator(`[data-ws-select="${selectedImage.id}"]`).click();
     const xBefore = (await scene("front")).layers.find((l) => l.id === selectedImage.id).x;
     await shell.locator("[data-ws-artboard]").focus();
