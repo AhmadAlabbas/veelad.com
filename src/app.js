@@ -416,7 +416,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
    await ensureMockup(c,db,id,image.user_id,async()=>renderMockup(await artworkRenderSource(c.uploadDir,image),category,studio,{resolveSource:async sourceId=>artworkRenderSource(c.uploadDir,records.get(sourceId))}));
    return res.json({mockup_upload_id:id,source_upload_id:image.id,...(studio.scene_version===sceneVersion?{source_upload_ids:sceneSourceIds(studio)}:{})});
   }
-  if(['customer-library','customer-draft','customer-draft-preview'].includes(route)) {
+  if(['customer-library','customer-draft','customer-draft-preview','customer-draft-versions','customer-draft-version'].includes(route)) {
    const u=await me(req,true);if(method==='POST')await throttle(req,'customer-autosave',1200);if(route==='customer-draft-preview')await throttle(req,'draft-preview',150);
    return customerDraftRoute({route,method,v,req,res,u,db,c});
   }
