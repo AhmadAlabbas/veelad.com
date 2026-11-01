@@ -1,6 +1,6 @@
 // Read-only external reachability check. No credentials, cookies or mutations.
 const origin='https://staging.veelad.com';
-const expectedRevision='df171cd0c879b46dd2a0bb2cd09cfc25ef197dfd';
+const expectedRevision='d4fa959cd5ec2bb6c9e9395c52e546e70cab0236';
 const cases=[
  {path:'/api.php?route=health',type:'json'},
  {path:'/',type:'html'},
@@ -8,6 +8,9 @@ const cases=[
  {path:'/zh-CN',type:'html'},
  {path:'/assets/elements-library.js?v=1',type:'javascript'},
  {path:'/assets/elements-mega.js?v=1',type:'mega'},
+ {path:'/assets/flags-art.js?v=2',type:'flag'},
+ {path:'/assets/flags-art-4.js?v=2',type:'flag'},
+ {path:'/assets/emoji-metadata.js?v=2',type:'emoji'},
  {path:'/assets/elements-library.css?v=1',type:'css'}
 ];
 let failures=0;
@@ -27,10 +30,10 @@ for(const {path,type} of cases){
     if(payload?.revision!==expectedRevision){result='FAILED';summary+=' unexpected_revision expected='+expectedRevision.slice(0,12);}
     summary=' app='+String(payload?.environment||'missing')+' ready='+String(payload?.ok===true)+' revision='+String(payload?.revision||'missing').slice(0,12)+' storage='+String(payload?.storage?.ready===true)+' backup='+String(payload?.backup?.status||'missing')+' restore='+String(payload?.restore?.status||'missing');
    }catch{result='FAILED';summary=' invalid_health_json';}
-  }else if(type==='javascript'||type==='mega'||type==='css'){
+  }else if(type==='javascript'||type==='mega'||type==='flag'||type==='emoji'||type==='css'){
    const asset=await response.text();
-   const expected=type==='javascript'?'window.VeeladElements=Object.freeze':type==='mega'?'flagCodes=ISO.split':'cw-elements-grid';
-   if(!asset.includes(expected)||(type==='javascript'||type==='mega')&&!/javascript|text\/plain/.test(contentType)||type==='css'&&!/text\/css/.test(contentType))result='FAILED';
+   const expected=type==='javascript'?'window.VeeladElements=Object.freeze':type==='mega'?'originalDistinct=original.catalog.filter':type==='flag'?'Ve(elad|eladFlagArt)':type==='emoji'?'VeeladEmojiMetadata':'cw-elements-grid';
+   if(!(type==='flag'?/VeeladFlagArt/.test(asset):asset.includes(expected))||(type==='javascript'||type==='mega'||type==='flag'||type==='emoji')&&!/javascript|text\/plain/.test(contentType)||type==='css'&&!/text\/css/.test(contentType))result='FAILED';
    summary=' element_asset='+String(asset.includes(expected));
   }else{
    if(!contentType.toLowerCase().includes('text/html'))result='FAILED';
