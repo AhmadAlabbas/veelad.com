@@ -16,6 +16,16 @@ function wardrobeFacets(list){
  colours.sort((a,b)=>String(a.label).localeCompare(String(b.label)));
  return {sizes,colours};
 }
+function homeWardrobeEntry(){
+ return `<section class="container home-wardrobe-entry"><div><span class="eyebrow">${esc(wardrobeMessage('clothing'))}</span><h2>${esc(wardrobeMessage('title'))}</h2><p>${esc(wardrobeMessage('intro'))}</p></div>${link(esc(wardrobeMessage('types'))+' '+icon('arrow'),'shop','btn',{department:'wearables',view:'products'})}</section>`;
+}
+function wardrobeCardSwatches(product){
+ const options=product.purchase_options;
+ if(options?.confirmed!==true||!Array.isArray(options.colors)||!options.colors.length)return '';
+ const rows=options.colors.filter(row=>/^#[a-f0-9]{6}$/i.test(row.hex||'')).slice(0,8);
+ if(!rows.length)return '';
+ return `<div class="wardrobe-card-colours" aria-label="${esc(wardrobeMessage('colours'))}">${rows.map(row=>`<span style="--swatch:${row.hex}" title="${esc(localField(row,'label'))}"><span class="visually-hidden">${esc(localField(row,'label'))}</span></span>`).join('')}</div>`;
+}
 function wardrobeIntro(catalog){
  const linked=wardrobeCategories.filter(category=>catalog.some(item=>item.category===category));
  return `<section class="wardrobe-intro" aria-label="${esc(wardrobeMessage('types'))}"><div class="wardrobe-heading"><div><span class="eyebrow">${esc(wardrobeMessage('clothing'))}</span><h2>${esc(wardrobeMessage('title'))}</h2><p>${esc(wardrobeMessage('intro'))}</p></div></div><div class="wardrobe-types">${wardrobeCategories.map(category=>linked.includes(category)?link(esc(t(category))+' '+icon('arrow'),'shop','wardrobe-type available',{category,view:'products'}):`<div class="wardrobe-type planned"><strong>${esc(t(category))}</strong><small>${esc(wardrobeMessage('planned'))}</small></div>`).join('')}</div><p class="wardrobe-disclaimer">${esc(wardrobeMessage('availability'))}</p></section>`;
