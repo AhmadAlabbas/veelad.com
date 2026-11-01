@@ -170,6 +170,7 @@ async function prepareCustomerCreate() {
     (!requested || customerDraft.id === requested) &&
     !copy &&
     !duplicate &&
+    !params.has("restore_revision") &&
     !fresh
   )
     return;
