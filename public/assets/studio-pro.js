@@ -8,7 +8,8 @@ const folders=Object.freeze([
  {id:'cute',title:'Cute animals',ar:'حيوانات لطيفة',zh:'可爱动物',keys:['cat-0','dog-0','rabbit-0','paw-0','bird-0','fish-0']},
  {id:'travel',title:'Travel essentials',ar:'لوازم السفر',zh:'旅行主题',keys:['camera-0','compass-0','airplane-0','skyline-0','cottage-0','lighthouse-0']},
  {id:'celebrate',title:'Celebrations',ar:'المناسبات',zh:'庆祝主题',keys:['heart-0','gift-0','balloon-0','confetti-0','star-0']},
- {id:'minimal',title:'Minimal shapes',ar:'الأشكال البسيطة',zh:'极简图案',keys:['diamond-0','arches-0','checker-0','spiral-0']}
+ {id:'minimal',title:'Minimal shapes',ar:'الأشكال البسيطة',zh:'极简图案',keys:['diamond-0','arches-0','checker-0','spiral-0']},
+ {id:'entertainment',title:'Original cinema art',ar:'رسومات سينمائية أصلية',zh:'原创电影风格',keys:['ent-urban-noir-raindrop-detective-hat-0','ent-science-wonders-crystal-spectrometer-0','ent-retro-arcade-electric-pinball-0','ent-cosmic-odyssey-folded-solar-sail-0','ent-enchanted-garden-tangerine-moth-0','ent-ocean-expeditions-spiral-nautilus-0','ent-kitchen-stories-tea-kettle-chorus-0','ent-cozy-mysteries-the-secret-shelf-0']}
 ]);
 const templates=Object.freeze([
  {id:'floral-type',title:'Botanical Words',ar:'كلمات مزهرة',zh:'花卉文字',label:'MAKE IT BLOOM',element:'botanical-0',color:'#244F40',tag:'Floral / Minimal',x:.36,y:.38},
@@ -151,5 +152,19 @@ function arrange(layers,command,margin=.08){
  }else return [];
  return next.map(({id,x,y})=>({id,x:Math.max(0,Math.min(1,x)),y:Math.max(0,Math.min(1,y))}));
 }
-window.VeeladStudioPro=Object.freeze({folders,templates,read,favourite,used,search,preflight,snap,title,arrange,normalize});
+const palettes=Object.freeze([
+ {id:'original',title:'Original colours',ar:'الألوان الأصلية',zh:'原始配色',colors:null},
+ {id:'ocean',title:'Ocean blue',ar:'أزرق المحيط',zh:'海洋蓝',colors:['#164966','#C7EDF0','#DFAE65']},
+ {id:'sunset',title:'Warm sunset',ar:'ألوان الغروب',zh:'日落暖色',colors:['#AA4B3A','#FFD4A5','#C27B87']},
+ {id:'forest',title:'Forest',ar:'ألوان الغابة',zh:'森林绿',colors:['#285F4B','#D6E9BE','#B68B53']},
+ {id:'lavender',title:'Lavender',ar:'الخزامى',zh:'薰衣草',colors:['#604A86','#EBE0F9','#B895CA']},
+ {id:'sand',title:'Sandstone',ar:'الحجر الرملي',zh:'砂岩色',colors:['#7A553D','#EEDAB2','#B68B78']},
+ {id:'pastel',title:'Soft pastel',ar:'ألوان هادئة',zh:'柔和粉彩',colors:['#507E87','#F5D6D9','#D59A5F']},
+ {id:'mono',title:'Black and white',ar:'أبيض وأسود',zh:'黑白',colors:['#22222A','#F6F6F5','#99999F']}
+].map(item=>Object.freeze({...item,colors:item.colors&&Object.freeze(item.colors)})));
+function paletteFor(id,elementApi){
+ const source=elementApi?.defaults?.(id)||null;
+ return source&&['primary','secondary','accent'].every(key=>/^#[a-f0-9]{6}$/i.test(source[key]||''))?source:null;
+}
+window.VeeladStudioPro=Object.freeze({folders,templates,read,favourite,used,search,preflight,snap,title,arrange,normalize,palettes,paletteFor});
 })();
