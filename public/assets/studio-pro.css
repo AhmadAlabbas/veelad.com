@@ -169,3 +169,11 @@
 .cw-palette-actions button{min-height:42px;border-radius:8px;border:1px solid #cbb9e4;background:#f3edf9;color:#553a79;font-size:11px;font-weight:650;padding:6px}
 .cw-palette-presets button:focus-visible{outline:3px solid #9575cb;outline-offset:2px}
 @media(max-width:600px){.cw-palette-actions{grid-template-columns:1fr}.cw-palette-actions button{min-height:46px}}
+
+/* Keep the illustration's click/touch target distinct from its favourite
+   action. Without a real-sized tile, the action can cover the hit centre. */
+.cw-element-entry .cw-element-tile{min-height:112px!important;position:relative}
+@media(max-width:700px){.cw-element-entry .cw-element-tile{min-height:98px!important}}
+/* The storefront's fixed shopping navigation must not cover interactive
+   design controls or artwork drag/drop targets on the Create page. */
+body:has(.customer-workspace) .mobile-shopping-nav{display:none!important}
