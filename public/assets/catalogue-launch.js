@@ -128,7 +128,7 @@ function styleArtwork(style){
 }
 
 function designStyleCards({compact=false}={}){
- return `<div class="design-style-grid ${compact?'is-compact':''}">${designStyles.map(style=>{
+ return `<div class="design-style-grid ${compact?'is-compact':''}">${designStyles.filter(style=>style.id!=='arabic-lettering').map(style=>{
   const count=products.filter(p=>(p.design_styles||[]).includes(style.id)).length;
   return link(`${styleArtwork(style)}<span class="style-card-copy"><strong>${esc(localField(style,'title'))}</strong><span>${compact?'':esc(localField(style,'description'))}</span><small>${count?t('{count} finds',{count:localNumber(count)}):t('New work coming soon')} ${icon('arrow')}</small></span>`,'shop','design-style-card',{style:style.id});
  }).join('')}</div>`;
