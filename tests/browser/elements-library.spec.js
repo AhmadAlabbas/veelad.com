@@ -17,6 +17,15 @@ test('creators insert, recolour and persist a private vector element in the desi
   await expect.poll(()=>page.evaluate(()=>window.VeeladElements?.catalog.length)).toBeGreaterThanOrEqual(10000);
   await studio.locator('[data-ws-tool=elements]').click();
   await expect(studio.locator('[data-ws-panel=elements]')).toBeVisible();
+
+  // Verify that system emojis, flags and original city SVGs become actual
+  // transparent PNG files suitable for the existing private-image pipeline.
+  const exported=await page.evaluate(async()=>{
+    const api=window.VeeladElements;
+    const ids=['emoji-1f600-1','flag-sa-1',api.catalog.find(item=>item.category==='Cities'&&item.name.includes('London')).id];
+    return Promise.all(ids.map(async id=>{const file=await api.file(id,api.defaults(id));return {id,type:file.type,size:file.size};}));
+  });
+  for(const sample of exported){expect(sample.type).toBe('image/png');expect(sample.size,sample.id).toBeGreaterThan(800);}
   await studio.locator('[data-ws-element-category]').selectOption('Flags');
   await studio.locator('[data-ws-element-search]').fill('Saudi Arabia');
   await expect(studio.locator('[data-ws-element=flag-sa-0]')).toBeVisible();
