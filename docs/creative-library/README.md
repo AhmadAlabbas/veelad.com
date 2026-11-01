@@ -2,7 +2,7 @@
 
 **Status:** Creative production plan, **not published artwork**.  
 **Scope:** 20 genre collections, 240 separately art-directed concepts: **60 new fictional characters**, **120 props/illustrated motifs** and **60 scenes/badges**.  
-**Source of truth:** [Volume 01](./entertainment-volume-01.json) and [Volume 02](./entertainment-volume-02.json).
+**Source of truth:** [Volume 01](./entertainment-volume-01.json), [Volume 02](./entertainment-volume-02.json), and the [32-concept flagship wave](./flagship-wave-01.json).
 
 This is a proposed **first-party illustration programme for a clothing-design studio**, not a collection of screenshots, franchise art, celebrity portraits or branded merchandise. Concepts become commercial assets **only after** original artwork has been drawn, rights verified, translations approved, and production exports tested.
 
@@ -93,7 +93,7 @@ Each completed asset must include:
 
 **Phase 0 — Design review (no publication):** Validate the 240 concepts for independence, establish asset-level palette directions, edit/remove any generic or similar ideas, and complete item-level translations.
 
-**Phase 1 — Flagship proof set:** Draw and test **24 finished source-editable assets**, including at least six original characters, six props and six scenes. Confirm real 90 px recognition, colour editing, private save/reload, print export parity, actual garment previews, and a multi-device browser run. Publish only approved pieces.
+**Phase 1 — Flagship proof set:** Draw and test **32 finished source-editable assets**: 14 original characters, 11 motifs and 7 storytelling scenes, each with an independently chosen default palette (see the flagship manifest). Confirm real 90 px recognition, colour editing, private save/reload, print export parity, actual garment previews, and a multi-device browser run. Publish only approved pieces.
 
 **Phase 2 — Full 240-concept collection:** Complete the remaining drawings, per-asset metadata, source vector files, provenance, rights and print QA. Release in curated packs, not a giant unverified bulk import.
 
