@@ -2,6 +2,7 @@
 "use strict";
 const workspaceArabic = {
   "Editable graphics, emojis, flags and city badges. Emoji and flag symbols keep their original colours; decoration can be recoloured.":"رسومات ورموز تعبيرية وأعلام وشارات مدن. تحتفظ الإيموجي والأعلام بألوانها الأصلية ويمكن تغيير ألوان الزينة.", "Emoji and flag symbols retain their colours. Change the badge colours instead.":"تحتفظ الإيموجي والأعلام بألوانها. غيّر ألوان الإطار أو الزينة بدلاً منها.", "Original national flag and emoji colours cannot be changed.":"لا يمكن تغيير الألوان الأصلية للعلم أو الإيموجي.", "Choose a decorated style to customise this symbol.":"اختر شكلاً مزخرفاً لتغيير ألوان خلفية هذا الرمز.",
+  "My favourites":"المفضلة", "Recently used":"المستخدمة مؤخرًا", "Explore all":"استكشف الكل", "Curated collection":"مجموعة مختارة", "Apply design":"طبّق التصميم", "Ready-made designs":"تصاميم جاهزة", "Original editable starting points":"قوالب أصلية قابلة للتعديل", "Print positioning":"موضع الطباعة", "Print preflight":"فحص الطباعة",
   "Elements":"العناصر", "Element":"عنصر", "Search elements":"ابحث عن العناصر", "All categories":"كل التصنيفات", "More elements":"المزيد من العناصر", "Element colours":"ألوان العنصر", "Primary":"الأساسي", "Secondary":"الثانوي", "Accent":"التفاصيل", "Preparing element…":"نجهّز العنصر…", "Element updated":"تم تعديل العنصر", "Elements are original and can be recoloured.":"عناصر أصلية ويمكنك تغيير ألوانها.",
   "Creative studio":"استوديو التصميم", "Make room for your imagination.":"خلّ لخيالك مساحة.", "Design":"التصميم", "Product preview":"معاينة القطعة", "Review item":"راجع قطعتك", "Uploads":"الصور", "Text":"النصوص", "Fonts":"الخطوط", "Layers":"الطبقات", "Layouts":"القوالب", "Canvas":"لوحة التصميم", "Add images":"أضف صور", "Upload images":"ارفع صورك", "Drop your images here":"اسحب صورك هنا", "PNG or JPEG · multiple files welcome":"PNG أو JPEG · تقدر تضيف أكثر من صورة", "Your originals stay private.":"ملفاتك الأصلية تبقى خاصة فيك.", "Add text":"أضف نص", "Add a heading":"أضف عنوان", "Add a little detail":"أضف عبارة صغيرة", "Your words, your style.":"كلماتك، بأسلوبك.", "Mix languages, play with type, make it yours.":"اجمع أكثر من لغة، وجرّب الخطوط على ذوقك.", "Write something wonderful":"اكتب شيء يشبهك", "A little more you":"تفصيلة منك", "Search fonts":"ابحث عن خط", "All scripts":"كل اللغات", "All styles":"كل الأنماط", "No fonts match. Try another search.":"ما لقينا خط يطابق بحثك. جرّب كلمة ثانية.", "Choose text on the canvas to apply a font.":"اختر نص من اللوحة عشان تغيّر خطه.", "Loading fonts…":"نجهّز مكتبة الخطوط…", "Font library is unavailable. Try again shortly.":"مكتبة الخطوط غير متاحة حاليًا. جرّب بعد شوي.", "Some characters are not included in this font. Choose a font for this script.":"بعض الحروف مو موجودة في هالخط. اختر خط يدعم لغة النص.", "Front":"الأمام", "Back":"الخلف", "Wrap":"التصميم الكامل", "Independent designs on each side":"تصميم مستقل لكل جهة", "One continuous wrap":"تصميم واحد يلتف حول الكوب", "Undo":"تراجع", "Redo":"إعادة", "Zoom":"التكبير", "Fit":"ملاءمة", "Fit to screen":"ناسب حجم الشاشة", "Safe area":"المساحة الآمنة", "Snap to centre":"محاذاة للمنتصف", "Add a photo. Make a statement.":"صورة منك. وتصميم على ذوقك.", "Start with an image, a few words, or both.":"ابدأ بصورة، أو كلمات، أو اجمعهم مع بعض.", "Select a layer to fine-tune it.":"اختر طبقة عشان تعدّل تفاصيلها.", "Drag to move · corners to resize · top handle to rotate":"اسحب للتحريك · الزوايا لتغيير الحجم · المقبض العلوي للتدوير", "Drag to move. Use the corner handles to resize.":"اسحب للتحريك. واستخدم مقابض الزوايا لتغيير الحجم.", "Provisional product preview":"معاينة مبدئية للقطعة", "Your design is editable. Supplier print specifications still need confirmation.":"تصميمك قابل للتعديل. مقاسات الطباعة النهائية تحتاج تأكيد المورّد.", "Background":"الخلفية", "Transparent":"شفافة", "Colour":"اللون", "Opacity":"الشفافية", "Rotation":"الدوران", "Width (%)":"العرض (%)", "Height (%)":"الارتفاع (%)", "Horizontal (%)":"أفقي (%)", "Vertical (%)":"عمودي (%)", "Text size (%)":"حجم النص (%)", "Your text":"النص", "Font":"الخط", "Writing direction":"اتجاه الكتابة", "Automatic":"تلقائي", "Right to left":"من اليمين لليسار", "Left to right":"من اليسار لليمين", "Alignment":"المحاذاة", "Left":"يسار", "Centre":"وسط", "Right":"يمين", "Duplicate":"انسخ", "Delete":"احذف", "Move forward":"قدّم طبقة", "Move backward":"أخّر طبقة", "Centre horizontally":"وسّط أفقيًا", "Centre vertically":"وسّط عموديًا", "Flip horizontally":"اعكس أفقيًا", "Flip vertically":"اعكس عموديًا", "Show layer":"أظهر الطبقة", "Hide layer":"أخفِ الطبقة", "Unlock layer":"افتح قفل الطبقة", "Lock layer":"اقفل الطبقة", "Image":"صورة", "Text layer":"طبقة نص", "No layers yet":"لوحتك جاهزة لأفكارك", "Add images or text. Every element stays editable.":"أضف صور أو نصوص. كل عنصر يبقى قابل للتعديل.", "Selected layer":"الطبقة المختارة", "Layer is locked. Unlock it to edit.":"الطبقة مقفلة. افتح القفل عشان تعدّلها.", "Your own text":"كلماتك هنا", "Add up to 24 layers on each side.":"تقدر تضيف حتى 24 طبقة لكل جهة.", "Preparing your images…":"نجهّز صورك…", "Images added":"أضفنا الصور", "Could not load this layer.":"ما قدرنا نحمّل هالطبقة.", "Preparing accurate text…":"نجهّز النص بدقّة…", "Close panel":"أغلق الأدوات", "Open panel":"افتح الأدوات", "Keyboard: arrows to move, Shift for larger steps, Delete to remove.":"بالكيبورد: الأسهم للتحريك، وShift لخطوة أكبر، وDelete للحذف.", "This side is empty":"هالجهة فاضية", "Layer":"طبقة", "Ready to create":"جاهز لأفكارك", "Image quality is checked again before printing.":"جودة الصور تنفحص مرة ثانية قبل الطباعة.", "Print safe area":"حدود الطباعة الآمنة", "Shown above the layer below it":"تظهر فوق الطبقة اللي تحتها", "Your image":"صورتك", "Keep proportions":"حافظ على النسبة", "Edit on a flat canvas, then preview your item.":"عدّل على لوحة مسطّحة، وبعدها شوف التصميم على قطعتك.", "Choose a layout":"اختر قالب", "No layouts available":"القوالب غير متاحة حاليًا", "Sample text":"نص تجريبي", "Layers on this side":"طبقات هالجهة", "Changes save automatically":"تعديلاتك تنحفظ تلقائيًا", "Move and resize artwork":"حرّك التصميم وغيّر حجمه", "Printing area":"مساحة الطباعة", "Load more fonts":"اعرض خطوط أكثر", "Font style":"نمط الخط", "sans":"بسيط", "serif":"كلاسيكي", "display":"عناوين", "handwriting":"يدوي", "mono":"متساوي العرض", "arabic":"عربي", "Image uploads are private and stay linked to this design.":"صورك خاصة وتبقى مرتبطة بهالتصميم.", "Choose a font":"اختر خط", "Uploading":"جارٍ الرفع", "Template applied":"أضفنا القالب", "Preview":"معاينة", "No artwork on this side yet.":"ما فيه تصميم على هالجهة للحين."
 };
@@ -56,6 +57,14 @@ const libraryPanel=document.createElement("section");
   libraryPanel.id="cw-panel-elements";libraryPanel.dataset.wsPanel="elements";libraryPanel.hidden=true;
   libraryPanel.innerHTML=`<p class="cw-panel-intro">${tr("Editable graphics, emojis, flags and city badges. Emoji and flag symbols keep their original colours; decoration can be recoloured.")}</p><label class="cw-font-search">${workspaceIcon("search")}<input type="search" data-ws-element-search placeholder="${esc(tr("Search elements"))}" aria-label="${esc(tr("Search elements"))}"></label><label class="cw-element-category-label"><span>${tr("All categories")}</span><select data-ws-element-category aria-label="${esc(tr("All categories"))}"></select></label><p class="cw-element-count" data-ws-element-count></p><div class="cw-elements-grid" data-ws-element-list></div><button type="button" class="cw-button cw-element-more" data-ws-element-more hidden>${tr("More elements")}</button>`;
   shell.querySelector('[data-ws-panel="text"]').before(libraryPanel);
+  const smartControls=document.createElement('div');
+  smartControls.className='cw-smart-controls';
+  smartControls.innerHTML='<div class="cw-saved-view" role="group" aria-label="Collections"><button type="button" data-ws-elements-view="all" aria-pressed="true">'+tr("Explore all")+'</button><button type="button" data-ws-elements-view="favourites" aria-pressed="false">'+tr("My favourites")+'</button><button type="button" data-ws-elements-view="recent" aria-pressed="false">'+tr("Recently used")+'</button></div><label class="cw-element-category-label"><span>'+tr("Curated collection")+'</span><select data-ws-element-collection aria-label="'+esc(tr("Curated collection"))+'"></select></label>';
+  libraryPanel.querySelector('[data-ws-element-count]').before(smartControls);
+  const templatesPanel=document.createElement('section');templatesPanel.className='cw-original-layouts';templatesPanel.dataset.wsOriginalLayouts='';
+  shell.querySelector('[data-ws-layouts]').append(templatesPanel);
+  let elementsView='all';
+
   root.append(shell);
   const uploadProgress=document.createElement('progress');
   uploadProgress.className='cw-upload-progress';uploadProgress.dataset.wsProgress='';uploadProgress.max=100;uploadProgress.value=0;uploadProgress.hidden=true;
@@ -126,6 +135,7 @@ const libraryPanel=document.createElement("section");
     shell.querySelectorAll("[data-ws-panel]").forEach(panel=>panel.hidden=panel.dataset.wsPanel!==tool);
     if(tool==="fonts")renderFonts();
     if(tool==="elements")renderElements();
+    if(tool==="layouts")renderProLayouts();
     if(tool==="layers")renderLayerList();
   }
   function setMode(value){
@@ -245,16 +255,34 @@ const libraryPanel=document.createElement("section");
     copyControls.querySelector("[data-ws-copy-confirm]").hidden=true;
   }
 function renderElements(){
-    const api=window.VeeladElements,list=shell.querySelector("[data-ws-element-list]");
+    const api=window.VeeladElements,pro=window.VeeladStudioPro,list=shell.querySelector("[data-ws-element-list]");
     if(!api){list.textContent="Element library unavailable.";return;}
-    const select=shell.querySelector("[data-ws-element-category]");
-    if(!select.options.length)select.innerHTML='<option value="">'+esc(tr("All categories"))+'</option>'+api.categories.map(name=>'<option value="'+esc(name)+'">'+esc(api.categoryLabel(name,currentLanguage()))+'</option>').join("");
-    const search=shell.querySelector("[data-ws-element-search]").value.trim().toLowerCase(),category=select.value;
-    const matched=api.search?api.search(search,category):api.catalog.filter(item=>(!category||item.category===category)&&(!search||item.name.toLowerCase().includes(search)));
-    const visible=matched.slice(0,elementLimit);
+    const categorySelect=shell.querySelector("[data-ws-element-category]"),collectionSelect=shell.querySelector("[data-ws-element-collection]");
+    if(!categorySelect.options.length)categorySelect.innerHTML='<option value="">'+esc(tr("All categories"))+'</option>'+api.categories.map(name=>'<option value="'+esc(name)+'">'+esc(api.categoryLabel(name,currentLanguage()))+'</option>').join("");
+    if(pro&&!collectionSelect.options.length)collectionSelect.innerHTML='<option value="">'+esc(tr("Explore all"))+'</option>'+pro.folders.map(folder=>'<option value="'+esc(folder.id)+'">'+esc(pro.title(folder,currentLanguage()))+'</option>').join("");
+    const search=shell.querySelector("[data-ws-element-search]").value.trim(),category=categorySelect.value;
+    const matched=pro?pro.search(api,search,category,collectionSelect.value,elementsView):api.search(search,category);
+    const visible=matched.slice(0,elementLimit),favorites=new Set(pro?.read().favourites||[]);
     shell.querySelector("[data-ws-element-count]").textContent=visible.length.toLocaleString()+" / "+matched.length.toLocaleString()+(search?"":" · "+api.catalog.length.toLocaleString()+" total");
-    list.innerHTML=visible.map(item=>`<button type="button" class="cw-element-tile" draggable="true" data-ws-element="${esc(item.id)}" title="${esc(api.label(item.id,currentLanguage()))}" aria-label="${esc("Add element "+api.label(item.id,currentLanguage()))}"><span class="cw-element-visual">${api.svg(item.id)}</span><small>${esc(api.label(item.id,currentLanguage()))}</small></button>`).join("");
+    shell.querySelectorAll('[data-ws-elements-view]').forEach(button=>button.setAttribute("aria-pressed",String(button.dataset.wsElementsView===elementsView)));
+    list.innerHTML=visible.map(item=>`<div class="cw-element-entry"><button type="button" class="cw-element-tile" draggable="true" data-ws-element="${esc(item.id)}" title="${esc(api.label(item.id,currentLanguage()))}" aria-label="${esc("Add element "+api.label(item.id,currentLanguage()))}"><span class="cw-element-visual">${api.svg(item.id)}</span><small>${esc(api.label(item.id,currentLanguage()))}</small></button><button type="button" class="cw-favourite-button" data-ws-favourite="${esc(item.id)}" aria-label="${favorites.has(item.id)?'Remove from favourites':'Add to favourites'}" aria-pressed="${favorites.has(item.id)}">♡</button></div>`).join("")||'<p class="cw-muted">No matching elements. Try a different keyword or collection.</p>';
     shell.querySelector("[data-ws-element-more]").hidden=matched.length<=visible.length;
+  }
+  function renderProLayouts(){
+    const pro=window.VeeladStudioPro,api=window.VeeladElements,target=shell.querySelector('[data-ws-original-layouts]');
+    if(!pro||!target)return;
+    target.innerHTML='<h5>'+esc(tr("Ready-made designs"))+'</h5><p class="cw-muted">'+esc(tr("Original editable starting points"))+'</p><div class="cw-original-layout-grid">'+pro.templates.map(template=>`<button type="button" class="cw-original-layout" data-ws-pro-layout="${esc(template.id)}"><span class="cw-original-layout-art">${api.svg(template.element)}</span><strong>${esc(pro.title(template,currentLanguage()))}</strong><small>${esc(template.tag)}</small></button>`).join('')+'</div>';
+  }
+  async function applyProLayout(templateId){
+    const pro=window.VeeladStudioPro,template=pro?.templates.find(item=>item.id===templateId);
+    if(!template||elementBusy||!canAdd()||totalLayers()>118)return;
+    const item=await addElement(template.element);
+    if(!item||!root.isConnected||!canAdd())return;
+    item.x=template.x;item.y=template.y;
+    item.width=Math.min(item.width,.35);item.height=Math.min(item.height,.35);
+    const layer={id:uid(),type:'text',text:template.label,font:'manrope',color:template.color,size:.055,x:.5,y:.73,rotation:0,opacity:1,visible:true,locked:false,align:'center',direction:'auto'};
+    layers().push(layer);selected=layer.id;commit();
+    setStatus("Template applied");
   }
   async function addElement(elementId,point=null){
     const api=window.VeeladElements,entry=api?.find(elementId);
@@ -273,8 +301,8 @@ function renderElements(){
       }
       const scale=Math.min(.43/layer.width,.43/layer.height,1);
       layer.width*=scale;layer.height*=scale;
-      selected=layer.id;commit();
-    }catch(error){setStatus(error.message||"Could not load this layer.",true);}
+      selected=layer.id;window.VeeladStudioPro?.used(elementId);commit();return layer;
+    }catch(error){setStatus(error.message||"Could not load this layer.",true);return null;}
     finally{elementBusy=false;}
   }
   async function recolourElement(layerId,channel,color){
@@ -520,6 +548,9 @@ function renderElements(){
     else if(button.hasAttribute("data-ws-cancel-copy"))copyControls.querySelector("[data-ws-copy-confirm]").hidden=true;
     else if(button.hasAttribute("data-ws-choose-files"))shell.querySelector("[data-ws-upload]").click();
     else if(button.hasAttribute("data-ws-element"))await addElement(button.dataset.wsElement);
+    else if(button.hasAttribute("data-ws-elements-view")){elementsView=button.dataset.wsElementsView;elementLimit=48;renderElements();}
+    else if(button.hasAttribute("data-ws-favourite")){window.VeeladStudioPro?.favourite(button.dataset.wsFavourite);renderElements();}
+    else if(button.hasAttribute("data-ws-pro-layout"))await applyProLayout(button.dataset.wsProLayout);
     else if(button.hasAttribute("data-ws-element-more")){elementLimit+=48;renderElements();}
     else if(button.hasAttribute("data-ws-add-text"))addText(button.dataset.wsAddText);
     else if(button.hasAttribute("data-ws-open-fonts"))switchTool("fonts");
@@ -555,6 +586,7 @@ function renderElements(){
     const input=event.target;
     if(input.hasAttribute("data-ws-upload"))addImages(input.files);
     else if(input.hasAttribute("data-ws-element-category")){elementLimit=48;renderElements();}
+    else if(input.hasAttribute("data-ws-element-collection")){elementLimit=48;renderElements();}
     else if(input.hasAttribute("data-ws-element-colour")){const layer=current();if(layer)void recolourElement(layer.id,input.dataset.wsElementColour,input.value);}
     else if(input.hasAttribute("data-ws-zoom")){zoom=input.value;resizeStage();}
     else if(input.matches("[data-ws-font-script],[data-ws-font-category]")){fontLimit=60;renderFonts();}
@@ -593,5 +625,5 @@ shell.addEventListener("dragstart",event=>{
   instance.workspace={refresh,render,addText,select:selectLayer,selected:()=>selected,undo:()=>restore(-1),redo:()=>restore(1),dispose(){disposed=true;document.body.classList.remove("has-studio-focus");clearTimeout(qualityTimer);resizeObserver?.disconnect();fontObserver?.disconnect();lifecycle.disconnect();}};
   shell.dataset.panelOpen="true";shell.dataset.mode="edit";shell.dataset.tool="uploads";
   record();refresh();initFonts();
-  if(window.VeeladElements)renderElements();
+  if(window.VeeladElements){renderElements();renderProLayouts();}
 }
