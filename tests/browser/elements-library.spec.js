@@ -61,9 +61,16 @@ test('creators insert, recolour and persist a private vector element in the desi
   await studio.locator('[data-ws-element-category]').selectOption('Pets');
   await studio.locator('[data-ws-element-search]').fill('cat');
   await expect(studio.locator('[data-ws-element=cat-0]')).toBeVisible();
+  await studio.locator('[data-ws-favourite=cat-0]').click();
+  await studio.locator('[data-ws-elements-view=favourites]').click();
+  await expect(studio.locator('[data-ws-element=cat-0]')).toHaveCount(1);
+  await studio.locator('[data-ws-elements-view=all]').click();
   await studio.locator('[data-ws-element=cat-0]').click();
   const scene=async()=>JSON.parse(await form.locator('[name=design_studio]').inputValue()).scenes.shirt.front;
   await expect.poll(async()=>(await scene()).layers.filter(layer=>layer.library_element?.id==='cat-0').length).toBe(1);
+  await studio.locator('[data-ws-elements-view=recent]').click();
+  await expect(studio.locator('[data-ws-element=cat-0]')).toBeVisible();
+  await studio.locator('[data-ws-elements-view=all]').click();
   const original=(await scene()).layers.find(layer=>layer.library_element?.id==='cat-0');
   expect(original.upload_id).toMatch(/^art-/);
   await expect(studio.locator('[data-ws-element-colour=primary]')).toBeVisible();
@@ -81,6 +88,14 @@ test('creators insert, recolour and persist a private vector element in the desi
   await studio.locator('[data-ws-tool=layers]').click();
   await studio.locator('[data-ws-select="'+saved.id+'"]').click();
   await expect(studio.locator('[data-ws-element-colour=primary]')).toHaveValue('#ff2255');
+  await studio.locator('[data-ws-action=safe-left]').click();
+  await expect.poll(async()=>(await scene()).layers.find(layer=>layer.id===saved.id)?.x).toBeLessThan(.5);
+  await studio.locator('[data-ws-tool=layouts]').click();
+  await expect(studio.locator('[data-ws-original-layouts] .cw-original-layout')).toHaveCount(6);
+  await studio.locator('[data-ws-pro-layout=floral-type]').click();
+  await expect.poll(async()=> (await scene()).layers.length).toBe(3);
+  expect((await scene()).layers.some(layer=>layer.type==='text'&&layer.text==='MAKE IT BLOOM')).toBe(true);
+
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
   expect(errors).toEqual([]);
  }finally{await page.goto('about:blank').catch(()=>{});await fixture.close();}
