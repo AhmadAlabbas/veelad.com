@@ -73,10 +73,13 @@ function label(id,language){
  const entry=lookup.get(item.base),key=languageKey(language);
  return (key&&entry[key]||entry.name)+(item.variant?' · '+(item.variant+1):'');
 }
+const searchCache=new Map();
 function searchText(item){
+ const stored=searchCache.get(item.id);if(stored)return stored;
  const entry=lookup.get(item.base);
- if(!entry)return item.name;
- return [item.name,entry.name,entry.category,entry.code||'',entry.ar||'',entry.zh||'',entry.city||'',entry.country||'',entry.glyph||'',entry.city?'landmark skyline travel destination':null].filter(Boolean).join(' ');
+ const fields=entry?[item.name,entry.name,entry.category,entry.code||'',entry.ar||'',entry.zh||'',entry.city||'',entry.country||'',entry.glyph||'',entry.city?'landmark skyline travel destination':null]:[item.name,item.id,original.label(item.id,'ar'),original.label(item.id,'zh-CN'),original.categoryLabel(item.category,'ar'),original.categoryLabel(item.category,'zh-CN')];
+ const result=fields.filter(Boolean).join(' ').toLowerCase();
+ searchCache.set(item.id,result);return result;
 }
 function defaults(id){
  if(!newById.has(id))return original.defaults(id);
