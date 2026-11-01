@@ -7,6 +7,7 @@ const workspaceArabic = {
   "Elements":"العناصر", "Element":"عنصر", "Search elements":"ابحث عن العناصر", "All categories":"كل التصنيفات", "More elements":"المزيد من العناصر", "Element colours":"ألوان العنصر", "Primary":"الأساسي", "Secondary":"الثانوي", "Accent":"التفاصيل", "Preparing element…":"نجهّز العنصر…", "Element updated":"تم تعديل العنصر", "Elements are original and can be recoloured.":"عناصر أصلية ويمكنك تغيير ألوانها.",
   "Move, resize and rotate design on product":"حرّك التصميم على المنتج وغيّر حجمه ودوّره", "Select artwork on the product to drag, resize or rotate it.":"اختر التصميم على القطعة واسحبه أو غيّر حجمه أو دوّره.", "Rotate selected artwork":"تدوير العنصر المحدد", "Resize selected artwork":"تغيير حجم العنصر المحدد",
   "Move artwork on the garment or edit it on the flat canvas.":"حرّك العناصر مباشرة على القطعة أو عدّلها على مساحة التصميم المسطحة.",
+  "Drag to reorder. Alt+Shift+Arrow keys also work.":"اسحب لإعادة ترتيب الطبقات، أو استخدم Alt+Shift مع الأسهم.", "Layer order updated":"تم تحديث ترتيب الطبقات",
   "Creative studio":"استوديو التصميم", "Make room for your imagination.":"خلّ لخيالك مساحة.", "Design":"التصميم", "Product preview":"معاينة القطعة", "Review item":"راجع قطعتك", "Uploads":"الصور", "Text":"النصوص", "Fonts":"الخطوط", "Layers":"الطبقات", "Layouts":"القوالب", "Canvas":"لوحة التصميم", "Add images":"أضف صور", "Upload images":"ارفع صورك", "Drop your images here":"اسحب صورك هنا", "PNG or JPEG · multiple files welcome":"PNG أو JPEG · تقدر تضيف أكثر من صورة", "Your originals stay private.":"ملفاتك الأصلية تبقى خاصة فيك.", "Add text":"أضف نص", "Add a heading":"أضف عنوان", "Add a little detail":"أضف عبارة صغيرة", "Your words, your style.":"كلماتك، بأسلوبك.", "Mix languages, play with type, make it yours.":"اجمع أكثر من لغة، وجرّب الخطوط على ذوقك.", "Write something wonderful":"اكتب شيء يشبهك", "A little more you":"تفصيلة منك", "Search fonts":"ابحث عن خط", "All scripts":"كل اللغات", "All styles":"كل الأنماط", "No fonts match. Try another search.":"ما لقينا خط يطابق بحثك. جرّب كلمة ثانية.", "Choose text on the canvas to apply a font.":"اختر نص من اللوحة عشان تغيّر خطه.", "Loading fonts…":"نجهّز مكتبة الخطوط…", "Font library is unavailable. Try again shortly.":"مكتبة الخطوط غير متاحة حاليًا. جرّب بعد شوي.", "Some characters are not included in this font. Choose a font for this script.":"بعض الحروف مو موجودة في هالخط. اختر خط يدعم لغة النص.", "Front":"الأمام", "Back":"الخلف", "Wrap":"التصميم الكامل", "Independent designs on each side":"تصميم مستقل لكل جهة", "One continuous wrap":"تصميم واحد يلتف حول الكوب", "Undo":"تراجع", "Redo":"إعادة", "Zoom":"التكبير", "Fit":"ملاءمة", "Fit to screen":"ناسب حجم الشاشة", "Safe area":"المساحة الآمنة", "Snap to centre":"محاذاة للمنتصف", "Add a photo. Make a statement.":"صورة منك. وتصميم على ذوقك.", "Start with an image, a few words, or both.":"ابدأ بصورة، أو كلمات، أو اجمعهم مع بعض.", "Select a layer to fine-tune it.":"اختر طبقة عشان تعدّل تفاصيلها.", "Drag to move · corners to resize · top handle to rotate":"اسحب للتحريك · الزوايا لتغيير الحجم · المقبض العلوي للتدوير", "Drag to move. Use the corner handles to resize.":"اسحب للتحريك. واستخدم مقابض الزوايا لتغيير الحجم.", "Provisional product preview":"معاينة مبدئية للقطعة", "Your design is editable. Supplier print specifications still need confirmation.":"تصميمك قابل للتعديل. مقاسات الطباعة النهائية تحتاج تأكيد المورّد.", "Background":"الخلفية", "Transparent":"شفافة", "Colour":"اللون", "Opacity":"الشفافية", "Rotation":"الدوران", "Width (%)":"العرض (%)", "Height (%)":"الارتفاع (%)", "Horizontal (%)":"أفقي (%)", "Vertical (%)":"عمودي (%)", "Text size (%)":"حجم النص (%)", "Your text":"النص", "Font":"الخط", "Writing direction":"اتجاه الكتابة", "Automatic":"تلقائي", "Right to left":"من اليمين لليسار", "Left to right":"من اليسار لليمين", "Alignment":"المحاذاة", "Left":"يسار", "Centre":"وسط", "Right":"يمين", "Duplicate":"انسخ", "Delete":"احذف", "Move forward":"قدّم طبقة", "Move backward":"أخّر طبقة", "Centre horizontally":"وسّط أفقيًا", "Centre vertically":"وسّط عموديًا", "Flip horizontally":"اعكس أفقيًا", "Flip vertically":"اعكس عموديًا", "Show layer":"أظهر الطبقة", "Hide layer":"أخفِ الطبقة", "Unlock layer":"افتح قفل الطبقة", "Lock layer":"اقفل الطبقة", "Image":"صورة", "Text layer":"طبقة نص", "No layers yet":"لوحتك جاهزة لأفكارك", "Add images or text. Every element stays editable.":"أضف صور أو نصوص. كل عنصر يبقى قابل للتعديل.", "Selected layer":"الطبقة المختارة", "Layer is locked. Unlock it to edit.":"الطبقة مقفلة. افتح القفل عشان تعدّلها.", "Your own text":"كلماتك هنا", "Add up to 24 layers on each side.":"تقدر تضيف حتى 24 طبقة لكل جهة.", "Preparing your images…":"نجهّز صورك…", "Images added":"أضفنا الصور", "Could not load this layer.":"ما قدرنا نحمّل هالطبقة.", "Preparing accurate text…":"نجهّز النص بدقّة…", "Close panel":"أغلق الأدوات", "Open panel":"افتح الأدوات", "Keyboard: arrows to move, Shift for larger steps, Delete to remove.":"بالكيبورد: الأسهم للتحريك، وShift لخطوة أكبر، وDelete للحذف.", "This side is empty":"هالجهة فاضية", "Layer":"طبقة", "Ready to create":"جاهز لأفكارك", "Image quality is checked again before printing.":"جودة الصور تنفحص مرة ثانية قبل الطباعة.", "Print safe area":"حدود الطباعة الآمنة", "Shown above the layer below it":"تظهر فوق الطبقة اللي تحتها", "Your image":"صورتك", "Keep proportions":"حافظ على النسبة", "Edit on a flat canvas, then preview your item.":"عدّل على لوحة مسطّحة، وبعدها شوف التصميم على قطعتك.", "Choose a layout":"اختر قالب", "No layouts available":"القوالب غير متاحة حاليًا", "Sample text":"نص تجريبي", "Layers on this side":"طبقات هالجهة", "Changes save automatically":"تعديلاتك تنحفظ تلقائيًا", "Move and resize artwork":"حرّك التصميم وغيّر حجمه", "Printing area":"مساحة الطباعة", "Load more fonts":"اعرض خطوط أكثر", "Font style":"نمط الخط", "sans":"بسيط", "serif":"كلاسيكي", "display":"عناوين", "handwriting":"يدوي", "mono":"متساوي العرض", "arabic":"عربي", "Image uploads are private and stay linked to this design.":"صورك خاصة وتبقى مرتبطة بهالتصميم.", "Choose a font":"اختر خط", "Uploading":"جارٍ الرفع", "Template applied":"أضفنا القالب", "Preview":"معاينة", "No artwork on this side yet.":"ما فيه تصميم على هالجهة للحين."
 };
 function workspaceT(value) {
@@ -450,8 +451,17 @@ function renderElements(){
     const node=shell.querySelector("[data-ws-layer-list]"),list=layers();
     node.innerHTML=list.length?[...list].reverse().map((layer,index)=>{
       const asset=layerAssets.get(layer.id),label=layer.type==="text"?(layer.text||tr("Text layer")):layer.library_element?(window.VeeladElements?.label(layer.library_element.id,currentLanguage())||tr("Element")):tr("Image")+" "+(list.length-index);
-      return `<article class="cw-layer-row" data-selected="${layer.id===selected}"><button type="button" class="cw-layer-pick" data-ws-select="${esc(layer.id)}" aria-pressed="${layer.id===selected}"><span class="cw-layer-thumb">${asset?.image?`<img src="${esc(asset.image.src)}" alt="">`:workspaceIcon(layer.type==="text"?"text":"image")}</span><span dir="auto">${esc(label.slice(0,45))}</span></button><button type="button" class="cw-layer-toggle" data-ws-toggle-visible="${esc(layer.id)}" aria-label="${esc(tr(layer.visible===false?"Show layer":"Hide layer"))}" title="${esc(tr(layer.visible===false?"Show layer":"Hide layer"))}">${workspaceIcon(layer.visible===false?"hidden":"eye")}</button><button type="button" class="cw-layer-toggle" data-ws-toggle-lock="${esc(layer.id)}" aria-label="${esc(tr(layer.locked?"Unlock layer":"Lock layer"))}" title="${esc(tr(layer.locked?"Unlock layer":"Lock layer"))}">${workspaceIcon(layer.locked?"lock":"unlock")}</button></article>`;
+      return `<article class="cw-layer-row" draggable="${!layer.locked}" data-ws-sort-layer="${esc(layer.id)}" data-selected="${layer.id===selected}" title="${esc(tr("Drag to reorder. Alt+Shift+Arrow keys also work."))}"><button type="button" class="cw-layer-pick" data-ws-select="${esc(layer.id)}" aria-pressed="${layer.id===selected}"><span class="cw-layer-thumb">${asset?.image?`<img src="${esc(asset.image.src)}" alt="">`:workspaceIcon(layer.type==="text"?"text":"image")}</span><span dir="auto">${esc(label.slice(0,45))}</span></button><button type="button" class="cw-layer-toggle" data-ws-toggle-visible="${esc(layer.id)}" aria-label="${esc(tr(layer.visible===false?"Show layer":"Hide layer"))}" title="${esc(tr(layer.visible===false?"Show layer":"Hide layer"))}">${workspaceIcon(layer.visible===false?"hidden":"eye")}</button><button type="button" class="cw-layer-toggle" data-ws-toggle-lock="${esc(layer.id)}" aria-label="${esc(tr(layer.locked?"Unlock layer":"Lock layer"))}" title="${esc(tr(layer.locked?"Unlock layer":"Lock layer"))}">${workspaceIcon(layer.locked?"lock":"unlock")}</button></article>`;
     }).join(""):`<div class="cw-empty-panel">${workspaceIcon("layers")}<strong>${tr("No layers yet")}</strong><p>${tr("Add images or text. Every element stays editable.")}</p></div>`;
+  }
+  function reorderLayers(sourceId,targetId,placeAfter=false){
+    const source=layers().find(item=>item.id===sourceId),target=layers().find(item=>item.id===targetId);
+    if(!source||!target||source.locked||target.locked||sourceId===targetId)return false;
+    const ordered=window.VeeladLayerOrder?.reorderTopFirst([...layers()].reverse(),sourceId,targetId,placeAfter);
+    if(!ordered||ordered.every((layer,i)=>layer.id===[...layers()].reverse()[i]?.id))return false;
+    const list=layers();list.splice(0,list.length,...ordered.reverse());
+    selected=sourceId;commit();setStatus("Layer order updated");
+    return true;
   }
   function renderUploads(){
     const all=new Map();
@@ -761,11 +771,57 @@ shell.addEventListener("dragstart",event=>{
     if(!event.dataTransfer)return;
     const element=event.target.closest("[data-ws-element]"),
       upload=event.target.closest("[data-ws-reuse]");
+    const row=event.target.closest("[data-ws-sort-layer]");
+    if(row&&!event.target.closest("[data-ws-toggle-lock], [data-ws-toggle-visible]")){
+      const layer=layers().find(item=>item.id===row.dataset.wsSortLayer);
+      if(!layer||layer.locked){event.preventDefault();return;}
+      event.dataTransfer.setData("application/x-veelad-layer",layer.id);
+      event.dataTransfer.effectAllowed="move";
+      row.dataset.dragging="true";return;
+    }
     if(element)event.dataTransfer.setData("application/x-veelad-element",element.dataset.wsElement);
     else if(upload)event.dataTransfer.setData("application/x-veelad-upload",upload.dataset.wsReuse);
     else return;
     event.dataTransfer.effectAllowed="copy";
   });
+  shell.addEventListener("dragover",event=>{
+    const row=event.target.closest("[data-ws-sort-layer]");
+    if(!row||!event.dataTransfer?.types.includes("application/x-veelad-layer"))return;
+    const rect=row.getBoundingClientRect();
+    const after=event.clientY>rect.top+rect.height/2;
+    event.preventDefault();event.dataTransfer.dropEffect="move";
+    shell.querySelectorAll("[data-ws-sort-layer]").forEach(other=>{
+      if(other!==row)delete other.dataset.dropEdge;
+    });
+    row.dataset.dropEdge=after?"after":"before";
+  });
+  shell.addEventListener("drop",event=>{
+    const row=event.target.closest("[data-ws-sort-layer]");
+    if(!row||!event.dataTransfer?.types.includes("application/x-veelad-layer"))return;
+    const source=event.dataTransfer.getData("application/x-veelad-layer");
+    const target=row.dataset.wsSortLayer;
+    const rect=row.getBoundingClientRect(),after=event.clientY>rect.top+rect.height/2;
+    event.preventDefault();event.stopPropagation();
+    shell.querySelectorAll("[data-ws-sort-layer]").forEach(item=>delete item.dataset.dropEdge);
+    reorderLayers(source,target,after);
+  });
+  shell.addEventListener("dragend",()=>{
+    shell.querySelectorAll("[data-ws-sort-layer]").forEach(item=>{
+      delete item.dataset.dropEdge;delete item.dataset.dragging;
+    });
+  });
+  shell.addEventListener("keydown",event=>{
+    if(!event.altKey||!event.shiftKey||!["ArrowUp","ArrowDown"].includes(event.key))return;
+    const row=event.target.closest("[data-ws-sort-layer]");if(!row)return;
+    const shown=[...layers()].reverse(),index=shown.findIndex(l=>l.id===row.dataset.wsSortLayer);
+    const target=shown[index+(event.key==="ArrowUp"?-1:1)];
+    if(!target)return;
+    event.preventDefault();event.stopImmediatePropagation();
+    const id=row.dataset.wsSortLayer;
+    if(reorderLayers(id,target.id,event.key==="ArrowDown"))requestAnimationFrame(()=>{
+      [...shell.querySelectorAll("[data-ws-sort-layer]")].find(x=>x.dataset.wsSortLayer===id)?.querySelector(".cw-layer-pick")?.focus();
+    });
+  },true);
   artboard.addEventListener("dragover",event=>{
     if(event.dataTransfer?.types.includes("application/x-veelad-element")){event.preventDefault();event.dataTransfer.dropEffect="copy";}
   });
