@@ -16,7 +16,13 @@ const templates=Object.freeze([
  {id:'city-story',title:'City Explorer',ar:'مستكشف المدن',zh:'城市探索',label:'TAKE THE SCENIC ROUTE',element:'skyline-0',color:'#263B59',tag:'Travel / Streetwear',x:.5,y:.34},
  {id:'night-sky',title:'After Dark',ar:'بعد الغروب',zh:'夜幕之后',label:'STAY CURIOUS',element:'moon-0',color:'#39316C',tag:'Space / Minimal',x:.45,y:.35},
  {id:'coffee-days',title:'Coffee Club',ar:'نادي القهوة',zh:'咖啡时光',label:'COFFEE & IDEAS',element:'coffee-0',color:'#613B35',tag:'Food / Everyday',x:.52,y:.36},
- {id:'celebration',title:'Celebrate Today',ar:'احتفل باليوم',zh:'庆祝今天',label:'MAKE A WISH',element:'balloon-0',color:'#7B4166',tag:'Events / Birthday',x:.5,y:.35}
+ {id:'celebration',title:'Celebrate Today',ar:'احتفل باليوم',zh:'庆祝今天',label:'MAKE A WISH',element:'balloon-0',color:'#7B4166',tag:'Events / Birthday',x:.5,y:.35},
+ {id:'city-transit',title:'The City Moves',ar:'إيقاع المدينة',zh:'城市节奏',label:'GO YOUR OWN WAY',element:'premium-urban-tram-0',color:'#304052',tag:'Streetwear / Travel',x:.52,y:.37},
+ {id:'desert-soul',title:'Desert Horizons',ar:'آفاق الصحراء',zh:'沙漠地平线',label:'FIND YOUR HORIZON',element:'premium-desert-0',color:'#75533A',tag:'Nature / Adventure',x:.5,y:.36},
+ {id:'wild-fox',title:'Wild at Heart',ar:'قلب بري',zh:'野性之心',label:'STAY WILD',element:'premium-fox-0',color:'#5F423B',tag:'Animals / Outdoor',x:.49,y:.4},
+ {id:'orchid-garden',title:'Blooming Orchid',ar:'أوركيد مزهر',zh:'兰花绽放',label:'GROW THROUGH IT',element:'premium-orchid-0',color:'#704264',tag:'Botanical / Wellness',x:.47,y:.4},
+ {id:'ocean-whale',title:'Ocean Days',ar:'أيام البحر',zh:'海洋之日',label:'BLUE HORIZONS',element:'premium-whale-0',color:'#2C6179',tag:'Ocean / Minimal',x:.53,y:.38},
+ {id:'playful-gamer',title:'Play Your Way',ar:'العب بطريقتك',zh:'随心畅玩',label:'NEXT LEVEL',element:'premium-gamepad-0',color:'#4A3F7B',tag:'Gaming / Everyday',x:.5,y:.38}
 ]);
 const storageKey='veelad:studio-library:v1';
 function normalize(value){
