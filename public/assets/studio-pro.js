@@ -18,12 +18,12 @@ const templates=Object.freeze([
  {id:'night-sky',title:'After Dark',ar:'بعد الغروب',zh:'夜幕之后',label:'STAY CURIOUS',element:'moon-0',color:'#39316C',tag:'Space / Minimal',x:.45,y:.35},
  {id:'coffee-days',title:'Coffee Club',ar:'نادي القهوة',zh:'咖啡时光',label:'COFFEE & IDEAS',element:'coffee-0',color:'#613B35',tag:'Food / Everyday',x:.52,y:.36},
  {id:'celebration',title:'Celebrate Today',ar:'احتفل باليوم',zh:'庆祝今天',label:'MAKE A WISH',element:'balloon-0',color:'#7B4166',tag:'Events / Birthday',x:.5,y:.35},
- {id:'golden-hour-bloom',title:'Golden Hour',ar:'أزهار الساعة الذهبية',zh:'金色时光',label:'GROW TOWARD THE SUN',element:'botanical-sunflower-0',color:'#6D523D',tag:'Botanical / Vintage',x:.47,y:.34},
- {id:'wildflower-soul',title:'Wildflower Soul',ar:'روح الزهور البرية',zh:'野花之魂',label:'WILD BY NATURE',element:'botanical-poppies-0',color:'#833F50',tag:'Botanical / Streetwear',x:.52,y:.39},
- {id:'tropical-ritual',title:'Tropical Ritual',ar:'الطقوس الاستوائية',zh:'热带仪式',label:'MADE TO EXPLORE',element:'botanical-monstera-0',color:'#245D52',tag:'Botanical / Tropical',x:.5,y:.38},
- {id:'cottage-dreams',title:'Forest Daydream',ar:'حلم الغابة',zh:'森林白日梦',label:'TAKE THE SLOW ROAD',element:'botanical-mushrooms-0',color:'#8B4A43',tag:'Cottagecore / Nature',x:.48,y:.38},
- {id:'lotus-poetry',title:'Lotus Poetry',ar:'شعر اللوتس',zh:'荷塘诗意',label:'ROOTED IN CALM',element:'botanical-lotus-0',color:'#6A477A',tag:'Botanical / Wellness',x:.5,y:.42},
- {id:'ocean-garden',title:'Ocean Garden',ar:'حديقة المحيط',zh:'海洋花园',label:'BENEATH THE WAVES',element:'botanical-coral-0',color:'#AE5267',tag:'Ocean / Creative',x:.53,y:.39}
+ {id:'golden-hour-bloom',title:'Golden Hour',ar:'أزهار الساعة الذهبية',zh:'金色时光',label:'GROW TOWARD THE SUN',element:'botanical-sunflower-0',secondary:'botanical-daisy-0',subtitle:'GOLDEN HOUR',color:'#6D523D',tag:'Botanical / Vintage',x:.47,y:.34},
+ {id:'wildflower-soul',title:'Wildflower Soul',ar:'روح الزهور البرية',zh:'野花之魂',label:'WILD BY NATURE',element:'botanical-poppies-0',secondary:'botanical-tulips-0',subtitle:'NEVER ORDINARY',color:'#833F50',tag:'Botanical / Streetwear',x:.52,y:.39},
+ {id:'tropical-ritual',title:'Tropical Ritual',ar:'الطقوس الاستوائية',zh:'热带仪式',label:'MADE TO EXPLORE',element:'botanical-monstera-0',secondary:'botanical-citrus-0',subtitle:'IN LIVING COLOUR',color:'#245D52',tag:'Botanical / Tropical',x:.5,y:.38},
+ {id:'cottage-dreams',title:'Forest Daydream',ar:'حلم الغابة',zh:'森林白日梦',label:'TAKE THE SLOW ROAD',element:'botanical-mushrooms-0',secondary:'botanical-fern-0',subtitle:'SLOW & CURIOUS',color:'#8B4A43',tag:'Cottagecore / Nature',x:.48,y:.38},
+ {id:'lotus-poetry',title:'Lotus Poetry',ar:'شعر اللوتس',zh:'荷塘诗意',label:'ROOTED IN CALM',element:'botanical-lotus-0',secondary:'botanical-orchid-0',subtitle:'BREATHE DEEPLY',color:'#6A477A',tag:'Botanical / Wellness',x:.5,y:.42},
+ {id:'ocean-garden',title:'Ocean Garden',ar:'حديقة المحيط',zh:'海洋花园',label:'BENEATH THE WAVES',element:'botanical-coral-0',secondary:'botanical-butterfly-0',subtitle:'WILD AND FREE',color:'#AE5267',tag:'Ocean / Creative',x:.53,y:.39}
 ]);
 const storageKey='veelad:studio-library:v1';
 function normalize(value){return String(value||'').normalize('NFKC').toLocaleLowerCase().trim();}
