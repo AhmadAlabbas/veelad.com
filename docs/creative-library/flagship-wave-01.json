@@ -6,7 +6,7 @@
   "items": [
     {
       "rank": 1,
-      "id": "ent-urban-noir-rooftop-courier",
+      "id": "ent-urban-noir-rooftop-courier-0",
       "name": "Rooftop Courier",
       "pack_id": "urban-noir",
       "kind": "original_character",
@@ -20,7 +20,7 @@
     },
     {
       "rank": 2,
-      "id": "ent-urban-noir-raindrop-detective-hat",
+      "id": "ent-urban-noir-raindrop-detective-hat-0",
       "name": "Raindrop Detective Hat",
       "pack_id": "urban-noir",
       "kind": "illustrated_motif",
@@ -34,7 +34,7 @@
     },
     {
       "rank": 3,
-      "id": "ent-science-wonders-microbe-gardener",
+      "id": "ent-science-wonders-microbe-gardener-0",
       "name": "Microbe Gardener",
       "pack_id": "science-wonders",
       "kind": "original_character",
@@ -48,7 +48,7 @@
     },
     {
       "rank": 4,
-      "id": "ent-science-wonders-crystal-spectrometer",
+      "id": "ent-science-wonders-crystal-spectrometer-0",
       "name": "Crystal Spectrometer",
       "pack_id": "science-wonders",
       "kind": "illustrated_motif",
@@ -62,7 +62,7 @@
     },
     {
       "rank": 5,
-      "id": "ent-escape-puzzles-riddle-architect",
+      "id": "ent-escape-puzzles-riddle-architect-0",
       "name": "Riddle Architect",
       "pack_id": "escape-puzzles",
       "kind": "original_character",
@@ -76,7 +76,7 @@
     },
     {
       "rank": 6,
-      "id": "ent-hometown-adventures-hillside-treehouse",
+      "id": "ent-hometown-adventures-hillside-treehouse-0",
       "name": "Hillside Treehouse",
       "pack_id": "hometown-adventures",
       "kind": "illustrated_motif",
@@ -90,7 +90,7 @@
     },
     {
       "rank": 7,
-      "id": "ent-retro-arcade-neon-skater",
+      "id": "ent-retro-arcade-neon-skater-0",
       "name": "Neon Skater",
       "pack_id": "retro-arcade",
       "kind": "original_character",
@@ -104,7 +104,7 @@
     },
     {
       "rank": 8,
-      "id": "ent-retro-arcade-electric-pinball",
+      "id": "ent-retro-arcade-electric-pinball-0",
       "name": "Electric Pinball",
       "pack_id": "retro-arcade",
       "kind": "illustrated_motif",
@@ -118,7 +118,7 @@
     },
     {
       "rank": 9,
-      "id": "ent-cosmic-odyssey-comet-botanist",
+      "id": "ent-cosmic-odyssey-comet-botanist-0",
       "name": "Comet Botanist",
       "pack_id": "cosmic-odyssey",
       "kind": "original_character",
@@ -132,7 +132,7 @@
     },
     {
       "rank": 10,
-      "id": "ent-cosmic-odyssey-folded-solar-sail",
+      "id": "ent-cosmic-odyssey-folded-solar-sail-0",
       "name": "Folded Solar Sail",
       "pack_id": "cosmic-odyssey",
       "kind": "illustrated_motif",
@@ -146,7 +146,7 @@
     },
     {
       "rank": 11,
-      "id": "ent-neon-future-hologram-florist",
+      "id": "ent-neon-future-hologram-florist-0",
       "name": "Hologram Florist",
       "pack_id": "neon-future",
       "kind": "original_character",
@@ -160,7 +160,7 @@
     },
     {
       "rank": 12,
-      "id": "ent-neon-future-circuit-umbrella",
+      "id": "ent-neon-future-circuit-umbrella-0",
       "name": "Circuit Umbrella",
       "pack_id": "neon-future",
       "kind": "illustrated_motif",
@@ -174,7 +174,7 @@
     },
     {
       "rank": 13,
-      "id": "ent-mythic-kingdoms-wandering-lantern-knight",
+      "id": "ent-mythic-kingdoms-wandering-lantern-knight-0",
       "name": "Wandering Lantern Knight",
       "pack_id": "mythic-kingdoms",
       "kind": "original_character",
@@ -188,7 +188,7 @@
     },
     {
       "rank": 14,
-      "id": "ent-enchanted-garden-tangerine-moth",
+      "id": "ent-enchanted-garden-tangerine-moth-0",
       "name": "Tangerine Moth",
       "pack_id": "enchanted-garden",
       "kind": "illustrated_motif",
@@ -202,7 +202,7 @@
     },
     {
       "rank": 15,
-      "id": "ent-desert-trails-night-sky-photographer",
+      "id": "ent-desert-trails-night-sky-photographer-0",
       "name": "Night Sky Photographer",
       "pack_id": "desert-trails",
       "kind": "original_character",
@@ -216,7 +216,7 @@
     },
     {
       "rank": 16,
-      "id": "ent-ocean-expeditions-shell-cartographer",
+      "id": "ent-ocean-expeditions-shell-cartographer-0",
       "name": "Shell Cartographer",
       "pack_id": "ocean-expeditions",
       "kind": "original_character",
@@ -230,7 +230,7 @@
     },
     {
       "rank": 17,
-      "id": "ent-playful-monsters-waffleback-wanderer",
+      "id": "ent-playful-monsters-waffleback-wanderer-0",
       "name": "Waffleback Wanderer",
       "pack_id": "playful-monsters",
       "kind": "original_character",
@@ -244,7 +244,7 @@
     },
     {
       "rank": 18,
-      "id": "ent-playful-monsters-jellybean-glider",
+      "id": "ent-playful-monsters-jellybean-glider-0",
       "name": "Jellybean Glider",
       "pack_id": "playful-monsters",
       "kind": "illustrated_motif",
@@ -258,7 +258,7 @@
     },
     {
       "rank": 19,
-      "id": "ent-romantic-comedy-umbrella-for-two",
+      "id": "ent-romantic-comedy-umbrella-for-two-0",
       "name": "Umbrella for Two",
       "pack_id": "romantic-comedy",
       "kind": "illustrated_motif",
@@ -272,7 +272,7 @@
     },
     {
       "rank": 20,
-      "id": "ent-cinema-craft-practical-effects-maker",
+      "id": "ent-cinema-craft-practical-effects-maker-0",
       "name": "Practical Effects Maker",
       "pack_id": "cinema-craft",
       "kind": "original_character",
@@ -286,7 +286,7 @@
     },
     {
       "rank": 21,
-      "id": "ent-stunts-adventure-river-rescue-pilot",
+      "id": "ent-stunts-adventure-river-rescue-pilot-0",
       "name": "River Rescue Pilot",
       "pack_id": "stunts-adventure",
       "kind": "original_character",
@@ -300,7 +300,7 @@
     },
     {
       "rank": 22,
-      "id": "ent-kitchen-stories-tea-kettle-chorus",
+      "id": "ent-kitchen-stories-tea-kettle-chorus-0",
       "name": "Tea Kettle Chorus",
       "pack_id": "kitchen-stories",
       "kind": "illustrated_motif",
@@ -314,7 +314,7 @@
     },
     {
       "rank": 23,
-      "id": "ent-sports-stories-the-finish-together",
+      "id": "ent-sports-stories-the-finish-together-0",
       "name": "The Finish Together",
       "pack_id": "sports-stories",
       "kind": "scene_or_badge",
@@ -328,7 +328,7 @@
     },
     {
       "rank": 24,
-      "id": "ent-music-after-dark-subway-jazz-violinist",
+      "id": "ent-music-after-dark-subway-jazz-violinist-0",
       "name": "Subway Jazz Violinist",
       "pack_id": "music-after-dark",
       "kind": "original_character",
@@ -342,7 +342,7 @@
     },
     {
       "rank": 25,
-      "id": "ent-cozy-mysteries-the-secret-shelf",
+      "id": "ent-cozy-mysteries-the-secret-shelf-0",
       "name": "The Secret Shelf",
       "pack_id": "cozy-mysteries",
       "kind": "illustrated_motif",
@@ -356,7 +356,7 @@
     },
     {
       "rank": 26,
-      "id": "ent-eerie-folklore-moth-mantle-storyteller",
+      "id": "ent-eerie-folklore-moth-mantle-storyteller-0",
       "name": "Moth-Mantle Storyteller",
       "pack_id": "eerie-folklore",
       "kind": "original_character",
@@ -370,7 +370,7 @@
     },
     {
       "rank": 27,
-      "id": "ent-urban-noir-blue-hour-alley",
+      "id": "ent-urban-noir-blue-hour-alley-0",
       "name": "Blue Hour Alley",
       "pack_id": "urban-noir",
       "kind": "scene_or_badge",
@@ -384,7 +384,7 @@
     },
     {
       "rank": 28,
-      "id": "ent-cosmic-odyssey-beyond-the-rings",
+      "id": "ent-cosmic-odyssey-beyond-the-rings-0",
       "name": "Beyond the Rings",
       "pack_id": "cosmic-odyssey",
       "kind": "scene_or_badge",
@@ -398,7 +398,7 @@
     },
     {
       "rank": 29,
-      "id": "ent-enchanted-garden-garden-after-dark",
+      "id": "ent-enchanted-garden-garden-after-dark-0",
       "name": "Garden After Dark",
       "pack_id": "enchanted-garden",
       "kind": "scene_or_badge",
@@ -412,7 +412,7 @@
     },
     {
       "rank": 30,
-      "id": "ent-ocean-expeditions-beneath-the-surface",
+      "id": "ent-ocean-expeditions-beneath-the-surface-0",
       "name": "Beneath the Surface",
       "pack_id": "ocean-expeditions",
       "kind": "scene_or_badge",
@@ -426,7 +426,7 @@
     },
     {
       "rank": 31,
-      "id": "ent-romantic-comedy-meet-cute-cafe",
+      "id": "ent-romantic-comedy-meet-cute-cafe-0",
       "name": "Meet-Cute Café",
       "pack_id": "romantic-comedy",
       "kind": "scene_or_badge",
@@ -440,7 +440,7 @@
     },
     {
       "rank": 32,
-      "id": "ent-retro-arcade-night-mode-arcade",
+      "id": "ent-retro-arcade-night-mode-arcade-0",
       "name": "Night Mode Arcade",
       "pack_id": "retro-arcade",
       "kind": "scene_or_badge",
