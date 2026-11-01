@@ -129,3 +129,13 @@
 .cw-library-quick-filters button:hover{border-color:#ae94d7!important;background:#f1ebf9!important}
 .cw-library-quick-filters button:focus-visible{outline:3px solid #8566c2;outline-offset:2px}
 @media(max-width:700px){.cw-library-quick-filters{gap:8px}.cw-library-quick-filters button{min-height:42px;font-size:11px!important}}
+
+/* Select two or more artwork layers before batch alignment; avoid surprising edits. */
+.cw-multi-tools{display:flex;gap:7px;margin:8px 0 11px}
+.cw-multi-tools button{flex:1;min-height:38px;border:1px solid #e2dce8!important;border-radius:8px;padding:6px!important;background:#faf9fc!important;font-size:10.5px!important}
+.cw-multi-tools button:hover{border-color:#9f84d1!important;background:#f2ecfa!important}
+.cw-layer-row[data-multi="true"]{box-shadow:inset 3px 0 #9874c6}
+.cw-layer-multi{display:grid;place-items:center;width:28px;min-height:36px;flex:0 0 28px}
+.cw-layer-multi input{width:17px;height:17px;accent-color:#7859bb;cursor:pointer}
+.cw-layer-multi input:focus-visible{outline:3px solid #a992ef;outline-offset:2px}
+@media(max-width:700px){.cw-multi-tools button{min-height:44px;font-size:11px!important}.cw-layer-multi{width:32px;flex-basis:32px;min-height:44px}.cw-layer-multi input{width:19px;height:19px}}
