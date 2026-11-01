@@ -92,3 +92,24 @@
  .cw-element-entry{padding:5px}
  .cw-element-entry .cw-element-tile small{font-size:9.5px}
 }
+/* Interactive garment preview. All handles control the saved flat scene; the
+   garment image is still rendered by the production-matching projection. */
+.cw-preview-pane .design-mockup{position:relative!important;overflow:visible}
+.cw-preview-overlay{position:absolute;z-index:12;touch-action:none;cursor:crosshair;outline:none;user-select:none;-webkit-user-select:none}
+.cw-preview-overlay[hidden]{display:none!important}
+.cw-preview-overlay:focus-visible{outline:2px solid #7250cf;outline-offset:3px}
+.cw-preview-outline{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.cw-preview-outline polygon{fill:#8754ce13;stroke:#7551cd;stroke-width:4;stroke-dasharray:13 7;vector-effect:non-scaling-stroke;pointer-events:none}
+.cw-preview-outline polygon[points=""]{display:none}
+.cw-preview-overlay [data-ws-preview-handle]{position:absolute!important;z-index:14;width:17px;height:17px;min-width:17px!important;min-height:17px!important;padding:0!important;border:2px solid #7650c6!important;border-radius:5px;background:#fff!important;transform:translate(-50%,-50%);touch-action:none;cursor:nwse-resize;box-shadow:0 1px 5px #37245955}
+.cw-preview-overlay [data-ws-preview-handle="ne"],.cw-preview-overlay [data-ws-preview-handle="sw"]{cursor:nesw-resize}
+.cw-preview-overlay [data-ws-preview-handle="rotate"]{width:27px;height:27px;border-radius:50%;cursor:grab;background:#7753c7!important;border:3px solid #fff!important;box-shadow:0 0 0 2px #7753c7,0 2px 6px #37245955}
+.cw-preview-overlay [data-ws-preview-handle="rotate"]::after{content:"↻";position:absolute;inset:0;color:#fff;font-size:19px;display:grid;place-items:center;line-height:1}
+.cw-preview-overlay [data-ws-preview-handle]:focus-visible{outline:3px solid #b9a0ef;outline-offset:3px}
+.cw-preview-overlay [data-ws-preview-handle][hidden]{display:none!important}
+.cw-preview-edit-hint{margin:6px 8px!important;padding:8px!important;text-align:center;font-size:11px!important;color:#584c66;background:#f6f0ff;border:1px solid #e4d8f4;border-radius:8px;line-height:1.5}
+@media(max-width:700px){
+ .cw-preview-overlay [data-ws-preview-handle]{width:22px;height:22px;min-width:22px!important;min-height:22px!important}
+ .cw-preview-overlay [data-ws-preview-handle="rotate"]{width:31px;height:31px}
+ .cw-preview-edit-hint{font-size:11px!important}
+}
