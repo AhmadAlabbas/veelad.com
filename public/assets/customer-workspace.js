@@ -437,18 +437,42 @@ function renderElements(){
   function renderProLayouts(){
     const pro=window.VeeladStudioPro,api=window.VeeladElements,target=shell.querySelector('[data-ws-original-layouts]');
     if(!pro||!target)return;
-    target.innerHTML='<h5>'+esc(tr("Ready-made designs"))+'</h5><p class="cw-muted">'+esc(tr("Original editable starting points"))+'</p><div class="cw-original-layout-grid">'+pro.templates.map(template=>`<button type="button" class="cw-original-layout" data-ws-pro-layout="${esc(template.id)}"><span class="cw-original-layout-art">${api.svg(template.element)}</span><strong>${esc(pro.title(template,currentLanguage()))}</strong><small>${esc(template.tag)}</small></button>`).join('')+'</div>';
+    target.innerHTML='<h5>'+esc(tr("Ready-made designs"))+'</h5><p class="cw-muted">'+esc(tr("Original editable starting points"))+'</p><div class="cw-original-layout-grid">'+pro.templates.map(template=>`<button type="button" class="cw-original-layout" data-ws-pro-layout="${esc(template.id)}"><span class="cw-original-layout-art">${api.svg(template.element)}${template.secondary?`<span class="cw-template-art-companion">${api.svg(template.secondary)}</span>`:""}</span><strong>${esc(pro.title(template,currentLanguage()))}</strong><small>${esc(template.tag)}</small></button>`).join('')+'</div>';
   }
   async function applyProLayout(templateId){
-    const pro=window.VeeladStudioPro,template=pro?.templates.find(item=>item.id===templateId);
-    if(!template||elementBusy||!canAdd()||totalLayers()>118)return;
-    const item=await addElement(template.element);
-    if(!item||!root.isConnected||!canAdd())return;
-    item.x=template.x;item.y=template.y;
-    item.width=Math.min(item.width,.35);item.height=Math.min(item.height,.35);
-    const layer={id:uid(),type:'text',text:template.label,font:'manrope',color:template.color,size:.055,x:.5,y:.73,rotation:0,opacity:1,visible:true,locked:false,align:'center',direction:'auto'};
-    layers().push(layer);selected=layer.id;commit();
-    setStatus("Template applied");
+    const pro=window.VeeladStudioPro,api=window.VeeladElements,
+      template=pro?.templates.find(item=>item.id===templateId);
+    if(!template||elementBusy)return;
+    const design=[template.element,...(template.secondary?[template.secondary]:[])],
+      count=design.length+1+(template.subtitle?1:0);
+    if(!canAdd(count))return;
+    elementBusy=true;setStatus("Preparing your editable composition…");
+    const product=instance.product().id,surface=adapter.surface();
+    try{
+      const files=await Promise.all(design.map(id=>api.file(id,api.defaults(id))));
+      if(!root.isConnected||instance.product().id!==product||adapter.surface()!==surface)return;
+      const images=await adapter.addImages(files);
+      if(!images||images.length!==design.length)throw Error("Could not add the complete design");
+      if(!root.isConnected||instance.product().id!==product||adapter.surface()!==surface)return;
+      for(let i=0;i<images.length;i++){
+        const layer=images[i],id=design[i],colours=api.defaults(id);
+        layer.library_element={id,colors:colours};
+        layer.x=template.x+(i===1?.21:0);
+        layer.y=template.y+(i===1?.13:0);
+        const maxSize=i===0?.34:.23;
+        const factor=Math.min(maxSize/layer.width,maxSize/layer.height,1);
+        layer.width*=factor;layer.height*=factor;
+        window.VeeladStudioPro?.used(id);
+      }
+      const label={id:uid(),type:"text",text:template.label,font:"manrope",color:template.color,
+        size:.048,x:.5,y:.72,rotation:0,opacity:1,visible:true,locked:false,align:"center",direction:"auto"};
+      layers().push(label);
+      if(template.subtitle)layers().push({id:uid(),type:"text",text:template.subtitle,
+        font:"manrope",color:template.color,size:.028,x:.5,y:.81,rotation:0,
+        opacity:1,visible:true,locked:false,align:"center",direction:"auto"});
+      selected=label.id;commit();setStatus("Editable composition added");
+    }catch(error){setStatus(error.message||"Could not add the complete design.",true);}
+    finally{elementBusy=false;}
   }
   async function addElement(elementId,point=null){
     const api=window.VeeladElements,entry=api?.find(elementId);
