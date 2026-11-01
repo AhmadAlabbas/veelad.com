@@ -1,0 +1,372 @@
+{
+  "schema": "veelad.flagship-originals.v1",
+  "status": "creative_art_direction_not_live_assets",
+  "count": 26,
+  "note": "These are 26 individually art-directed palette proposals for original drawings. Not existing vectors. Manual clearance and print QA required.",
+  "items": [
+    {
+      "rank": 1,
+      "id": "ent-urban-noir-rooftop-courier",
+      "name": "Rooftop Courier",
+      "pack_id": "urban-noir",
+      "kind": "original_character",
+      "default_palette": {
+        "primary": "#283D54",
+        "secondary": "#D6E4EA",
+        "accent": "#E6A565"
+      },
+      "quality_hook": "Clear motion silhouette, messenger bag separate from torso",
+      "status": "source_art_not_started"
+    },
+    {
+      "rank": 2,
+      "id": "ent-urban-noir-raindrop-detective-hat",
+      "name": "Raindrop Detective Hat",
+      "pack_id": "urban-noir",
+      "kind": "illustrated_motif",
+      "default_palette": {
+        "primary": "#263349",
+        "secondary": "#E5E8E5",
+        "accent": "#8CB4AA"
+      },
+      "quality_hook": "Hat brim readable independently of decorative puddle",
+      "status": "source_art_not_started"
+    },
+    {
+      "rank": 3,
+      "id": "ent-science-wonders-microbe-gardener",
+      "name": "Microbe Gardener",
+      "pack_id": "science-wonders",
+      "kind": "original_character",
+      "default_palette": {
+        "primary": "#1B6B68",
+        "secondary": "#D5EBDF",
+        "accent": "#E9A85C"
+      },
+      "quality_hook": "Friendly original researcher and unmistakable garden terrarium",
+      "status": "source_art_not_started"
+    },
+    {
+      "rank": 4,
+      "id": "ent-science-wonders-crystal-spectrometer",
+      "name": "Crystal Spectrometer",
+      "pack_id": "science-wonders",
+      "kind": "illustrated_motif",
+      "default_palette": {
+        "primary": "#513E6D",
+        "secondary": "#F5E9D7",
+        "accent": "#65B8C7"
+      },
+      "quality_hook": "Three distinct refracted rays, no tiny instrument labels",
+      "status": "source_art_not_started"
+    },
+    {
+      "rank": 5,
+      "id": "ent-escape-puzzles-riddle-architect",
+      "name": "Riddle Architect",
+      "pack_id": "escape-puzzles",
+      "kind": "original_character",
+      "default_palette": {
+        "primary": "#424052",
+        "secondary": "#F1D3B8",
+        "accent": "#C7796D"
+      },
+      "quality_hook": "Asymmetric figure and separate impossible-cube prop",
+      "status": "source_art_not_started"
+    },
+    {
+      "rank": 6,
+      "id": "ent-hometown-adventures-hillside-treehouse",
+      "name": "Hillside Treehouse",
+      "pack_id": "hometown-adventures",
+      "kind": "illustrated_motif",
+      "default_palette": {
+        "primary": "#5C6340",
+        "secondary": "#E5D0A5",
+        "accent": "#68A9B0"
+      },
+      "quality_hook": "Two canopy layers and unique platform footprint",
+      "status": "source_art_not_started"
+    },
+    {
+      "rank": 7,
+      "id": "ent-retro-arcade-neon-skater",
+      "name": "Neon Skater",
+      "pack_id": "retro-arcade",
+      "kind": "original_character",
+      "default_palette": {
+        "primary": "#5B3A82",
+        "secondary": "#FDE0A1",
+        "accent": "#40BECC"
+      },
+      "quality_hook": "Dynamic legs and speed lines without real game references",
+      "status": "source_art_not_started"
+    },
+    {
+      "rank": 8,
+      "id": "ent-retro-arcade-electric-pinball",
+      "name": "Electric Pinball",
+      "pack_id": "retro-arcade",
+      "kind": "illustrated_motif",
+      "default_palette": {
+        "primary": "#302E68",
+        "secondary": "#D5E1F0",
+        "accent": "#EF7E9F"
+      },
+      "quality_hook": "Distinct flippers and custom abstract targets",
+      "status": "source_art_not_started"
+    },
+    {
+      "rank": 9,
+      "id": "ent-cosmic-odyssey-comet-botanist",
+      "name": "Comet Botanist",
+      "pack_id": "cosmic-odyssey",
+      "kind": "original_character",
+      "default_palette": {
+        "primary": "#34517A",
+        "secondary": "#CDE4EF",
+        "accent": "#DE8C88"
+      },
+      "quality_hook": "Garden greenhouse contrasts with explorer suit",
+      "status": "source_art_not_started"
+    },
+    {
+      "rank": 10,
+      "id": "ent-cosmic-odyssey-folded-solar-sail",
+      "name": "Folded Solar Sail",
+      "pack_id": "cosmic-odyssey",
+      "kind": "illustrated_motif",
+      "default_palette": {
+        "primary": "#283F5E",
+        "secondary": "#F2DBA3",
+        "accent": "#7AB7D4"
+      },
+      "quality_hook": "Triangular spacecraft profile and three separable fill regions",
+      "status": "source_art_not_started"
+    },
+    {
+      "rank": 11,
+      "id": "ent-neon-future-hologram-florist",
+      "name": "Hologram Florist",
+      "pack_id": "neon-future",
+      "kind": "original_character",
+      "default_palette": {
+        "primary": "#274955",
+        "secondary": "#D7F2EB",
+        "accent": "#E08AAB"
+      },
+      "quality_hook": "Transparent virtual flowers and authentic silhouette",
+      "status": "source_art_not_started"
+    },
+    {
+      "rank": 12,
+      "id": "ent-neon-future-circuit-umbrella",
+      "name": "Circuit Umbrella",
+      "pack_id": "neon-future",
+      "kind": "illustrated_motif",
+      "default_palette": {
+        "primary": "#3D4069",
+        "secondary": "#DFE3F5",
+        "accent": "#69C1BA"
+      },
+      "quality_hook": "Legible canopy at 90 px, bright but limited circuit detail",
+      "status": "source_art_not_started"
+    },
+    {
+      "rank": 13,
+      "id": "ent-mythic-kingdoms-wandering-lantern-knight",
+      "name": "Wandering Lantern Knight",
+      "pack_id": "mythic-kingdoms",
+      "kind": "original_character",
+      "default_palette": {
+        "primary": "#584B6A",
+        "secondary": "#F5DEAB",
+        "accent": "#79AFA2"
+      },
+      "quality_hook": "Unique rounded armour and lantern, no franchise silhouette",
+      "status": "source_art_not_started"
+    },
+    {
+      "rank": 14,
+      "id": "ent-enchanted-garden-tangerine-moth",
+      "name": "Tangerine Moth",
+      "pack_id": "enchanted-garden",
+      "kind": "illustrated_motif",
+      "default_palette": {
+        "primary": "#975632",
+        "secondary": "#F3D8BF",
+        "accent": "#8D90C1"
+      },
+      "quality_hook": "Citrus segments visually separate from antennae",
+      "status": "source_art_not_started"
+    },
+    {
+      "rank": 15,
+      "id": "ent-desert-trails-night-sky-photographer",
+      "name": "Night Sky Photographer",
+      "pack_id": "desert-trails",
+      "kind": "original_character",
+      "default_palette": {
+        "primary": "#684B46",
+        "secondary": "#EBD5A5",
+        "accent": "#527893"
+      },
+      "quality_hook": "Tripod unmistakable; full-body night explorer",
+      "status": "source_art_not_started"
+    },
+    {
+      "rank": 16,
+      "id": "ent-ocean-expeditions-shell-cartographer",
+      "name": "Shell Cartographer",
+      "pack_id": "ocean-expeditions",
+      "kind": "original_character",
+      "default_palette": {
+        "primary": "#255F76",
+        "secondary": "#DDF1EA",
+        "accent": "#EFAC80"
+      },
+      "quality_hook": "Separate shell-like helmet and chart scroll",
+      "status": "source_art_not_started"
+    },
+    {
+      "rank": 17,
+      "id": "ent-playful-monsters-waffleback-wanderer",
+      "name": "Waffleback Wanderer",
+      "pack_id": "playful-monsters",
+      "kind": "original_character",
+      "default_palette": {
+        "primary": "#507F68",
+        "secondary": "#F7DCA5",
+        "accent": "#855E83"
+      },
+      "quality_hook": "Original anatomy and highly legible back plates",
+      "status": "source_art_not_started"
+    },
+    {
+      "rank": 18,
+      "id": "ent-playful-monsters-jellybean-glider",
+      "name": "Jellybean Glider",
+      "pack_id": "playful-monsters",
+      "kind": "illustrated_motif",
+      "default_palette": {
+        "primary": "#357F87",
+        "secondary": "#FCE1C8",
+        "accent": "#C280B3"
+      },
+      "quality_hook": "Recognisable ear-sails and silhouette",
+      "status": "source_art_not_started"
+    },
+    {
+      "rank": 19,
+      "id": "ent-romantic-comedy-umbrella-for-two",
+      "name": "Umbrella for Two",
+      "pack_id": "romantic-comedy",
+      "kind": "illustrated_motif",
+      "default_palette": {
+        "primary": "#905979",
+        "secondary": "#FBE5DE",
+        "accent": "#6DA49A"
+      },
+      "quality_hook": "Two shadows readable without inset text",
+      "status": "source_art_not_started"
+    },
+    {
+      "rank": 20,
+      "id": "ent-cinema-craft-practical-effects-maker",
+      "name": "Practical Effects Maker",
+      "pack_id": "cinema-craft",
+      "kind": "original_character",
+      "default_palette": {
+        "primary": "#4A5162",
+        "secondary": "#F3DCC0",
+        "accent": "#D98553"
+      },
+      "quality_hook": "Hands shaping original foam creature mask",
+      "status": "source_art_not_started"
+    },
+    {
+      "rank": 21,
+      "id": "ent-stunts-adventure-river-rescue-pilot",
+      "name": "River Rescue Pilot",
+      "pack_id": "stunts-adventure",
+      "kind": "original_character",
+      "default_palette": {
+        "primary": "#385E72",
+        "secondary": "#F5E2AC",
+        "accent": "#D97659"
+      },
+      "quality_hook": "Life vest and paddle visibly distinct",
+      "status": "source_art_not_started"
+    },
+    {
+      "rank": 22,
+      "id": "ent-kitchen-stories-tea-kettle-chorus",
+      "name": "Tea Kettle Chorus",
+      "pack_id": "kitchen-stories",
+      "kind": "illustrated_motif",
+      "default_palette": {
+        "primary": "#975341",
+        "secondary": "#F4E8C9",
+        "accent": "#80B2A0"
+      },
+      "quality_hook": "Steam notes do not depend on microscopic details",
+      "status": "source_art_not_started"
+    },
+    {
+      "rank": 23,
+      "id": "ent-sports-stories-the-finish-together",
+      "name": "The Finish Together",
+      "pack_id": "sports-stories",
+      "kind": "scene_or_badge",
+      "default_palette": {
+        "primary": "#286463",
+        "secondary": "#F1E0BB",
+        "accent": "#D8845B"
+      },
+      "quality_hook": "Three distinct movement poses and uncluttered finish line",
+      "status": "source_art_not_started"
+    },
+    {
+      "rank": 24,
+      "id": "ent-music-after-dark-subway-jazz-violinist",
+      "name": "Subway Jazz Violinist",
+      "pack_id": "music-after-dark",
+      "kind": "original_character",
+      "default_palette": {
+        "primary": "#553F70",
+        "secondary": "#F4D39D",
+        "accent": "#62A7A5"
+      },
+      "quality_hook": "Instrument and hands distinguishable in thumbnail",
+      "status": "source_art_not_started"
+    },
+    {
+      "rank": 25,
+      "id": "ent-cozy-mysteries-the-secret-shelf",
+      "name": "The Secret Shelf",
+      "pack_id": "cozy-mysteries",
+      "kind": "illustrated_motif",
+      "default_palette": {
+        "primary": "#675445",
+        "secondary": "#E8DEB8",
+        "accent": "#8AA27C"
+      },
+      "quality_hook": "Tiny hidden door remains detectable at 90 px",
+      "status": "source_art_not_started"
+    },
+    {
+      "rank": 26,
+      "id": "ent-eerie-folklore-moth-mantle-storyteller",
+      "name": "Moth-Mantle Storyteller",
+      "pack_id": "eerie-folklore",
+      "kind": "original_character",
+      "default_palette": {
+        "primary": "#3B4F57",
+        "secondary": "#C4D2BA",
+        "accent": "#CB7974"
+      },
+      "quality_hook": "Unique moth-shaped cape and masked character, not familiar genre mask",
+      "status": "source_art_not_started"
+    }
+  ]
+}
