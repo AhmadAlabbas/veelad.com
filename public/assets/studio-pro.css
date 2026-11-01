@@ -205,3 +205,9 @@
 .cw-original-layout-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 .cw-original-layout-art svg{max-width:100%;max-height:100%;object-fit:contain}
 @media(max-width:700px){.cw-multi-tools button{min-height:48px!important}.cw-group-pill{font-size:10px}}
+
+/* Saved palettes are local-only, while photo pixels never leave the browser. */
+.cw-palette-actions{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:5px}
+.cw-palette-actions button{min-height:42px!important;background:#f5f1fd!important;border:1px solid #cfc0e4!important;color:#583791!important;border-radius:9px;padding:6px 8px!important;font-weight:700!important;font-size:10.5px!important;line-height:1.4}
+.cw-palette-actions button:focus-visible{outline:3px solid #8565c1;outline-offset:2px}
+@media(max-width:550px){.cw-palette-actions{grid-template-columns:1fr}.cw-palette-actions button{min-height:46px!important;font-size:12px!important}}
