@@ -80,38 +80,10 @@ test('direct product preview edits share the saved design and support drag, resi
   await page.mouse.up();
   await expect.poll(async()=>(await scene()).layers.find(layer=>layer.id===beforeText.id).x).toBeLessThan(beforeText.x-.002);
 
-  // Alignment is available on the garment and edits the same text layer.
-  const alignment=shell.locator('[data-ws-preview-align=centre-both]');
-  await expect(alignment).toBeEnabled();
-  await alignment.click();
-  await expect.poll(async()=>{
-    const layer=(await scene()).layers.find(item=>item.id===beforeText.id);
-    return [layer.x,layer.y];
-  }).toEqual([.5,.5]);
-
-  // Customers must not leave product preview to upload another private photo.
-  const secondPhoto={name:'preview-second.png',mimeType:'image/png',buffer:await sharp({create:{width:640,height:640,channels:4,background:'#39a2e5ff'}}).png().toBuffer()};
-  const chooser=page.waitForEvent('filechooser');
-  await shell.locator('[data-ws-preview-create=photo]').click();
-  await (await chooser).setFiles(secondPhoto);
-  await expect.poll(async()=>(await scene()).layers.filter(layer=>layer.type==='image').length).toBe(2);
-  await expect(shell).toHaveAttribute('data-mode','preview');
-  await expect(overlay).toBeVisible();
-
-  // A new original vector is inserted without switching back to flat Design.
-  await shell.locator('[data-ws-preview-create=element]').click();
-  await expect(shell.locator('[data-ws-panel=elements]')).toBeVisible();
-  await shell.locator('[data-ws-element-search]').fill('rose');
-  await expect(shell.locator('[data-ws-element=rose-0]')).toBeVisible();
-  await shell.locator('[data-ws-element=rose-0]').click();
-  await expect.poll(async()=>(await scene()).layers.some(layer=>layer.library_element?.id==='rose-0')).toBe(true);
-  await expect(shell).toHaveAttribute('data-mode','preview');
-  await expect(alignment).toBeEnabled();
-
-  // New text can also be added directly from the garment editing toolbar.
-  const beforeCount=(await scene()).layers.length;
-  await shell.locator('[data-ws-preview-create=text]').click();
-  await expect.poll(async()=>(await scene()).layers.length).toBe(beforeCount+1);
+  // Product Preview is deliberately a direct-manipulation surface: no
+  // repetitive alignment/add-photo button toolbar overlays the mockup.
+  await expect(shell.locator('.cw-preview-tools')).toHaveCount(0);
+  await expect(shell.locator('[data-ws-preview-align]')).toHaveCount(0);
   await expect(shell).toHaveAttribute('data-mode','preview');
   expect(errors).toEqual([]);
  }finally{await page.goto('about:blank').catch(()=>{});await fixture.close();await fs.rm(folder,{recursive:true,force:true}).catch(()=>{});}
