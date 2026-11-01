@@ -462,7 +462,22 @@ function renderElements(){
     }
     const node=shell.querySelector("[data-ws-upload-library]"),key=[...all.keys()].join("|")+":"+[...all.values()].map(l=>layerAssets.has(l.id)).join("");
     if(node.dataset.key===key)return;node.dataset.key=key;
-    node.innerHTML=[...all].map(([upload,layer])=>{const asset=layerAssets.get(layer.id);return `<button type="button" data-ws-reuse="${esc(upload)}" title="${esc(tr("Add images"))}">${asset?.image?`<img src="${esc(asset.image.src)}" alt="${esc(tr("Your image"))}">`:workspaceIcon("image")}<span>${workspaceIcon("plus")}</span></button>`;}).join("");
+    node.innerHTML=[...all].map(([upload,layer])=>{const asset=layerAssets.get(layer.id);return `<button type="button" draggable="true" data-ws-reuse="${esc(upload)}" title="${esc(tr("Add images"))}">${asset?.image?`<img src="${esc(asset.image.src)}" alt="${esc(tr("Your image"))}">`:workspaceIcon("image")}<span>${workspaceIcon("plus")}</span></button>`;}).join("");
+  }
+  async function reuseImage(upload,point=null){
+    if(!canAdd())return;
+    const source=Object.values(instance.state.scenes||{}).flatMap(product=>
+      Object.values(product).flatMap(scene=>scene.layers||[])).find(item=>item.type==='image'&&item.upload_id===upload);
+    if(!source)return;
+    try{
+      const product=instance.product().id,surface=adapter.surface(),image=await adapter.image(upload);
+      if(!root.isConnected||instance.product().id!==product||adapter.surface()!==surface||!canAdd())return;
+      const d=logical(),fit=Math.min(d.width*.74/image.naturalWidth,d.height*.74/image.naturalHeight);
+      const layer={id:uid(),type:'image',upload_id:upload,x:clamp(point?.x??.5,0,1),y:clamp(point?.y??.5,0,1),
+        width:image.naturalWidth*fit/d.width,height:image.naturalHeight*fit/d.height,
+        rotation:0,repeat:false,opacity:1,visible:true,locked:false};
+      layers().push(layer);selected=layer.id;commit();
+    }catch{setStatus('Could not load this layer.',true);}
   }
   function prop(label,key,value,{type="number",min=0,max=100,step=1,extra=""}={}){
     return `<label class="cw-property"><span>${tr(label)}</span><input type="${type}" data-ws-prop="${key}" value="${esc(String(value))}" min="${min}" max="${max}" step="${step}" ${type==="number"?'dir="ltr"':""} ${extra}></label>`;
@@ -711,17 +726,8 @@ function renderElements(){
     else if(button.hasAttribute("data-ws-select"))selectLayer(button.dataset.wsSelect,{focus:true});
     else if(button.hasAttribute("data-ws-toggle-visible")){const layer=layers().find(l=>l.id===button.dataset.wsToggleVisible);layer.visible=layer.visible===false;commit();}
     else if(button.hasAttribute("data-ws-toggle-lock")){const layer=layers().find(l=>l.id===button.dataset.wsToggleLock);layer.locked=!layer.locked;commit();}
-    else if(button.hasAttribute("data-ws-reuse")){
-      if(!canAdd())return;
-      const upload=button.dataset.wsReuse,source=Object.values(instance.state.scenes||{}).flatMap(product=>Object.values(product).flatMap(scene=>scene.layers||[])).find(l=>l.upload_id===upload);
-      if(source)try{
-        const product=instance.product().id,surface=adapter.surface(),image=await adapter.image(upload);
-        if(!root.isConnected||instance.product().id!==product||adapter.surface()!==surface||!canAdd())return;
-        const d=logical(),fit=Math.min(d.width*.74/image.naturalWidth,d.height*.74/image.naturalHeight);
-        const layer={id:uid(),type:'image',upload_id:upload,x:.5,y:.5,width:image.naturalWidth*fit/d.width,height:image.naturalHeight*fit/d.height,rotation:0,repeat:false,opacity:1,visible:true,locked:false};
-        layers().push(layer);selected=layer.id;commit();
-      }catch{setStatus('Could not load this layer.',true);}
-    }else if(button.hasAttribute("data-ws-font")){
+    else if(button.hasAttribute("data-ws-reuse"))await reuseImage(button.dataset.wsReuse);
+    else if(button.hasAttribute("data-ws-font")){
       let layer=current();if(layer?.type!=="text"){addText();layer=current();switchTool("fonts");}
       if(layer?.locked)return;
       layer.font=button.dataset.wsFont;commit();renderFonts();window.VeeladFonts.load(layer.font).catch(()=>{});
@@ -752,9 +758,12 @@ function renderElements(){
   shell.addEventListener("dragleave",event=>{if(!shell.contains(event.relatedTarget))shell.classList.remove("cw-is-dragging");});
   shell.addEventListener("drop",event=>{if(!event.dataTransfer?.files.length)return;event.preventDefault();event.stopPropagation();shell.classList.remove("cw-is-dragging");addImages(event.dataTransfer.files);});
 shell.addEventListener("dragstart",event=>{
-    const tile=event.target.closest("[data-ws-element]");
-    if(!tile||!event.dataTransfer)return;
-    event.dataTransfer.setData("application/x-veelad-element",tile.dataset.wsElement);
+    if(!event.dataTransfer)return;
+    const element=event.target.closest("[data-ws-element]"),
+      upload=event.target.closest("[data-ws-reuse]");
+    if(element)event.dataTransfer.setData("application/x-veelad-element",element.dataset.wsElement);
+    else if(upload)event.dataTransfer.setData("application/x-veelad-upload",upload.dataset.wsReuse);
+    else return;
     event.dataTransfer.effectAllowed="copy";
   });
   artboard.addEventListener("dragover",event=>{
@@ -771,7 +780,7 @@ shell.addEventListener("dragstart",event=>{
   // Convert the drop position to print-space UV, not mockup pixels.
   previewOverlay.addEventListener("dragover",event=>{
     const types=event.dataTransfer?.types;
-    if(types?.includes("application/x-veelad-element")||types?.includes("Files")){
+    if(types?.includes("application/x-veelad-element")||types?.includes("application/x-veelad-upload")||types?.includes("Files")){
       event.preventDefault();event.dataTransfer.dropEffect="copy";
       previewOverlay.classList.add("cw-preview-drop-active");
     }
@@ -782,14 +791,18 @@ shell.addEventListener("dragstart",event=>{
   previewOverlay.addEventListener("drop",event=>{
     previewOverlay.classList.remove("cw-preview-drop-active");
     shell.classList.remove("cw-is-dragging");
-    const value=event.dataTransfer?.getData("application/x-veelad-element");
-    const files=event.dataTransfer?.files,point=previewPoint(event)?.uv;
+    const value=event.dataTransfer?.getData("application/x-veelad-element"),
+      upload=event.dataTransfer?.getData("application/x-veelad-upload"),
+      files=event.dataTransfer?.files,point=previewPoint(event)?.uv||{x:.5,y:.5};
     if(value&&window.VeeladElements?.find(value)){
       event.preventDefault();event.stopPropagation();
-      void addElement(value,point||{x:.5,y:.5});
+      void addElement(value,point);
+    }else if(upload){
+      event.preventDefault();event.stopPropagation();
+      void reuseImage(upload,point);
     }else if(files?.length){
       event.preventDefault();event.stopPropagation();
-      void addImages(files,point||{x:.5,y:.5});
+      void addImages(files,point);
     }
   });
   previewOverlay.addEventListener("pointerdown",beginPreviewGesture);
