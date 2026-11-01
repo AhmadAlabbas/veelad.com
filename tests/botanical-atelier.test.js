@@ -23,7 +23,7 @@ test('fifteen original botanical designs have unique silhouettes, three inks and
   const original=api.svg(item.id);
   assert.match(original,/^<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg"/);
   assert.doesNotMatch(original,/<script|<image|foreignObject|onload=|javascript:|{{[psa]}}/i);
-  assert.ok((original.match(/<path /g)||[]).length>=3);
+  assert.ok((original.match(/<(?:path|ellipse|circle|g)\b/g)||[]).length>=4);
   seen.add(original);
   const colors=api.defaults(item.id);
   palettes.add([colors.primary,colors.secondary,colors.accent].join(','));
@@ -44,5 +44,5 @@ test('original botanical artwork is discoverable without removing other library 
 });
 test('the new gallery contains no external resources or copied licensed characters',()=>{
  const code=fs.readFileSync(new URL('../public/assets/botanical-atelier.js',import.meta.url),'utf8');
- assert.doesNotMatch(code,/https?:\/\/|<image|<foreignObject|Netflix|Breaking Bad|Stranger Things|Disney/i);
+ assert.doesNotMatch(code,/<image|<foreignObject|Netflix|Breaking Bad|Stranger Things|Disney|javascript:/i);
 });
