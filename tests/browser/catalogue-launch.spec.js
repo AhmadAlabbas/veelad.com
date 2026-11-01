@@ -2,7 +2,7 @@ import {test,expect} from '@playwright/test';
 import {googleApp} from '../helpers/google-app.js';
 try{process.loadEnvFile('.env');}catch(error){if(error.code!=='ENOENT')throw error;}
 
-test('empty home offers twelve honest style destinations, seven product types and five planned payment marks',async({page},info)=>{
+test('empty home offers eleven style cards without removing the Arabic lettering classification',async({page},info)=>{
  test.setTimeout(90000);const fixture=await googleApp(),errors=[];
  page.on('pageerror',error=>errors.push(error.message));
  try{
@@ -10,7 +10,8 @@ test('empty home offers twelve honest style destinations, seven product types an
   await page.emulateMedia({reducedMotion:'reduce'});
   for(const language of ['en','ar']){
    await page.goto(fixture.origin+'/'+language);
-   await expect(page.locator('.design-style-card')).toHaveCount(12);
+   await expect(page.locator('.design-style-card')).toHaveCount(11);
+   await expect(page.locator('.design-style-card[href*="arabic-lettering"]')).toHaveCount(0);
    await expect(page.locator('.home-product-types .category-card')).toHaveCount(7);
    await expect(page.locator('.product-card')).toHaveCount(0);
    await expect(page.locator('.home-everyday-edit')).toBeVisible();
