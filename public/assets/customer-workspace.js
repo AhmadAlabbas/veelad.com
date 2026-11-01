@@ -518,6 +518,8 @@ function renderElements(){
     else if(button.hasAttribute("data-ws-confirm-copy"))copyOtherSide(true);
     else if(button.hasAttribute("data-ws-cancel-copy"))copyControls.querySelector("[data-ws-copy-confirm]").hidden=true;
     else if(button.hasAttribute("data-ws-choose-files"))shell.querySelector("[data-ws-upload]").click();
+    else if(button.hasAttribute("data-ws-element"))await addElement(button.dataset.wsElement);
+    else if(button.hasAttribute("data-ws-element-more")){elementLimit+=48;renderElements();}
     else if(button.hasAttribute("data-ws-add-text"))addText(button.dataset.wsAddText);
     else if(button.hasAttribute("data-ws-open-fonts"))switchTool("fonts");
     else if(button.hasAttribute("data-ws-action"))selectedAction(button.dataset.wsAction);
@@ -545,11 +547,14 @@ function renderElements(){
     const input=event.target;
     if(input.hasAttribute("data-ws-prop"))changeProperty(input);
     else if(input.hasAttribute("data-ws-font-search")){fontLimit=60;renderFonts();}
+    else if(input.hasAttribute("data-ws-element-search")){elementLimit=48;renderElements();}
     else if(input.hasAttribute("data-ws-background")){adapter.scene().background=input.value;shell.querySelector("[data-ws-transparent]").checked=false;commit("background");}
   });
   shell.addEventListener("change",event=>{
     const input=event.target;
     if(input.hasAttribute("data-ws-upload"))addImages(input.files);
+    else if(input.hasAttribute("data-ws-element-category")){elementLimit=48;renderElements();}
+    else if(input.hasAttribute("data-ws-element-colour")){const layer=current();if(layer)void recolourElement(layer.id,input.dataset.wsElementColour,input.value);}
     else if(input.hasAttribute("data-ws-zoom")){zoom=input.value;resizeStage();}
     else if(input.matches("[data-ws-font-script],[data-ws-font-category]")){fontLimit=60;renderFonts();}
     else if(input.hasAttribute("data-ws-transparent")){adapter.scene().background=input.checked?"transparent":shell.querySelector("[data-ws-background]").value;commit();}
@@ -560,6 +565,22 @@ function renderElements(){
   for(const name of ["dragenter","dragover"])shell.addEventListener(name,event=>{if(!event.dataTransfer?.types.includes("Files"))return;event.preventDefault();shell.classList.add("cw-is-dragging");});
   shell.addEventListener("dragleave",event=>{if(!shell.contains(event.relatedTarget))shell.classList.remove("cw-is-dragging");});
   shell.addEventListener("drop",event=>{if(!event.dataTransfer?.files.length)return;event.preventDefault();event.stopPropagation();shell.classList.remove("cw-is-dragging");addImages(event.dataTransfer.files);});
+shell.addEventListener("dragstart",event=>{
+    const tile=event.target.closest("[data-ws-element]");
+    if(!tile||!event.dataTransfer)return;
+    event.dataTransfer.setData("application/x-veelad-element",tile.dataset.wsElement);
+    event.dataTransfer.effectAllowed="copy";
+  });
+  artboard.addEventListener("dragover",event=>{
+    if(event.dataTransfer?.types.includes("application/x-veelad-element")){event.preventDefault();event.dataTransfer.dropEffect="copy";}
+  });
+  artboard.addEventListener("drop",event=>{
+    const value=event.dataTransfer?.getData("application/x-veelad-element");
+    if(!window.VeeladElements?.find(value))return;
+    event.preventDefault();event.stopPropagation();
+    const rect=artboard.getBoundingClientRect();
+    void addElement(value,{x:(event.clientX-rect.left)/rect.width,y:(event.clientY-rect.top)/rect.height});
+  });
   artboard.addEventListener("pointerdown",beginGesture);artboard.addEventListener("pointermove",moveGesture);
   for(const name of ["pointerup","pointercancel","lostpointercapture"])artboard.addEventListener(name,finishGesture);
   shell.addEventListener("keydown",keyboard);
@@ -571,4 +592,5 @@ function renderElements(){
   instance.workspace={refresh,render,addText,select:selectLayer,selected:()=>selected,undo:()=>restore(-1),redo:()=>restore(1),dispose(){disposed=true;document.body.classList.remove("has-studio-focus");clearTimeout(qualityTimer);resizeObserver?.disconnect();fontObserver?.disconnect();lifecycle.disconnect();}};
   shell.dataset.panelOpen="true";shell.dataset.mode="edit";shell.dataset.tool="uploads";
   record();refresh();initFonts();
+  if(window.VeeladElements)renderElements();
 }
