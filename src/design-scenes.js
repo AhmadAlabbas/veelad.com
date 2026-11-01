@@ -21,7 +21,8 @@ export function validateScenes(value) {
     if(!object(layer)||!['image','text'].includes(layer.type)||typeof layer.id!=='string'||! /^[a-zA-Z0-9_-]{1,48}$/.test(layer.id)||ids.has(layer.id))bad();ids.add(layer.id);
     for(const [key,min,max] of [['x',0,1],['y',0,1],['rotation',-180,180]])if(!number(layer[key],min,max))bad();
     if(layer.opacity!==undefined&&!number(layer.opacity,0,1)||layer.visible!==undefined&&typeof layer.visible!=='boolean'||layer.locked!==undefined&&typeof layer.locked!=='boolean')bad();
-    const common={id:layer.id,type:layer.type,x:layer.x,y:layer.y,rotation:layer.rotation,opacity:layer.opacity??1,visible:layer.visible!==false,locked:layer.locked===true};
+    if(layer.group_id!==undefined&&(typeof layer.group_id!=='string'||!/^grp-[a-zA-Z0-9_-]{1,44}$/.test(layer.group_id)))bad();
+    const common={id:layer.id,type:layer.type,x:layer.x,y:layer.y,rotation:layer.rotation,opacity:layer.opacity??1,visible:layer.visible!==false,locked:layer.locked===true,...(layer.group_id?{group_id:layer.group_id}:{})};
     if(layer.type==='image'){
      if(typeof layer.upload_id!=='string'||!/^art-[a-zA-Z0-9_-]{1,60}$/.test(layer.upload_id)||layer.upload_id.length>64||!number(layer.width,.000001,3)||!number(layer.height,.000001,3)||layer.repeat!==undefined&&typeof layer.repeat!=='boolean')bad();
      let element;
