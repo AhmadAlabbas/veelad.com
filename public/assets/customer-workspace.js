@@ -5,6 +5,7 @@ const workspaceArabic = {
   "Place artwork within the provisional safe region. Final supplier dimensions are not yet approved.":"ضع التصميم داخل المنطقة الآمنة المبدئية. لم تُعتمد مقاسات المورد النهائية.", "Artwork approaches the provisional print boundary; check supplier-safe placement.":"التصميم قريب من حدود الطباعة المبدئية؛ تحقق من منطقة طباعة المورد.", "Some artwork is very small on the canvas; confirm its print size.":"بعض الرسوم صغيرة جدًا على اللوحة؛ راجع حجم الطباعة.", "An empty text layer will not print.":"لن تتم طباعة طبقة النص الفارغة.", "Align to safe left":"حاذِ لليسار الآمن", "Align to safe right":"حاذِ لليمين الآمن", "Align to safe top":"حاذِ للأعلى الآمن", "Align to safe bottom":"حاذِ للأسفل الآمن",
   "Arrange layers":"رتّب الطبقات", "Align and distribute unlocked artwork. Undo any change.":"حاذِ العناصر غير المقفلة ووزعها. يمكنك التراجع عن أي تعديل.", "Align left":"محاذاة لليسار", "Align right":"محاذاة لليمين", "Align top":"محاذاة للأعلى", "Align bottom":"محاذاة للأسفل", "Distribute horizontally":"توزيع أفقي", "Distribute vertically":"توزيع عمودي", "Centre horizontal":"توسيط أفقي", "Centre vertical":"توسيط عمودي", "Add at least two unlocked visible layers to arrange them.":"أضف طبقتين ظاهرتين وغير مقفلتين على الأقل لترتيبهما.", "Layers are too large to distribute without overlap.":"العناصر كبيرة جداً للتوزيع بدون تداخل.",
   "Colour palettes":"لوحات الألوان",
+  "Session checkpoints":"نقاط الحفظ في هذه الجلسة", "Restore an earlier design state while this editor remains open.":"استعد مرحلة سابقة من التصميم خلال فتح المحرر.", "Save checkpoint":"احفظ نقطة", "Checkpoint":"نقطة حفظ", "No session checkpoints yet.":"لا توجد نقاط محفوظة بعد.", "Checkpoint saved":"تم حفظ نقطة التصميم", "Checkpoint restored":"تمت استعادة نقطة التصميم",
   "My favourites":"المفضلة", "Recently used":"المستخدمة مؤخرًا", "Explore all":"استكشف الكل", "Curated collection":"مجموعة مختارة", "Apply design":"طبّق التصميم", "Ready-made designs":"تصاميم جاهزة", "Original editable starting points":"قوالب أصلية قابلة للتعديل", "Print positioning":"موضع الطباعة", "Print preflight":"فحص الطباعة",
   "Elements":"العناصر", "Element":"عنصر", "Search elements":"ابحث عن العناصر", "All categories":"كل التصنيفات", "More elements":"المزيد من العناصر", "Element colours":"ألوان العنصر", "Primary":"الأساسي", "Secondary":"الثانوي", "Accent":"التفاصيل", "Preparing element…":"نجهّز العنصر…", "Element updated":"تم تعديل العنصر", "Elements are original and can be recoloured.":"عناصر أصلية ويمكنك تغيير ألوانها.",
   "Creative studio":"استوديو التصميم", "Make room for your imagination.":"خلّ لخيالك مساحة.", "Design":"التصميم", "Product preview":"معاينة القطعة", "Review item":"راجع قطعتك", "Uploads":"الصور", "Text":"النصوص", "Fonts":"الخطوط", "Layers":"الطبقات", "Layouts":"القوالب", "Canvas":"لوحة التصميم", "Add images":"أضف صور", "Upload images":"ارفع صورك", "Drop your images here":"اسحب صورك هنا", "PNG or JPEG · multiple files welcome":"PNG أو JPEG · تقدر تضيف أكثر من صورة", "Your originals stay private.":"ملفاتك الأصلية تبقى خاصة فيك.", "Add text":"أضف نص", "Add a heading":"أضف عنوان", "Add a little detail":"أضف عبارة صغيرة", "Your words, your style.":"كلماتك، بأسلوبك.", "Mix languages, play with type, make it yours.":"اجمع أكثر من لغة، وجرّب الخطوط على ذوقك.", "Write something wonderful":"اكتب شيء يشبهك", "A little more you":"تفصيلة منك", "Search fonts":"ابحث عن خط", "All scripts":"كل اللغات", "All styles":"كل الأنماط", "No fonts match. Try another search.":"ما لقينا خط يطابق بحثك. جرّب كلمة ثانية.", "Choose text on the canvas to apply a font.":"اختر نص من اللوحة عشان تغيّر خطه.", "Loading fonts…":"نجهّز مكتبة الخطوط…", "Font library is unavailable. Try again shortly.":"مكتبة الخطوط غير متاحة حاليًا. جرّب بعد شوي.", "Some characters are not included in this font. Choose a font for this script.":"بعض الحروف مو موجودة في هالخط. اختر خط يدعم لغة النص.", "Front":"الأمام", "Back":"الخلف", "Wrap":"التصميم الكامل", "Independent designs on each side":"تصميم مستقل لكل جهة", "One continuous wrap":"تصميم واحد يلتف حول الكوب", "Undo":"تراجع", "Redo":"إعادة", "Zoom":"التكبير", "Fit":"ملاءمة", "Fit to screen":"ناسب حجم الشاشة", "Safe area":"المساحة الآمنة", "Snap to centre":"محاذاة للمنتصف", "Add a photo. Make a statement.":"صورة منك. وتصميم على ذوقك.", "Start with an image, a few words, or both.":"ابدأ بصورة، أو كلمات، أو اجمعهم مع بعض.", "Select a layer to fine-tune it.":"اختر طبقة عشان تعدّل تفاصيلها.", "Drag to move · corners to resize · top handle to rotate":"اسحب للتحريك · الزوايا لتغيير الحجم · المقبض العلوي للتدوير", "Drag to move. Use the corner handles to resize.":"اسحب للتحريك. واستخدم مقابض الزوايا لتغيير الحجم.", "Provisional product preview":"معاينة مبدئية للقطعة", "Your design is editable. Supplier print specifications still need confirmation.":"تصميمك قابل للتعديل. مقاسات الطباعة النهائية تحتاج تأكيد المورّد.", "Background":"الخلفية", "Transparent":"شفافة", "Colour":"اللون", "Opacity":"الشفافية", "Rotation":"الدوران", "Width (%)":"العرض (%)", "Height (%)":"الارتفاع (%)", "Horizontal (%)":"أفقي (%)", "Vertical (%)":"عمودي (%)", "Text size (%)":"حجم النص (%)", "Your text":"النص", "Font":"الخط", "Writing direction":"اتجاه الكتابة", "Automatic":"تلقائي", "Right to left":"من اليمين لليسار", "Left to right":"من اليسار لليمين", "Alignment":"المحاذاة", "Left":"يسار", "Centre":"وسط", "Right":"يمين", "Duplicate":"انسخ", "Delete":"احذف", "Move forward":"قدّم طبقة", "Move backward":"أخّر طبقة", "Centre horizontally":"وسّط أفقيًا", "Centre vertically":"وسّط عموديًا", "Flip horizontally":"اعكس أفقيًا", "Flip vertically":"اعكس عموديًا", "Show layer":"أظهر الطبقة", "Hide layer":"أخفِ الطبقة", "Unlock layer":"افتح قفل الطبقة", "Lock layer":"اقفل الطبقة", "Image":"صورة", "Text layer":"طبقة نص", "No layers yet":"لوحتك جاهزة لأفكارك", "Add images or text. Every element stays editable.":"أضف صور أو نصوص. كل عنصر يبقى قابل للتعديل.", "Selected layer":"الطبقة المختارة", "Layer is locked. Unlock it to edit.":"الطبقة مقفلة. افتح القفل عشان تعدّلها.", "Your own text":"كلماتك هنا", "Add up to 24 layers on each side.":"تقدر تضيف حتى 24 طبقة لكل جهة.", "Preparing your images…":"نجهّز صورك…", "Images added":"أضفنا الصور", "Could not load this layer.":"ما قدرنا نحمّل هالطبقة.", "Preparing accurate text…":"نجهّز النص بدقّة…", "Close panel":"أغلق الأدوات", "Open panel":"افتح الأدوات", "Keyboard: arrows to move, Shift for larger steps, Delete to remove.":"بالكيبورد: الأسهم للتحريك، وShift لخطوة أكبر، وDelete للحذف.", "This side is empty":"هالجهة فاضية", "Layer":"طبقة", "Ready to create":"جاهز لأفكارك", "Image quality is checked again before printing.":"جودة الصور تنفحص مرة ثانية قبل الطباعة.", "Print safe area":"حدود الطباعة الآمنة", "Shown above the layer below it":"تظهر فوق الطبقة اللي تحتها", "Your image":"صورتك", "Keep proportions":"حافظ على النسبة", "Edit on a flat canvas, then preview your item.":"عدّل على لوحة مسطّحة، وبعدها شوف التصميم على قطعتك.", "Choose a layout":"اختر قالب", "No layouts available":"القوالب غير متاحة حاليًا", "Sample text":"نص تجريبي", "Layers on this side":"طبقات هالجهة", "Changes save automatically":"تعديلاتك تنحفظ تلقائيًا", "Move and resize artwork":"حرّك التصميم وغيّر حجمه", "Printing area":"مساحة الطباعة", "Load more fonts":"اعرض خطوط أكثر", "Font style":"نمط الخط", "sans":"بسيط", "serif":"كلاسيكي", "display":"عناوين", "handwriting":"يدوي", "mono":"متساوي العرض", "arabic":"عربي", "Image uploads are private and stay linked to this design.":"صورك خاصة وتبقى مرتبطة بهالتصميم.", "Choose a font":"اختر خط", "Uploading":"جارٍ الرفع", "Template applied":"أضفنا القالب", "Preview":"معاينة", "No artwork on this side yet.":"ما فيه تصميم على هالجهة للحين."
@@ -64,8 +65,12 @@ const libraryPanel=document.createElement("section");
   smartControls.className='cw-smart-controls';
   smartControls.innerHTML='<div class="cw-saved-view" role="group" aria-label="Collections"><button type="button" data-ws-elements-view="all" aria-pressed="true">'+tr("Explore all")+'</button><button type="button" data-ws-elements-view="favourites" aria-pressed="false">'+tr("My favourites")+'</button><button type="button" data-ws-elements-view="recent" aria-pressed="false">'+tr("Recently used")+'</button></div><label class="cw-element-category-label"><span>'+tr("Curated collection")+'</span><select data-ws-element-collection aria-label="'+esc(tr("Curated collection"))+'"></select></label>';
   libraryPanel.querySelector('[data-ws-element-count]').before(smartControls);
+  const checkpointsPanel=document.createElement('section');
+  checkpointsPanel.className='cw-checkpoints';
+  checkpointsPanel.innerHTML='<h5>'+esc(tr("Session checkpoints"))+'</h5><p>'+esc(tr("Restore an earlier design state while this editor remains open."))+'</p><button type="button" class="cw-button" data-ws-save-checkpoint>'+esc(tr("Save checkpoint"))+'</button><div data-ws-checkpoints></div>';
   const templatesPanel=document.createElement('section');templatesPanel.className='cw-original-layouts';templatesPanel.dataset.wsOriginalLayouts='';
   shell.querySelector('[data-ws-layouts]').append(templatesPanel);
+  shell.querySelector('[data-ws-layouts]').append(checkpointsPanel);
   let elementsView='all';
 
   root.append(shell);
@@ -103,7 +108,7 @@ const libraryPanel=document.createElement("section");
   let elementLimit=48,elementBusy=false;
   let selected=null,tool="uploads",mode="edit",zoom="fit",fitScale=.5,renderSerial=0,gesture=null,fontsReady=false,fontLimit=60,
     lastHistoryGroup=null,lastHistoryTime=0,restoring=false,activeKey="",fontObserver=null,disposed=false,focused=false;
-  const history=[],future=[];
+  const history=[],future=[],checkpoints=[];
   let qualityTimer=null,qualitySerial=0;
   const logical=()=>({width:900,height:900*instance.product().preview[1]/instance.product().preview[0]}),
     layers=()=>adapter.layers(), current=()=>layers().find(layer=>layer.id===selected),
@@ -135,6 +140,24 @@ const libraryPanel=document.createElement("section");
     selected=null;lastHistoryGroup=null;
     instance.syncControls?.();adapter.commit({history:false});refresh();restoring=false;updateHistory();
   }
+  function renderCheckpoints(){
+    const node=checkpointsPanel.querySelector("[data-ws-checkpoints]");
+    node.innerHTML=checkpoints.length?checkpoints.map((point,index)=>'<button type="button" class="cw-checkpoint" data-ws-restore-checkpoint="'+index+'"><span>'+esc(tr("Checkpoint"))+' '+(index+1)+'</span><small>'+esc(point.time)+'</small></button>').join(''):'<p class="cw-muted">'+esc(tr("No session checkpoints yet."))+'</p>';
+  }
+  function saveCheckpoint(){
+    const date=new Date(),time=date.toLocaleTimeString(currentLanguage?.()==='ar'?'ar-SA':'en-GB',{hour:'2-digit',minute:'2-digit'});
+    checkpoints.push({time,state:snapshot()});
+    if(checkpoints.length>12)checkpoints.shift();
+    renderCheckpoints();setStatus("Checkpoint saved");
+  }
+  function restoreCheckpoint(index){
+    const point=checkpoints[index];
+    if(!point||point.state===snapshot())return;
+    restoring=true;
+    try{Object.assign(instance.state,JSON.parse(point.state));selected=null;lastHistoryGroup=null;instance.syncControls?.();adapter.commit({history:false});}
+    finally{restoring=false;}
+    record();refresh();setStatus("Checkpoint restored");
+  }
   function selectLayer(layerId,{focus=false}={}){
     selected=layers().some(layer=>layer.id===layerId)?layerId:null;
     shell.dataset.selectedLayer=selected||"";
@@ -149,6 +172,7 @@ const libraryPanel=document.createElement("section");
     if(tool==="fonts")renderFonts();
     if(tool==="elements")renderElements();
     if(tool==="layouts")renderProLayouts();
+    if(tool==="layouts")renderCheckpoints();
     if(tool==="layers")renderLayerList();
   }
   function setMode(value){
@@ -600,6 +624,8 @@ function renderElements(){
     else if(button.hasAttribute("data-ws-elements-view")){elementsView=button.dataset.wsElementsView;elementLimit=48;renderElements();}
     else if(button.hasAttribute("data-ws-favourite")){window.VeeladStudioPro?.favourite(button.dataset.wsFavourite);renderElements();}
     else if(button.hasAttribute("data-ws-pro-layout"))await applyProLayout(button.dataset.wsProLayout);
+    else if(button.hasAttribute("data-ws-save-checkpoint"))saveCheckpoint();
+    else if(button.hasAttribute("data-ws-restore-checkpoint"))restoreCheckpoint(Number(button.dataset.wsRestoreCheckpoint));
     else if(button.hasAttribute("data-ws-palette")){
       const palette=window.VeeladStudioPro?.palettes.find(value=>value.id===button.dataset.wsPalette),layer=current();
       if(layer?.library_element&&palette){
