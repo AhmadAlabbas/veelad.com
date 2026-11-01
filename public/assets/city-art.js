@@ -82,15 +82,14 @@ function fallback(city,country,p,s,a){
  // The tile pattern and monogram are derived from the name; no landmark claim.
  let hash=2166136261;
  for(const char of city+'|'+country){hash^=char.codePointAt(0);hash=Math.imul(hash,16777619)>>>0;}
- const initials=escapeText(compactCity(city)),title=escapeText(city),countryCode=escapeText(country);
+ const initials=escapeText(compactCity(city)),countryCode=escapeText(country);
  const offset=36+hash%37,angle=20+hash%40,lines=3+(hash%4),pattern=[];
  for(let i=0;i<lines;i++)pattern.push('<path d="M'+(offset+i*11)+' 30l'+angle+' 34" stroke="'+a+'" stroke-width="4" opacity=".32"/>');
- const sz=city.length>22?17:city.length>16?20:city.length>12?23:27;
  return '<rect x="22" y="28" width="212" height="197" rx="27" fill="'+s+'" opacity=".42"/>'+
-  '<g>'+pattern.join('')+'</g><circle cx="128" cy="117" r="65" fill="'+p+'"/>'+
-  '<text x="128" y="139" text-anchor="middle" font-weight="800" font-size="'+(initials.length>3?58:70)+'" font-family="Arial, sans-serif" fill="'+s+'">'+initials+'</text>'+
-  '<text x="128" y="196" font-family="Arial,sans-serif" font-size="'+sz+'" font-weight="700" text-anchor="middle" fill="'+p+'">'+title+'</text>'+
-  '<text x="128" y="218" font-family="Arial,sans-serif" font-size="14" letter-spacing="2" font-weight="600" text-anchor="middle" fill="'+a+'">'+countryCode+'</text>';
+  '<g>'+pattern.join('')+'</g><circle cx="128" cy="111" r="68" fill="'+p+'"/>'+
+  '<text x="128" y="132" text-anchor="middle" font-weight="800" font-size="'+(initials.length>3?57:70)+'" font-family="Arial, sans-serif" fill="'+s+'">'+initials+'</text>'+
+  '<path d="M76 188h104" stroke="'+a+'" stroke-width="6" stroke-linecap="round"/>'+
+  '<text x="128" y="216" font-family="Arial,sans-serif" font-size="21" letter-spacing="3" font-weight="700" text-anchor="middle" fill="'+p+'">'+countryCode+'</text>';
 }
 function draw(city,country,colors){
  const p=colors.primary,s=colors.secondary,a=colors.accent;
