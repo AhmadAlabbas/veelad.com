@@ -84,7 +84,7 @@ const libraryPanel=document.createElement("section");
   if (originalVisual) shell.querySelector("[data-ws-preview-pane]").append(originalVisual);
   const starters=form.querySelector(".customer-starters");
   if (starters) { starters.open=true; shell.querySelector("[data-ws-layouts]").append(starters); }
-  else shell.querySelector("[data-ws-layouts]").textContent=tr("No layouts available");
+  // The first-party editable starters must remain available even if legacy layouts are absent.
   const artboard=shell.querySelector("[data-ws-artboard]"), layersRoot=shell.querySelector("[data-ws-artboard-layers]"),
     selection=shell.querySelector("[data-ws-selection]"), scroll=shell.querySelector("[data-ws-scroll]"),
     inspector=shell.querySelector("[data-ws-inspector]"), imageCache=new Map(), glyphCache=new Map(), layerAssets=new Map(),libraryLoads=new Set();
