@@ -16,6 +16,17 @@ test('creators insert, recolour and persist a private vector element in the desi
   await expect(form.locator('.design-studio')).toHaveAttribute('data-ready','true');
   await expect.poll(()=>page.evaluate(()=>window.VeeladElements?.catalog.length)).toBe(4290);
   await studio.locator('[data-ws-tool=elements]').click();
+  await studio.locator('[data-ws-element-category]').selectOption('Botanicals');
+  await expect(studio.locator('[data-ws-element-list] .cw-element-tile')).toHaveCount(15);
+  await expect(studio.locator('[data-ws-element=botanical-sunflower-0]')).toBeVisible();
+  const botanicalPng=await page.evaluate(async()=>{
+    const art=await window.VeeladElements.file('botanical-sunflower-0');
+    return {type:art.type,size:art.size};
+  });
+  expect(botanicalPng.type).toBe('image/png');
+  expect(botanicalPng.size).toBeGreaterThan(800);
+  await page.screenshot({path:info.outputPath('botanical-atelier-gallery.png'),fullPage:true});
+  await studio.locator('[data-ws-element-category]').selectOption('');
   await expect(studio.locator('[data-ws-element=premium-orchid-0]')).toBeVisible();
   await expect(studio.locator('[data-ws-panel=elements]')).toBeVisible();
 
