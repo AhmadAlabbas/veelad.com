@@ -85,7 +85,7 @@ test('all featured city illustrations use distinct landmarks',()=>{
   const item=library.catalog.find(entry=>entry.category==='Cities'&&entry.name===city+' city badge');
   assert.ok(item,'Missing '+city);
   const source=library.svg(item.id);
-  assert.match(source,/<path\\b/);
+  assert.match(source,/<path\b/);
   assert.doesNotMatch(source,/M35 175h186/);
   return source;
  });
