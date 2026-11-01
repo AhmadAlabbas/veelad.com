@@ -6,7 +6,7 @@ import {validateScenes} from '../src/design-scenes.js';
 
 const context={window:{},Intl,URL,Blob,File,console};
 for(const filename of [
- 'elements-library.js','flags-art.js','flags-art-2.js','flags-art-3.js','flags-art-4.js','emoji-metadata.js','elements-mega.js'
+ 'elements-library.js','flags-art.js','flags-art-2.js','flags-art-3.js','flags-art-4.js','emoji-metadata.js','elements-mega.js','premium-elements.js'
 ])vm.runInNewContext(fs.readFileSync(new URL('../public/assets/'+filename,import.meta.url),'utf8'),context);
 const library=context.window.VeeladElements, flags=context.window.VeeladFlagArt, emoji=context.window.VeeladEmojiMetadata;
 
@@ -16,8 +16,9 @@ test('one unique named entry per emoji, flag, city and first-party illustration'
  assert.equal(library.stats.flagBases,249);
  assert.equal(library.stats.emojiBases,3674);
  assert.equal(library.stats.cityBases,298);
- assert.equal(library.stats.original,42);
- assert.equal(library.catalog.length,42+3674+249+298);
+ assert.equal(library.stats.original,54);
+ assert.equal(library.stats.premium,12);
+ assert.equal(library.catalog.length,54+3674+249+298);
  assert.equal(new Set(library.catalog.map(item=>item.id)).size,library.catalog.length);
  for(const category of ['Flags','Cities','Smileys','People','Animals','Food','Travel','Activities','Objects','Symbols'])
   assert.ok(library.catalog.some(item=>item.category===category),'Missing '+category);
