@@ -27,7 +27,7 @@ export function validateScenes(value) {
      let element;
      if(layer.library_element!==undefined){
       const value=layer.library_element,colors=value?.colors;
-      if(!object(value)||typeof value.id!=='string'||! /^[a-z][a-z0-9-]{1,48}-[0-7]$/.test(value.id)||!object(colors)||Object.keys(colors).sort().join(',')!=='accent,primary,secondary'||Object.values(colors).some(color=>typeof color!=='string'||! /^#[a-f0-9]{6}$/i.test(color)))bad();
+      if(!object(value)||typeof value.id!=='string'||! /^[a-z][a-z0-9-]{1,100}-[0-7]$/.test(value.id)||!object(colors)||Object.keys(colors).sort().join(',')!=='accent,primary,secondary'||Object.values(colors).some(color=>typeof color!=='string'||! /^#[a-f0-9]{6}$/i.test(color)))bad();
       element={id:value.id,colors:Object.fromEntries(Object.entries(colors).map(([key,color])=>[key,color.toLowerCase()]))};
      }
      return {...common,upload_id:layer.upload_id,width:layer.width,height:layer.height,repeat:layer.repeat===true,...(element?{library_element:element}:{})};
