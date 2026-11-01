@@ -34,6 +34,36 @@ test('creators insert, recolour and persist a private vector element in the desi
     return {rat:rat.length,sa:sa.length,ratLabel:api.label('emoji-1f400-0','en'),flagPath:/<path\b/.test(svg),flagText:/<text\b/.test(svg)};
   });
   expect(quality).toEqual({rat:1,sa:1,ratLabel:'rat',flagPath:true,flagText:false});
+  const cityQuality=await page.evaluate(()=>{
+    const api=window.VeeladElements,names=['London','Riyadh','Tokyo','Dubai','Paris','New York'];
+    const images=names.map(name=>{
+      const item=api.catalog.find(entry=>entry.category==='Cities'&&api.label(entry.id,'en')===name);
+      return api.svg(item.id);
+    });
+    return {
+      allDistinct:new Set(images).size===names.length,
+      allLandmarks:images.every(markup=>markup.includes('<path')&&!markup.includes('<text')),
+      japanFrame:api.svg('flag-jp-0').includes('stroke="#d0cdd5"'),
+      cities:api.catalog.filter(item=>item.category==='Cities').length
+    };
+  });
+  expect(cityQuality).toEqual({allDistinct:true,allLandmarks:true,japanFrame:true,cities:298});
+  // Favourite button must not cover or obscure the city's vector image.
+  await studio.locator('[data-ws-element-category]').selectOption('Cities');
+  await studio.locator('[data-ws-element-search]').fill('London');
+  const itemTile=studio.locator('[data-ws-element-list] .cw-element-entry').first();
+  await expect(itemTile.locator('[data-ws-element]')).toBeVisible();
+  const cardDimensions=await itemTile.evaluate(element=>{
+    const art=element.querySelector('.cw-element-visual').getBoundingClientRect();
+    const favourite=element.querySelector('.cw-favourite-button').getBoundingClientRect();
+    const card=element.getBoundingClientRect();
+    return {nonOverlapping:favourite.top>=art.bottom,compact:card.height<180};
+  });
+  expect(cardDimensions.nonOverlapping).toBe(true);
+  expect(cardDimensions.compact).toBe(true);
+  await studio.locator('[data-ws-element-search]').fill('');
+  await studio.locator('[data-ws-element-category]').selectOption('');
+
   const pixels=await page.evaluate(async()=>{
     const file=await window.VeeladElements.file('flag-sa-0');
     const bitmap=await createImageBitmap(file),canvas=document.createElement('canvas');canvas.width=canvas.height=256;
@@ -92,10 +122,28 @@ test('creators insert, recolour and persist a private vector element in the desi
   await studio.locator('[data-ws-action=safe-left]').click();
   await expect.poll(async()=>(await scene()).layers.find(layer=>layer.id===saved.id)?.x).toBeLessThan(.5);
   await studio.locator('[data-ws-tool=layouts]').click();
-  await expect(studio.locator('[data-ws-original-layouts] .cw-original-layout')).toHaveCount(6);
+  await expect(studio.locator('[data-ws-original-layouts] .cw-original-layout')).toHaveCount(12);
   await studio.locator('[data-ws-pro-layout=floral-type]').click();
   await expect.poll(async()=> (await scene()).layers.length).toBe(3);
   expect((await scene()).layers.some(layer=>layer.type==='text'&&layer.text==='MAKE IT BLOOM')).toBe(true);
+  // Arrange all unlocked, visible layers through the same persisted scene and
+  // verify the normal undo stack restores each original coordinate.
+  const beforeAlign=(await scene()).layers.map(layer=>({id:layer.id,x:layer.x,y:layer.y}));
+  await studio.locator('[data-ws-tool=canvas]').click();
+  await expect(studio.locator('[data-ws-layout-action=center-x]')).toBeVisible();
+  await studio.locator('[data-ws-layout-action=center-x]').click();
+  await expect.poll(async()=>{
+    const layers=(await scene()).layers;
+    return layers.every(layer=>Math.abs(layer.x-.5)<.000001);
+  }).toBe(true);
+  await studio.locator('[data-ws-action=undo]').click();
+  await expect.poll(async()=>JSON.stringify((await scene()).layers.map(layer=>({id:layer.id,x:layer.x,y:layer.y})))).toBe(JSON.stringify(beforeAlign));
+  await studio.locator('[data-ws-tool=elements]').click();
+  await studio.locator('[data-ws-element-search]').fill('قطة');
+  await expect(studio.locator('[data-ws-element=cat-0]')).toBeVisible();
+  await studio.locator('[data-ws-element-search]').fill('London city');
+  await expect(studio.locator('[data-ws-element-list] [data-ws-element]')).toHaveCount(1);
+
 
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
   expect(errors).toEqual([]);
