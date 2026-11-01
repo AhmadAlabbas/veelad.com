@@ -6,7 +6,7 @@ import {validateScenes} from '../src/design-scenes.js';
 
 const context={window:{},Intl,URL,Blob,File,console};
 for(const filename of [
- 'elements-library.js','flags-art.js','flags-art-2.js','flags-art-3.js','flags-art-4.js','emoji-metadata.js','elements-mega.js','premium-elements.js'
+ 'elements-library.js','flags-art.js','flags-art-2.js','flags-art-3.js','flags-art-4.js','emoji-metadata.js','city-art.js','elements-mega.js','premium-elements.js'
 ])vm.runInNewContext(fs.readFileSync(new URL('../public/assets/'+filename,import.meta.url),'utf8'),context);
 const library=context.window.VeeladElements, flags=context.window.VeeladFlagArt, emoji=context.window.VeeladEmojiMetadata;
 
@@ -77,4 +77,48 @@ test('flags and emojis keep canonical interior colours; city badge decorations r
  const rat=library.svg('emoji-1f400-0'),other=library.svg('emoji-1f400-0',{primary:'#123456'});
  assert.equal(rat,other,'Plain native emoji must not pretend to be recolourable');
  assert.doesNotMatch(library.svg(city.id,{primary:'url(javascript:alert(1))'}),/javascript:/);
+});
+
+
+test('featured cities use recognizable, individual first-party landmark silhouettes',()=>{
+ const cities=['London','Riyadh','Tokyo','Dubai','Paris','New York'];
+ const expected=['Elizabeth Tower','Kingdom Centre','Tokyo Skytree','Burj Khalifa','Eiffel Tower','Statue of Liberty'];
+ const svg=[];
+ for(let i=0;i<cities.length;i++){
+  const item=library.catalog.find(x=>x.category==='Cities'&&library.label(x.id,'en')===cities[i]);
+  assert.ok(item,'Missing city '+cities[i]);
+  assert.match(context.window.VeeladCityArt.namedLandmark(cities[i]),new RegExp(expected[i]));
+  const image=library.svg(item.id);
+  assert.match(image,/<path\b/,'Landmark artwork missing for '+cities[i]);
+  assert.doesNotMatch(image,/<text\b/,'Featured city must display a real illustration, not reprint the name: '+cities[i]);
+  assert.doesNotMatch(image,/M35 175h186/,'Legacy generic skyline still in '+cities[i]);
+  svg.push(image);
+ }
+ assert.equal(new Set(svg).size,cities.length,'Featured cities must not reuse artwork');
+});
+test('every city has a distinct graphic and editable colours without fake skyline art',()=>{
+ const cities=library.catalog.filter(item=>item.category==='Cities');
+ assert.equal(cities.length,298);
+ const artwork=cities.map(item=>library.svg(item.id));
+ assert.equal(new Set(artwork).size,cities.length,'City graphics must remain distinct');
+ for(let i=0;i<cities.length;i++){
+  const document=artwork[i];
+  assert.match(document,/^<svg /);
+  assert.doesNotMatch(document,/<script\b|<foreignObject\b|<image\b|javascript:|onload=/i);
+  assert.notEqual(document,library.svg(cities[i].id,{primary:'#123456',secondary:'#abcdef',accent:'#fedcba'}));
+ }
+ const fallback=cities.find(item=>library.label(item.id,'en')==='Dammam');
+ assert.ok(fallback);
+ const fallbackArt=library.svg(fallback.id);
+ assert.match(fallbackArt,/>DAM<\/text>/,'Unillustrated city needs honest local wordmark');
+ assert.doesNotMatch(fallbackArt,/M35 175h186/);
+});
+test('national flags preserve source artwork with neutral contrast frame',()=>{
+ for(const country of ['jp','fr','sa','gb','us']){
+  const document=library.svg('flag-'+country+'-0');
+  assert.ok(document.includes('stroke="#d0cdd5"'),'Missing neutral frame: '+country);
+  assert.ok(document.includes('flag-icons-'+country),'Missing authentic flag: '+country);
+  assert.doesNotMatch(document,/<text\b/,'Country code cannot substitute actual flag: '+country);
+ }
+ assert.equal(library.svg('flag-jp-0'),library.svg('flag-jp-0',{primary:'#aabbcc'}));
 });
