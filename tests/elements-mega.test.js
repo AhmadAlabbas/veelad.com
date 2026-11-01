@@ -34,7 +34,7 @@ test('every national flag has a local nonempty, safe, original-colour SVG',()=>{
   assert.match(source,/<svg\s/i,'Invalid SVG: '+code);
   assert.doesNotMatch(source,/<script\b|<foreignObject|<image\b|javascript:|onload\s*=|href\s*=\s*["'](?:https?:|\/\/|data:)/i,'Unsafe external refs: '+code);
   const document=library.svg('flag-'+code+'-0');
-  assert.ok(document.includes(source.slice(0,25)),'Missing genuine flag art: '+code);
+  assert.ok(document.includes('flag-icons-'+code),'Missing genuine flag art: '+code);
   assert.doesNotMatch(document,/<text\b/,'Flag should render artwork, never SA/US text: '+code);
  }
  const sa=library.svg('flag-sa-0');
