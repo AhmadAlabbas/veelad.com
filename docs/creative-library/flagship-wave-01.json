@@ -1,8 +1,8 @@
 {
   "schema": "veelad.flagship-originals.v1",
   "status": "creative_art_direction_not_live_assets",
-  "count": 26,
-  "note": "These are 26 individually art-directed palette proposals for original drawings. Not existing vectors. Manual clearance and print QA required.",
+  "count": 32,
+  "note": "32 individually art-directed palette proposals for original drawings. Not existing vectors. Manual clearance and print QA required.",
   "items": [
     {
       "rank": 1,
@@ -366,6 +366,90 @@
         "accent": "#CB7974"
       },
       "quality_hook": "Unique moth-shaped cape and masked character, not familiar genre mask",
+      "status": "source_art_not_started"
+    },
+    {
+      "rank": 27,
+      "id": "ent-urban-noir-blue-hour-alley",
+      "name": "Blue Hour Alley",
+      "pack_id": "urban-noir",
+      "kind": "scene_or_badge",
+      "default_palette": {
+        "primary": "#263B55",
+        "secondary": "#B8CCD2",
+        "accent": "#E3A960"
+      },
+      "quality_hook": "Night street scene must contain specific fire escapes, not a repeat of other skylines",
+      "status": "source_art_not_started"
+    },
+    {
+      "rank": 28,
+      "id": "ent-cosmic-odyssey-beyond-the-rings",
+      "name": "Beyond the Rings",
+      "pack_id": "cosmic-odyssey",
+      "kind": "scene_or_badge",
+      "default_palette": {
+        "primary": "#354C78",
+        "secondary": "#D8DAF8",
+        "accent": "#E8B98A"
+      },
+      "quality_hook": "An original rover and ringed sky with 3-level depth",
+      "status": "source_art_not_started"
+    },
+    {
+      "rank": 29,
+      "id": "ent-enchanted-garden-garden-after-dark",
+      "name": "Garden After Dark",
+      "pack_id": "enchanted-garden",
+      "kind": "scene_or_badge",
+      "default_palette": {
+        "primary": "#386453",
+        "secondary": "#D7DEC3",
+        "accent": "#C77FA0"
+      },
+      "quality_hook": "Distinct fern silhouette and simple light points",
+      "status": "source_art_not_started"
+    },
+    {
+      "rank": 30,
+      "id": "ent-ocean-expeditions-beneath-the-surface",
+      "name": "Beneath the Surface",
+      "pack_id": "ocean-expeditions",
+      "kind": "scene_or_badge",
+      "default_palette": {
+        "primary": "#22586E",
+        "secondary": "#B7E1E5",
+        "accent": "#F0BA75"
+      },
+      "quality_hook": "Three underwater landscape layers and single focal reef",
+      "status": "source_art_not_started"
+    },
+    {
+      "rank": 31,
+      "id": "ent-romantic-comedy-meet-cute-cafe",
+      "name": "Meet-Cute Café",
+      "pack_id": "romantic-comedy",
+      "kind": "scene_or_badge",
+      "default_palette": {
+        "primary": "#80516C",
+        "secondary": "#F5DBCF",
+        "accent": "#7AAE92"
+      },
+      "quality_hook": "Cafe geometry with unmistakably separate bicycle and windows",
+      "status": "source_art_not_started"
+    },
+    {
+      "rank": 32,
+      "id": "ent-retro-arcade-night-mode-arcade",
+      "name": "Night Mode Arcade",
+      "pack_id": "retro-arcade",
+      "kind": "scene_or_badge",
+      "default_palette": {
+        "primary": "#463B72",
+        "secondary": "#E9C7DB",
+        "accent": "#6ECDD2"
+      },
+      "quality_hook": "Original arcade vignette, no recognizable console silhouettes",
       "status": "source_art_not_started"
     }
   ]
