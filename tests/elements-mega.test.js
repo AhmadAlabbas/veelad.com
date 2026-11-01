@@ -6,7 +6,7 @@ import {validateScenes} from '../src/design-scenes.js';
 
 const context={window:{},Intl,URL,Blob,File,console};
 for(const filename of [
- 'elements-library.js','flags-art.js','flags-art-2.js','flags-art-3.js','flags-art-4.js','emoji-metadata.js','elements-mega.js','premium-elements.js'
+ 'elements-library.js','flags-art.js','flags-art-2.js','flags-art-3.js','flags-art-4.js','emoji-metadata.js','city-art.js','elements-mega.js','premium-elements.js'
 ])vm.runInNewContext(fs.readFileSync(new URL('../public/assets/'+filename,import.meta.url),'utf8'),context);
 const library=context.window.VeeladElements, flags=context.window.VeeladFlagArt, emoji=context.window.VeeladEmojiMetadata;
 
@@ -77,4 +77,23 @@ test('flags and emojis keep canonical interior colours; city badge decorations r
  const rat=library.svg('emoji-1f400-0'),other=library.svg('emoji-1f400-0',{primary:'#123456'});
  assert.equal(rat,other,'Plain native emoji must not pretend to be recolourable');
  assert.doesNotMatch(library.svg(city.id,{primary:'url(javascript:alert(1))'}),/javascript:/);
+});
+
+test('all featured city illustrations use distinct landmarks',()=>{
+ const names=['London','Riyadh','Tokyo','Dubai','Paris','New York'];
+ const sources=names.map(city=>{
+  const item=library.catalog.find(entry=>entry.category==='Cities'&&entry.name===city+' city badge');
+  assert.ok(item,'Missing '+city);
+  const source=library.svg(item.id);
+  assert.match(source,/<path\b/);
+  assert.doesNotMatch(source,/M35 175h186/);
+  return source;
+ });
+ assert.equal(new Set(sources).size,names.length);
+});
+test('premium graphics have unique palettes and white country flags have contrast outlines',()=>{
+ const ids=['orchid','magnolia','fern','butterfly','fox','whale','corgi','koi','desert','urban-tram','headphones','gamepad'];
+ const palettes=ids.map(id=>library.defaults('premium-'+id+'-0'));
+ assert.equal(new Set(palettes.map(c=>JSON.stringify(c))).size,12);
+ for(const code of ['jp','fr','sa'])assert.match(library.svg('flag-'+code+'-0'),/stroke="#d0cdd5"/);
 });

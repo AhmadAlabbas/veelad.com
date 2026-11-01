@@ -104,15 +104,22 @@ function svg(id,colors={}){
   const flag=window.VeeladFlagArt?.[entry.code.toLowerCase()];
   if(!flag)return null;
   // Actual SVG artwork with canonical flag colours and local clip paths.
-  const placement=variant===0?'x="12" y="32" width="232" height="192"':'x="35" y="63" width="186" height="139"';
-  art=flag.replace(/<svg\b/,'<svg '+placement+' preserveAspectRatio="xMidYMid meet"');
+  // The neutral frame is essential for white flags (Japan, France etc.)
+  // against the white catalogue card. It is not part of the flag artwork.
+  const plain=variant===0;
+  const placement=plain?'x="12" y="42" width="232" height="174"':'x="35" y="65" width="186" height="140"';
+  const outline=plain?'<rect x="11" y="41" width="234" height="176" rx="1" fill="#fff" stroke="#d0cdd5" stroke-width="2"/>'
+    :'<rect x="34" y="64" width="188" height="142" rx="1" fill="#fff" stroke="#d0cdd5" stroke-width="2"/>';
+  art=outline+flag.replace(/<svg\b/,'<svg '+placement+' preserveAspectRatio="xMidYMid meet"');
  }else if(entry.kind==='emoji'){
   const glyph=escapeText(entry.glyph);
   const px=variant===0?185:153;
   art='<text x="128" y="130" font-size="'+px+'" text-anchor="middle" dominant-baseline="middle" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">'+glyph+'</text>';
  }else{
-  const title=escapeText(entry.city),sz=title.length>23?18:title.length>17?23:title.length>11?30:38;
-  art='<path d="M35 175h186" stroke="'+a+'" stroke-width="10"/><g fill="'+p+'"><rect x="44" y="103" width="38" height="69" rx="3"/><rect x="94" y="70" width="55" height="102" rx="4"/><rect x="160" y="111" width="47" height="61" rx="3"/></g><g fill="'+s+'"><rect x="108" y="90" width="12" height="16"/><rect x="128" y="90" width="12" height="16"/><rect x="108" y="119" width="12" height="16"/><rect x="128" y="119" width="12" height="16"/></g><text x="128" y="216" font-size="'+sz+'" text-anchor="middle" font-weight="700" font-family="Arial,sans-serif" fill="'+p+'">'+title+'</text>';
+  // Distinct first-party landmarks for curated cities; honest typography
+  // otherwise. Never label the same anonymous skyline as different cities.
+  if(!window.VeeladCityArt)throw Error('City graphics library unavailable');
+  art=window.VeeladCityArt.draw(entry.city,entry.country,{primary:p,secondary:s,accent:a});
  }
  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">'+badge(variant,s,a)+art+'</svg>';
 }
