@@ -26,7 +26,11 @@ const templates=Object.freeze([
  {id:'ocean-garden',title:'Ocean Garden',ar:'حديقة المحيط',zh:'海洋花园',label:'BENEATH THE WAVES',element:'botanical-coral-0',color:'#AE5267',tag:'Ocean / Creative',x:.53,y:.39}
 ]);
 const storageKey='veelad:studio-library:v1';
-function normalize(value){return String(value||'').normalize('NFKC').toLocaleLowerCase().trim();}
+function normalize(value){
+ return String(value??'').normalize('NFKD').replace(/[\u0300-\u036f\u064b-\u065f\u0670]/g,'')
+   .replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي')
+   .toLocaleLowerCase().replace(/\s+/g,' ').trim();
+}
 function read(){
  try{const data=JSON.parse(localStorage.getItem(storageKey)||'{}');return {
    favourites:Array.isArray(data.favourites)?data.favourites.filter(x=>typeof x==='string').slice(0,120):[],
@@ -44,14 +48,78 @@ function favourite(id){
  return write(state);
 }
 function used(id){const state=read();state.recent=[id,...state.recent.filter(x=>x!==id)].slice(0,25);return write(state);}
+// Search all languages, emoji keywords and their synonyms, not only an exact
+// English substring. A WeakMap keeps the 4,000+ entry search index inexpensive.
+const indexes=new WeakMap();
+const aliases=Object.freeze({
+ 'flower':['floral','blossom','زهرة','ورد'], 'flowers':['flower','botanical'],
+ 'cat':['feline','kitten','قط','قطة'], 'dog':['puppy','كلب'], 'mouse':['rat','rodent','فأر'],
+ 'pet':['animal','pets','حيوان'], 'pets':['pet','animal'],
+ 'flag':['flags','علم','اعلام'], 'flags':['flag','national'],
+ 'city':['cities','skyline','مدينة','مدن'], 'cities':['city','skyline'],
+ 'love':['heart','حب','قلب'], 'birthday':['cake','balloon','celebration','عيد','ميلاد'],
+ 'saudi':['saudi arabia','السعوديه','sa'], 'uk':['united kingdom','great britain','britain','gb'],
+ 'japan':['jp','日本'], 'emoji':['smile','emoticon','ايموجي','表情'],
+ 'rose':['وردة','ورد'], 'nature':['طبيعة','natural']
+});
+function indexFor(api){
+ let index=indexes.get(api);
+ if(index&&index.size===api.catalog.length)return index;
+ index=new Map(api.catalog.map(item=>[item.id,normalize([
+  item.name,item.category,api.searchText?.(item),api.label?.(item.id,'ar'),
+  api.label?.(item.id,'zh-CN')
+ ].filter(Boolean).join(' '))]));
+ indexes.set(api,index);return index;
+}
+// One inexpensive edit for meaningful 4+ letter search tokens, useful on
+// mobile keyboards. Do not fuzz 1–3-character flags, codes or emoji aliases.
+function withinOne(a,b){
+ if(Math.abs(a.length-b.length)>1||Math.min(a.length,b.length)<3)return false;
+ let i=0,j=0,edits=0;
+ while(i<a.length&&j<b.length){
+  if(a[i]===b[j]){i++;j++;continue;}
+  if(++edits>1)return false;
+  if(a.length>b.length)i++;
+  else if(a.length<b.length)j++;
+  else{i++;j++;}
+ }
+ return edits+(i<a.length||j<b.length?1:0)<=1;
+}
+const wordTokens=new WeakMap();
+function tokensFor(api,item,index){
+ let cache=wordTokens.get(api);if(!cache){cache=new Map();wordTokens.set(api,cache);}
+ if(cache.has(item.id))return cache.get(item.id);
+ const words=index.get(item.id).split(/[^\p{L}\p{N}]+/u).filter(v=>v.length>2);
+ cache.set(item.id,words);
+ return words;
+}
+function fuzzyHit(text,word,api,item,index){
+ return word.length>=4&&tokensFor(api,item,index).some(token=>withinOne(token,word));
+}
 function search(api,query='',category='',collection='',mode='all'){
- const q=normalize(query);
- const source=api.search?api.search(q,category):api.catalog.filter(x=>(!category||x.category===category)&&(!q||normalize(x.name).includes(q)));
+ const words=normalize(query).split(' ').filter(Boolean),index=indexFor(api);
+ const terms=words.map(word=>[word,...(aliases[word]||[]).map(normalize)]);
  const state=read(),favs=new Set(state.favourites);
- let list=source;
- if(mode==='favourites')list=list.filter(x=>favs.has(x.id));
- else if(mode==='recent'){const order=new Map(state.recent.map((id,i)=>[id,i]));list=list.filter(x=>order.has(x.id)).sort((a,b)=>order.get(a.id)-order.get(b.id));}
- if(collection){const folder=folders.find(x=>x.id===collection);if(folder){const keep=new Set(folder.keys);list=list.filter(x=>keep.has(x.id));}}
+ let list=api.catalog.filter(item=>(!category||item.category===category)&&
+   terms.every(group=>group.some(term=>index.get(item.id)?.includes(term))||group.some(term=>fuzzyHit(index.get(item.id),term,api,item,index))));
+ if(mode==='favourites')list=list.filter(item=>favs.has(item.id));
+ else if(mode==='recent'){
+  const order=new Map(state.recent.map((id,i)=>[id,i]));
+  list=list.filter(item=>order.has(item.id)).sort((a,b)=>order.get(a.id)-order.get(b.id));
+ }
+ if(collection){const folder=folders.find(item=>item.id===collection);
+  if(folder){const keep=new Set(folder.keys);list=list.filter(item=>keep.has(item.id));}
+ }
+ if(words.length&&mode!=='recent')list.sort((a,b)=>{
+  const score=item=>{
+   const label=normalize(api.label?.(item.id,'en')||item.name),q=words.join(' ');
+   if(label===q)return 0;
+   if(label.startsWith(q))return 1;
+   if(words.every(word=>label.split(/[^\p{L}\p{N}]+/u).includes(word)))return 2;
+   return 3;
+  };
+  return score(a)-score(b)||(api.label?.(a.id,'en')||a.name).localeCompare(api.label?.(b.id,'en')||b.name);
+ });
  return list;
 }
 function preflight(layers,side=''){
