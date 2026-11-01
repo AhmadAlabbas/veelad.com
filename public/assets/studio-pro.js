@@ -9,7 +9,8 @@ const folders=Object.freeze([
  {id:'travel',title:'Travel essentials',ar:'لوازم السفر',zh:'旅行主题',keys:['camera-0','compass-0','airplane-0','skyline-0','cottage-0','lighthouse-0']},
  {id:'celebrate',title:'Celebrations',ar:'المناسبات',zh:'庆祝主题',keys:['heart-0','gift-0','balloon-0','confetti-0','star-0']},
  {id:'minimal',title:'Minimal shapes',ar:'الأشكال البسيطة',zh:'极简图案',keys:['diamond-0','arches-0','checker-0','spiral-0']},
- {id:'entertainment',title:'Original cinema art',ar:'رسومات سينمائية أصلية',zh:'原创电影风格',keys:['ent-urban-noir-raindrop-detective-hat-0','ent-science-wonders-crystal-spectrometer-0','ent-retro-arcade-electric-pinball-0','ent-cosmic-odyssey-folded-solar-sail-0','ent-enchanted-garden-tangerine-moth-0','ent-ocean-expeditions-spiral-nautilus-0','ent-kitchen-stories-tea-kettle-chorus-0','ent-cozy-mysteries-the-secret-shelf-0']}
+ {id:'entertainment',title:'Original cinema art',ar:'رسومات سينمائية أصلية',zh:'原创电影风格',keys:['ent-urban-noir-raindrop-detective-hat-0','ent-science-wonders-crystal-spectrometer-0','ent-retro-arcade-electric-pinball-0','ent-cosmic-odyssey-folded-solar-sail-0','ent-enchanted-garden-tangerine-moth-0','ent-ocean-expeditions-spiral-nautilus-0','ent-kitchen-stories-tea-kettle-chorus-0','ent-cozy-mysteries-the-secret-shelf-0']},
+ {id:'botanical-atelier',title:'Botanical Atelier',ar:'مرسم الزهور والنباتات',zh:'植物艺术工坊',keys:['botanical-sunflower-0','botanical-poppies-0','botanical-tulips-0','botanical-monstera-0','botanical-orchid-0','botanical-fern-0','botanical-mushrooms-0','botanical-butterfly-0','botanical-citrus-0','botanical-roses-0','botanical-coral-0','botanical-lotus-0','botanical-lavender-0','botanical-maple-0','botanical-daisy-0']}
 ]);
 const templates=Object.freeze([
  {id:'floral-type',title:'Botanical Words',ar:'كلمات مزهرة',zh:'花卉文字',label:'MAKE IT BLOOM',element:'botanical-0',color:'#244F40',tag:'Floral / Minimal',x:.36,y:.38},
@@ -23,7 +24,13 @@ const templates=Object.freeze([
  {id:'wild-fox',title:'Wild at Heart',ar:'قلب بري',zh:'野性之心',label:'STAY WILD',element:'premium-fox-0',color:'#5F423B',tag:'Animals / Outdoor',x:.49,y:.4},
  {id:'orchid-garden',title:'Blooming Orchid',ar:'أوركيد مزهر',zh:'兰花绽放',label:'GROW THROUGH IT',element:'premium-orchid-0',color:'#704264',tag:'Botanical / Wellness',x:.47,y:.4},
  {id:'ocean-whale',title:'Ocean Days',ar:'أيام البحر',zh:'海洋之日',label:'BLUE HORIZONS',element:'premium-whale-0',color:'#2C6179',tag:'Ocean / Minimal',x:.53,y:.38},
- {id:'playful-gamer',title:'Play Your Way',ar:'العب بطريقتك',zh:'随心畅玩',label:'NEXT LEVEL',element:'premium-gamepad-0',color:'#4A3F7B',tag:'Gaming / Everyday',x:.5,y:.38}
+ {id:'playful-gamer',title:'Play Your Way',ar:'العب بطريقتك',zh:'随心畅玩',label:'NEXT LEVEL',element:'premium-gamepad-0',color:'#4A3F7B',tag:'Gaming / Everyday',x:.5,y:.38},
+ {id:'golden-hour-bloom',title:'Golden Hour',ar:'أزهار الساعة الذهبية',zh:'金色时光',label:'GROW TOWARD THE SUN',element:'botanical-sunflower-0',color:'#6D523D',tag:'Botanical / Vintage',x:.47,y:.34},
+ {id:'wildflower-soul',title:'Wildflower Soul',ar:'روح الزهور البرية',zh:'野花之魂',label:'WILD BY NATURE',element:'botanical-poppies-0',color:'#833F50',tag:'Botanical / Streetwear',x:.52,y:.39},
+ {id:'tropical-ritual',title:'Tropical Ritual',ar:'الطقوس الاستوائية',zh:'热带仪式',label:'MADE TO EXPLORE',element:'botanical-monstera-0',color:'#245D52',tag:'Botanical / Tropical',x:.5,y:.38},
+ {id:'cottage-dreams',title:'Forest Daydream',ar:'حلم الغابة',zh:'森林白日梦',label:'TAKE THE SLOW ROAD',element:'botanical-mushrooms-0',color:'#8B4A43',tag:'Cottagecore / Nature',x:.48,y:.38},
+ {id:'lotus-poetry',title:'Lotus Poetry',ar:'شعر اللوتس',zh:'荷塘诗意',label:'ROOTED IN CALM',element:'botanical-lotus-0',color:'#6A477A',tag:'Botanical / Wellness',x:.5,y:.42},
+ {id:'ocean-garden',title:'Ocean Garden',ar:'حديقة المحيط',zh:'海洋花园',label:'BENEATH THE WAVES',element:'botanical-coral-0',color:'#AE5267',tag:'Ocean / Creative',x:.53,y:.39}
 ]);
 const storageKey='veelad:studio-library:v1';
 function normalize(value){
