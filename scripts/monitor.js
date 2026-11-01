@@ -1,10 +1,26 @@
 import {fileURLToPath} from 'node:url';
+// Production deliberately serves a branded landing page before launch.
+// Backups and restore proofs are required for the live marketplace, not for
+// that read-only page. Do not accept arbitrary successful responses as valid.
+async function checkComingSoonPage(origin) {
+ const response=await fetch(origin+'/',{signal:AbortSignal.timeout(15000),redirect:'error'});
+ if(!response.ok)throw Error('Production landing page returned HTTP '+response.status);
+ if(!/^text\/html(?:;|$)/i.test(response.headers.get('content-type')||''))throw Error('Production landing page is not HTML');
+ const html=await response.text();
+ if(!/<html\b/i.test(html)||!/\bveelad\b/i.test(html)||!/coming\s+soon/i.test(html))throw Error('Production landing page is missing its expected branding or launch status');
+ return {ok:true,mode:'coming-soon'};
+}
+
 export async function checkSite(origin,environment='staging') {
  if(!['staging','production'].includes(environment))throw Error('Choose staging or production');
  const response=await fetch(origin+'/api.php?route=health',{signal:AbortSignal.timeout(15000),redirect:'error'});
+ // A legacy static landing may have no Node health route, or serve its
+ // branded HTML as a fallback. HTTP 5xx never silently passes.
+ if(environment==='production'&&(response.status===404||(response.ok&&/^text\/html(?:;|$)/i.test(response.headers.get('content-type')||''))))return checkComingSoonPage(origin);
  if(!response.ok)throw Error('Website returned HTTP '+response.status);
  const body=await response.json();
  if(!body.ok||body.environment!==environment)throw Error('Database readiness failed');
+ if(environment==='production'&&body.marketplace_enabled===false)return checkComingSoonPage(origin);
  if(body.storage?.ready!==true||Number(body.storage.missing_files||0)>0)throw Error('Private artwork storage check failed');
  const created=Date.parse(body.backup?.created_at),age=Date.now()-created;
  if(body.backup?.status!=='success'||!Number.isFinite(created)||age>48*3600000||age< -300000)throw Error('Backup failed, missing or overdue');
