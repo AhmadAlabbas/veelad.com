@@ -54,7 +54,9 @@ test('product preview is a clean drag-and-drop canvas with magnetic guides',asyn
   const thumb=shell.locator('[data-ws-reuse]').first();
   await expect(thumb).toHaveAttribute('draggable','true');
   const box=await canvas.boundingBox();
-  await thumb.dragTo(canvas,{targetPosition:{x:box.width*.52,y:box.height*.52}});
+  // Touch-first layout uses tap-to-add. Desktop retains direct drag/drop.
+  if(info.project.name==='mobile')await thumb.click();
+  else await thumb.dragTo(canvas,{targetPosition:{x:box.width*.52,y:box.height*.52}});
   await expect.poll(async()=>(await scene()).layers.length).toBe(2);
   await expect(shell).toHaveAttribute('data-mode','preview');
 
@@ -63,7 +65,8 @@ test('product preview is a clean drag-and-drop canvas with magnetic guides',asyn
   await shell.locator('[data-ws-element-search]').fill('rose');
   const rose=shell.locator('[data-ws-element=rose-0]');
   await expect(rose).toBeVisible();
-  await rose.dragTo(canvas,{targetPosition:{x:box.width*.55,y:box.height*.55}});
+  if(info.project.name==='mobile')await rose.click();
+  else await rose.dragTo(canvas,{targetPosition:{x:box.width*.55,y:box.height*.55}});
   await expect.poll(async()=>(await scene()).layers.some(l=>l.library_element?.id==='rose-0')).toBe(true);
   await expect(shell).toHaveAttribute('data-mode','preview');
   expect(errors).toEqual([]);
