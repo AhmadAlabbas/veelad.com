@@ -14,7 +14,7 @@ test('creators insert, recolour and persist a private vector element in the desi
   await page.goto(fixture.origin+'/en/create?product=p1');
   const form=page.locator('[data-form=customer-design]'),studio=form.locator('.customer-workspace');
   await expect(form.locator('.design-studio')).toHaveAttribute('data-ready','true');
-  await expect.poll(()=>page.evaluate(()=>window.VeeladElements?.catalog.length)).toBe(4275);
+  await expect.poll(()=>page.evaluate(()=>window.VeeladElements?.catalog.length)).toBe(4290);
   await studio.locator('[data-ws-tool=elements]').click();
   await expect(studio.locator('[data-ws-element=premium-orchid-0]')).toBeVisible();
   await expect(studio.locator('[data-ws-panel=elements]')).toBeVisible();
