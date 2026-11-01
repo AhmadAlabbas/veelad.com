@@ -24,7 +24,13 @@ export function validateScenes(value) {
     const common={id:layer.id,type:layer.type,x:layer.x,y:layer.y,rotation:layer.rotation,opacity:layer.opacity??1,visible:layer.visible!==false,locked:layer.locked===true};
     if(layer.type==='image'){
      if(typeof layer.upload_id!=='string'||!/^art-[a-zA-Z0-9_-]{1,60}$/.test(layer.upload_id)||layer.upload_id.length>64||!number(layer.width,.000001,3)||!number(layer.height,.000001,3)||layer.repeat!==undefined&&typeof layer.repeat!=='boolean')bad();
-     return {...common,upload_id:layer.upload_id,width:layer.width,height:layer.height,repeat:layer.repeat===true};
+     let element;
+     if(layer.library_element!==undefined){
+      const value=layer.library_element,colors=value?.colors;
+      if(!object(value)||typeof value.id!=='string'||! /^[a-z][a-z0-9-]{1,48}-[0-7]$/.test(value.id)||!object(colors)||Object.keys(colors).sort().join(',')!=='accent,primary,secondary'||Object.values(colors).some(color=>typeof color!=='string'||! /^#[a-f0-9]{6}$/i.test(color)))bad();
+      element={id:value.id,colors:Object.fromEntries(Object.entries(colors).map(([key,color])=>[key,color.toLowerCase()]))};
+     }
+     return {...common,upload_id:layer.upload_id,width:layer.width,height:layer.height,repeat:layer.repeat===true,...(element?{library_element:element}:{})};
     }
     const text=validateSceneTextLayers([layer])[0];
     return {...common,text:text.text,font:text.font,color:text.color,size:text.size,align:text.align,direction:text.direction};
