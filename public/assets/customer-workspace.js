@@ -82,6 +82,26 @@ const libraryPanel=document.createElement("section");
   shell.querySelector(".cw-stage-toolbar").insertBefore(copyControls,shell.querySelector(".cw-zoom-control"));
   const originalVisual=root.querySelector(".studio-workspace > .studio-visual");
   if (originalVisual) shell.querySelector("[data-ws-preview-pane]").append(originalVisual);
+  // The interactive preview covers the actual 1000x1000 projected garment
+  // canvas. No duplicate artwork is drawn: manipulations change the same
+  // private scene used for production and the ordinary flat editor.
+  const previewCanvas=shell.querySelector("[data-ws-preview-pane] .studio-canvas"),
+    previewFrame=previewCanvas?.closest(".design-mockup");
+  const previewOverlay=document.createElement("div");
+  previewOverlay.className="cw-preview-overlay";
+  previewOverlay.dataset.wsPreviewOverlay="";
+  previewOverlay.tabIndex=0;
+  previewOverlay.setAttribute("role","application");
+  previewOverlay.setAttribute("aria-label",tr("Move, resize and rotate design on product"));
+  previewOverlay.innerHTML='<svg class="cw-preview-outline" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true"><polygon points="" /></svg>'+
+    ["nw","ne","se","sw","rotate"].map(handle=>'<button type="button" data-ws-preview-handle="'+handle+'" aria-label="'+esc(tr(handle==="rotate"?"Rotate selected artwork":"Resize selected artwork"))+'" hidden></button>').join("");
+  previewFrame?.append(previewOverlay);
+  const previewHelp=document.createElement("p");
+  previewHelp.className="cw-preview-edit-hint";
+  previewHelp.textContent=tr("Select artwork on the product to drag, resize or rotate it.");
+  previewFrame?.querySelector("figcaption")?.before(previewHelp);
+
+
   const starters=form.querySelector(".customer-starters");
   if (starters) { starters.open=true; shell.querySelector("[data-ws-layouts]").append(starters); }
   // The first-party editable starters must remain available even if legacy layouts are absent.
@@ -93,6 +113,7 @@ const libraryPanel=document.createElement("section");
     lastHistoryGroup=null,lastHistoryTime=0,restoring=false,activeKey="",fontObserver=null,disposed=false,focused=false;
   const history=[],future=[];
   let qualityTimer=null,qualitySerial=0;
+  let previewRenderAt=0;
   const logical=()=>({width:900,height:900*instance.product().preview[1]/instance.product().preview[0]}),
     layers=()=>adapter.layers(), current=()=>layers().find(layer=>layer.id===selected),
     snapshot=()=>JSON.stringify({creative_personalisation:instance.state.creative_personalisation||null,scenes:instance.state.scenes,scene_version:instance.state.scene_version,active_product:instance.state.active_product,placements:instance.state.placements});
@@ -127,7 +148,8 @@ const libraryPanel=document.createElement("section");
     selected=layers().some(layer=>layer.id===layerId)?layerId:null;
     shell.dataset.selectedLayer=selected||"";
     renderSelection();renderLayerList();renderInspector();
-    if(focus)artboard.focus({preventScroll:true});
+    renderPreviewSelection();
+    if(focus)(mode==="preview"?previewOverlay:artboard).focus({preventScroll:true});
   }
   function switchTool(value){
     tool=value;shell.dataset.tool=tool;shell.dataset.panelOpen="true";
@@ -144,7 +166,7 @@ const libraryPanel=document.createElement("section");
     shell.querySelector("[data-ws-design-pane]").hidden=mode!=="edit";
     shell.querySelector("[data-ws-preview-pane]").hidden=mode!=="preview";
     shell.querySelectorAll("[data-ws-mode]").forEach(button=>button.setAttribute("aria-pressed",String(button.dataset.wsMode===mode)));
-    if(mode==="preview"){adapter.commit({history:false});instance.render?.();}else resizeStage();
+    if(mode==="preview"){adapter.commit({history:false});instance.render?.();requestAnimationFrame(renderPreviewSelection);}else resizeStage();
   }
   function setFocus(value){
     focused=value;shell.classList.toggle("cw-focus-mode",focused);document.body.classList.toggle("has-studio-focus",focused);
@@ -175,6 +197,89 @@ const libraryPanel=document.createElement("section");
     node.style.left=layer.x*100+"%";node.style.top=layer.y*100+"%";
     node.style.width=bounds.width/d.width*100+"%";node.style.height=bounds.height/d.height*100+"%";
     node.style.transform=`translate(-50%,-50%) rotate(${layer.rotation||0}deg)`;
+  }
+  // Project the flat scene's selected corners through the exact garment UV
+  // mesh. The outline/handles are a UI overlay, not part of the print design.
+  function renderPreviewSelection(){
+    if(!previewCanvas||!previewFrame||!previewOverlay)return;
+    const visible=mode==="preview"&&!!instance.asset?.projection;
+    previewOverlay.hidden=!visible;
+    if(!visible)return;
+    const canvasRect=previewCanvas.getBoundingClientRect(),frameRect=previewFrame.getBoundingClientRect();
+    if(!canvasRect.width||!canvasRect.height)return;
+    previewOverlay.style.left=(canvasRect.left-frameRect.left)+"px";
+    previewOverlay.style.top=(canvasRect.top-frameRect.top)+"px";
+    previewOverlay.style.width=canvasRect.width+"px";
+    previewOverlay.style.height=canvasRect.height+"px";
+    const layer=current(),geom=window.VeeladPreviewGeometry,d=logical();
+    const polygon=previewOverlay.querySelector("polygon");
+    const handles=[...previewOverlay.querySelectorAll("[data-ws-preview-handle]")];
+    if(!layer||layer.visible===false||!geom){polygon.setAttribute("points","");handles.forEach(button=>button.hidden=true);return;}
+    const bounds=dimensions(layer);
+    const quad=geom.corners(layer,bounds.width/d.width,bounds.height/d.height,instance.asset.projection,d.height/d.width);
+    if(quad.length!==4){polygon.setAttribute("points","");handles.forEach(button=>button.hidden=true);return;}
+    polygon.setAttribute("points",quad.map(p=>[p.x*1000,p.y*1000].join(",")).join(" "));
+    handles.forEach((button,index)=>{
+      if(layer.locked){button.hidden=true;return;}
+      let p=quad[index];
+      if(index===4){
+        const middle={x:(quad[0].x+quad[1].x)/2,y:(quad[0].y+quad[1].y)/2},
+          center={x:quad.reduce((sum,v)=>sum+v.x,0)/4,y:quad.reduce((sum,v)=>sum+v.y,0)/4};
+        const vector={x:(middle.x-center.x)*canvasRect.width,y:(middle.y-center.y)*canvasRect.height};
+        const length=Math.hypot(vector.x,vector.y)||1;
+        p={x:middle.x+vector.x/length*28/canvasRect.width,y:middle.y+vector.y/length*28/canvasRect.height};
+      }
+      button.style.left=p.x*100+"%";
+      button.style.top=p.y*100+"%";
+      button.hidden=false;
+    });
+  }
+  function previewPoint(event){
+    if(!previewCanvas||!instance.asset?.projection||!window.VeeladPreviewGeometry)return null;
+    const rect=previewCanvas.getBoundingClientRect();
+    if(!rect.width||!rect.height)return null;
+    const uv=window.VeeladPreviewGeometry.toUV((event.clientX-rect.left)/rect.width,(event.clientY-rect.top)/rect.height,instance.asset.projection);
+    if(!uv)return null;
+    const d=logical();
+    return {x:uv.x*d.width,y:uv.y*d.height,uv};
+  }
+  function schedulePreviewRender(){
+    const now=Date.now();
+    if(now-previewRenderAt<110)return;
+    previewRenderAt=now;
+    void instance.render?.();
+  }
+  function beginPreviewGesture(event){
+    if(event.button!==0||mode!=="preview"||!instance.asset?.projection)return;
+    const geom=window.VeeladPreviewGeometry,point=previewPoint(event);
+    if(!point||!geom)return;
+    const handle=event.target.closest("[data-ws-preview-handle]");
+    if(!handle){
+      const d=logical();
+      const matching=[...layers()].reverse().find(layer=>{
+        if(layer.visible===false||(layer.opacity??1)<=0)return false;
+        const size=dimensions(layer);
+        return geom.hit(layer,point.uv,size.width/d.width,size.height/d.height,d.height/d.width);
+      });
+      selectLayer(matching?.id||null);
+    }
+    const layer=current();
+    if(!layer||layer.locked||layer.visible===false)return;
+    const kind=handle?.dataset.wsPreviewHandle||"move",d=logical(),bounds=dimensions(layer),original=cloneState(layer);
+    gesture={preview:true,id:layer.id,kind,point:{x:point.x,y:point.y},original,bounds,before:snapshot(),pointer:event.pointerId};
+    if(kind!=="move"&&kind!=="rotate"){
+      const sx=kind.includes("e")?1:-1,sy=kind.includes("s")?1:-1,angle=layer.rotation*Math.PI/180,
+        opposite=rotatePoint({x:-sx*bounds.width/2,y:-sy*bounds.height/2},angle);
+      gesture.anchor={x:layer.x*d.width+opposite.x,y:layer.y*d.height+opposite.y};
+      gesture.sx=sx;gesture.sy=sy;
+    }
+    previewOverlay.setPointerCapture(event.pointerId);
+    previewOverlay.focus({preventScroll:true});
+    event.preventDefault();
+  }
+  function movePreviewGesture(event){
+    if(!gesture?.preview||gesture.pointer!==event.pointerId)return;
+    moveGesture(event);
   }
   function paint(){
     const ids=new Set(layers().map(layer=>layer.id));
@@ -390,7 +495,7 @@ function renderElements(){
     shell.dataset.selectedLayer=selected||"";
     renderSurfaces();renderLayerList();renderInspector();resizeStage();
     if(!gesture)render();else paint();
-    updateHistory();
+    updateHistory();renderPreviewSelection();
   }
   async function addImages(files){
     if(!files?.length)return;
@@ -458,7 +563,7 @@ function renderElements(){
     const count=inspector.querySelector("[data-ws-character-count]");if(count)count.textContent=layer.text?.length||0;
     checkGlyphs();commit("property:"+layer.id+":"+key);
   }
-  function handlePoint(event){const rect=artboard.getBoundingClientRect(),d=logical();return{x:(event.clientX-rect.left)/rect.width*d.width,y:(event.clientY-rect.top)/rect.height*d.height};}
+  function handlePoint(event){if(gesture?.preview){const point=previewPoint(event);return point&&{x:point.x,y:point.y};}const rect=artboard.getBoundingClientRect(),d=logical();return{x:(event.clientX-rect.left)/rect.width*d.width,y:(event.clientY-rect.top)/rect.height*d.height};}
   function rotatePoint(point,angle){const c=Math.cos(angle),s=Math.sin(angle);return{x:point.x*c-point.y*s,y:point.x*s+point.y*c};}
   function beginGesture(event){
     if(event.button!==0||mode!=="edit")return;
@@ -479,6 +584,7 @@ function renderElements(){
     if(!gesture||gesture.pointer!==event.pointerId)return;
     const layer=layers().find(l=>l.id===gesture.id);if(!layer)return;
     const point=handlePoint(event),d=logical(),o=gesture.original,g=gesture;
+    if(!point)return;
     if(g.kind==="move"){
       layer.x=clamp(o.x+(point.x-g.point.x)/d.width,0,1);layer.y=clamp(o.y+(point.y-g.point.y)/d.height,0,1);
       const snap=shell.querySelector("[data-ws-snap]").checked;
@@ -501,7 +607,7 @@ function renderElements(){
       const delta=rotatePoint({x:g.sx*w/2,y:g.sy*h/2},o.rotation*Math.PI/180);
       layer.x=clamp((g.anchor.x+delta.x)/d.width,0,1);layer.y=clamp((g.anchor.y+delta.y)/d.height,0,1);
     }
-    paint();event.preventDefault();
+    if(gesture.preview){renderPreviewSelection();schedulePreviewRender();}else paint();event.preventDefault();
   }
   function finishGesture(event){
     if(!gesture||event.pointerId!==gesture.pointer)return;
@@ -510,6 +616,7 @@ function renderElements(){
     if(event.type==="pointercancel")Object.assign(layers().find(l=>l.id===g.id)||{},g.original);
     else if(snapshot()!==g.before)commit();
     renderInspector();render();
+    if(g.preview){renderPreviewSelection();void instance.render?.();}
   }
   function keyboard(event){
     if(event.key==="Escape"&&focused){event.preventDefault();setFocus(false);return;}
@@ -630,12 +737,17 @@ shell.addEventListener("dragstart",event=>{
     const rect=artboard.getBoundingClientRect();
     void addElement(value,{x:(event.clientX-rect.left)/rect.width,y:(event.clientY-rect.top)/rect.height});
   });
+  previewOverlay.addEventListener("pointerdown",beginPreviewGesture);
+  previewOverlay.addEventListener("pointermove",movePreviewGesture);
+  for(const name of ["pointerup","pointercancel","lostpointercapture"])previewOverlay.addEventListener(name,finishGesture);
+  root.addEventListener("customer-scene-rendered",()=>{if(mode==="preview")renderPreviewSelection();});
   artboard.addEventListener("pointerdown",beginGesture);artboard.addEventListener("pointermove",moveGesture);
   for(const name of ["pointerup","pointercancel","lostpointercapture"])artboard.addEventListener(name,finishGesture);
   shell.addEventListener("keydown",keyboard);
   root.addEventListener("scene-editor-change",()=>{if(!gesture){record();refresh();}});
   const resizeObserver=typeof ResizeObserver!=="undefined"?new ResizeObserver(()=>resizeStage()):null;
   resizeObserver?.observe(scroll);
+  if(previewCanvas)resizeObserver?.observe(previewCanvas);
   const lifecycle=new MutationObserver(()=>{if(!root.isConnected)instance.workspace?.dispose();});
   lifecycle.observe(document.querySelector("#app")||document.body,{childList:true});
   instance.workspace={refresh,render,addText,select:selectLayer,selected:()=>selected,undo:()=>restore(-1),redo:()=>restore(1),dispose(){disposed=true;document.body.classList.remove("has-studio-focus");clearTimeout(qualityTimer);resizeObserver?.disconnect();fontObserver?.disconnect();lifecycle.disconnect();}};
