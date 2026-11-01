@@ -31,6 +31,16 @@ const library={catalog:items,searchText(item){
  if(id==='city-london-0'&&language==='zh-CN')return '伦敦';
  return item.name;
 }};
+test('twelve independent clothing design starters use distinct editable illustrations',()=>{
+ assert.equal(pro.templates.length,12);
+ assert.equal(new Set(pro.templates.map(template=>template.id)).size,12);
+ assert.equal(new Set(pro.templates.map(template=>template.element)).size,12);
+ for(const template of pro.templates){
+  assert.match(template.color,/^#[a-f0-9]{6}$/i);
+  assert.ok(template.label.length>=7&&template.label.length<=50);
+  assert.ok(template.x>0&&template.x<1&&template.y>0&&template.y<1);
+ }
+});
 test('accent-insensitive, Arabic and Chinese search matches local graphic names',()=>{
  assert.equal(pro.normalize('قِطَّة'),'قطه');
  assert.equal(pro.search(library,'قِطَّة')[0].id,'cat-0');
