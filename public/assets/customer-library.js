@@ -252,6 +252,29 @@ async function prepareCustomerCreate() {
     );
   }
   customerSaveError = null;
+  // Restore a historical revision as a NEW latest revision. Never overwrite
+  // stored history in place; normal revision conflict protection still applies.
+  const requestedVersion=params.get("restore_revision");
+  if(customerDraft?.id&&requestedVersion){
+    const revision=Number(requestedVersion);
+    if(Number.isInteger(revision)&&revision>=1&&revision<=10000000){
+      try{
+        const restored=await api("customer-draft-version",null,{id:customerDraft.id,revision});
+        const version=restored.draft;
+        for(const field of ["design_studio","variant","upload_id","title","creative_personalisation"]){
+          if(Object.hasOwn(version,field))customerDraft[field]=clone(version[field]);
+        }
+        if(restored.product)customerDraft.base_product=restored.product;
+        customerDraft.product_id=version.product_id;
+        customerDraft.category=version.category;
+        customerDraft.conflict=false;
+        customerDraft.server_hash=null;
+        rememberDraftOnDevice(customerDraft,true);
+      }catch(error){toast(error.message||t("Could not restore this revision."));}
+    }
+    params.delete("restore_revision");
+    history.replaceState(null,"",normalUrl("create",Object.fromEntries(params)));
+  }
 }
 function customerEditorProducts() {
   const available = customizableProducts(),
@@ -286,13 +309,27 @@ function customerLibraryPage(data = {}) {
               ? "/api.php?" +
                 new URLSearchParams({ route: "image", id: d.mockup_upload_id })
               : "/assets/mockups/" + type + ".webp?v=" + storefrontMediaVersion;
-        return `<article class="customer-library-card" data-library-id="${esc(d.id)}"><a href="${esc(url("create", draft ? { draft: d.id } : { copy: d.id }))}"><img src="${esc(src)}" loading="lazy" alt="${esc(d.title || t("Your personal design"))}"></a><div><span class="eyebrow">${t(draft ? "Draft" : "Saved design")} · ${t(d.category)}</span><h3>${esc(d.title || t("Untitled design"))}</h3><p class="small">${localDate(d.updated_at || d.created_at, { dateStyle: "medium" })}</p><div class="customer-library-actions">${link(t(draft ? "Continue editing" : "Use this design"), "create", "btn sm", draft ? { draft: d.id } : { copy: d.id })}${draft ? link(t("Make a copy"), "create", "text-link", { duplicate: d.id }) + button(t("Remove from library"), "archive-customer-draft", `data-id="${esc(d.id)}" data-revision="${d.revision}"`, "text-link") : ""}</div></div></article>`;
+        return `<article class="customer-library-card" data-library-id="${esc(d.id)}"><a href="${esc(url("create", draft ? { draft: d.id } : { copy: d.id }))}"><img src="${esc(src)}" loading="lazy" alt="${esc(d.title || t("Your personal design"))}"></a><div><span class="eyebrow">${t(draft ? "Draft" : "Saved design")} · ${t(d.category)}</span><h3>${esc(d.title || t("Untitled design"))}</h3><p class="small">${localDate(d.updated_at || d.created_at, { dateStyle: "medium" })}</p><div class="customer-library-actions">${link(t(draft ? "Continue editing" : "Use this design"), "create", "btn sm", draft ? { draft: d.id } : { copy: d.id })}${draft ? link(t("Make a copy"), "create", "text-link", { duplicate: d.id }) + button(t("Version history"), "draft-version-history", `data-id="${esc(d.id)}"`, "text-link") + button(t("Remove from library"), "archive-customer-draft", `data-id="${esc(d.id)}" data-revision="${d.revision}"`, "text-link") : ""}</div></div></article>`;
       })
       .join("");
   return `<main id="main" class="container section customer-library"><div class="section-title"><div><span class="eyebrow">${t("YOUR PRIVATE CREATIVE SPACE")}</span><h1>${t("My Designs")}</h1><p>${t("Your drafts, your words, your artwork. Come back whenever inspiration strikes.")}</p></div>${link(t("Start a new design"), "create", "btn", { new: "1" })}</div>${!drafts.length && !designs.length ? empty(t("Your next idea starts here."), t("Design an item and your progress will be saved here automatically."), link(t("Create your own"), "create", "btn", { new: "1" })) : ""}${drafts.length ? `<h2>${t("Drafts")}</h2><div class="customer-library-grid">${cards(drafts, true)}</div>` : ""}${designs.length ? `<h2>${t("Saved designs")}</h2><p>${t("These are saved copies. Editing creates a new draft and never changes an existing order.")}</p><div class="customer-library-grid">${cards(designs, false)}</div>` : ""}${data.page > 0 || data.has_more ? `<nav class="customer-library-pagination" aria-label="${t("Design library pages")}">${data.page > 0 ? link(t("Previous designs"), "my-designs", "btn outline", { page: data.page - 1 }) : ""}${data.has_more ? link(t("More designs"), "my-designs", "btn outline", { page: (data.page || 0) + 1 }) : ""}</nav>` : ""}</main>`;
 }
 document.addEventListener("click", async (event) => {
   const action = event.target.closest("[data-action]");
+  if(action?.dataset.action==="draft-version-history"){
+    event.preventDefault();
+    const draftId=action.dataset.id;
+    try{
+      const result=await api("customer-draft-versions",null,{id:draftId});
+      const versions=result.versions||[];
+      const body=versions.length?versions.map(version=>{
+        const when=localDate(version.created_at,{dateStyle:"medium",timeStyle:"short"});
+        return '<div class="customer-version-row"><strong>'+esc(t("Revision"))+' '+Number(version.revision)+'</strong><span>'+esc(when)+'</span>'+link(t("Restore as new revision"),"create","btn sm",{draft:draftId,restore_revision:version.revision})+'</div>';
+      }).join(""):'<p>'+esc(t("No saved revisions yet."))+'</p>';
+      openModal(t("Version history"),'<div class="customer-version-history">'+body+'</div><p class="small">'+esc(t("Restoring creates a new version; your current design is preserved in history."))+'</p>');
+    }catch(error){toast(error.message);}
+    return;
+  }
   if (action?.dataset.action === "archive-customer-draft") {
     event.preventDefault();
     openModal(
