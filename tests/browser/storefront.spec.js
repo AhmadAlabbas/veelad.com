@@ -91,6 +91,8 @@ test('desktop header gives search useful width without overlapping navigation',a
   for(const width of [1024,1366,1600,1920]){
    await page.setViewportSize({width,height:900});
    await page.goto(fixture.origin+'/en/shop');
+   await expect(page.locator('.global-search input[name=q]')).toBeVisible();
+   await expect(page.locator('.global-nav .destination-control')).toBeVisible();
    const geometry=await page.evaluate(()=>{
     const search=document.querySelector('.global-search'),header=document.querySelector('.global-nav .container');
     const r=el=>{const x=el.getBoundingClientRect();return {left:x.left,right:x.right,top:x.top,bottom:x.bottom,width:x.width};};
