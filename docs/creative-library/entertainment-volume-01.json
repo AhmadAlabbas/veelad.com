@@ -19,7 +19,7 @@
       "art_direction": "Rain, streetlights, angular silhouettes, cinematic negative space",
       "items": [
         {
-          "id": "ent-urban-noir-midnight-mapmaker",
+          "id": "ent-urban-noir-midnight-mapmaker-0",
           "name": "Midnight Mapmaker",
           "kind": "original_character",
           "art_direction": "A tired city cartographer in a long cape holding a folded subway map; asymmetrical boots and a bright collar",
@@ -36,7 +36,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-urban-noir-neon-locksmith",
+          "id": "ent-urban-noir-neon-locksmith-0",
           "name": "Neon Locksmith",
           "kind": "original_character",
           "art_direction": "A friendly repair specialist with square glasses, utility scarf, and an oversized brass key tool",
@@ -53,7 +53,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-urban-noir-rooftop-courier",
+          "id": "ent-urban-noir-rooftop-courier-0",
           "name": "Rooftop Courier",
           "kind": "original_character",
           "art_direction": "A messenger balancing on a parapet with messenger bag and fluttering paper trail",
@@ -70,7 +70,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-urban-noir-pocket-streetlamp",
+          "id": "ent-urban-noir-pocket-streetlamp-0",
           "name": "Pocket Streetlamp",
           "kind": "illustrated_motif",
           "art_direction": "An ornate lamp casting a triangular cone of light with a miniature moth",
@@ -87,7 +87,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-urban-noir-raindrop-detective-hat",
+          "id": "ent-urban-noir-raindrop-detective-hat-0",
           "name": "Raindrop Detective Hat",
           "kind": "illustrated_motif",
           "art_direction": "A wide-brim hat with water droplets forming a question-mark-shaped ripple",
@@ -104,7 +104,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-urban-noir-casebook-and-pencil",
+          "id": "ent-urban-noir-casebook-and-pencil-0",
           "name": "Casebook and Pencil",
           "kind": "illustrated_motif",
           "art_direction": "An open notebook filled with abstract evidence pins and a diagonal red pencil",
@@ -120,7 +120,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-urban-noir-corner-phone-booth",
+          "id": "ent-urban-noir-corner-phone-booth-0",
           "name": "Corner Phone Booth",
           "kind": "illustrated_motif",
           "art_direction": "A geometric booth with receiver swinging on a curly cord",
@@ -136,7 +136,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-urban-noir-clock-at-eleven",
+          "id": "ent-urban-noir-clock-at-eleven-0",
           "name": "Clock at Eleven",
           "kind": "illustrated_motif",
           "art_direction": "An art deco street clock with mismatched hands and night-star markers",
@@ -152,7 +152,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-urban-noir-footsteps-in-puddles",
+          "id": "ent-urban-noir-footsteps-in-puddles-0",
           "name": "Footsteps in Puddles",
           "kind": "illustrated_motif",
           "art_direction": "Three shoe impressions reflected in a single blue puddle",
@@ -168,7 +168,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-urban-noir-blue-hour-alley",
+          "id": "ent-urban-noir-blue-hour-alley-0",
           "name": "Blue Hour Alley",
           "kind": "scene_or_badge",
           "art_direction": "Layered silhouettes of brick walls, fire escape, one distant lit window",
@@ -184,7 +184,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-urban-noir-last-train-badge",
+          "id": "ent-urban-noir-last-train-badge-0",
           "name": "Last Train Badge",
           "kind": "scene_or_badge",
           "art_direction": "Circular badge of an underground train approaching through a tunnel",
@@ -200,7 +200,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-urban-noir-paper-trail-emblem",
+          "id": "ent-urban-noir-paper-trail-emblem-0",
           "name": "Paper Trail Emblem",
           "kind": "scene_or_badge",
           "art_direction": "Windblown connected documents, a brass paperclip, and city lights",
@@ -232,7 +232,7 @@
       "art_direction": "Friendly scientific discovery, imaginative tools, precise geometric details",
       "items": [
         {
-          "id": "ent-science-wonders-orbit-lab-inventor",
+          "id": "ent-science-wonders-orbit-lab-inventor-0",
           "name": "Orbit Lab Inventor",
           "kind": "original_character",
           "art_direction": "Inventor with curly hair, asymmetric lab apron and orbit model hovering over a palm",
@@ -248,7 +248,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-science-wonders-microbe-gardener",
+          "id": "ent-science-wonders-microbe-gardener-0",
           "name": "Microbe Gardener",
           "kind": "original_character",
           "art_direction": "Researcher with a leaf-shaped visor and glass terrarium of imaginary friendly microorganisms",
@@ -264,7 +264,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-science-wonders-clockwork-analyst",
+          "id": "ent-science-wonders-clockwork-analyst-0",
           "name": "Clockwork Analyst",
           "kind": "original_character",
           "art_direction": "Designer with mechanical monocle and coloured measuring tabs on an apron",
@@ -280,7 +280,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-science-wonders-pocket-telescope",
+          "id": "ent-science-wonders-pocket-telescope-0",
           "name": "Pocket Telescope",
           "kind": "illustrated_motif",
           "art_direction": "Collapsible telescope decorated with tiny concentric star maps",
@@ -296,7 +296,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-science-wonders-crystal-spectrometer",
+          "id": "ent-science-wonders-crystal-spectrometer-0",
           "name": "Crystal Spectrometer",
           "kind": "illustrated_motif",
           "art_direction": "A light-splitting prism in a mechanical cradle emitting three distinct rays",
@@ -312,7 +312,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-science-wonders-dancing-molecule",
+          "id": "ent-science-wonders-dancing-molecule-0",
           "name": "Dancing Molecule",
           "kind": "illustrated_motif",
           "art_direction": "Interlinked colour-coded atomic nodes following a twisting ribbon path",
@@ -328,7 +328,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-science-wonders-mini-wind-tunnel",
+          "id": "ent-science-wonders-mini-wind-tunnel-0",
           "name": "Mini Wind Tunnel",
           "kind": "illustrated_motif",
           "art_direction": "Tabletop fan blowing streamlines around a stylised airfoil",
@@ -344,7 +344,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-science-wonders-celestial-abacus",
+          "id": "ent-science-wonders-celestial-abacus-0",
           "name": "Celestial Abacus",
           "kind": "illustrated_motif",
           "art_direction": "Counting beads arranged as an orbital constellation",
@@ -360,7 +360,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-science-wonders-lightning-coil",
+          "id": "ent-science-wonders-lightning-coil-0",
           "name": "Lightning Coil",
           "kind": "illustrated_motif",
           "art_direction": "Two looped magnetic coils with a restrained arc and calibration ticks",
@@ -376,7 +376,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-science-wonders-night-laboratory-badge",
+          "id": "ent-science-wonders-night-laboratory-badge-0",
           "name": "Night Laboratory Badge",
           "kind": "scene_or_badge",
           "art_direction": "Circular icon of a small research bench lit by a moon through a window",
@@ -392,7 +392,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-science-wonders-ideas-in-motion",
+          "id": "ent-science-wonders-ideas-in-motion-0",
           "name": "Ideas in Motion",
           "kind": "scene_or_badge",
           "art_direction": "Four open gear shapes meshing around a central glowing light bulb",
@@ -408,7 +408,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-science-wonders-the-great-experiment",
+          "id": "ent-science-wonders-the-great-experiment-0",
           "name": "The Great Experiment",
           "kind": "scene_or_badge",
           "art_direction": "Wide scene with glassware, diagrams and one floating golden discovery spark",
@@ -440,7 +440,7 @@
       "art_direction": "Clever geometry, abstract locks, clue puzzles and original team dynamics",
       "items": [
         {
-          "id": "ent-escape-puzzles-riddle-architect",
+          "id": "ent-escape-puzzles-riddle-architect-0",
           "name": "Riddle Architect",
           "kind": "original_character",
           "art_direction": "Puzzle designer in angular coat carrying a folding impossible-cube model",
@@ -456,7 +456,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-escape-puzzles-tunnel-surveyor",
+          "id": "ent-escape-puzzles-tunnel-surveyor-0",
           "name": "Tunnel Surveyor",
           "kind": "original_character",
           "art_direction": "Underground explorer with safety helmet, utility chalk, and surveying compass",
@@ -472,7 +472,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-escape-puzzles-cipher-composer",
+          "id": "ent-escape-puzzles-cipher-composer-0",
           "name": "Cipher Composer",
           "kind": "original_character",
           "art_direction": "Musician in waistcoat writing coded symbols on a portable notation board",
@@ -488,7 +488,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-escape-puzzles-seven-tumbler-lock",
+          "id": "ent-escape-puzzles-seven-tumbler-lock-0",
           "name": "Seven-Tumbler Lock",
           "kind": "illustrated_motif",
           "art_direction": "Illustrated cross-section of a fantasy lock with seven coloured pins",
@@ -504,7 +504,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-escape-puzzles-compass-maze",
+          "id": "ent-escape-puzzles-compass-maze-0",
           "name": "Compass Maze",
           "kind": "illustrated_motif",
           "art_direction": "Circular labyrinth whose exit is a compass rose rather than a door",
@@ -520,7 +520,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-escape-puzzles-folded-blueprint",
+          "id": "ent-escape-puzzles-folded-blueprint-0",
           "name": "Folded Blueprint",
           "kind": "illustrated_motif",
           "art_direction": "Rolled architectural plan with a stylised winding route and numbered markers",
@@ -536,7 +536,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-escape-puzzles-cipher-wheel",
+          "id": "ent-escape-puzzles-cipher-wheel-0",
           "name": "Cipher Wheel",
           "kind": "illustrated_motif",
           "art_direction": "Two concentric rotating disks covered in original geometric glyphs",
@@ -552,7 +552,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-escape-puzzles-clockwork-door",
+          "id": "ent-escape-puzzles-clockwork-door-0",
           "name": "Clockwork Door",
           "kind": "illustrated_motif",
           "art_direction": "A fantasy door with a clock dial and offset hinges",
@@ -568,7 +568,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-escape-puzzles-hidden-stairway",
+          "id": "ent-escape-puzzles-hidden-stairway-0",
           "name": "Hidden Stairway",
           "kind": "illustrated_motif",
           "art_direction": "Stairs disappearing into a triangular impossible perspective",
@@ -584,7 +584,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-escape-puzzles-midnight-logic-badge",
+          "id": "ent-escape-puzzles-midnight-logic-badge-0",
           "name": "Midnight Logic Badge",
           "kind": "scene_or_badge",
           "art_direction": "Interlocking square and circle paths with a single highlighted solution",
@@ -600,7 +600,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-escape-puzzles-the-fifth-key",
+          "id": "ent-escape-puzzles-the-fifth-key-0",
           "name": "The Fifth Key",
           "kind": "scene_or_badge",
           "art_direction": "Five distinct fantasy keys hanging in a row; fifth casts an unusual shadow",
@@ -616,7 +616,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-escape-puzzles-escape-room-map",
+          "id": "ent-escape-puzzles-escape-room-map-0",
           "name": "Escape Room Map",
           "kind": "scene_or_badge",
           "art_direction": "Isometric room layout with switch, pulley and safe stepping stones",
@@ -649,7 +649,7 @@
       "art_direction": "Warm coming-of-age exploration, friendship and small-place wonder",
       "items": [
         {
-          "id": "ent-hometown-adventures-lantern-trail-scout",
+          "id": "ent-hometown-adventures-lantern-trail-scout-0",
           "name": "Lantern Trail Scout",
           "kind": "original_character",
           "art_direction": "Young adult trail guide wearing oversized rain poncho and holding handmade lantern",
@@ -665,7 +665,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-hometown-adventures-library-bicycle-messenger",
+          "id": "ent-hometown-adventures-library-bicycle-messenger-0",
           "name": "Library Bicycle Messenger",
           "kind": "original_character",
           "art_direction": "Book courier with an unusual triple-basket bicycle and stacked journals",
@@ -681,7 +681,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-hometown-adventures-observatory-volunteer",
+          "id": "ent-hometown-adventures-observatory-volunteer-0",
           "name": "Observatory Volunteer",
           "kind": "original_character",
           "art_direction": "Star watcher with bright knit cap, sketchbook and fold-out constellation chart",
@@ -697,7 +697,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-hometown-adventures-mysterious-water-tower",
+          "id": "ent-hometown-adventures-mysterious-water-tower-0",
           "name": "Mysterious Water Tower",
           "kind": "illustrated_motif",
           "art_direction": "Old cylindrical water tower beneath sweeping cumulus clouds",
@@ -713,7 +713,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-hometown-adventures-window-of-paper-stars",
+          "id": "ent-hometown-adventures-window-of-paper-stars-0",
           "name": "Window of Paper Stars",
           "kind": "illustrated_motif",
           "art_direction": "Attic window displaying handmade folded stars in a circular arrangement",
@@ -729,7 +729,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-hometown-adventures-folded-treasure-route",
+          "id": "ent-hometown-adventures-folded-treasure-route-0",
           "name": "Folded Treasure Route",
           "kind": "illustrated_motif",
           "art_direction": "Hand-painted local trail map with creek, bridge and a hand-drawn sun",
@@ -745,7 +745,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-hometown-adventures-handheld-radio-pair",
+          "id": "ent-hometown-adventures-handheld-radio-pair-0",
           "name": "Handheld Radio Pair",
           "kind": "illustrated_motif",
           "art_direction": "Two mismatched radios joined by dotted communication waves",
@@ -761,7 +761,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-hometown-adventures-morning-bus-ticket",
+          "id": "ent-hometown-adventures-morning-bus-ticket-0",
           "name": "Morning Bus Ticket",
           "kind": "illustrated_motif",
           "art_direction": "Retro paper ticket with original fictional stops and a rising-sun icon",
@@ -777,7 +777,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-hometown-adventures-hillside-treehouse",
+          "id": "ent-hometown-adventures-hillside-treehouse-0",
           "name": "Hillside Treehouse",
           "kind": "illustrated_motif",
           "art_direction": "An asymmetrical platform house nestled in an angular autumn tree",
@@ -793,7 +793,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-hometown-adventures-together-we-wander",
+          "id": "ent-hometown-adventures-together-we-wander-0",
           "name": "Together We Wander",
           "kind": "scene_or_badge",
           "art_direction": "Original patch with hiking shoes circling a small compass",
@@ -809,7 +809,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-hometown-adventures-after-the-rain",
+          "id": "ent-hometown-adventures-after-the-rain-0",
           "name": "After the Rain",
           "kind": "scene_or_badge",
           "art_direction": "Street and rainbow reflections with a person under an oversized umbrella",
@@ -825,7 +825,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-hometown-adventures-the-long-summer",
+          "id": "ent-hometown-adventures-the-long-summer-0",
           "name": "The Long Summer",
           "kind": "scene_or_badge",
           "art_direction": "Panoramic badge showing bicycles by a creek under paper lanterns",
@@ -857,7 +857,7 @@
       "art_direction": "Original pixel-inspired geometry without existing game sprites or consoles",
       "items": [
         {
-          "id": "ent-retro-arcade-token-wizard",
+          "id": "ent-retro-arcade-token-wizard-0",
           "name": "Token Wizard",
           "kind": "original_character",
           "art_direction": "Cheerful gamer with star-patterned jacket juggling original triangular tokens",
@@ -873,7 +873,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-retro-arcade-scoreboard-engineer",
+          "id": "ent-retro-arcade-scoreboard-engineer-0",
           "name": "Scoreboard Engineer",
           "kind": "original_character",
           "art_direction": "Mechanic with stacked display visor and tool belt shaped like game controls",
@@ -889,7 +889,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-retro-arcade-neon-skater",
+          "id": "ent-retro-arcade-neon-skater-0",
           "name": "Neon Skater",
           "kind": "original_character",
           "art_direction": "Roller-skating character with angular helmet and rainbow speed lines",
@@ -905,7 +905,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-retro-arcade-triple-arrow-token",
+          "id": "ent-retro-arcade-triple-arrow-token-0",
           "name": "Triple-Arrow Token",
           "kind": "illustrated_motif",
           "art_direction": "Coin engraved with three orbiting arrows and a tiny star",
@@ -921,7 +921,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-retro-arcade-infinity-joystick",
+          "id": "ent-retro-arcade-infinity-joystick-0",
           "name": "Infinity Joystick",
           "kind": "illustrated_motif",
           "art_direction": "Round-ended stick linked to abstract looping control paths",
@@ -937,7 +937,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-retro-arcade-electric-pinball",
+          "id": "ent-retro-arcade-electric-pinball-0",
           "name": "Electric Pinball",
           "kind": "illustrated_motif",
           "art_direction": "Isometric pinball board with diagonal flippers and original target shapes",
@@ -952,7 +952,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-retro-arcade-pixel-cactus",
+          "id": "ent-retro-arcade-pixel-cactus-0",
           "name": "Pixel Cactus",
           "kind": "illustrated_motif",
           "art_direction": "Geometric cactus built from distinct modular blocks and a small flower",
@@ -968,7 +968,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-retro-arcade-glitch-cassette",
+          "id": "ent-retro-arcade-glitch-cassette-0",
           "name": "Glitch Cassette",
           "kind": "illustrated_motif",
           "art_direction": "Tape housing fragmented into staggered colour channels",
@@ -984,7 +984,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-retro-arcade-level-up-staircase",
+          "id": "ent-retro-arcade-level-up-staircase-0",
           "name": "Level-Up Staircase",
           "kind": "illustrated_motif",
           "art_direction": "Ascending illustrated steps ending in a tiny banner and star",
@@ -1000,7 +1000,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-retro-arcade-night-mode-arcade",
+          "id": "ent-retro-arcade-night-mode-arcade-0",
           "name": "Night Mode Arcade",
           "kind": "scene_or_badge",
           "art_direction": "Isometric arcade-room vignette with glowing windows and no real cabinet marks",
@@ -1016,7 +1016,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-retro-arcade-high-score-crest",
+          "id": "ent-retro-arcade-high-score-crest-0",
           "name": "High Score Crest",
           "kind": "scene_or_badge",
           "art_direction": "Star-topped shield with original fictional score glyphs",
@@ -1032,7 +1032,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-retro-arcade-one-more-round",
+          "id": "ent-retro-arcade-one-more-round-0",
           "name": "One More Round",
           "kind": "scene_or_badge",
           "art_direction": "Two hands high-fiving over a retro abstract scoreboard",
@@ -1064,7 +1064,7 @@
       "art_direction": "Optimistic space exploration, unique ship silhouettes and planetary geology",
       "items": [
         {
-          "id": "ent-cosmic-odyssey-moon-cartographer",
+          "id": "ent-cosmic-odyssey-moon-cartographer-0",
           "name": "Moon Cartographer",
           "kind": "original_character",
           "art_direction": "Astronaut with triangular backpack mapping a crater using a folding scanner",
@@ -1080,7 +1080,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-cosmic-odyssey-comet-botanist",
+          "id": "ent-cosmic-odyssey-comet-botanist-0",
           "name": "Comet Botanist",
           "kind": "original_character",
           "art_direction": "Explorer in teal spacesuit carrying a glowing extraterrestrial greenhouse",
@@ -1096,7 +1096,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-cosmic-odyssey-starship-navigator",
+          "id": "ent-cosmic-odyssey-starship-navigator-0",
           "name": "Starship Navigator",
           "kind": "original_character",
           "art_direction": "Pilot with dramatic orbital visor and a spherical compass on one shoulder",
@@ -1112,7 +1112,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-cosmic-odyssey-the-quiet-planet",
+          "id": "ent-cosmic-odyssey-the-quiet-planet-0",
           "name": "The Quiet Planet",
           "kind": "illustrated_motif",
           "art_direction": "Ringed world with one asymmetrical ice ridge and stippled crater",
@@ -1128,7 +1128,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-cosmic-odyssey-folded-solar-sail",
+          "id": "ent-cosmic-odyssey-folded-solar-sail-0",
           "name": "Folded Solar Sail",
           "kind": "illustrated_motif",
           "art_direction": "Three-panel spacecraft sail with honeycomb light cells",
@@ -1144,7 +1144,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-cosmic-odyssey-galaxy-thermos",
+          "id": "ent-cosmic-odyssey-galaxy-thermos-0",
           "name": "Galaxy Thermos",
           "kind": "illustrated_motif",
           "art_direction": "Exploration flask covered in simplified star-coordinate paths",
@@ -1160,7 +1160,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-cosmic-odyssey-meteor-postcard",
+          "id": "ent-cosmic-odyssey-meteor-postcard-0",
           "name": "Meteor Postcard",
           "kind": "illustrated_motif",
           "art_direction": "Postcard framing a meteor shower over a violet horizon",
@@ -1176,7 +1176,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-cosmic-odyssey-satellite-garden",
+          "id": "ent-cosmic-odyssey-satellite-garden-0",
           "name": "Satellite Garden",
           "kind": "illustrated_motif",
           "art_direction": "Miniature orbital satellite with plant-shaped solar panels",
@@ -1192,7 +1192,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-cosmic-odyssey-starlight-antenna",
+          "id": "ent-cosmic-odyssey-starlight-antenna-0",
           "name": "Starlight Antenna",
           "kind": "illustrated_motif",
           "art_direction": "Dishes arranged around one long curved signal trail",
@@ -1208,7 +1208,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-cosmic-odyssey-beyond-the-rings",
+          "id": "ent-cosmic-odyssey-beyond-the-rings-0",
           "name": "Beyond the Rings",
           "kind": "scene_or_badge",
           "art_direction": "Wide lunar-landscape badge showing a tiny rover beneath planetary rings",
@@ -1224,7 +1224,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-cosmic-odyssey-first-footprints",
+          "id": "ent-cosmic-odyssey-first-footprints-0",
           "name": "First Footprints",
           "kind": "scene_or_badge",
           "art_direction": "A pair of boot impressions fading into an abstract star map",
@@ -1240,7 +1240,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-cosmic-odyssey-constellation-crew",
+          "id": "ent-cosmic-odyssey-constellation-crew-0",
           "name": "Constellation Crew",
           "kind": "scene_or_badge",
           "art_direction": "Three different spacesuit silhouettes linked by a dotted constellation",
@@ -1272,7 +1272,7 @@
       "art_direction": "Humane cyber-urbanism, tactile machines and city life, not franchise replicas",
       "items": [
         {
-          "id": "ent-neon-future-night-market-mechanic",
+          "id": "ent-neon-future-night-market-mechanic-0",
           "name": "Night Market Mechanic",
           "kind": "original_character",
           "art_direction": "Street mechanic with magnetic gloves and translucent toolkit umbrella",
@@ -1288,7 +1288,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-neon-future-hologram-florist",
+          "id": "ent-neon-future-hologram-florist-0",
           "name": "Hologram Florist",
           "kind": "original_character",
           "art_direction": "Florist with geometric face shield arranging floating projection bouquets",
@@ -1304,7 +1304,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-neon-future-solar-tram-conductor",
+          "id": "ent-neon-future-solar-tram-conductor-0",
           "name": "Solar Tram Conductor",
           "kind": "original_character",
           "art_direction": "Conductor in sharply cut uniform holding a reusable illuminated transit pass",
@@ -1320,7 +1320,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-neon-future-modular-transit-pod",
+          "id": "ent-neon-future-modular-transit-pod-0",
           "name": "Modular Transit Pod",
           "kind": "illustrated_motif",
           "art_direction": "Three-wheeled electric pod with large panoramic windows",
@@ -1336,7 +1336,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-neon-future-floating-noodle-sign",
+          "id": "ent-neon-future-floating-noodle-sign-0",
           "name": "Floating Noodle Sign",
           "kind": "illustrated_motif",
           "art_direction": "Original fictional sign using abstract noodle-bowl pictograms, not real logos",
@@ -1352,7 +1352,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-neon-future-circuit-umbrella",
+          "id": "ent-neon-future-circuit-umbrella-0",
           "name": "Circuit Umbrella",
           "kind": "illustrated_motif",
           "art_direction": "Clear umbrella with radial embedded circuit traces and glowing edges",
@@ -1368,7 +1368,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-neon-future-pocket-data-garden",
+          "id": "ent-neon-future-pocket-data-garden-0",
           "name": "Pocket Data Garden",
           "kind": "illustrated_motif",
           "art_direction": "Portable screen hosting a miniature virtual topiary",
@@ -1384,7 +1384,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-neon-future-drone-delivery-cart",
+          "id": "ent-neon-future-drone-delivery-cart-0",
           "name": "Drone Delivery Cart",
           "kind": "illustrated_motif",
           "art_direction": "Ground-level delivery robot with retractable wheels and blinking signal eyes",
@@ -1400,7 +1400,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-neon-future-rain-slick-footbridge",
+          "id": "ent-neon-future-rain-slick-footbridge-0",
           "name": "Rain-Slick Footbridge",
           "kind": "illustrated_motif",
           "art_direction": "Minimal pedestrian bridge seen against layered neon window grids",
@@ -1416,7 +1416,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-neon-future-after-hours-station",
+          "id": "ent-neon-future-after-hours-station-0",
           "name": "After Hours Station",
           "kind": "scene_or_badge",
           "art_direction": "Transit platform with transparent arrivals board and empty bicycle stand",
@@ -1432,7 +1432,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-neon-future-tomorrow-s-skyline",
+          "id": "ent-neon-future-tomorrow-s-skyline-0",
           "name": "Tomorrow's Skyline",
           "kind": "scene_or_badge",
           "art_direction": "Three sharply different tower silhouettes with overhead transit loop",
@@ -1448,7 +1448,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-neon-future-human-machine-handshake",
+          "id": "ent-neon-future-human-machine-handshake-0",
           "name": "Human-Machine Handshake",
           "kind": "scene_or_badge",
           "art_direction": "Stylised human and soft-claw robotic hands touching above a blue waveform",
@@ -1480,7 +1480,7 @@
       "art_direction": "New folklore: whimsical heraldry, fantastical costumes and imaginary creatures",
       "items": [
         {
-          "id": "ent-mythic-kingdoms-moss-cape-ranger",
+          "id": "ent-mythic-kingdoms-moss-cape-ranger-0",
           "name": "Moss-Cape Ranger",
           "kind": "original_character",
           "art_direction": "Forest wanderer in a layered leaf cape carrying a bell-shaped compass",
@@ -1496,7 +1496,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-mythic-kingdoms-moonlit-stonemason",
+          "id": "ent-mythic-kingdoms-moonlit-stonemason-0",
           "name": "Moonlit Stonemason",
           "kind": "original_character",
           "art_direction": "Craftsman with crescent tools assembling floating stones",
@@ -1512,7 +1512,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-mythic-kingdoms-wandering-lantern-knight",
+          "id": "ent-mythic-kingdoms-wandering-lantern-knight-0",
           "name": "Wandering Lantern Knight",
           "kind": "original_character",
           "art_direction": "Adventurer with rounded armour and a small lantern instead of a sword",
@@ -1528,7 +1528,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-mythic-kingdoms-the-amber-gateway",
+          "id": "ent-mythic-kingdoms-the-amber-gateway-0",
           "name": "The Amber Gateway",
           "kind": "illustrated_motif",
           "art_direction": "Arched mountain gate embedded with star-like amber crystals",
@@ -1544,7 +1544,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-mythic-kingdoms-cloudsmith-anvil",
+          "id": "ent-mythic-kingdoms-cloudsmith-anvil-0",
           "name": "Cloudsmith Anvil",
           "kind": "illustrated_motif",
           "art_direction": "Lightweight anvil floating over swirling clouds and small sparks",
@@ -1560,7 +1560,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-mythic-kingdoms-seven-leaf-crown",
+          "id": "ent-mythic-kingdoms-seven-leaf-crown-0",
           "name": "Seven-Leaf Crown",
           "kind": "illustrated_motif",
           "art_direction": "Organic leaf crown with offset branches and asymmetrical gem seed",
@@ -1576,7 +1576,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-mythic-kingdoms-tideglass-compass",
+          "id": "ent-mythic-kingdoms-tideglass-compass-0",
           "name": "Tideglass Compass",
           "kind": "illustrated_motif",
           "art_direction": "Fantasy compass filled with liquid light and wave-like arrows",
@@ -1592,7 +1592,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-mythic-kingdoms-friendly-griffin-feather",
+          "id": "ent-mythic-kingdoms-friendly-griffin-feather-0",
           "name": "Friendly Griffin Feather",
           "kind": "illustrated_motif",
           "art_direction": "Long iridescent feather with stylised lion-print quill detail",
@@ -1608,7 +1608,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-mythic-kingdoms-starlit-shield",
+          "id": "ent-mythic-kingdoms-starlit-shield-0",
           "name": "Starlit Shield",
           "kind": "illustrated_motif",
           "art_direction": "Round buckler with original overlapping moon-and-branch heraldry",
@@ -1624,7 +1624,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-mythic-kingdoms-keeper-of-the-valley",
+          "id": "ent-mythic-kingdoms-keeper-of-the-valley-0",
           "name": "Keeper of the Valley",
           "kind": "scene_or_badge",
           "art_direction": "Panoramic fantasy valley with a stone bridge and distant spiral tree",
@@ -1640,7 +1640,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-mythic-kingdoms-the-hidden-oath",
+          "id": "ent-mythic-kingdoms-the-hidden-oath-0",
           "name": "The Hidden Oath",
           "kind": "scene_or_badge",
           "art_direction": "Emblem of interlinked circular knotwork and a luminous seed",
@@ -1656,7 +1656,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-mythic-kingdoms-festival-of-lanterns",
+          "id": "ent-mythic-kingdoms-festival-of-lanterns-0",
           "name": "Festival of Lanterns",
           "kind": "scene_or_badge",
           "art_direction": "Fantasy hillside with five floating lanterns and a distant castle",
@@ -1688,7 +1688,7 @@
       "art_direction": "Botanical wonders, soft ink lines, surprising organic structures",
       "items": [
         {
-          "id": "ent-enchanted-garden-petal-postmaster",
+          "id": "ent-enchanted-garden-petal-postmaster-0",
           "name": "Petal Postmaster",
           "kind": "original_character",
           "art_direction": "Garden courier in seedpod raincoat carrying tiny flower envelopes",
@@ -1704,7 +1704,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-enchanted-garden-mushroom-librarian",
+          "id": "ent-enchanted-garden-mushroom-librarian-0",
           "name": "Mushroom Librarian",
           "kind": "original_character",
           "art_direction": "Whimsical mushroom-headed archivist holding a leaf-bound book",
@@ -1720,7 +1720,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-enchanted-garden-dewdrop-alchemist",
+          "id": "ent-enchanted-garden-dewdrop-alchemist-0",
           "name": "Dewdrop Alchemist",
           "kind": "original_character",
           "art_direction": "Gentle magical researcher pouring iridescent dew into a blossom",
@@ -1736,7 +1736,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-enchanted-garden-bluebell-observatory",
+          "id": "ent-enchanted-garden-bluebell-observatory-0",
           "name": "Bluebell Observatory",
           "kind": "illustrated_motif",
           "art_direction": "Three bluebells growing into telescope eyepieces",
@@ -1752,7 +1752,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-enchanted-garden-moonseed-terrarium",
+          "id": "ent-enchanted-garden-moonseed-terrarium-0",
           "name": "Moonseed Terrarium",
           "kind": "illustrated_motif",
           "art_direction": "Glass bell jar with crescent sprout and soil layers",
@@ -1768,7 +1768,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-enchanted-garden-lavender-hourglass",
+          "id": "ent-enchanted-garden-lavender-hourglass-0",
           "name": "Lavender Hourglass",
           "kind": "illustrated_motif",
           "art_direction": "Hourglass filled with trailing lavender blooms instead of sand",
@@ -1784,7 +1784,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-enchanted-garden-fern-constellation",
+          "id": "ent-enchanted-garden-fern-constellation-0",
           "name": "Fern Constellation",
           "kind": "illustrated_motif",
           "art_direction": "Delicate fern whose spores form a small cluster of stars",
@@ -1800,7 +1800,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-enchanted-garden-tangerine-moth",
+          "id": "ent-enchanted-garden-tangerine-moth-0",
           "name": "Tangerine Moth",
           "kind": "illustrated_motif",
           "art_direction": "Distinctive symmetrical moth with citrus-slice wings",
@@ -1816,7 +1816,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-enchanted-garden-pocket-wildflower-field",
+          "id": "ent-enchanted-garden-pocket-wildflower-field-0",
           "name": "Pocket Wildflower Field",
           "kind": "illustrated_motif",
           "art_direction": "Mini hill of layered stems and colourful blossoms in a coin-shaped frame",
@@ -1832,7 +1832,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-enchanted-garden-the-whispering-grove",
+          "id": "ent-enchanted-garden-the-whispering-grove-0",
           "name": "The Whispering Grove",
           "kind": "scene_or_badge",
           "art_direction": "Three curving trees forming an arch over a luminous flower",
@@ -1848,7 +1848,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-enchanted-garden-bloom-where-you-wander",
+          "id": "ent-enchanted-garden-bloom-where-you-wander-0",
           "name": "Bloom Where You Wander",
           "kind": "scene_or_badge",
           "art_direction": "Original circular badge with a path spiralling into four-petal flower",
@@ -1864,7 +1864,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-enchanted-garden-garden-after-dark",
+          "id": "ent-enchanted-garden-garden-after-dark-0",
           "name": "Garden After Dark",
           "kind": "scene_or_badge",
           "art_direction": "Ferns, fireflies and a botanical arch in a contrasting night vignette",
@@ -1896,7 +1896,7 @@
       "art_direction": "Desert geology, outdoor photography and adventurous but culturally neutral travel motifs",
       "items": [
         {
-          "id": "ent-desert-trails-dune-weather-reader",
+          "id": "ent-desert-trails-dune-weather-reader-0",
           "name": "Dune Weather Reader",
           "kind": "original_character",
           "art_direction": "Explorer in layered scarf and practical field hat measuring wind with pocket ribbon",
@@ -1912,7 +1912,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-desert-trails-night-sky-photographer",
+          "id": "ent-desert-trails-night-sky-photographer-0",
           "name": "Night Sky Photographer",
           "kind": "original_character",
           "art_direction": "Traveller carrying camera and tripod beneath crescent-shaped horizon",
@@ -1928,7 +1928,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-desert-trails-trail-tea-maker",
+          "id": "ent-desert-trails-trail-tea-maker-0",
           "name": "Trail Tea Maker",
           "kind": "original_character",
           "art_direction": "Camp host with patterned thermos and folding kettle stand",
@@ -1944,7 +1944,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-desert-trails-contour-dune-lines",
+          "id": "ent-desert-trails-contour-dune-lines-0",
           "name": "Contour Dune Lines",
           "kind": "illustrated_motif",
           "art_direction": "Five different sinusoidal sand ridges forming a sculptural landscape",
@@ -1960,7 +1960,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-desert-trails-sun-bleached-compass",
+          "id": "ent-desert-trails-sun-bleached-compass-0",
           "name": "Sun-Bleached Compass",
           "kind": "illustrated_motif",
           "art_direction": "Metal compass with fine texture and sandy cardinal dots",
@@ -1976,7 +1976,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-desert-trails-canyon-postcard",
+          "id": "ent-desert-trails-canyon-postcard-0",
           "name": "Canyon Postcard",
           "kind": "illustrated_motif",
           "art_direction": "Postcard showing a narrow slot canyon with sunlight beam",
@@ -1992,7 +1992,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-desert-trails-crescent-camp-lantern",
+          "id": "ent-desert-trails-crescent-camp-lantern-0",
           "name": "Crescent Camp Lantern",
           "kind": "illustrated_motif",
           "art_direction": "Portable lantern with geometric crescent negative space",
@@ -2008,7 +2008,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-desert-trails-wind-twisted-tree",
+          "id": "ent-desert-trails-wind-twisted-tree-0",
           "name": "Wind-Twisted Tree",
           "kind": "illustrated_motif",
           "art_direction": "A lone resilient acacia-like tree on a sloping rock shelf",
@@ -2024,7 +2024,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-desert-trails-oasis-reflection",
+          "id": "ent-desert-trails-oasis-reflection-0",
           "name": "Oasis Reflection",
           "kind": "illustrated_motif",
           "art_direction": "Date palms reflected in a miniature blue water ellipse",
@@ -2040,7 +2040,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-desert-trails-follow-the-stars",
+          "id": "ent-desert-trails-follow-the-stars-0",
           "name": "Follow the Stars",
           "kind": "scene_or_badge",
           "art_direction": "Embroidered-style patch of winding footpath toward scattered stars",
@@ -2056,7 +2056,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-desert-trails-sunset-ridge",
+          "id": "ent-desert-trails-sunset-ridge-0",
           "name": "Sunset Ridge",
           "kind": "scene_or_badge",
           "art_direction": "Wide scene with layered mountains and balanced orange sun disk",
@@ -2072,7 +2072,7 @@
           "source_status": "concept_only"
         },
         {
-          "id": "ent-desert-trails-the-open-road",
+          "id": "ent-desert-trails-the-open-road-0",
           "name": "The Open Road",
           "kind": "scene_or_badge",
           "art_direction": "Panoramic curving road toward distant stone mesas",
