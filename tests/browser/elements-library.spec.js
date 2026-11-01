@@ -14,10 +14,26 @@ test('creators insert, recolour and persist a private vector element in the desi
   await page.goto(fixture.origin+'/en/create?product=p1');
   const form=page.locator('[data-form=customer-design]'),studio=form.locator('.customer-workspace');
   await expect(form.locator('.design-studio')).toHaveAttribute('data-ready','true');
-  await expect.poll(()=>page.evaluate(()=>window.VeeladElements?.catalog.length)).toBe(4275);
+  await expect.poll(()=>page.evaluate(()=>window.VeeladElements?.catalog.length)).toBe(4295);
   await studio.locator('[data-ws-tool=elements]').click();
   await expect(studio.locator('[data-ws-element=premium-orchid-0]')).toBeVisible();
   await expect(studio.locator('[data-ws-panel=elements]')).toBeVisible();
+  // This batch must be genuinely usable in the studio, not 20 documentation-only cards.
+  await expect(studio.locator('[data-ws-element=ent-retro-arcade-electric-pinball-0]')).toBeVisible();
+  await studio.locator('[data-ws-element-category]').selectOption('Entertainment');
+  await studio.locator('[data-ws-element-search]').fill('pinball');
+  await expect(studio.locator('[data-ws-element=ent-retro-arcade-electric-pinball-0]')).toBeVisible();
+  await studio.locator('[data-ws-element=ent-retro-arcade-electric-pinball-0]').click();
+  const getScene=async()=>JSON.parse(await form.locator('[name=design_studio]').inputValue()).scenes.shirt.front;
+  await expect.poll(async()=>(await getScene()).layers.some(x=>x.library_element?.id==='ent-retro-arcade-electric-pinball-0')).toBe(true);
+  const created=(await getScene()).layers.find(x=>x.library_element?.id==='ent-retro-arcade-electric-pinball-0');
+  await expect(studio.locator('[data-ws-element-colour=primary]')).toBeVisible();
+  await studio.locator('[data-ws-element-colour=primary]').fill('#274b88');
+  await expect.poll(async()=>(await getScene()).layers.find(x=>x.id===created.id)?.library_element?.colors.primary).toBe('#274b88');
+  await studio.locator('[data-ws-element-search]').fill('');
+  await studio.locator('[data-ws-element-category]').selectOption('');
+  await studio.locator('[data-ws-tool=elements]').click();
+
 
   // Verify that system emojis, flags and original city SVGs become actual
   // transparent PNG files suitable for the existing private-image pipeline.
