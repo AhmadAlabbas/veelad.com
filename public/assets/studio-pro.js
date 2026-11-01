@@ -83,7 +83,7 @@ function search(api,query='',category='',collection='',mode='all'){
    const label=normalize(api.label?.(item.id,'en')||item.name),q=words.join(' ');
    if(label===q)return 0;
    if(label.startsWith(q))return 1;
-   if(words.every(word=>label.split(/[^\\p{L}\\p{N}]+/u).includes(word)))return 2;
+   if(words.every(word=>label.split(/[^\p{L}\p{N}]+/u).includes(word)))return 2;
    return 3;
   };
   return score(a)-score(b)||(api.label?.(a.id,'en')||a.name).localeCompare(api.label?.(b.id,'en')||b.name);
