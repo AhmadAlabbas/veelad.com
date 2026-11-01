@@ -3,7 +3,7 @@
    of the same drawing are not mistaken for genuinely new assets. */
 import sharp from 'sharp';
 
-const unsafe=/<(?:script|image|foreignObject|iframe|object|use|animate)\\b|\\bon\\w+\\s*=|javascript:|url\\s*\\(|https?:\\/\\//i;
+const unsafe=/<(?:script|image|foreignObject|iframe|object|use|animate)\b|\bon\w+\s*=|javascript:|url\s*\(|https?:\/\//i;
 const hasUnsafeContent=svg=>unsafe.test(String(svg||'').replaceAll('xmlns="http://www.w3.org/2000/svg"',''));
 export function validateOriginalArtwork({id,title,svg,colors}){
  const reasons=[];
