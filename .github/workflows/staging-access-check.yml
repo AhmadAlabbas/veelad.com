@@ -1,0 +1,19 @@
+name: Verify staging access
+on:
+  push:
+    branches:
+      - chore/staging-access-verification
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  staging-access:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Check staging HTTP, app health and public routes
+        run: node scripts/staging-access-check.mjs
