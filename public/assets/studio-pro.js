@@ -99,12 +99,20 @@ function search(api,query='',category='',collection='',mode='all'){
 }
 function preflight(layers,side=''){
  const warnings=[];
- const shown=(layers||[]).filter(layer=>layer.visible!==false);
- if(shown.some(layer=>layer.type==='image'&&layer.width<=.025||layer.type==='image'&&layer.height<=.025))warnings.push('Some artwork is very small on the canvas; confirm its print size.');
+ const shown=(layers||[]).filter(layer=>layer.visible!==false&&(layer.opacity??1)>0);
+ if(shown.some(layer=>layer.type==='image'&&(Number(layer.width)<=.025||Number(layer.height)<=.025)))
+  warnings.push('Some artwork is very small on the canvas; confirm its print size.');
+ if(shown.some(layer=>layer.type==='text'&&Number(layer.size||0)<.014&&String(layer.text||'').trim()))
+  warnings.push('Very small lettering may not be legible when printed.');
+ if(shown.some(layer=>(layer.opacity??1)<.15))
+  warnings.push('Some elements are nearly transparent and may disappear on fabric.');
  if(shown.some(layer=>{
-  const w=layer.type==='image'?Number(layer.width||0):Math.min(.8,Number(layer.size||.05)*Math.max(2,String(layer.text||'').length)*.43);
+  const w=layer.type==='image'?Number(layer.width||0):Math.min(.8,Number(layer.size||.05)*Math.max(2,[...String(layer.text||'')].length)*.43);
   const h=layer.type==='image'?Number(layer.height||0):Number(layer.size||.06);
-  return Number(layer.x)-w/2<.07||Number(layer.x)+w/2>.93||Number(layer.y)-h/2<.07||Number(layer.y)+h/2>.93;
+  const rotation=Number(layer.rotation||0)*Math.PI/180;
+  const width=Math.abs(w*Math.cos(rotation))+Math.abs(h*Math.sin(rotation));
+  const height=Math.abs(w*Math.sin(rotation))+Math.abs(h*Math.cos(rotation));
+  return Number(layer.x)-width/2<.07||Number(layer.x)+width/2>.93||Number(layer.y)-height/2<.07||Number(layer.y)+height/2>.93;
  }))warnings.push('Artwork approaches the provisional print boundary; check supplier-safe placement.');
  if(shown.some(layer=>layer.type==='text'&&!String(layer.text||'').trim()))warnings.push('An empty text layer will not print.');
  return warnings;
