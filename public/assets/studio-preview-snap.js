@@ -37,9 +37,12 @@ function snap(candidate,moving,peers,dimensions,{aspect=1,tolerance=.016,safe=.0
     const delta=target.value-(resolved[axis]+offset);
     const magnitude=Math.abs(delta);
     if(magnitude>tolerance)continue;
-    if(!match||magnitude<match.magnitude-1e-9||
-      (Math.abs(magnitude-match.magnitude)<1e-9&&target.priority<match.priority))
-      match={magnitude,delta,position:target.value,priority:target.priority,role};
+    // Centres are visually more important than an almost-identical edge
+    // match; favour them within roughly two pixels of the same target.
+    const score=magnitude-(role==='centre'?.004:0);
+    if(!match||score<match.score-1e-9||
+      (Math.abs(score-match.score)<1e-9&&target.priority<match.priority))
+      match={score,magnitude,delta,position:target.value,priority:target.priority,role};
    }
   }
   if(match){
