@@ -3,6 +3,7 @@
 const workspaceArabic = {
   "Editable graphics, emojis, flags and city badges. Emoji and flag symbols keep their original colours; decoration can be recoloured.":"رسومات ورموز تعبيرية وأعلام وشارات مدن. تحتفظ الإيموجي والأعلام بألوانها الأصلية ويمكن تغيير ألوان الزينة.", "Emoji and flag symbols retain their colours. Change the badge colours instead.":"تحتفظ الإيموجي والأعلام بألوانها. غيّر ألوان الإطار أو الزينة بدلاً منها.", "Original national flag and emoji colours cannot be changed.":"لا يمكن تغيير الألوان الأصلية للعلم أو الإيموجي.", "Choose a decorated style to customise this symbol.":"اختر شكلاً مزخرفاً لتغيير ألوان خلفية هذا الرمز.",
   "Place artwork within the provisional safe region. Final supplier dimensions are not yet approved.":"ضع التصميم داخل المنطقة الآمنة المبدئية. لم تُعتمد مقاسات المورد النهائية.", "Artwork approaches the provisional print boundary; check supplier-safe placement.":"التصميم قريب من حدود الطباعة المبدئية؛ تحقق من منطقة طباعة المورد.", "Some artwork is very small on the canvas; confirm its print size.":"بعض الرسوم صغيرة جدًا على اللوحة؛ راجع حجم الطباعة.", "An empty text layer will not print.":"لن تتم طباعة طبقة النص الفارغة.", "Align to safe left":"حاذِ لليسار الآمن", "Align to safe right":"حاذِ لليمين الآمن", "Align to safe top":"حاذِ للأعلى الآمن", "Align to safe bottom":"حاذِ للأسفل الآمن",
+  "Arrange layers":"رتّب الطبقات", "Align and distribute unlocked artwork. Undo any change.":"حاذِ العناصر غير المقفلة ووزعها. يمكنك التراجع عن أي تعديل.", "Align left":"محاذاة لليسار", "Align right":"محاذاة لليمين", "Align top":"محاذاة للأعلى", "Align bottom":"محاذاة للأسفل", "Distribute horizontally":"توزيع أفقي", "Distribute vertically":"توزيع عمودي", "Centre horizontal":"توسيط أفقي", "Centre vertical":"توسيط عمودي", "Add at least two unlocked visible layers to arrange them.":"أضف طبقتين ظاهرتين وغير مقفلتين على الأقل لترتيبهما.", "Layers are too large to distribute without overlap.":"العناصر كبيرة جداً للتوزيع بدون تداخل.",
   "My favourites":"المفضلة", "Recently used":"المستخدمة مؤخرًا", "Explore all":"استكشف الكل", "Curated collection":"مجموعة مختارة", "Apply design":"طبّق التصميم", "Ready-made designs":"تصاميم جاهزة", "Original editable starting points":"قوالب أصلية قابلة للتعديل", "Print positioning":"موضع الطباعة", "Print preflight":"فحص الطباعة",
   "Elements":"العناصر", "Element":"عنصر", "Search elements":"ابحث عن العناصر", "All categories":"كل التصنيفات", "More elements":"المزيد من العناصر", "Element colours":"ألوان العنصر", "Primary":"الأساسي", "Secondary":"الثانوي", "Accent":"التفاصيل", "Preparing element…":"نجهّز العنصر…", "Element updated":"تم تعديل العنصر", "Elements are original and can be recoloured.":"عناصر أصلية ويمكنك تغيير ألوانها.",
   "Creative studio":"استوديو التصميم", "Make room for your imagination.":"خلّ لخيالك مساحة.", "Design":"التصميم", "Product preview":"معاينة القطعة", "Review item":"راجع قطعتك", "Uploads":"الصور", "Text":"النصوص", "Fonts":"الخطوط", "Layers":"الطبقات", "Layouts":"القوالب", "Canvas":"لوحة التصميم", "Add images":"أضف صور", "Upload images":"ارفع صورك", "Drop your images here":"اسحب صورك هنا", "PNG or JPEG · multiple files welcome":"PNG أو JPEG · تقدر تضيف أكثر من صورة", "Your originals stay private.":"ملفاتك الأصلية تبقى خاصة فيك.", "Add text":"أضف نص", "Add a heading":"أضف عنوان", "Add a little detail":"أضف عبارة صغيرة", "Your words, your style.":"كلماتك، بأسلوبك.", "Mix languages, play with type, make it yours.":"اجمع أكثر من لغة، وجرّب الخطوط على ذوقك.", "Write something wonderful":"اكتب شيء يشبهك", "A little more you":"تفصيلة منك", "Search fonts":"ابحث عن خط", "All scripts":"كل اللغات", "All styles":"كل الأنماط", "No fonts match. Try another search.":"ما لقينا خط يطابق بحثك. جرّب كلمة ثانية.", "Choose text on the canvas to apply a font.":"اختر نص من اللوحة عشان تغيّر خطه.", "Loading fonts…":"نجهّز مكتبة الخطوط…", "Font library is unavailable. Try again shortly.":"مكتبة الخطوط غير متاحة حاليًا. جرّب بعد شوي.", "Some characters are not included in this font. Choose a font for this script.":"بعض الحروف مو موجودة في هالخط. اختر خط يدعم لغة النص.", "Front":"الأمام", "Back":"الخلف", "Wrap":"التصميم الكامل", "Independent designs on each side":"تصميم مستقل لكل جهة", "One continuous wrap":"تصميم واحد يلتف حول الكوب", "Undo":"تراجع", "Redo":"إعادة", "Zoom":"التكبير", "Fit":"ملاءمة", "Fit to screen":"ناسب حجم الشاشة", "Safe area":"المساحة الآمنة", "Snap to centre":"محاذاة للمنتصف", "Add a photo. Make a statement.":"صورة منك. وتصميم على ذوقك.", "Start with an image, a few words, or both.":"ابدأ بصورة، أو كلمات، أو اجمعهم مع بعض.", "Select a layer to fine-tune it.":"اختر طبقة عشان تعدّل تفاصيلها.", "Drag to move · corners to resize · top handle to rotate":"اسحب للتحريك · الزوايا لتغيير الحجم · المقبض العلوي للتدوير", "Drag to move. Use the corner handles to resize.":"اسحب للتحريك. واستخدم مقابض الزوايا لتغيير الحجم.", "Provisional product preview":"معاينة مبدئية للقطعة", "Your design is editable. Supplier print specifications still need confirmation.":"تصميمك قابل للتعديل. مقاسات الطباعة النهائية تحتاج تأكيد المورّد.", "Background":"الخلفية", "Transparent":"شفافة", "Colour":"اللون", "Opacity":"الشفافية", "Rotation":"الدوران", "Width (%)":"العرض (%)", "Height (%)":"الارتفاع (%)", "Horizontal (%)":"أفقي (%)", "Vertical (%)":"عمودي (%)", "Text size (%)":"حجم النص (%)", "Your text":"النص", "Font":"الخط", "Writing direction":"اتجاه الكتابة", "Automatic":"تلقائي", "Right to left":"من اليمين لليسار", "Left to right":"من اليسار لليمين", "Alignment":"المحاذاة", "Left":"يسار", "Centre":"وسط", "Right":"يمين", "Duplicate":"انسخ", "Delete":"احذف", "Move forward":"قدّم طبقة", "Move backward":"أخّر طبقة", "Centre horizontally":"وسّط أفقيًا", "Centre vertically":"وسّط عموديًا", "Flip horizontally":"اعكس أفقيًا", "Flip vertically":"اعكس عموديًا", "Show layer":"أظهر الطبقة", "Hide layer":"أخفِ الطبقة", "Unlock layer":"افتح قفل الطبقة", "Lock layer":"اقفل الطبقة", "Image":"صورة", "Text layer":"طبقة نص", "No layers yet":"لوحتك جاهزة لأفكارك", "Add images or text. Every element stays editable.":"أضف صور أو نصوص. كل عنصر يبقى قابل للتعديل.", "Selected layer":"الطبقة المختارة", "Layer is locked. Unlock it to edit.":"الطبقة مقفلة. افتح القفل عشان تعدّلها.", "Your own text":"كلماتك هنا", "Add up to 24 layers on each side.":"تقدر تضيف حتى 24 طبقة لكل جهة.", "Preparing your images…":"نجهّز صورك…", "Images added":"أضفنا الصور", "Could not load this layer.":"ما قدرنا نحمّل هالطبقة.", "Preparing accurate text…":"نجهّز النص بدقّة…", "Close panel":"أغلق الأدوات", "Open panel":"افتح الأدوات", "Keyboard: arrows to move, Shift for larger steps, Delete to remove.":"بالكيبورد: الأسهم للتحريك، وShift لخطوة أكبر، وDelete للحذف.", "This side is empty":"هالجهة فاضية", "Layer":"طبقة", "Ready to create":"جاهز لأفكارك", "Image quality is checked again before printing.":"جودة الصور تنفحص مرة ثانية قبل الطباعة.", "Print safe area":"حدود الطباعة الآمنة", "Shown above the layer below it":"تظهر فوق الطبقة اللي تحتها", "Your image":"صورتك", "Keep proportions":"حافظ على النسبة", "Edit on a flat canvas, then preview your item.":"عدّل على لوحة مسطّحة، وبعدها شوف التصميم على قطعتك.", "Choose a layout":"اختر قالب", "No layouts available":"القوالب غير متاحة حاليًا", "Sample text":"نص تجريبي", "Layers on this side":"طبقات هالجهة", "Changes save automatically":"تعديلاتك تنحفظ تلقائيًا", "Move and resize artwork":"حرّك التصميم وغيّر حجمه", "Printing area":"مساحة الطباعة", "Load more fonts":"اعرض خطوط أكثر", "Font style":"نمط الخط", "sans":"بسيط", "serif":"كلاسيكي", "display":"عناوين", "handwriting":"يدوي", "mono":"متساوي العرض", "arabic":"عربي", "Image uploads are private and stay linked to this design.":"صورك خاصة وتبقى مرتبطة بهالتصميم.", "Choose a font":"اختر خط", "Uploading":"جارٍ الرفع", "Template applied":"أضفنا القالب", "Preview":"معاينة", "No artwork on this side yet.":"ما فيه تصميم على هالجهة للحين."
@@ -67,6 +68,16 @@ const libraryPanel=document.createElement("section");
   let elementsView='all';
 
   root.append(shell);
+  // Non-destructive, multi-layer layout tools. All coordinates stay in the
+  // existing scene format and are committed through the normal undo/autosave.
+  const arrangePanel=document.createElement('section');
+  arrangePanel.className='cw-pro-arrange';
+  arrangePanel.innerHTML='<h5>'+esc(tr("Arrange layers"))+'</h5><p>'+esc(tr("Align and distribute unlocked artwork. Undo any change."))+'</p>'+
+    '<div class="cw-pro-arrange-grid" role="group" aria-label="'+esc(tr("Arrange layers"))+'">'+
+    [['left','Align left'],['right','Align right'],['top','Align top'],['bottom','Align bottom'],['center-x','Centre horizontal'],['center-y','Centre vertical'],['distribute-x','Distribute horizontally'],['distribute-y','Distribute vertically']]
+    .map(([value,label])=>'<button type="button" data-ws-layout-action="'+value+'">'+esc(tr(label))+'</button>').join('')+'</div>';
+  shell.querySelector('[data-ws-panel="canvas"]').append(arrangePanel);
+
   const uploadProgress=document.createElement('progress');
   uploadProgress.className='cw-upload-progress';uploadProgress.dataset.wsProgress='';uploadProgress.max=100;uploadProgress.value=0;uploadProgress.hidden=true;
   uploadProgress.setAttribute('aria-label',tr('Upload progress'));
@@ -432,6 +443,23 @@ function renderElements(){
     }else return;
     commit();
   }
+  function arrangeUnlocked(command){
+    const api=window.VeeladStudioPro,eligible=layers().filter(layer=>layer.visible!==false&&!layer.locked);
+    if(!api?.arrange||eligible.length<2){setStatus("Add at least two unlocked visible layers to arrange them.",true);return;}
+    const placements=api.arrange(eligible,command);
+    if(!placements.length){setStatus("Layers are too large to distribute without overlap.",true);return;}
+    let changed=false;
+    const byId=new Map(layers().map(layer=>[layer.id,layer]));
+    for(const update of placements){
+      const layer=byId.get(update.id);
+      if(!layer||layer.locked)continue;
+      if(Math.abs(layer.x-update.x)>0.000001||Math.abs(layer.y-update.y)>0.000001){
+        layer.x=update.x;layer.y=update.y;changed=true;
+      }
+    }
+    if(changed)commit();
+    else setStatus("Changes save automatically");
+  }
   function copyOtherSide(confirm=false){
     const sourceId=copyControls.querySelector("[data-ws-copy-side]").dataset.source,
       source=instance.state.scenes?.[instance.product().id]?.[sourceId],target=adapter.scene();
@@ -570,6 +598,7 @@ function renderElements(){
     else if(button.hasAttribute("data-ws-element-more")){elementLimit+=48;renderElements();}
     else if(button.hasAttribute("data-ws-add-text"))addText(button.dataset.wsAddText);
     else if(button.hasAttribute("data-ws-open-fonts"))switchTool("fonts");
+    else if(button.hasAttribute("data-ws-layout-action"))arrangeUnlocked(button.dataset.wsLayoutAction);
     else if(button.hasAttribute("data-ws-action"))selectedAction(button.dataset.wsAction);
     else if(button.hasAttribute("data-ws-select"))selectLayer(button.dataset.wsSelect,{focus:true});
     else if(button.hasAttribute("data-ws-toggle-visible")){const layer=layers().find(l=>l.id===button.dataset.wsToggleVisible);layer.visible=layer.visible===false;commit();}
