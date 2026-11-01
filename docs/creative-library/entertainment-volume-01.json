@@ -1,0 +1,2093 @@
+{
+  "schema": "veelad.original-entertainment-blueprint.v1",
+  "status": "concept_briefs_not_production_art",
+  "license_policy": "first_party_original_no_franchise_likenesses",
+  "volume": 1,
+  "packs": [
+    {
+      "id": "urban-noir",
+      "name": "Midnight City Noir",
+      "locales": {
+        "ar": "غموض المدينة ليلاً",
+        "zh_CN": "午夜都市悬疑"
+      },
+      "palette": {
+        "primary": "#25334C",
+        "secondary": "#C7D2DD",
+        "accent": "#E3A95D"
+      },
+      "art_direction": "Rain, streetlights, angular silhouettes, cinematic negative space",
+      "items": [
+        {
+          "id": "ent-urban-noir-midnight-mapmaker-0",
+          "name": "Midnight Mapmaker",
+          "kind": "original_character",
+          "art_direction": "A tired city cartographer in a long cape holding a folded subway map; asymmetrical boots and a bright collar",
+          "search_terms": [
+            "map",
+            "detective",
+            "rain"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-urban-noir-neon-locksmith-0",
+          "name": "Neon Locksmith",
+          "kind": "original_character",
+          "art_direction": "A friendly repair specialist with square glasses, utility scarf, and an oversized brass key tool",
+          "search_terms": [
+            "keys",
+            "locksmith",
+            "repair"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-urban-noir-rooftop-courier-0",
+          "name": "Rooftop Courier",
+          "kind": "original_character",
+          "art_direction": "A messenger balancing on a parapet with messenger bag and fluttering paper trail",
+          "search_terms": [
+            "rooftop",
+            "messenger",
+            "city"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-urban-noir-pocket-streetlamp-0",
+          "name": "Pocket Streetlamp",
+          "kind": "illustrated_motif",
+          "art_direction": "An ornate lamp casting a triangular cone of light with a miniature moth",
+          "search_terms": [
+            "light",
+            "shadow",
+            "lantern"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-urban-noir-raindrop-detective-hat-0",
+          "name": "Raindrop Detective Hat",
+          "kind": "illustrated_motif",
+          "art_direction": "A wide-brim hat with water droplets forming a question-mark-shaped ripple",
+          "search_terms": [
+            "hat",
+            "rain",
+            "mystery"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-urban-noir-casebook-and-pencil-0",
+          "name": "Casebook and Pencil",
+          "kind": "illustrated_motif",
+          "art_direction": "An open notebook filled with abstract evidence pins and a diagonal red pencil",
+          "search_terms": [
+            "journal",
+            "research"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-urban-noir-corner-phone-booth-0",
+          "name": "Corner Phone Booth",
+          "kind": "illustrated_motif",
+          "art_direction": "A geometric booth with receiver swinging on a curly cord",
+          "search_terms": [
+            "phone",
+            "vintage"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-urban-noir-clock-at-eleven-0",
+          "name": "Clock at Eleven",
+          "kind": "illustrated_motif",
+          "art_direction": "An art deco street clock with mismatched hands and night-star markers",
+          "search_terms": [
+            "clock",
+            "time"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-urban-noir-footsteps-in-puddles-0",
+          "name": "Footsteps in Puddles",
+          "kind": "illustrated_motif",
+          "art_direction": "Three shoe impressions reflected in a single blue puddle",
+          "search_terms": [
+            "footprint",
+            "puddle"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-urban-noir-blue-hour-alley-0",
+          "name": "Blue Hour Alley",
+          "kind": "scene_or_badge",
+          "art_direction": "Layered silhouettes of brick walls, fire escape, one distant lit window",
+          "search_terms": [
+            "alley",
+            "skyline"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-urban-noir-last-train-badge-0",
+          "name": "Last Train Badge",
+          "kind": "scene_or_badge",
+          "art_direction": "Circular badge of an underground train approaching through a tunnel",
+          "search_terms": [
+            "metro",
+            "subway"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-urban-noir-paper-trail-emblem-0",
+          "name": "Paper Trail Emblem",
+          "kind": "scene_or_badge",
+          "art_direction": "Windblown connected documents, a brass paperclip, and city lights",
+          "search_terms": [
+            "paper",
+            "investigation"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        }
+      ]
+    },
+    {
+      "id": "science-wonders",
+      "name": "Science & Wonder",
+      "locales": {
+        "ar": "العلم والدهشة",
+        "zh_CN": "科学与奇想"
+      },
+      "palette": {
+        "primary": "#185B67",
+        "secondary": "#B9EBE2",
+        "accent": "#E7A44D"
+      },
+      "art_direction": "Friendly scientific discovery, imaginative tools, precise geometric details",
+      "items": [
+        {
+          "id": "ent-science-wonders-orbit-lab-inventor-0",
+          "name": "Orbit Lab Inventor",
+          "kind": "original_character",
+          "art_direction": "Inventor with curly hair, asymmetric lab apron and orbit model hovering over a palm",
+          "search_terms": [
+            "scientist",
+            "invention"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-science-wonders-microbe-gardener-0",
+          "name": "Microbe Gardener",
+          "kind": "original_character",
+          "art_direction": "Researcher with a leaf-shaped visor and glass terrarium of imaginary friendly microorganisms",
+          "search_terms": [
+            "biology",
+            "botany"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-science-wonders-clockwork-analyst-0",
+          "name": "Clockwork Analyst",
+          "kind": "original_character",
+          "art_direction": "Designer with mechanical monocle and coloured measuring tabs on an apron",
+          "search_terms": [
+            "research",
+            "mathematics"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-science-wonders-pocket-telescope-0",
+          "name": "Pocket Telescope",
+          "kind": "illustrated_motif",
+          "art_direction": "Collapsible telescope decorated with tiny concentric star maps",
+          "search_terms": [
+            "astronomy",
+            "lens"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-science-wonders-crystal-spectrometer-0",
+          "name": "Crystal Spectrometer",
+          "kind": "illustrated_motif",
+          "art_direction": "A light-splitting prism in a mechanical cradle emitting three distinct rays",
+          "search_terms": [
+            "optics",
+            "physics"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-science-wonders-dancing-molecule-0",
+          "name": "Dancing Molecule",
+          "kind": "illustrated_motif",
+          "art_direction": "Interlinked colour-coded atomic nodes following a twisting ribbon path",
+          "search_terms": [
+            "molecule",
+            "chemistry"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-science-wonders-mini-wind-tunnel-0",
+          "name": "Mini Wind Tunnel",
+          "kind": "illustrated_motif",
+          "art_direction": "Tabletop fan blowing streamlines around a stylised airfoil",
+          "search_terms": [
+            "engineering",
+            "flight"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-science-wonders-celestial-abacus-0",
+          "name": "Celestial Abacus",
+          "kind": "illustrated_motif",
+          "art_direction": "Counting beads arranged as an orbital constellation",
+          "search_terms": [
+            "math",
+            "abacus"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-science-wonders-lightning-coil-0",
+          "name": "Lightning Coil",
+          "kind": "illustrated_motif",
+          "art_direction": "Two looped magnetic coils with a restrained arc and calibration ticks",
+          "search_terms": [
+            "electricity",
+            "coil"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-science-wonders-night-laboratory-badge-0",
+          "name": "Night Laboratory Badge",
+          "kind": "scene_or_badge",
+          "art_direction": "Circular icon of a small research bench lit by a moon through a window",
+          "search_terms": [
+            "lab",
+            "night"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-science-wonders-ideas-in-motion-0",
+          "name": "Ideas in Motion",
+          "kind": "scene_or_badge",
+          "art_direction": "Four open gear shapes meshing around a central glowing light bulb",
+          "search_terms": [
+            "innovation",
+            "gears"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-science-wonders-the-great-experiment-0",
+          "name": "The Great Experiment",
+          "kind": "scene_or_badge",
+          "art_direction": "Wide scene with glassware, diagrams and one floating golden discovery spark",
+          "search_terms": [
+            "experiment",
+            "discovery"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        }
+      ]
+    },
+    {
+      "id": "escape-puzzles",
+      "name": "Escape, Codes & Strategy",
+      "locales": {
+        "ar": "الألغاز والخطط",
+        "zh_CN": "密室谜题与策略"
+      },
+      "palette": {
+        "primary": "#383E58",
+        "secondary": "#E1DDCA",
+        "accent": "#D37B56"
+      },
+      "art_direction": "Clever geometry, abstract locks, clue puzzles and original team dynamics",
+      "items": [
+        {
+          "id": "ent-escape-puzzles-riddle-architect-0",
+          "name": "Riddle Architect",
+          "kind": "original_character",
+          "art_direction": "Puzzle designer in angular coat carrying a folding impossible-cube model",
+          "search_terms": [
+            "architect",
+            "riddle"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-escape-puzzles-tunnel-surveyor-0",
+          "name": "Tunnel Surveyor",
+          "kind": "original_character",
+          "art_direction": "Underground explorer with safety helmet, utility chalk, and surveying compass",
+          "search_terms": [
+            "explorer",
+            "tunnel"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-escape-puzzles-cipher-composer-0",
+          "name": "Cipher Composer",
+          "kind": "original_character",
+          "art_direction": "Musician in waistcoat writing coded symbols on a portable notation board",
+          "search_terms": [
+            "cipher",
+            "music"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-escape-puzzles-seven-tumbler-lock-0",
+          "name": "Seven-Tumbler Lock",
+          "kind": "illustrated_motif",
+          "art_direction": "Illustrated cross-section of a fantasy lock with seven coloured pins",
+          "search_terms": [
+            "lock",
+            "mechanical"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-escape-puzzles-compass-maze-0",
+          "name": "Compass Maze",
+          "kind": "illustrated_motif",
+          "art_direction": "Circular labyrinth whose exit is a compass rose rather than a door",
+          "search_terms": [
+            "maze",
+            "direction"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-escape-puzzles-folded-blueprint-0",
+          "name": "Folded Blueprint",
+          "kind": "illustrated_motif",
+          "art_direction": "Rolled architectural plan with a stylised winding route and numbered markers",
+          "search_terms": [
+            "blueprint",
+            "planning"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-escape-puzzles-cipher-wheel-0",
+          "name": "Cipher Wheel",
+          "kind": "illustrated_motif",
+          "art_direction": "Two concentric rotating disks covered in original geometric glyphs",
+          "search_terms": [
+            "cipher",
+            "code"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-escape-puzzles-clockwork-door-0",
+          "name": "Clockwork Door",
+          "kind": "illustrated_motif",
+          "art_direction": "A fantasy door with a clock dial and offset hinges",
+          "search_terms": [
+            "door",
+            "puzzle"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-escape-puzzles-hidden-stairway-0",
+          "name": "Hidden Stairway",
+          "kind": "illustrated_motif",
+          "art_direction": "Stairs disappearing into a triangular impossible perspective",
+          "search_terms": [
+            "stairs",
+            "illusion"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-escape-puzzles-midnight-logic-badge-0",
+          "name": "Midnight Logic Badge",
+          "kind": "scene_or_badge",
+          "art_direction": "Interlocking square and circle paths with a single highlighted solution",
+          "search_terms": [
+            "logic",
+            "geometry"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-escape-puzzles-the-fifth-key-0",
+          "name": "The Fifth Key",
+          "kind": "scene_or_badge",
+          "art_direction": "Five distinct fantasy keys hanging in a row; fifth casts an unusual shadow",
+          "search_terms": [
+            "keys",
+            "strategy"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-escape-puzzles-escape-room-map-0",
+          "name": "Escape Room Map",
+          "kind": "scene_or_badge",
+          "art_direction": "Isometric room layout with switch, pulley and safe stepping stones",
+          "search_terms": [
+            "escape",
+            "room",
+            "puzzle"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        }
+      ]
+    },
+    {
+      "id": "hometown-adventures",
+      "name": "Small-Town Adventures",
+      "locales": {
+        "ar": "مغامرات البلدة الصغيرة",
+        "zh_CN": "小镇奇遇"
+      },
+      "palette": {
+        "primary": "#295F70",
+        "secondary": "#F0D9AE",
+        "accent": "#C76A61"
+      },
+      "art_direction": "Warm coming-of-age exploration, friendship and small-place wonder",
+      "items": [
+        {
+          "id": "ent-hometown-adventures-lantern-trail-scout-0",
+          "name": "Lantern Trail Scout",
+          "kind": "original_character",
+          "art_direction": "Young adult trail guide wearing oversized rain poncho and holding handmade lantern",
+          "search_terms": [
+            "scout",
+            "journey"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-hometown-adventures-library-bicycle-messenger-0",
+          "name": "Library Bicycle Messenger",
+          "kind": "original_character",
+          "art_direction": "Book courier with an unusual triple-basket bicycle and stacked journals",
+          "search_terms": [
+            "cycling",
+            "books"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-hometown-adventures-observatory-volunteer-0",
+          "name": "Observatory Volunteer",
+          "kind": "original_character",
+          "art_direction": "Star watcher with bright knit cap, sketchbook and fold-out constellation chart",
+          "search_terms": [
+            "stars",
+            "telescope"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-hometown-adventures-mysterious-water-tower-0",
+          "name": "Mysterious Water Tower",
+          "kind": "illustrated_motif",
+          "art_direction": "Old cylindrical water tower beneath sweeping cumulus clouds",
+          "search_terms": [
+            "water",
+            "tower"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-hometown-adventures-window-of-paper-stars-0",
+          "name": "Window of Paper Stars",
+          "kind": "illustrated_motif",
+          "art_direction": "Attic window displaying handmade folded stars in a circular arrangement",
+          "search_terms": [
+            "window",
+            "stars"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-hometown-adventures-folded-treasure-route-0",
+          "name": "Folded Treasure Route",
+          "kind": "illustrated_motif",
+          "art_direction": "Hand-painted local trail map with creek, bridge and a hand-drawn sun",
+          "search_terms": [
+            "map",
+            "adventure"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-hometown-adventures-handheld-radio-pair-0",
+          "name": "Handheld Radio Pair",
+          "kind": "illustrated_motif",
+          "art_direction": "Two mismatched radios joined by dotted communication waves",
+          "search_terms": [
+            "radio",
+            "friends"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-hometown-adventures-morning-bus-ticket-0",
+          "name": "Morning Bus Ticket",
+          "kind": "illustrated_motif",
+          "art_direction": "Retro paper ticket with original fictional stops and a rising-sun icon",
+          "search_terms": [
+            "ticket",
+            "bus"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-hometown-adventures-hillside-treehouse-0",
+          "name": "Hillside Treehouse",
+          "kind": "illustrated_motif",
+          "art_direction": "An asymmetrical platform house nestled in an angular autumn tree",
+          "search_terms": [
+            "treehouse",
+            "adventure"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-hometown-adventures-together-we-wander-0",
+          "name": "Together We Wander",
+          "kind": "scene_or_badge",
+          "art_direction": "Original patch with hiking shoes circling a small compass",
+          "search_terms": [
+            "friendship",
+            "patch"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-hometown-adventures-after-the-rain-0",
+          "name": "After the Rain",
+          "kind": "scene_or_badge",
+          "art_direction": "Street and rainbow reflections with a person under an oversized umbrella",
+          "search_terms": [
+            "rain",
+            "hometown"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-hometown-adventures-the-long-summer-0",
+          "name": "The Long Summer",
+          "kind": "scene_or_badge",
+          "art_direction": "Panoramic badge showing bicycles by a creek under paper lanterns",
+          "search_terms": [
+            "summer",
+            "outdoors"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        }
+      ]
+    },
+    {
+      "id": "retro-arcade",
+      "name": "Retro Arcade Worlds",
+      "locales": {
+        "ar": "عوالم الألعاب الكلاسيكية",
+        "zh_CN": "复古街机世界"
+      },
+      "palette": {
+        "primary": "#4F397A",
+        "secondary": "#F9B45C",
+        "accent": "#69DAD2"
+      },
+      "art_direction": "Original pixel-inspired geometry without existing game sprites or consoles",
+      "items": [
+        {
+          "id": "ent-retro-arcade-token-wizard-0",
+          "name": "Token Wizard",
+          "kind": "original_character",
+          "art_direction": "Cheerful gamer with star-patterned jacket juggling original triangular tokens",
+          "search_terms": [
+            "arcade",
+            "retro"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-retro-arcade-scoreboard-engineer-0",
+          "name": "Scoreboard Engineer",
+          "kind": "original_character",
+          "art_direction": "Mechanic with stacked display visor and tool belt shaped like game controls",
+          "search_terms": [
+            "games",
+            "engineer"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-retro-arcade-neon-skater-0",
+          "name": "Neon Skater",
+          "kind": "original_character",
+          "art_direction": "Roller-skating character with angular helmet and rainbow speed lines",
+          "search_terms": [
+            "skating",
+            "neon"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-retro-arcade-triple-arrow-token-0",
+          "name": "Triple-Arrow Token",
+          "kind": "illustrated_motif",
+          "art_direction": "Coin engraved with three orbiting arrows and a tiny star",
+          "search_terms": [
+            "arcade",
+            "coin"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-retro-arcade-infinity-joystick-0",
+          "name": "Infinity Joystick",
+          "kind": "illustrated_motif",
+          "art_direction": "Round-ended stick linked to abstract looping control paths",
+          "search_terms": [
+            "joystick",
+            "play"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-retro-arcade-electric-pinball-0",
+          "name": "Electric Pinball",
+          "kind": "illustrated_motif",
+          "art_direction": "Isometric pinball board with diagonal flippers and original target shapes",
+          "search_terms": [
+            "pinball"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-retro-arcade-pixel-cactus-0",
+          "name": "Pixel Cactus",
+          "kind": "illustrated_motif",
+          "art_direction": "Geometric cactus built from distinct modular blocks and a small flower",
+          "search_terms": [
+            "pixel",
+            "desert"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-retro-arcade-glitch-cassette-0",
+          "name": "Glitch Cassette",
+          "kind": "illustrated_motif",
+          "art_direction": "Tape housing fragmented into staggered colour channels",
+          "search_terms": [
+            "cassette",
+            "glitch"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-retro-arcade-level-up-staircase-0",
+          "name": "Level-Up Staircase",
+          "kind": "illustrated_motif",
+          "art_direction": "Ascending illustrated steps ending in a tiny banner and star",
+          "search_terms": [
+            "level",
+            "up"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-retro-arcade-night-mode-arcade-0",
+          "name": "Night Mode Arcade",
+          "kind": "scene_or_badge",
+          "art_direction": "Isometric arcade-room vignette with glowing windows and no real cabinet marks",
+          "search_terms": [
+            "retro",
+            "room"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-retro-arcade-high-score-crest-0",
+          "name": "High Score Crest",
+          "kind": "scene_or_badge",
+          "art_direction": "Star-topped shield with original fictional score glyphs",
+          "search_terms": [
+            "highscore",
+            "badge"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-retro-arcade-one-more-round-0",
+          "name": "One More Round",
+          "kind": "scene_or_badge",
+          "art_direction": "Two hands high-fiving over a retro abstract scoreboard",
+          "search_terms": [
+            "gaming",
+            "friends"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        }
+      ]
+    },
+    {
+      "id": "cosmic-odyssey",
+      "name": "Cosmic Voyages",
+      "locales": {
+        "ar": "رحلات الكون",
+        "zh_CN": "宇宙漫游"
+      },
+      "palette": {
+        "primary": "#23365E",
+        "secondary": "#A8C4FF",
+        "accent": "#EFC17B"
+      },
+      "art_direction": "Optimistic space exploration, unique ship silhouettes and planetary geology",
+      "items": [
+        {
+          "id": "ent-cosmic-odyssey-moon-cartographer-0",
+          "name": "Moon Cartographer",
+          "kind": "original_character",
+          "art_direction": "Astronaut with triangular backpack mapping a crater using a folding scanner",
+          "search_terms": [
+            "astronaut",
+            "moon"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-cosmic-odyssey-comet-botanist-0",
+          "name": "Comet Botanist",
+          "kind": "original_character",
+          "art_direction": "Explorer in teal spacesuit carrying a glowing extraterrestrial greenhouse",
+          "search_terms": [
+            "space",
+            "plants"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-cosmic-odyssey-starship-navigator-0",
+          "name": "Starship Navigator",
+          "kind": "original_character",
+          "art_direction": "Pilot with dramatic orbital visor and a spherical compass on one shoulder",
+          "search_terms": [
+            "pilot",
+            "galaxy"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-cosmic-odyssey-the-quiet-planet-0",
+          "name": "The Quiet Planet",
+          "kind": "illustrated_motif",
+          "art_direction": "Ringed world with one asymmetrical ice ridge and stippled crater",
+          "search_terms": [
+            "planet",
+            "orbit"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-cosmic-odyssey-folded-solar-sail-0",
+          "name": "Folded Solar Sail",
+          "kind": "illustrated_motif",
+          "art_direction": "Three-panel spacecraft sail with honeycomb light cells",
+          "search_terms": [
+            "spacecraft",
+            "solar"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-cosmic-odyssey-galaxy-thermos-0",
+          "name": "Galaxy Thermos",
+          "kind": "illustrated_motif",
+          "art_direction": "Exploration flask covered in simplified star-coordinate paths",
+          "search_terms": [
+            "space",
+            "gear"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-cosmic-odyssey-meteor-postcard-0",
+          "name": "Meteor Postcard",
+          "kind": "illustrated_motif",
+          "art_direction": "Postcard framing a meteor shower over a violet horizon",
+          "search_terms": [
+            "postcard",
+            "cosmic"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-cosmic-odyssey-satellite-garden-0",
+          "name": "Satellite Garden",
+          "kind": "illustrated_motif",
+          "art_direction": "Miniature orbital satellite with plant-shaped solar panels",
+          "search_terms": [
+            "satellite",
+            "solar"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-cosmic-odyssey-starlight-antenna-0",
+          "name": "Starlight Antenna",
+          "kind": "illustrated_motif",
+          "art_direction": "Dishes arranged around one long curved signal trail",
+          "search_terms": [
+            "antenna",
+            "signal"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-cosmic-odyssey-beyond-the-rings-0",
+          "name": "Beyond the Rings",
+          "kind": "scene_or_badge",
+          "art_direction": "Wide lunar-landscape badge showing a tiny rover beneath planetary rings",
+          "search_terms": [
+            "space",
+            "landscape"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-cosmic-odyssey-first-footprints-0",
+          "name": "First Footprints",
+          "kind": "scene_or_badge",
+          "art_direction": "A pair of boot impressions fading into an abstract star map",
+          "search_terms": [
+            "footprints",
+            "exploration"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-cosmic-odyssey-constellation-crew-0",
+          "name": "Constellation Crew",
+          "kind": "scene_or_badge",
+          "art_direction": "Three different spacesuit silhouettes linked by a dotted constellation",
+          "search_terms": [
+            "team",
+            "cosmic"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        }
+      ]
+    },
+    {
+      "id": "neon-future",
+      "name": "Neon Future City",
+      "locales": {
+        "ar": "مدينة المستقبل المضيئة",
+        "zh_CN": "霓虹未来都市"
+      },
+      "palette": {
+        "primary": "#263650",
+        "secondary": "#63D8D7",
+        "accent": "#F2A2CF"
+      },
+      "art_direction": "Humane cyber-urbanism, tactile machines and city life, not franchise replicas",
+      "items": [
+        {
+          "id": "ent-neon-future-night-market-mechanic-0",
+          "name": "Night Market Mechanic",
+          "kind": "original_character",
+          "art_direction": "Street mechanic with magnetic gloves and translucent toolkit umbrella",
+          "search_terms": [
+            "cyber",
+            "future"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-neon-future-hologram-florist-0",
+          "name": "Hologram Florist",
+          "kind": "original_character",
+          "art_direction": "Florist with geometric face shield arranging floating projection bouquets",
+          "search_terms": [
+            "future",
+            "flowers"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-neon-future-solar-tram-conductor-0",
+          "name": "Solar Tram Conductor",
+          "kind": "original_character",
+          "art_direction": "Conductor in sharply cut uniform holding a reusable illuminated transit pass",
+          "search_terms": [
+            "tram",
+            "transport"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-neon-future-modular-transit-pod-0",
+          "name": "Modular Transit Pod",
+          "kind": "illustrated_motif",
+          "art_direction": "Three-wheeled electric pod with large panoramic windows",
+          "search_terms": [
+            "vehicle",
+            "mobility"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-neon-future-floating-noodle-sign-0",
+          "name": "Floating Noodle Sign",
+          "kind": "illustrated_motif",
+          "art_direction": "Original fictional sign using abstract noodle-bowl pictograms, not real logos",
+          "search_terms": [
+            "sign",
+            "food"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-neon-future-circuit-umbrella-0",
+          "name": "Circuit Umbrella",
+          "kind": "illustrated_motif",
+          "art_direction": "Clear umbrella with radial embedded circuit traces and glowing edges",
+          "search_terms": [
+            "umbrella",
+            "circuits"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-neon-future-pocket-data-garden-0",
+          "name": "Pocket Data Garden",
+          "kind": "illustrated_motif",
+          "art_direction": "Portable screen hosting a miniature virtual topiary",
+          "search_terms": [
+            "digital",
+            "plants"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-neon-future-drone-delivery-cart-0",
+          "name": "Drone Delivery Cart",
+          "kind": "illustrated_motif",
+          "art_direction": "Ground-level delivery robot with retractable wheels and blinking signal eyes",
+          "search_terms": [
+            "robot",
+            "courier"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-neon-future-rain-slick-footbridge-0",
+          "name": "Rain-Slick Footbridge",
+          "kind": "illustrated_motif",
+          "art_direction": "Minimal pedestrian bridge seen against layered neon window grids",
+          "search_terms": [
+            "bridge",
+            "city"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-neon-future-after-hours-station-0",
+          "name": "After Hours Station",
+          "kind": "scene_or_badge",
+          "art_direction": "Transit platform with transparent arrivals board and empty bicycle stand",
+          "search_terms": [
+            "station",
+            "scene"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-neon-future-tomorrow-s-skyline-0",
+          "name": "Tomorrow's Skyline",
+          "kind": "scene_or_badge",
+          "art_direction": "Three sharply different tower silhouettes with overhead transit loop",
+          "search_terms": [
+            "futurist",
+            "skyline"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-neon-future-human-machine-handshake-0",
+          "name": "Human-Machine Handshake",
+          "kind": "scene_or_badge",
+          "art_direction": "Stylised human and soft-claw robotic hands touching above a blue waveform",
+          "search_terms": [
+            "robot",
+            "humanity"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        }
+      ]
+    },
+    {
+      "id": "mythic-kingdoms",
+      "name": "Mythic Kingdoms",
+      "locales": {
+        "ar": "ممالك الخيال",
+        "zh_CN": "幻想王国"
+      },
+      "palette": {
+        "primary": "#4B4164",
+        "secondary": "#E4C998",
+        "accent": "#74A39A"
+      },
+      "art_direction": "New folklore: whimsical heraldry, fantastical costumes and imaginary creatures",
+      "items": [
+        {
+          "id": "ent-mythic-kingdoms-moss-cape-ranger-0",
+          "name": "Moss-Cape Ranger",
+          "kind": "original_character",
+          "art_direction": "Forest wanderer in a layered leaf cape carrying a bell-shaped compass",
+          "search_terms": [
+            "ranger",
+            "fantasy"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-mythic-kingdoms-moonlit-stonemason-0",
+          "name": "Moonlit Stonemason",
+          "kind": "original_character",
+          "art_direction": "Craftsman with crescent tools assembling floating stones",
+          "search_terms": [
+            "artisan",
+            "magic"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-mythic-kingdoms-wandering-lantern-knight-0",
+          "name": "Wandering Lantern Knight",
+          "kind": "original_character",
+          "art_direction": "Adventurer with rounded armour and a small lantern instead of a sword",
+          "search_terms": [
+            "knight",
+            "lantern"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-mythic-kingdoms-the-amber-gateway-0",
+          "name": "The Amber Gateway",
+          "kind": "illustrated_motif",
+          "art_direction": "Arched mountain gate embedded with star-like amber crystals",
+          "search_terms": [
+            "portal",
+            "arch"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-mythic-kingdoms-cloudsmith-anvil-0",
+          "name": "Cloudsmith Anvil",
+          "kind": "illustrated_motif",
+          "art_direction": "Lightweight anvil floating over swirling clouds and small sparks",
+          "search_terms": [
+            "blacksmith",
+            "sky"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-mythic-kingdoms-seven-leaf-crown-0",
+          "name": "Seven-Leaf Crown",
+          "kind": "illustrated_motif",
+          "art_direction": "Organic leaf crown with offset branches and asymmetrical gem seed",
+          "search_terms": [
+            "crown",
+            "botanical"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-mythic-kingdoms-tideglass-compass-0",
+          "name": "Tideglass Compass",
+          "kind": "illustrated_motif",
+          "art_direction": "Fantasy compass filled with liquid light and wave-like arrows",
+          "search_terms": [
+            "compass",
+            "magic"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-mythic-kingdoms-friendly-griffin-feather-0",
+          "name": "Friendly Griffin Feather",
+          "kind": "illustrated_motif",
+          "art_direction": "Long iridescent feather with stylised lion-print quill detail",
+          "search_terms": [
+            "creature",
+            "feather"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-mythic-kingdoms-starlit-shield-0",
+          "name": "Starlit Shield",
+          "kind": "illustrated_motif",
+          "art_direction": "Round buckler with original overlapping moon-and-branch heraldry",
+          "search_terms": [
+            "shield",
+            "emblem"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-mythic-kingdoms-keeper-of-the-valley-0",
+          "name": "Keeper of the Valley",
+          "kind": "scene_or_badge",
+          "art_direction": "Panoramic fantasy valley with a stone bridge and distant spiral tree",
+          "search_terms": [
+            "landscape",
+            "fantasy"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-mythic-kingdoms-the-hidden-oath-0",
+          "name": "The Hidden Oath",
+          "kind": "scene_or_badge",
+          "art_direction": "Emblem of interlinked circular knotwork and a luminous seed",
+          "search_terms": [
+            "emblem",
+            "story"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-mythic-kingdoms-festival-of-lanterns-0",
+          "name": "Festival of Lanterns",
+          "kind": "scene_or_badge",
+          "art_direction": "Fantasy hillside with five floating lanterns and a distant castle",
+          "search_terms": [
+            "festival",
+            "lanterns"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        }
+      ]
+    },
+    {
+      "id": "enchanted-garden",
+      "name": "Enchanted Gardens",
+      "locales": {
+        "ar": "الحدائق المسحورة",
+        "zh_CN": "魔法花园"
+      },
+      "palette": {
+        "primary": "#416650",
+        "secondary": "#F0D7B5",
+        "accent": "#D886A4"
+      },
+      "art_direction": "Botanical wonders, soft ink lines, surprising organic structures",
+      "items": [
+        {
+          "id": "ent-enchanted-garden-petal-postmaster-0",
+          "name": "Petal Postmaster",
+          "kind": "original_character",
+          "art_direction": "Garden courier in seedpod raincoat carrying tiny flower envelopes",
+          "search_terms": [
+            "floral",
+            "mail"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-enchanted-garden-mushroom-librarian-0",
+          "name": "Mushroom Librarian",
+          "kind": "original_character",
+          "art_direction": "Whimsical mushroom-headed archivist holding a leaf-bound book",
+          "search_terms": [
+            "forest",
+            "library"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-enchanted-garden-dewdrop-alchemist-0",
+          "name": "Dewdrop Alchemist",
+          "kind": "original_character",
+          "art_direction": "Gentle magical researcher pouring iridescent dew into a blossom",
+          "search_terms": [
+            "alchemy",
+            "plant"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-enchanted-garden-bluebell-observatory-0",
+          "name": "Bluebell Observatory",
+          "kind": "illustrated_motif",
+          "art_direction": "Three bluebells growing into telescope eyepieces",
+          "search_terms": [
+            "flower",
+            "stars"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-enchanted-garden-moonseed-terrarium-0",
+          "name": "Moonseed Terrarium",
+          "kind": "illustrated_motif",
+          "art_direction": "Glass bell jar with crescent sprout and soil layers",
+          "search_terms": [
+            "terrarium",
+            "moon"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-enchanted-garden-lavender-hourglass-0",
+          "name": "Lavender Hourglass",
+          "kind": "illustrated_motif",
+          "art_direction": "Hourglass filled with trailing lavender blooms instead of sand",
+          "search_terms": [
+            "hourglass",
+            "lavender"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-enchanted-garden-fern-constellation-0",
+          "name": "Fern Constellation",
+          "kind": "illustrated_motif",
+          "art_direction": "Delicate fern whose spores form a small cluster of stars",
+          "search_terms": [
+            "fern",
+            "cosmic"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-enchanted-garden-tangerine-moth-0",
+          "name": "Tangerine Moth",
+          "kind": "illustrated_motif",
+          "art_direction": "Distinctive symmetrical moth with citrus-slice wings",
+          "search_terms": [
+            "moth",
+            "fruit"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-enchanted-garden-pocket-wildflower-field-0",
+          "name": "Pocket Wildflower Field",
+          "kind": "illustrated_motif",
+          "art_direction": "Mini hill of layered stems and colourful blossoms in a coin-shaped frame",
+          "search_terms": [
+            "wildflower",
+            "meadow"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-enchanted-garden-the-whispering-grove-0",
+          "name": "The Whispering Grove",
+          "kind": "scene_or_badge",
+          "art_direction": "Three curving trees forming an arch over a luminous flower",
+          "search_terms": [
+            "grove",
+            "woodland"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-enchanted-garden-bloom-where-you-wander-0",
+          "name": "Bloom Where You Wander",
+          "kind": "scene_or_badge",
+          "art_direction": "Original circular badge with a path spiralling into four-petal flower",
+          "search_terms": [
+            "floral",
+            "path"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-enchanted-garden-garden-after-dark-0",
+          "name": "Garden After Dark",
+          "kind": "scene_or_badge",
+          "art_direction": "Ferns, fireflies and a botanical arch in a contrasting night vignette",
+          "search_terms": [
+            "garden",
+            "night"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        }
+      ]
+    },
+    {
+      "id": "desert-trails",
+      "name": "Desert Trail Stories",
+      "locales": {
+        "ar": "حكايات الصحراء",
+        "zh_CN": "沙漠旅行故事"
+      },
+      "palette": {
+        "primary": "#8A563C",
+        "secondary": "#F4D59C",
+        "accent": "#4E8691"
+      },
+      "art_direction": "Desert geology, outdoor photography and adventurous but culturally neutral travel motifs",
+      "items": [
+        {
+          "id": "ent-desert-trails-dune-weather-reader-0",
+          "name": "Dune Weather Reader",
+          "kind": "original_character",
+          "art_direction": "Explorer in layered scarf and practical field hat measuring wind with pocket ribbon",
+          "search_terms": [
+            "desert",
+            "wind"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-desert-trails-night-sky-photographer-0",
+          "name": "Night Sky Photographer",
+          "kind": "original_character",
+          "art_direction": "Traveller carrying camera and tripod beneath crescent-shaped horizon",
+          "search_terms": [
+            "night",
+            "photography"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-desert-trails-trail-tea-maker-0",
+          "name": "Trail Tea Maker",
+          "kind": "original_character",
+          "art_direction": "Camp host with patterned thermos and folding kettle stand",
+          "search_terms": [
+            "camp",
+            "tea"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-desert-trails-contour-dune-lines-0",
+          "name": "Contour Dune Lines",
+          "kind": "illustrated_motif",
+          "art_direction": "Five different sinusoidal sand ridges forming a sculptural landscape",
+          "search_terms": [
+            "desert",
+            "dunes"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-desert-trails-sun-bleached-compass-0",
+          "name": "Sun-Bleached Compass",
+          "kind": "illustrated_motif",
+          "art_direction": "Metal compass with fine texture and sandy cardinal dots",
+          "search_terms": [
+            "compass",
+            "travel"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-desert-trails-canyon-postcard-0",
+          "name": "Canyon Postcard",
+          "kind": "illustrated_motif",
+          "art_direction": "Postcard showing a narrow slot canyon with sunlight beam",
+          "search_terms": [
+            "canyon",
+            "rocks"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-desert-trails-crescent-camp-lantern-0",
+          "name": "Crescent Camp Lantern",
+          "kind": "illustrated_motif",
+          "art_direction": "Portable lantern with geometric crescent negative space",
+          "search_terms": [
+            "lantern",
+            "moon"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-desert-trails-wind-twisted-tree-0",
+          "name": "Wind-Twisted Tree",
+          "kind": "illustrated_motif",
+          "art_direction": "A lone resilient acacia-like tree on a sloping rock shelf",
+          "search_terms": [
+            "tree",
+            "nature"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-desert-trails-oasis-reflection-0",
+          "name": "Oasis Reflection",
+          "kind": "illustrated_motif",
+          "art_direction": "Date palms reflected in a miniature blue water ellipse",
+          "search_terms": [
+            "oasis",
+            "palms"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-desert-trails-follow-the-stars-0",
+          "name": "Follow the Stars",
+          "kind": "scene_or_badge",
+          "art_direction": "Embroidered-style patch of winding footpath toward scattered stars",
+          "search_terms": [
+            "travel",
+            "badge"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-desert-trails-sunset-ridge-0",
+          "name": "Sunset Ridge",
+          "kind": "scene_or_badge",
+          "art_direction": "Wide scene with layered mountains and balanced orange sun disk",
+          "search_terms": [
+            "sunset",
+            "desert"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        },
+        {
+          "id": "ent-desert-trails-the-open-road-0",
+          "name": "The Open Road",
+          "kind": "scene_or_badge",
+          "art_direction": "Panoramic curving road toward distant stone mesas",
+          "search_terms": [
+            "road",
+            "trip"
+          ],
+          "palette_roles": [
+            "primary",
+            "secondary",
+            "accent"
+          ],
+          "source_status": "concept_only"
+        }
+      ]
+    }
+  ]
+}
