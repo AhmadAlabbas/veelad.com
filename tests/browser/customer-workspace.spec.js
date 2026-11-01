@@ -123,6 +123,18 @@ test("layered workspace keeps multiple originals and independent sides through e
     await expect.poll(async () => (await scene("front")).layers.length).toBe(3);
     await shell.locator("[data-ws-action=undo]").click();
     await expect.poll(async () => (await scene("front")).layers.length).toBe(2);
+    // Session checkpoints restore a complete scene without destroying the undo chain.
+    await shell.locator("[data-ws-tool=layouts]").click();
+    await shell.locator("[data-ws-save-checkpoint]").click();
+    await expect(shell.locator('[data-ws-restore-checkpoint="0"]')).toBeVisible();
+    await shell.locator("[data-ws-tool=layers]").click();
+    await shell.locator(`[data-ws-select="${selectedImage.id}"]`).click();
+    await shell.locator("[data-ws-action=duplicate]").click();
+    await expect.poll(async () => (await scene("front")).layers.length).toBe(3);
+    await shell.locator("[data-ws-tool=layouts]").click();
+    await shell.locator('[data-ws-restore-checkpoint="0"]').click();
+    await expect.poll(async () => (await scene("front")).layers.length).toBe(2);
+    await shell.locator("[data-ws-tool=layers]").click();
     await shell.locator(`[data-ws-select="${selectedImage.id}"]`).click();
     const xBefore = (await scene("front")).layers.find((l) => l.id === selectedImage.id).x;
     await shell.locator("[data-ws-artboard]").focus();
