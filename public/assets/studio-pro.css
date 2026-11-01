@@ -147,3 +147,12 @@
  transform:scale(1.06);transition:transform .19s ease;
 }
 @media(prefers-reduced-motion:reduce){.cw-element-entry .cw-element-tile[data-ws-element^="botanical-"]:hover .cw-element-visual svg{transform:none;transition:none}}
+
+/* Professional z-order panel: one motion, no extra confirmation toolbar. */
+.cw-layer-row[draggable="true"]{cursor:grab;transition:border-color .12s ease,background .12s ease}
+.cw-layer-row[draggable="true"]:active{cursor:grabbing}
+.cw-layer-row[data-dragging="true"]{opacity:.55}
+.cw-layer-row[data-drop-edge="before"]{border-top:3px solid #895ad4!important}
+.cw-layer-row[data-drop-edge="after"]{border-bottom:3px solid #895ad4!important}
+.cw-layer-row:focus-within{outline:2px solid #a48bdf;outline-offset:2px}
+@media(prefers-reduced-motion:reduce){.cw-layer-row[draggable="true"]{transition:none}}
