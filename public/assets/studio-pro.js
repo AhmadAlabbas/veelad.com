@@ -160,6 +160,13 @@ function arrange(layers,command,margin=.08){
  }else return [];
  return next.map(({id,x,y})=>({id,x:Math.max(0,Math.min(1,x)),y:Math.max(0,Math.min(1,y))}));
 }
+const pairings=Object.freeze([
+ {id:'minimal',title:'Bold Minimal',ar:'بساطة جريئة',zh:'极简醒目',heading:'MAKE IT COUNT',detail:'EVERYDAY EDITION',headingFont:'bebas-neue',detailFont:'dm-sans',colour:'#25232d'},
+ {id:'editorial',title:'Modern Editorial',ar:'أسلوب تحريري',zh:'现代杂志风',heading:'A NEW PERSPECTIVE',detail:'DESIGNED FOR YOU',headingFont:'bodoni-moda',detailFont:'manrope',colour:'#453943'},
+ {id:'arabic',title:'Arabic Expression',ar:'لمسة عربية',zh:'阿拉伯书法风',heading:'عالمك بطريقتك',detail:'تصميم يعبر عنك',headingFont:'cairo',detailFont:'amiri',colour:'#285b50'},
+ {id:'chinese',title:'Chinese Contemporary',ar:'صيني معاصر',zh:'现代中文',heading:'你的风格',detail:'由你定义',headingFont:'noto-sans-sc',detailFont:'noto-sans-sc',colour:'#353b58'},
+ {id:'retro',title:'Retro Night',ar:'ليلة كلاسيكية',zh:'复古之夜',heading:'AFTER HOURS',detail:'CREATIVE CLUB',headingFont:'bungee',detailFont:'dm-sans',colour:'#55467a'}
+].map(item=>Object.freeze(item)));
 const palettes=Object.freeze([
  {id:'original',title:'Original colours',ar:'الألوان الأصلية',zh:'原始配色',colors:null},
  {id:'ocean',title:'Ocean blue',ar:'أزرق المحيط',zh:'海洋蓝',colors:['#164966','#C7EDF0','#DFAE65']},
@@ -174,5 +181,5 @@ function paletteFor(id,elementApi){
  const source=elementApi?.defaults?.(id)||null;
  return source&&['primary','secondary','accent'].every(key=>/^#[a-f0-9]{6}$/i.test(source[key]||''))?source:null;
 }
-window.VeeladStudioPro=Object.freeze({folders,templates,read,favourite,used,search,preflight,snap,title,arrange,normalize,palettes,paletteFor});
+window.VeeladStudioPro=Object.freeze({folders,templates,read,favourite,used,search,preflight,snap,title,arrange,normalize,palettes,paletteFor,pairings});
 })();
