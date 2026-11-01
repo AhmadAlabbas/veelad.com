@@ -177,3 +177,8 @@
 /* The storefront's fixed shopping navigation must not cover interactive
    design controls or artwork drag/drop targets on the Create page. */
 body:has(.customer-workspace) .mobile-shopping-nav{display:none!important}
+
+/* Illustration activation wins over the favourite control in the artwork area;
+   the separate favourite row remains independently clickable below it. */
+.cw-element-entry .cw-element-tile{z-index:2}
+.cw-element-entry .cw-favourite-button{position:relative!important;z-index:1}
