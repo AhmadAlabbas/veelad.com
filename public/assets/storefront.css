@@ -189,3 +189,33 @@ html[lang=ar] .global-nav .wordmark{font-family:Manrope,sans-serif;letter-spacin
  .global-nav .container{gap:3px 8px}
  .global-nav .nav-actions{gap:5px}
 }
+
+
+/* Clothing-first discovery: planned ranges are not selectable products. */
+.home-wardrobe-entry{display:flex;align-items:center;justify-content:space-between;gap:28px;padding-block:22px;border-bottom:1px solid var(--store-line);margin-top:12px}
+.home-wardrobe-entry h2{font-size:clamp(20px,2.3vw,31px);margin-block:5px 9px}
+.home-wardrobe-entry p{max-width:610px;font-size:12px;line-height:1.6}
+.home-wardrobe-entry .btn{white-space:nowrap}
+.wardrobe-intro{padding:25px 0 20px;border-block:1px solid var(--store-line);margin-bottom:22px}
+.wardrobe-heading h2{font-size:clamp(23px,3vw,36px);margin:6px 0 8px}
+.wardrobe-heading p{font-size:13px;max-width:680px;line-height:1.75}
+.wardrobe-types{display:flex;gap:11px;overflow-x:auto;scrollbar-width:thin;scroll-snap-type:x proximity;padding-block:18px 14px}
+.wardrobe-type{flex:0 0 145px;min-height:73px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:7px;padding:12px 14px;border:1px solid var(--store-line);border-radius:10px;font-size:12px;line-height:1.5;scroll-snap-align:start;min-width:0}
+.wardrobe-type.available{background:#f8f6fb;font-weight:700}
+.wardrobe-type.available:hover,.wardrobe-type.available:focus-visible{border-color:#8a70c8;background:#f1ecfb}
+.wardrobe-type.available .icon{height:14px;width:14px}
+.wardrobe-type.planned{border-style:dashed;background:#fcfbfd;color:#746f7d}
+.wardrobe-type.planned strong{font-weight:650;color:#6b6375}
+.wardrobe-type.planned small,.wardrobe-disclaimer,.wardrobe-filter-note{font-size:10px;color:#79717f}
+.wardrobe-disclaimer{line-height:1.6}
+.wardrobe-filter-note{padding:4px 0 15px}
+.wardrobe-card-colours{display:flex;align-items:center;gap:7px;margin-top:9px}
+.wardrobe-card-colours>span{height:17px;width:17px;display:inline-grid;place-items:center;background:var(--swatch);border:2px solid #fff;border-radius:50%;box-shadow:0 0 0 1px #cdc8d3}
+@media(max-width:760px){
+ .home-wardrobe-entry{flex-direction:column;align-items:stretch;gap:15px;padding-block:20px;margin-top:4px}
+ .home-wardrobe-entry .btn{width:100%}
+ .wardrobe-intro{padding-block:17px 12px}
+ .wardrobe-type{flex-basis:130px}
+ .wardrobe-heading p{font-size:12px}
+ .wardrobe-filter-note{line-height:1.5}
+}
