@@ -1,6 +1,6 @@
 // Read-only external reachability check. No credentials, cookies or mutations.
 const origin='https://staging.veelad.com';
-const expectedRevision='36b82a959002a10e90071024f6977d76eea2f8b9';
+const expectedRevision='a5e36b19ec6b67d856e65c18cbae7842f8210cdc';
 const cases=[
  {path:'/api.php?route=health',type:'json'},
  {path:'/',type:'html'},
