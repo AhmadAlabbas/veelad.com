@@ -243,6 +243,65 @@ const libraryPanel=document.createElement("section");
     copy.querySelector("span").textContent=typeof currentLanguage==="function"&&currentLanguage()==="ar"?(other?.id==="front"?"انسخ تصميم الأمام":"انسخ تصميم الخلف"):(other?.id==="front"?"Copy front design":"Copy back design");
     copyControls.querySelector("[data-ws-copy-confirm]").hidden=true;
   }
+function renderElements(){
+    const api=window.VeeladElements,list=shell.querySelector("[data-ws-element-list]");
+    if(!api){list.textContent="Element library unavailable.";return;}
+    const select=shell.querySelector("[data-ws-element-category]");
+    if(!select.options.length)select.innerHTML='<option value="">'+esc(tr("All categories"))+'</option>'+api.categories.map(name=>'<option value="'+esc(name)+'">'+esc(name)+'</option>').join("");
+    const search=shell.querySelector("[data-ws-element-search]").value.trim().toLowerCase(),category=select.value;
+    const matched=api.catalog.filter(item=>(!category||item.category===category)&&(!search||(item.name+' '+item.category+' '+item.id).toLowerCase().includes(search)));
+    const visible=matched.slice(0,elementLimit);
+    shell.querySelector("[data-ws-element-count]").textContent=visible.length+" / "+matched.length;
+    list.innerHTML=visible.map(item=>`<button type="button" class="cw-element-tile" draggable="true" data-ws-element="${esc(item.id)}" title="${esc(item.name)}" aria-label="${esc("Add element "+item.name)}"><span class="cw-element-visual">${api.svg(item.id)}</span><small>${esc(item.name)}</small></button>`).join("");
+    shell.querySelector("[data-ws-element-more]").hidden=matched.length<=visible.length;
+  }
+  async function addElement(elementId,point=null){
+    const api=window.VeeladElements,entry=api?.find(elementId);
+    if(!entry||elementBusy||!canAdd())return;
+    elementBusy=true;setStatus("Preparing element…");
+    try{
+      const product=instance.product().id,surface=adapter.surface(),colors=api.defaults(elementId);
+      const file=await api.file(elementId,colors);
+      const added=await adapter.addImages([file]);
+      if(!root.isConnected)return;
+      const layer=added?.at(-1);
+      if(!layer)return;
+      layer.library_element={id:elementId,colors};
+      if(instance.product().id===product&&adapter.surface()===surface&&point){
+        layer.x=clamp(point.x,0,1);layer.y=clamp(point.y,0,1);
+      }
+      const scale=Math.min(.43/layer.width,.43/layer.height,1);
+      layer.width*=scale;layer.height*=scale;
+      selected=layer.id;commit();
+    }catch(error){setStatus(error.message||"Could not load this layer.",true);}
+    finally{elementBusy=false;}
+  }
+  async function recolourElement(layerId,channel,color){
+    const api=window.VeeladElements,layer=layers().find(item=>item.id===layerId);
+    if(!layer?.library_element||layer.locked||elementBusy||!["primary","secondary","accent"].includes(channel)||! /^#[a-f0-9]{6}$/i.test(color))return;
+    const originalId=layer.library_element.id,originalColors=layer.library_element.colors;
+    const next={...originalColors,[channel]:color.toLowerCase()};
+    if(next[channel]===originalColors[channel])return;
+    elementBusy=true;setStatus("Preparing element…");
+    const product=instance.product().id,surface=adapter.surface();
+    try{
+      const file=await api.file(originalId,next);
+      const generated=await adapter.addImages([file]);
+      const replacement=generated?.at(-1);
+      if(!replacement)return;
+      const scene=instance.state.scenes?.[product]?.[surface],list=scene?.layers||[];
+      const target=list.find(l=>l.id===layerId);
+      if(target?.library_element?.id===originalId){
+        target.upload_id=replacement.upload_id;
+        target.library_element={id:originalId,colors:next};
+        layerAssets.delete(layerId);
+      }
+      const index=list.findIndex(l=>l.id===replacement.id);
+      if(index>=0)list.splice(index,1);
+      if(root.isConnected){selected=layerId;commit();setStatus("Element updated");}
+    }catch(error){setStatus(error.message||"Could not load this layer.",true);}
+    finally{elementBusy=false;}
+  }
   function renderLayerList(){
     const node=shell.querySelector("[data-ws-layer-list]"),list=layers();
     node.innerHTML=list.length?[...list].reverse().map((layer,index)=>{
