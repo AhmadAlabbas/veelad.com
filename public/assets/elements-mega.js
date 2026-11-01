@@ -126,6 +126,13 @@ async function file(id,colors){
  const blob=await new Promise((resolve,reject)=>canvas.toBlob(value=>value?resolve(value):reject(Error('Unable to export graphic')),'image/png'));
  return new File([blob],id+'.png',{type:'image/png'});
 }
-const catalog=Object.freeze([...original.catalog,...newCatalog]);
+const featuredIds=[
+ ...['daisy-0','cat-0','dog-0','skyline-0','sun-0','heart-0','rose-0','mountain-0','camera-0','star-0','sunflower-0','balloon-0'],
+ ...['1f600','1f60d','1f602','1f431','1f436','1f338','1f680','1f3ae','1f389','1f4aa','1f525','1f3c6'].map(cp=>'emoji-'+cp+'-1'),
+ ...['sa','ae','gb','us','jp','cn','fr','de','tr','qa','bh','om'].map(code=>'flag-'+code+'-1'),
+ ...['London','Riyadh','Tokyo','Dubai','Paris','New York','Istanbul','Makkah','Osaka','Jeddah','Rome','Sydney'].map(name=>cityEntries.find(city=>city.city===name)?.base+'-1')
+];
+const elementsById=new Map([...original.catalog,...newCatalog].map(item=>[item.id,item]));
+const catalog=Object.freeze([...new Set([...featuredIds,...elementsById.keys()])].map(id=>elementsById.get(id)).filter(Boolean));
 window.VeeladElements=Object.freeze({...original,catalog,categories,find,svg,defaults,file,label,categoryLabel,searchText,stats:{total:catalog.length,emojiBases:baseEmoji.length,flagBases:flagEntries.length,cityBases:cityEntries.length,original:original.catalog.length}});
 })();
