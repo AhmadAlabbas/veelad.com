@@ -102,3 +102,28 @@
  .summary-action, .product-buy-actions { padding-inline-start: 16px; padding-inline-end: 16px; }
  .summary-action .btn { padding: 10px 13px; }
 }
+
+
+/* Phase 2 — editorial, data-backed browsing and a transparent final bag review. */
+.shop-theme-navigation{margin:20px 0 26px;padding:22px 24px;border:1px solid #e7e5e4;border-radius:18px;background:#fafaf9}
+.shop-theme-heading{display:flex;justify-content:space-between;gap:12px;align-items:baseline;margin-bottom:15px}
+.shop-theme-heading span{font-size:15px;font-weight:750;letter-spacing:-.015em;color:#18181b}
+.shop-theme-heading small{font-size:11px;color:#78716c}
+.shop-theme-links{display:flex;flex-wrap:wrap;gap:9px}
+.shop-theme-chip{display:inline-flex;gap:10px;align-items:center;justify-content:space-between;min-height:42px;border:1px solid #e4e4e7;border-radius:999px;background:#fff;padding:9px 15px;color:#27272a;font-size:12px;font-weight:600;text-decoration:none}
+.shop-theme-chip span{font-variant-numeric:tabular-nums;font-size:10px;color:#71717a}
+.shop-theme-chip:hover{border-color:#52525b}
+.shop-theme-chip:focus-visible{outline:3px solid #71717a;outline-offset:3px}
+.shop-theme-chip.active{background:#18181b;color:#fff;border-color:#18181b}
+.shop-theme-chip.active span{color:#d4d4d8}
+.checkout-review{padding:16px 0 19px;border-bottom:1px solid #e7e5e4;margin-bottom:16px}
+.checkout-review-header{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-bottom:12px}
+.checkout-review-header h4{font-weight:700;font-size:14px;margin:0}
+.checkout-review-header a{font-size:12px;text-decoration:underline}
+.checkout-review-list{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.checkout-review-list li{display:flex;align-items:start;justify-content:space-between;gap:12px;font-size:12px}
+.checkout-review-list li>div{display:flex;flex-direction:column;min-width:0;gap:4px}
+.checkout-review-list strong{font-size:12px;font-weight:650;overflow-wrap:anywhere}
+.checkout-review-list span,.checkout-review-list small{font-size:11px;color:#71717a}
+.checkout-review-list b{font-size:12px;font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums}
+@media(max-width:760px){.shop-theme-navigation{margin:16px 0 22px;padding:15px 14px;border-radius:14px}.shop-theme-heading{align-items:start;flex-direction:column;gap:4px}.shop-theme-links{flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-inline:contain;scroll-snap-type:x proximity;scrollbar-width:thin;padding:3px 1px 8px}.shop-theme-chip{flex:0 0 auto;scroll-snap-align:start;min-height:44px}}
