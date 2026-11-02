@@ -13,7 +13,7 @@ async function verifiedCatalogue(page){
 const phone=page=>page.viewportSize().width<=760;
 const visibleFilterForm=async page=>{
  if(phone(page)){
-  await page.getByRole('button',{name:/Filters & sort/}).click();
+  await page.locator('[data-action=open-filters]').click();
   return page.locator('#modal [data-form=filters]');
  }
  return page.locator('.filterbar');
@@ -42,9 +42,7 @@ test('verified facets filter the actual catalogue, preserve URLs and remain sele
  await page.goto('/ar/shop?view=products&color=blue');
  const arForm=await visibleFilterForm(page);
  await expect(arForm.locator('select[name=color]')).toHaveValue('blue');
- if(phone(page)){
-  await page.locator('#modal [data-action=close-modal]').first().click().catch(()=>{});
- }
+
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
 });
 
