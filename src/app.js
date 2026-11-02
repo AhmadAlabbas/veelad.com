@@ -1,3 +1,4 @@
+import {summarizeArtistSales} from './artist-sales.js';
 import {productTranslationRoute,categoryTranslations} from './product-translations.js';
 import {internationalStatus,internationalRoute,orderCurrencySnapshot} from './international.js';
 import {journalRoute} from './journal.js';
@@ -482,7 +483,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
   if(method==='GET' && route==='studio') {
    const u=await role(req,'artist'),orders=[];
    for(const o of await q('SELECT * FROM orders ORDER BY created_at DESC')) {const d=order(o),items=d.items.filter(l=>l.artist_id===u.id);if(items.length) orders.push({id:o.id,status:o.status,created_at:o.created_at,items,payment_status:d.payment_status??'awaiting_payment'});}
-   return res.json({products:await reviewedProducts(db,await products(true,u.id)),orders});
+   return res.json({products:await reviewedProducts(db,await products(true,u.id)),orders,sales_summary:summarizeArtistSales(orders,u.id)});
   }
   if(method==='GET' && route==='product-preview') {
    const u=await role(req,'artist','admin'),p=await one('SELECT * FROM products WHERE id=?',[String(req.query.id||'')]);

@@ -114,7 +114,7 @@ function productionBoard(orders) {
             .toLowerCase()
             .includes(query)),
     );
-  return `<div class="admin-title"><div><span class="eyebrow">${t("FROM ARTWORK TO PACKED ORDER")}</span><h1>${t("Production")}</h1><p>${t("Prepare files, collect approvals and check every item before dispatch.")}</p></div></div><div class="production-counts">${Object.entries(
+  return `<div class="admin-title"><div><span class="eyebrow">${t("FROM ARTWORK TO PACKED ORDER")}</span><h1>${t("Production")}</h1><p>${t("Prepare files, collect approvals and check every item before dispatch.")}</p></div></div>${phase3ProductionTriage(orders)}<div class="production-counts">${Object.entries(
     productionStageLabels,
   )
     .map(([key, label]) =>
