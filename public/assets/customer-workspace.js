@@ -107,6 +107,7 @@ const libraryPanel=document.createElement("section");
     selection=shell.querySelector("[data-ws-selection]"), scroll=shell.querySelector("[data-ws-scroll]"),
     inspector=shell.querySelector("[data-ws-inspector]"), imageCache=new Map(), glyphCache=new Map(), layerAssets=new Map(),libraryLoads=new Set();
   let elementLimit=48,elementBusy=false;
+  let originalCollection="",originalQuery="",originalLimit=24;
   let selected=null,tool="uploads",mode="edit",zoom="fit",fitScale=.5,renderSerial=0,gesture=null,fontsReady=false,fontLimit=60,
     lastHistoryGroup=null,lastHistoryTime=0,restoring=false,activeKey="",fontObserver=null,disposed=false,focused=false;
   const history=[],future=[];
@@ -388,10 +389,40 @@ function renderElements(){
     list.innerHTML=visible.map(item=>`<div class="cw-element-entry"><button type="button" class="cw-element-tile" draggable="true" data-ws-element="${esc(item.id)}" title="${esc(api.label(item.id,currentLanguage()))}" aria-label="${esc("Add element "+api.label(item.id,currentLanguage()))}"><span class="cw-element-visual">${api.svg(item.id)}</span><small>${esc(api.label(item.id,currentLanguage()))}</small></button><button type="button" class="cw-favourite-button" data-ws-favourite="${esc(item.id)}" aria-label="${favorites.has(item.id)?'Remove from favourites':'Add to favourites'}" aria-pressed="${favorites.has(item.id)}">♡</button></div>`).join("")||'<p class="cw-muted">No matching elements. Try a different keyword or collection.</p>';
     shell.querySelector("[data-ws-element-more]").hidden=matched.length<=visible.length;
   }
+  function renderOriginalDropCards(){
+    const api=window.VeeladOriginalDrops,host=shell.querySelector('[data-ws-original-drop-list]');
+    if(!api||!host)return;
+    const matched=api.search(originalQuery,originalCollection),visible=matched.slice(0,originalLimit);
+    host.innerHTML=visible.map(item=>'<button type="button" class="cw-original-drop" data-ws-original-apply="'+esc(item.id)+'" aria-label="'+esc(tr("Use this design")+' · '+api.label(item.id,currentLanguage()))+'"><span class="cw-original-drop-art">'+api.svg(item.id)+'</span><span class="cw-original-drop-title">'+esc(api.label(item.id,currentLanguage()))+'</span><span class="cw-original-drop-subtitle">'+esc(item.slogan)+'</span></button>').join('')||'<p class="cw-muted">'+esc(tr("No designs match your search."))+'</p>';
+    shell.querySelector('[data-ws-original-drop-count]').textContent=visible.length+' / '+matched.length;
+    shell.querySelector('[data-ws-original-drop-more]').hidden=visible.length>=matched.length;
+  }
+  async function applyOriginalDrop(id){
+    const api=window.VeeladOriginalDrops,item=api?.find(id);
+    if(!item||elementBusy||!canAdd(2)||totalLayers()>118)return;
+    const product=instance.product().id,surface=adapter.surface();
+    const artwork=await addElement(id);
+    if(!artwork||!root.isConnected||instance.product().id!==product||adapter.surface()!==surface)return;
+    const scale=Math.min(.64/artwork.width,.46/artwork.height,2);
+    artwork.width*=scale;artwork.height*=scale;
+    artwork.x=.5;artwork.y=.39;
+    const layer={id:uid(),type:'text',text:item.slogan,font:'manrope',
+      color:item.colors.primary,size:.047,x:.5,y:.77,rotation:0,opacity:1,
+      visible:true,locked:false,align:'center',direction:'auto'};
+    layers().push(layer);selected=layer.id;
+    commit();
+    setStatus("Original design added. Customise the artwork and headline.");
+  }
   function renderProLayouts(){
     const pro=window.VeeladStudioPro,api=window.VeeladElements,target=shell.querySelector('[data-ws-original-layouts]');
     if(!pro||!target)return;
     target.innerHTML='<h5>'+esc(tr("Ready-made designs"))+'</h5><p class="cw-muted">'+esc(tr("Original editable starting points"))+'</p><div class="cw-original-layout-grid">'+pro.templates.map(template=>`<button type="button" class="cw-original-layout" data-ws-pro-layout="${esc(template.id)}"><span class="cw-original-layout-art">${api.svg(template.element)}</span><strong>${esc(pro.title(template,currentLanguage()))}</strong><small>${esc(template.tag)}</small></button>`).join('')+'</div>';
+    const drops=window.VeeladOriginalDrops;
+    if(drops){
+      const options=drops.collections.map(row=>'<option value="'+esc(row.id)+'" '+(originalCollection===row.id?'selected':'')+'>'+esc(currentLanguage()==='ar'?row.ar:currentLanguage()==='zh-CN'?row.zh:row.title)+'</option>').join('');
+      target.insertAdjacentHTML('beforeend','<section class="cw-original-drops"><div class="cw-original-drops-head"><p class="cw-original-drops-kicker">VEELAD ORIGINALS · EDITION 02</p><h5>'+esc(tr("Original design collections"))+'</h5><p>'+esc(tr("48 original illustrations across eight collections. Every design can be customised."))+'</p></div><div class="cw-original-drop-tools"><label><span>'+esc(tr("Collection"))+'</span><select data-ws-original-collection><option value="">'+esc(tr("All collections"))+'</option>'+options+'</select></label><label><span>'+esc(tr("Search designs"))+'</span><input data-ws-original-query type="search" value="'+esc(originalQuery)+'" placeholder="'+esc(tr("Search by name or theme"))+'"></label></div><p class="cw-original-drop-counter" data-ws-original-drop-count></p><div class="cw-original-drop-grid" data-ws-original-drop-list></div><button type="button" data-ws-original-drop-more class="cw-original-drop-more">'+esc(tr("Load more designs"))+'</button><p class="cw-original-drop-note">'+esc(tr("Concept artwork only. Supplier print settings and physical samples are not yet verified."))+'</p></section>');
+      renderOriginalDropCards();
+    }
   }
   async function applyProLayout(templateId){
     const pro=window.VeeladStudioPro,template=pro?.templates.find(item=>item.id===templateId);
@@ -791,6 +822,8 @@ function renderElements(){
     else if(button.hasAttribute("data-ws-elements-view")){elementsView=button.dataset.wsElementsView;elementLimit=48;renderElements();}
     else if(button.hasAttribute("data-ws-favourite")){window.VeeladStudioPro?.favourite(button.dataset.wsFavourite);renderElements();}
     else if(button.hasAttribute("data-ws-pro-layout"))await applyProLayout(button.dataset.wsProLayout);
+    else if(button.hasAttribute("data-ws-original-apply"))await applyOriginalDrop(button.dataset.wsOriginalApply);
+    else if(button.hasAttribute("data-ws-original-drop-more")){originalLimit+=24;renderOriginalDropCards();}
     else if(button.hasAttribute("data-ws-save-palette")){
       const layer=current(),colour=window.VeeladColourTools;
       if(layer?.library_element&&colour){const c=layer.library_element.colors;colour.save([c.primary,c.secondary,c.accent]);renderInspector();setStatus("Palette saved locally");}
@@ -837,6 +870,7 @@ function renderElements(){
     if(input.hasAttribute("data-ws-prop"))changeProperty(input);
     else if(input.hasAttribute("data-ws-font-search")){fontLimit=60;renderFonts();}
     else if(input.hasAttribute("data-ws-element-search")){elementLimit=48;renderElements();}
+    else if(input.hasAttribute("data-ws-original-query")){originalQuery=input.value;originalLimit=24;renderOriginalDropCards();}
     else if(input.hasAttribute("data-ws-background")){adapter.scene().background=input.value;shell.querySelector("[data-ws-transparent]").checked=false;commit("background");}
   });
   shell.addEventListener("change",event=>{
@@ -844,6 +878,7 @@ function renderElements(){
     if(input.hasAttribute("data-ws-upload"))addImages(input.files);
     else if(input.hasAttribute("data-ws-element-category")){elementLimit=48;renderElements();}
     else if(input.hasAttribute("data-ws-element-collection")){elementLimit=48;renderElements();}
+    else if(input.hasAttribute("data-ws-original-collection")){originalCollection=input.value;originalLimit=24;renderOriginalDropCards();}
     else if(input.hasAttribute("data-ws-element-colour")){const layer=current();if(layer)void recolourElement(layer.id,input.dataset.wsElementColour,input.value);}
     else if(input.hasAttribute("data-ws-zoom")){zoom=input.value;resizeStage();}
     else if(input.matches("[data-ws-font-script],[data-ws-font-category]")){fontLimit=60;renderFonts();}
@@ -1006,4 +1041,13 @@ shell.addEventListener("dragstart",event=>{
   shell.dataset.panelOpen="true";shell.dataset.mode="edit";shell.dataset.tool="uploads";
   record();refresh();initFonts();
   if(window.VeeladElements){renderElements();renderProLayouts();}
+  // A public Originals gallery link opens this design in the filtered gallery.
+  // Never silently overwrite an existing draft or add layers without consent.
+  const requestedDrop=new URLSearchParams(location.search).get('drop');
+  const featuredDrop=window.VeeladOriginalDrops?.find(requestedDrop);
+  if(featuredDrop){
+    originalCollection=featuredDrop.collection;
+    originalQuery=featuredDrop.name;
+    switchTool('layouts');
+  }
 }
