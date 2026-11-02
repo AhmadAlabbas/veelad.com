@@ -14,3 +14,21 @@
 .journal .sr-only,.journal-admin .sr-only,.journal-dialog .sr-only{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
 [data-journal-url]{direction:ltr;text-align:start}
 .journal a.btn{color:#fff}.journal a.btn.outline{color:var(--journal-ink)}.journal a.btn:hover{text-decoration:none}
+
+
+/* Journal 2026: refined editorial departments and clearly isolated staging fixtures. */
+.journal-departments{display:flex;gap:clamp(12px,2vw,34px);overflow-x:auto;scrollbar-width:thin;padding:22px 0 20px;border-bottom:1px solid var(--journal-line);align-items:center}
+.journal-departments a{white-space:nowrap;font-size:clamp(13px,1.1vw,16px);font-weight:600;text-decoration:none;padding:6px 0;border-bottom:2px solid transparent}
+.journal-departments a[aria-current]{border-bottom-color:var(--journal-ink)}
+.journal-demo-notice{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;padding:15px 18px;margin:20px 0 6px;background:#f4f0e9;border-inline-start:4px solid #785786;color:#403b40;font-size:13px;line-height:1.55}
+.journal-demo-notice strong{font-size:11px;letter-spacing:.1em}
+.journal-sample-tag{color:#7651b5;font-size:10px;white-space:nowrap}
+.journal-card-image{border-radius:3px}
+.journal-card-copy .journal-kicker{display:flex;gap:5px;flex-wrap:wrap}
+.journal-article>.journal-demo-notice{max-width:1100px;margin:34px auto 10px}
+.journal-inspiration{background:#f5f1eb;padding:clamp(28px,5vw,64px);margin:58px auto;max-width:1000px;text-align:center}
+.journal-inspiration h2{font-size:clamp(27px,4vw,46px);font-weight:550;line-height:1.15;letter-spacing:-.04em;margin:12px 0}
+.journal-inspiration p:not(.journal-kicker){color:#646169;margin:0 auto 25px;max-width:520px;line-height:1.7}
+.journal-inspiration .btn{display:inline-flex}
+.journal[dir=rtl] .journal-inspiration h2{letter-spacing:normal}
+@media (max-width:640px){.journal-departments{gap:22px;padding:15px 0}.journal-demo-notice{margin:14px 0}.journal-article>.journal-demo-notice{margin-top:18px}}
