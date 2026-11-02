@@ -170,6 +170,46 @@ test("layered workspace keeps multiple originals and independent sides through e
     await expect.poll(async () => (await scene("front")).layers.find(l => l.id === selectedImage.id).width).toBeGreaterThan(sideBefore.width);
     expect((await scene("front")).layers.find(l => l.id === selectedImage.id).height).toBeCloseTo(sideBefore.height);
 
+    // Precision tools keep the same selected layer after an undo and respect
+    // constrained drag. These checks run on desktop and the emulated phone.
+    await shell.locator(`[data-ws-select="${selectedImage.id}"]`).click();
+    const selectedArtboard = shell.locator("[data-ws-artboard]");
+    await selectedArtboard.focus();
+    const beforeKey = (await scene("front")).layers.find(l => l.id === selectedImage.id);
+    await selectedArtboard.press("ArrowLeft");
+    await expect.poll(async () => (await scene("front")).layers.find(l => l.id === selectedImage.id).x)
+      .toBeLessThan(beforeKey.x);
+    await selectedArtboard.press("ControlOrMeta+z");
+    await expect(shell).toHaveAttribute("data-selected-layer", selectedImage.id);
+    await expect.poll(async () => (await scene("front")).layers.find(l => l.id === selectedImage.id).x)
+      .toBeCloseTo(beforeKey.x);
+
+    const selectedBox = await object.boundingBox();
+    const px = selectedBox.x + selectedBox.width / 2, py = selectedBox.y + selectedBox.height / 2;
+    const beforeStraight = (await scene("front")).layers.find(l => l.id === selectedImage.id);
+    await page.mouse.move(px, py);
+    await page.mouse.down();
+    await page.keyboard.down("Shift");
+    await page.mouse.move(px + 32, py + 20, { steps: 5 });
+    await page.mouse.up();
+    await page.keyboard.up("Shift");
+    const straight = (await scene("front")).layers.find(l => l.id === selectedImage.id);
+    expect(straight.x).toBeGreaterThan(beforeStraight.x);
+    expect(straight.y).toBeCloseTo(beforeStraight.y, 5);
+
+    // Escape discards an in-progress pointer transform instead of saving it,
+    // even when the pointer moves before the button is released.
+    const beforeCancelled = (await scene("front")).layers.find(l => l.id === selectedImage.id);
+    const latest = await object.boundingBox();
+    await page.mouse.move(latest.x + latest.width / 2, latest.y + latest.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(latest.x + latest.width / 2 + 22, latest.y + latest.height / 2 - 14, { steps: 4 });
+    await page.keyboard.press("Escape");
+    await page.mouse.up();
+    const cancelled = (await scene("front")).layers.find(l => l.id === selectedImage.id);
+    expect(cancelled.x).toBeCloseTo(beforeCancelled.x, 5);
+    expect(cancelled.y).toBeCloseTo(beforeCancelled.y, 5);
+
     // Font browsing selects real local fonts from different scripts; text survives shaping and saving.
     await shell.locator("[data-ws-tool=text]").click();
     await shell.locator("[data-ws-add-text=body]").first().click();
