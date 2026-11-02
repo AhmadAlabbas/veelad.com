@@ -107,6 +107,7 @@ function productDiscovery(p) {
 
 function productInformation(p) {
  const rows=[['Product',t(p.category)],['Materials',localField(p,'materials')||t('Details not added yet.')],['Dimensions / fit',localField(p,'dimensions')||t('Details not added yet.')],['Available options',(p.variants||[]).map(value=>localVariant(p,value)).join(currentLanguage()==='ar'?'، ':t(', '))],['Care instructions',localField(p,'care_instructions')||t('Details not added yet.')]];
+ for(const key of ['color','material','fit','occasion']){const selected=p.discovery_attributes?.[key];if(selected&&verifiedFacetLabels[key]?.values[selected])rows.push([verifiedFacetName(key),verifiedFacetLabel(key,selected)]);}
  return `<dl class="product-specs">${rows.map(([name,value])=>`<div><dt>${esc(t(name))}</dt><dd>${esc(value)}</dd></div>`).join('')}</dl>`;
 }
 function deliveryInformation(){return destinationDeliveryInformation();}
