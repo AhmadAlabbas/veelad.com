@@ -57,7 +57,7 @@
  .global-nav .header-region .destination-flag{width:24px;height:18px}
  .global-nav .header-chevron{
   display:inline-block;flex:0 0 7px;width:7px;height:7px;
-  border-inline-end:1.75px solid currentColor;border-bottom:1.75px solid currentColor;
+  border-right:1.75px solid currentColor;border-bottom:1.75px solid currentColor;
   transform:translateY(-2px) rotate(45deg);
   transition:transform .15s ease;
  }
@@ -71,13 +71,13 @@
  .global-nav .header-region .international-selectors label{display:flex;align-items:center;position:relative;padding-inline:2px}
  .global-nav .header-region .international-selectors label::after{
   content:"";pointer-events:none;position:absolute;inset-inline-end:10px;top:50%;
-  width:6px;height:6px;border-inline-end:1.75px solid #332b46;
+  width:6px;height:6px;border-right:1.75px solid #332b46;
   border-bottom:1.75px solid #332b46;transform:translateY(-70%) rotate(45deg);
  }
  .global-nav .header-region .international-selectors label+label{border-inline-start:1px solid #e6e3ea}
  .global-nav .header-region .international-selectors select{
   -webkit-appearance:none;appearance:none;
-  min-height:38px;height:38px;padding:5px 20px 5px 7px;
+  min-height:38px;height:38px;padding-block:5px;padding-inline-start:7px;padding-inline-end:20px;
   max-width:92px;min-width:66px;
   border:0!important;box-shadow:none!important;outline-offset:0;
   border-radius:3px;background:none!important;
@@ -145,7 +145,7 @@
  /* Keep the existing mobile grid and locale controls. */
  .global-nav .header-region{display:contents}
  .global-nav .header-create-menu,.global-nav .nav-actions .partners-nav-link{display:none!important}
- .global-nav .destination-control>.header-chevron{display:none}
+ .global-nav .destination-control>.header-chevron{display:inline-block}
 }
 @media(prefers-reduced-motion:reduce){
  .global-nav .global-search,.global-nav .header-chevron{transition:none}
@@ -166,6 +166,15 @@
  .global-nav .header-region .international-selectors label:hover{background:#f7f5fb;border-radius:6px}
  .global-nav .header-region .international-selectors select:focus-visible{outline:2px solid #8872d9}
  /* Match arrows in LTR and RTL without platform-native boxed select appearance. */
- html[dir=rtl] .global-nav .header-region .international-selectors select{padding-inline:20px 7px}
+ html[dir=rtl] .global-nav .header-region .international-selectors select{padding-inline-start:7px;padding-inline-end:20px}
  html[dir=rtl] .global-nav .header-region .international-selectors label::after{transform:translateY(-70%) rotate(45deg)}
+}
+
+/* Mobile delivery keeps the same visible chevron rather than an empty space. */
+@media (max-width:760px){
+ .global-nav .destination-control>.header-chevron{
+  display:inline-block;flex:0 0 7px;width:7px;height:7px;
+  border-right:1.75px solid currentColor;border-bottom:1.75px solid currentColor;
+  transform:translateY(-2px) rotate(45deg);margin-inline-start:4px;
+ }
 }
