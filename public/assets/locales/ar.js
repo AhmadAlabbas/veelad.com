@@ -3,6 +3,7 @@
 window.VEELAD_LOCALES = window.VEELAD_LOCALES || {};
 window.VEELAD_LOCALES.ar = Object.freeze({
   "Create": "أنشئ",
+  "Create together": "صمّم معًا",
   "Connect with Veelad": "فيلاد على السوشال",
   "Our social links are coming soon.": "قريبًا نشارككم حساباتنا.",
   "Opens in a new tab": "يفتح في تبويب جديد",
