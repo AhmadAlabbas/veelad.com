@@ -83,12 +83,14 @@ test('legacy hash bookmarks translate into localized URLs and demo keeps hash na
  browser.context.mode='demo';browser.location.hash='#/product?id=design-1&lang=en&variant=S';await vm.runInContext("switchLanguage('ar')",browser.context);assert.equal(browser.location.pathname,'/ar/shop');assert.ok(browser.location.hash.includes('id=design-1'));assert.ok(browser.location.hash.includes('variant=S'));assert.ok(browser.location.hash.includes('lang=ar'));assert.equal(vm.runInContext('currentPage().route',browser.context),'product');assert.equal(browser.state.language,'ar');
 });
 
-test('localized homepages are crawlable, clothing-focused and carry WebSite schema',async()=>withPages('production',async base=>{
+test('localized homepages have crawlable no-JavaScript fallback, clothing-focused metadata and WebSite schema',async()=>withPages('production',async base=>{
  for(const lang of ['en','ar','zh-CN']){
   const response=await fetch(base+'/'+lang),html=await response.text();
   assert.equal(response.status,200);
   assert.ok(html.includes('<title>'+pageTranslations[lang].storeTitle.replace(/&/g,'&amp;')+'</title>'));
-  assert.ok(html.includes('<div id="app"><main id="main" class="container section">'));
+  assert.ok(html.includes('<div id="app"><div class="store-loading"'));
+  assert.ok(html.includes('<noscript><style>.store-loading{display:none}</style><main id="main" class="container section">'));
+  assert.ok(!html.includes('<div id="app"><main'));
   assert.ok(html.includes('<h1 id="veelad-home-title">'+pageTranslations[lang].storeHeadline+'</h1>'));
   assert.ok(html.includes(pageTranslations[lang].storeDescription));
   assert.ok(html.includes('rel="canonical" href="https://veelad.example/'+lang+'"'));
@@ -101,11 +103,13 @@ test('localized homepages are crawlable, clothing-focused and carry WebSite sche
   assert.equal(site['@graph'][1].inLanguage,lang);
  }
 }));
-test('staging homepage remains unindexable even when pre-rendered',async()=>withPages('staging',async base=>{
+test('staging homepage keeps noindex and no-JavaScript fallback without a flash',async()=>withPages('staging',async base=>{
  for(const lang of ['en','ar','zh-CN']){
   const html=await (await fetch(base+'/'+lang)).text();
   assert.ok(html.includes('name="robots" content="noindex, nofollow"'));
-  assert.ok(html.includes('<div id="app"><main'));
+  assert.ok(html.includes('<div id="app"><div class="store-loading"'));
+  assert.ok(html.includes('<noscript><style>.store-loading{display:none}</style><main id="main"'));
+  assert.ok(!html.includes('<div id="app"><main'));
  }
  const robots=await (await fetch(base+'/robots.txt')).text();
  assert.ok(robots.includes('Disallow: /'));
