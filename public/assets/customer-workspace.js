@@ -157,7 +157,7 @@ const libraryPanel=document.createElement("section");
     selected=layers().some(layer=>layer.id===layerId)?layerId:null;
     shell.dataset.selectedLayer=selected||"";
     renderSelection();renderLayerList();renderInspector();
-    renderPreviewSelection();
+    renderPlacementControls();renderPreviewSelection();
     if(focus)(mode==="preview"?previewOverlay:artboard).focus({preventScroll:true});
   }
   function switchTool(value){
