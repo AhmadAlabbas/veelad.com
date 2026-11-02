@@ -26,6 +26,29 @@ test('approved desktop header: generous search, grouped locale, visible Partners
    }
    const selects=await header.locator('.header-region select').evaluateAll(nodes=>nodes.map(n=>getComputedStyle(n).borderTopWidth));
    expect(selects).toEqual(['0px','0px']);
+   const arrowChecks=await header.evaluate(element=>{
+    const label=element.querySelector('.header-region .international-selectors label');
+    const caret=element.querySelector('.header-create-menu .header-menu-caret');
+    const country=element.querySelector('.destination-control>span:last-child');
+    const control=element.querySelector('[data-international-language]');
+    const edge=node=>getComputedStyle(node,'::after').borderBottomWidth;
+    return {nativeAppearance:getComputedStyle(control).appearance,
+      languageArrow:edge(label),createArrow:edge(caret),countryArrow:edge(country),
+      languageWidth:control.getBoundingClientRect().width};
+   });
+   expect(arrowChecks.nativeAppearance).toBe('none');
+   expect(arrowChecks.languageArrow).toBe('1.7px');
+   expect(arrowChecks.createArrow).toBe('1.7px');
+   expect(arrowChecks.countryArrow).toBe('1.7px');
+   expect(arrowChecks.languageWidth).toBeGreaterThanOrEqual(62);
+   const menuSpacing=await header.evaluate(element=>{
+    const create=element.querySelector('.header-create-menu summary').getBoundingClientRect();
+    const partners=element.querySelector('.partners-nav-link').getBoundingClientRect();
+    const region=element.querySelector('.header-region').getBoundingClientRect();
+    return {createPartnersGap:partners.left-create.right,regionCreateGap:create.left-region.right};
+   });
+   expect(menuSpacing.createPartnersGap).toBeGreaterThanOrEqual(0);
+   expect(menuSpacing.regionCreateGap).toBeGreaterThanOrEqual(0);
    await header.locator('.header-create-menu summary').click();
    await expect(header.locator('.header-create-options a')).toHaveCount(2);
    await expect(header.locator('.header-create-options a[href*="/sell"]')).toBeVisible();
