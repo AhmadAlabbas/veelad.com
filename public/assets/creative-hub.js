@@ -40,11 +40,25 @@ window.VeeladCreative = (() => {
   }
   function navigation() {
     const links = [
-      ['creative','Discover','اكتشف','star'],['creative/story','Your story','حكايتك','edit'],['creative/gifts','Gift studio','استوديو الهدايا','bag'],['creative/templates','Artist layouts','قوالب الفنانين','palette'],['creative/rooms','Design together','صمّموا سوا','partnership'],['creative/taste','Your taste','ذوقك','heart'],['creative/wishes','Wish board','لوحة الأفكار','plus'],['creative/stories','Behind the design','وراء التصميم','image'],['creative/sample-room','Sample room','غرفة المعاينة','package']
+      ['creative','Discover','اكتشف','star'],['creative/originals','Veelad Originals','تصاميم فيلاد','palette'],['creative/story','Your story','حكايتك','edit'],['creative/gifts','Gift studio','استوديو الهدايا','bag'],['creative/templates','Artist layouts','قوالب الفنانين','palette'],['creative/rooms','Design together','صمّموا سوا','partnership'],['creative/taste','Your taste','ذوقك','heart'],['creative/wishes','Wish board','لوحة الأفكار','plus'],['creative/stories','Behind the design','وراء التصميم','image'],['creative/sample-room','Sample room','غرفة المعاينة','package']
     ];
     return `<nav class="creative-navigation container" aria-label="${say('Creative experiences','مساحات الإبداع')}">${links.map(([route,en,ar,symbol]) => `<a href="${href(route)}" ${activeRoute === route || activeRoute.startsWith(route + '/') && route !== 'creative' ? 'aria-current="page"' : ''}>${icon(symbol)}<span>${say(en,ar)}</span></a>`).join('')}</nav>`;
   }
   function shell(content, extra = '') { return `<main id="main" class="creative-page ${extra}">${navigation()}${content}</main>`; }
+  function originalDropsPage(params){
+    const api=window.VeeladOriginalDrops;
+    if(!api)return shell('<section class="container section"><p>Originals gallery unavailable.</p></section>');
+    const wanted=params.get('collection')||'';
+    const selected=api.collections.some(item=>item.id===wanted)?wanted:'';
+    const lang=currentLanguage();
+    const value=(row)=>lang==='ar'?row.ar:lang==='zh-CN'?row.zh:row.title||row.name;
+    const collections=[{id:'',title:'All collections',ar:'كل المجموعات',zh:'全部系列'},...api.collections];
+    const rows=api.search('',selected);
+    const tabs=collections.map(row=>'<a href="'+href('creative/originals',row.id?{collection:row.id}:{})+'" '+(selected===row.id?'aria-current="page"':'')+'>'+e(value(row))+'</a>').join('');
+    const cards=rows.map(row=>'<a class="originals-page-card" href="'+href('create',{drop:row.id})+'" aria-label="'+e(value(row)+' · '+say('Open in Design Studio','افتح في استوديو التصميم'))+'"><span class="originals-card-art">'+api.svg(row.id)+'</span><span class="originals-card-copy"><strong>'+e(value(row))+'</strong><small>'+e(row.slogan)+'</small><span>'+e(say('Customise this design','خصّص هذا التصميم'))+'</span></span></a>').join('');
+    const heading=selected?value(api.collections.find(row=>row.id===selected)):say('Originals, made to become yours.','تصاميم أصلية، خلّها على ذوقك.');
+    return shell('<section class="container originals-page"><header class="originals-page-header"><p class="originals-eyebrow">VEELAD ORIGINALS · EDITION 02</p><h1>'+e(heading)+'</h1><p>'+e(say('Explore 48 original graphic concepts across eight curated collections. Every design opens in the Studio for you to adjust the colours, edit the headline and make it your own.','استكشف ٤٨ فكرة فنية أصلية ضمن ثماني مجموعات. افتح أي تصميم في الاستوديو لتعديل الألوان والكلمات كما تحب.'))+'</p><p class="originals-page-note">'+e(say('These are editable concepts, not published products. No price or physical print sample is promised.','هذه أفكار قابلة للتعديل وليست منتجات منشورة للبيع. الأسعار وعينات الطباعة غير مؤكدة.'))+'</p></header><nav class="originals-collections" aria-label="'+e(say('Design collections','مجموعات التصاميم'))+'">'+tabs+'</nav><div class="originals-page-grid">'+cards+'</div><p class="originals-page-footer">'+e(say('Designed for exploration. Production specifications, fulfilment and pricing must be approved before selling.','تصاميم للاستكشاف والتجربة. لا تُعرض للبيع قبل اعتماد مواصفات الطباعة والتجهيز والتسعير.'))+'</p></section>','has-originals-gallery');
+  }
   function signIn(next = activeRoute) {
     return `<section class="container creative-signin">${title(say('ONE ACCOUNT. YOUR WHOLE CREATIVE WORLD.','حساب واحد، لكل أفكارك.'),say('Make room for your next idea.','خلّ لفكرتك مكان.'),say('Sign in to keep your briefs private, save your taste and create with the community.','سجّل دخولك عشان تحفظ أفكارك بخصوصية، وتختار اللي يناسب ذوقك، وتشارك في المجتمع.'))}<div class="creative-actions">${anchor(say('Sign in','تسجيل الدخول'),'login','btn',{next})}${anchor(say('Create an account','إنشاء حساب'),'register','btn outline',{next})}</div></section>`;
   }
@@ -52,7 +66,8 @@ window.VeeladCreative = (() => {
     const experiences = [
       ['01','creative/story','A story only you can tell.','حكاية ما تشبه إلا حكايتك.','A memory, an inside joke, a person you love. Find a thoughtful starting point and make it yours.','ذكرى، نكتة بينكم، أو شخص غالي. نرتّب فكرتك في بداية جميلة، وتكملها بطريقتك.','edit','lilac'],
       ['02','creative/gifts','Better than “what should I get?”','هدية تقول: أعرفك.','Start with the person and the feeling. Discover products and personal touches that make sense together.','ابدأ بالشخص والإحساس اللي تبي توصّله. واكتشف منتجات ولمسات شخصية تناسب بعض.','bag','peach'],
-      ['03','creative/templates','An artist’s eye. Your finishing touch.','لمسة فنان، وبصمتك أنت.','Discover original layouts with artist-approved spaces for your words, names and moments.','قوالب أصلية يحدد فيها الفنان مساحة لكلماتك وأسمائك ولحظاتك.','palette','green'],
+      ['03','creative/originals','The Originals: 48 graphic stories.','تصاميم فيلاد الأصلية: ٤٨ فكرة فنية.','Explore new first-party illustrations and open your favourites in the Design Studio.','اكتشف الرسومات الأصلية الجديدة وخصّص ما يعجبك في استوديو التصميم.','image','rose'],
+      ['04','creative/templates','An artist’s eye. Your finishing touch.','لمسة فنان، وبصمتك أنت.','Discover original layouts with artist-approved spaces for your words, names and moments.','قوالب أصلية يحدد فيها الفنان مساحة لكلماتك وأسمائك ولحظاتك.','palette','green'],
       ['04','creative/rooms','Good ideas love company.','أحلى الأفكار، نطلعها سوا.','Invite your people into a private design room. Share ideas, vote and agree on the final direction.','اجمع ناسك في غرفة خاصة. تبادلوا الأفكار، وصوّتوا، واتفقوا على الشكل الأخير.','partnership','blue'],
       ['05','creative/taste','A corner of Veelad that feels like you.','ركن في فيلاد، على ذوقك.','Choose a few visual favourites. Your saved preferences help shape useful recommendations.','اختر اللي يلفت نظرك. نحفظ تفضيلاتك بإذنك عشان نقرّب لك الاختيارات اللي تحبها.','heart','rose'],
       ['06','creative/wishes','“I wish someone made this.”','«يا ليت أحد يصمّمها».','Put your idea into the world. Follow the ones you love and see how artists respond.','شارك الفكرة اللي تتمنى تشوفها. تابع اللي يعجبك، وشوف كيف يرد عليها الفنانون.','plus','yellow'],
@@ -184,6 +199,7 @@ window.VeeladCreative = (() => {
       if(user?.role!=='admin')throw Error(say('Administrator access is required.','هالمساحة للمسؤولين فقط.'));
       data.admin=await api('admin-creative');return administration();
     }
+    if(route==='creative/originals')return originalDropsPage(params);
     data.discover=await api('creative-discover');
     const id=params.get('id')||route.split('/')[2];
     if(route==='creative')return landing();
