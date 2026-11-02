@@ -127,3 +127,19 @@
 .checkout-review-list span,.checkout-review-list small{font-size:11px;color:#71717a}
 .checkout-review-list b{font-size:12px;font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums}
 @media(max-width:760px){.shop-theme-navigation{margin:16px 0 22px;padding:15px 14px;border-radius:14px}.shop-theme-heading{align-items:start;flex-direction:column;gap:4px}.shop-theme-links{flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-inline:contain;scroll-snap-type:x proximity;scrollbar-width:thin;padding:3px 1px 8px}.shop-theme-chip{flex:0 0 auto;scroll-snap-align:start;min-height:44px}}
+
+
+/* Phase 2 checkout progression, high-contrast and usable at 320px and RTL. */
+.checkout-journey{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;align-items:center;margin:0 0 26px;max-width:660px}
+.checkout-journey>a,.checkout-journey>span{display:flex;align-items:center;gap:9px;min-width:0;padding:12px 11px;border-bottom:2px solid #e4e4e7;color:#71717a;font-size:12px;text-decoration:none}
+.checkout-journey [aria-current=step]{color:#18181b;border-color:#18181b;font-weight:700}
+.checkout-journey a:hover{color:#18181b;border-color:#a1a1aa}
+.checkout-journey a:focus-visible{outline:3px solid #71717a;outline-offset:3px}
+.checkout-journey>a>span,.checkout-journey>span>span{border:1px solid currentColor;border-radius:50%;width:28px;height:28px;flex:0 0 28px;display:grid;place-items:center;font-size:10px}
+@media(max-width:760px){
+ .checkout-journey{max-width:none;gap:2px;margin-bottom:18px}
+ .checkout-journey>a,.checkout-journey>span{font-size:10px;gap:6px;padding:10px 4px}
+ .checkout-journey>a>span,.checkout-journey>span>span{width:25px;height:25px;flex-basis:25px;font-size:9px}
+ .shopping-filter-form select{width:100%}
+}
+@media(max-width:350px){.checkout-journey>a,.checkout-journey>span{font-size:9px;gap:4px}.checkout-journey>a>span,.checkout-journey>span>span{width:23px;height:23px;flex-basis:23px}}
