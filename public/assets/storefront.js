@@ -191,6 +191,21 @@ function socialMediaFooter(){
 }
 function socialMediaFields(){return `<fieldset class="social-settings"><legend>${t('Social media')}</legend><p class="small">${t('Add your official profile links when ready. Empty fields show an inactive icon in the footer.')}</p><div class="form-grid">${footerSocialPlatforms.map(([id,name])=>field(name,'social_'+id,settings.social_links?.[id]||'','url','maxlength="500" dir="ltr" placeholder="https://"')).join('')}</div></fieldset>`;}
 
-// Keep the native, keyboard-operable Create menu from obscuring search or other controls.
-document.addEventListener('click',event=>{const menu=document.querySelector('.header-create-menu[open]');if(menu&&!menu.contains(event.target))menu.open=false;});
-document.addEventListener('keydown',event=>{if(event.key!=='Escape')return;const menu=document.querySelector('.header-create-menu[open]');if(menu){menu.open=false;menu.querySelector('summary')?.focus();}});
+// All header popovers use the same outside-click and Escape behavior.
+document.addEventListener('click',event=>{
+ for(const menu of document.querySelectorAll('.global-nav .header-create-menu[open],.global-nav .header-preference-menu[open]')){
+  if(!menu.contains(event.target))menu.open=false;
+ }
+});
+document.addEventListener('toggle',event=>{
+ const opened=event.target;
+ if(!opened?.matches?.('.global-nav .header-create-menu[open],.global-nav .header-preference-menu[open]'))return;
+ for(const menu of document.querySelectorAll('.global-nav .header-create-menu[open],.global-nav .header-preference-menu[open]')){
+  if(menu!==opened)menu.open=false;
+ }
+},true);
+document.addEventListener('keydown',event=>{
+ if(event.key!=='Escape')return;
+ const menu=document.querySelector('.global-nav .header-create-menu[open],.global-nav .header-preference-menu[open]');
+ if(menu){menu.open=false;menu.querySelector('summary')?.focus();}
+});

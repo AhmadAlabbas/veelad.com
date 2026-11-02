@@ -1,4 +1,5 @@
 import {test,expect} from '@playwright/test';
+import {chooseHeaderPreference} from '../helpers/header-preferences.js';
 import {journalFixture,journalPassword} from '../helpers/journal-app.js';
 import {refreshExchangeRates} from '../../src/international.js';
 import {CURRENCIES,convertMinor,formatMinor} from '../../public/assets/currency-core.js';
@@ -15,18 +16,18 @@ async function fixture(){
  await f.db.q('UPDATE products SET data=? WHERE id=?',[JSON.stringify(product),'p1']);
  return {...f,product};
 }
-async function ready(page){await expect(page.locator('[data-international-language]').first()).toBeVisible();await page.evaluate(()=>document.fonts.ready);}
+async function ready(page){await expect(page.locator('.global-nav [data-preference-menu=language] summary')).toBeVisible();await page.evaluate(()=>document.fonts.ready);}
 async function fits(page){expect(await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth}))).toEqual(expect.objectContaining({scroll:expect.any(Number)}));expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);}
 test('all 27 language/currency combinations retain the product and use the expected localized estimate',async({page},info)=>{
  test.setTimeout(120000);const f=await fixture(),errors=[];page.on('pageerror',error=>errors.push(error.message));
  try{
   await page.goto(f.origin+'/en/products/p1');await ready(page);
   for(const lang of ['en','ar','zh-CN']){
-   await page.locator('[data-international-language]').first().selectOption(lang);
+   await chooseHeaderPreference(page,'language',lang);
    await expect(page).toHaveURL(new RegExp('/'+lang+'/products/p1$'));
    await expect(page.locator('html')).toHaveAttribute('dir',lang==='ar'?'rtl':'ltr');
    for(const currency of Object.keys(CURRENCIES)){
-    await page.locator('[data-international-currency]').first().selectOption(currency);
+    await chooseHeaderPreference(page,'currency',currency);
     await expect(page.locator('[data-international-currency]').first()).toHaveValue(currency);
     await expect.poll(()=>page.evaluate(()=>window.VeeladInternational.active())).toBe(currency);
     const expected=formatMinor(convertMinor(f.product.price,currency,String(rates[currency])),currency,lang);
@@ -52,12 +53,12 @@ test('currency and language switching retain a cart and unfinished checkout with
   const before=await page.evaluate(()=>localStorage.getItem('veelad-v2-cart'));
   await page.goto(f.origin+'/en/checkout');await ready(page);
   const checkout=page.locator('#checkout-form');await checkout.locator('[name=name]').fill('Test customer');await checkout.locator('[name=email]').fill('checkout@example.test');await checkout.locator('[name=address]').fill('Test street 42');await checkout.locator('[name=city]').fill('Riyadh');await checkout.locator('[name=postal]').fill('12345');await checkout.locator('[name=phone]').fill('+966500000001');await checkout.locator('[name=consent]').check();
-  await page.locator('[data-international-currency]').first().selectOption('KWD');
+  await chooseHeaderPreference(page,'currency','KWD');
   await expect(checkout.locator('[name=address]')).toHaveValue('Test street 42');await expect(checkout.locator('[name=consent]')).toBeChecked();
   await expect(page.locator('.summary-card .international-notice')).toContainText('Order amount:');await expect(page.locator('.summary-card .international-notice')).toContainText('SAR');
-  await page.locator('[data-international-language]').first().selectOption('zh-CN');await expect(page).toHaveURL(/\/zh-CN\/checkout$/);await expect(checkout.locator('[name=name]')).toHaveValue('Test customer');await expect(checkout.locator('[name=address]')).toHaveValue('Test street 42');await expect(checkout.locator('[name=consent]')).toBeChecked();await expect(page.locator('[data-international-currency]').first()).toHaveValue('KWD');
+  await chooseHeaderPreference(page,'language','zh-CN');await expect(page).toHaveURL(/\/zh-CN\/checkout$/);await expect(checkout.locator('[name=name]')).toHaveValue('Test customer');await expect(checkout.locator('[name=address]')).toHaveValue('Test street 42');await expect(checkout.locator('[name=consent]')).toBeChecked();await expect(page.locator('[data-international-currency]').first()).toHaveValue('KWD');
   expect(await page.evaluate(()=>localStorage.getItem('veelad-v2-cart'))).toBe(before);await fits(page);await page.screenshot({path:info.outputPath('international-checkout-zh-CN.png'),fullPage:true});
-  await page.locator('[data-international-language]').first().selectOption('ar');await expect(page.locator('html')).toHaveAttribute('dir','rtl');await expect(checkout.locator('[name=address]')).toHaveValue('Test street 42');await expect(page.locator('[data-international-currency]').first()).toHaveValue('KWD');await fits(page);
+  await chooseHeaderPreference(page,'language','ar');await expect(page.locator('html')).toHaveAttribute('dir','rtl');await expect(checkout.locator('[name=address]')).toHaveValue('Test street 42');await expect(page.locator('[data-international-currency]').first()).toHaveValue('KWD');await fits(page);
   expect(errors).toEqual([]);
  }finally{await page.goto('about:blank').catch(()=>{});await f.close();}
 });
@@ -65,7 +66,7 @@ test('authenticated currency preferences survive a new browser session and admin
  test.setTimeout(90000);const f=await fixture();let other;
  try{
   await page.goto(f.origin+'/en/login');await ready(page);await page.evaluate(async password=>api('login',{email:'buyer@journal.example.test',password}),journalPassword);await page.goto(f.origin+'/en/shop');await ready(page);
-  await page.locator('[data-international-currency]').first().selectOption('EUR');await expect.poll(async()=>{const response=await f.users.buyer('bootstrap');return response.body.currency;}).toBe('EUR');
+  await chooseHeaderPreference(page,'currency','EUR');await expect.poll(async()=>{const response=await f.users.buyer('bootstrap');return response.body.currency;}).toBe('EUR');
   other=await browser.newContext({viewport:page.viewportSize()});const returning=await other.newPage();await returning.goto(f.origin+'/en/login');await ready(returning);await returning.evaluate(async password=>api('login',{email:'buyer@journal.example.test',password}),journalPassword);await returning.goto(f.origin+'/en/shop');await ready(returning);await expect(returning.locator('[data-international-currency]').first()).toHaveValue('EUR');
   await page.evaluate(()=>api('logout',{}));await page.goto(f.origin+'/en/login');await ready(page);await page.evaluate(async password=>api('login',{email:'admin@journal.example.test',password}),journalPassword);await page.goto(f.origin+'/en/admin?tab=international');await expect(page.locator('[data-international-settings]')).toBeVisible();await fits(page);await page.screenshot({path:info.outputPath('international-admin.png'),fullPage:true});
  }finally{await other?.close();await page.goto('about:blank').catch(()=>{});await f.close();}
