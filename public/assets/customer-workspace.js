@@ -1041,4 +1041,13 @@ shell.addEventListener("dragstart",event=>{
   shell.dataset.panelOpen="true";shell.dataset.mode="edit";shell.dataset.tool="uploads";
   record();refresh();initFonts();
   if(window.VeeladElements){renderElements();renderProLayouts();}
+  // A public Originals gallery link opens this design in the filtered gallery.
+  // Never silently overwrite an existing draft or add layers without consent.
+  const requestedDrop=new URLSearchParams(location.search).get('drop');
+  const featuredDrop=window.VeeladOriginalDrops?.find(requestedDrop);
+  if(featuredDrop){
+    originalCollection=featuredDrop.collection;
+    originalQuery=featuredDrop.name;
+    switchTool('layouts');
+  }
 }
