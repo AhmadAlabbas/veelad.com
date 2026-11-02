@@ -84,6 +84,13 @@ const libraryPanel=document.createElement("section");
   copyControls.className="cw-copy-controls";
   copyControls.innerHTML=`<button type="button" class="cw-copy-side" data-ws-copy-side hidden>${workspaceIcon("duplicate")}<span></span></button><div class="cw-copy-confirm" data-ws-copy-confirm hidden><p>${esc(typeof currentLanguage==="function"&&currentLanguage()==="ar"?"تبغى تستبدل تصميم هالجهة؟ تقدر تتراجع بعدها.":"Replace this side with the other design? You can undo this change.")}</p><button type="button" class="cw-button cw-button-primary" data-ws-confirm-copy>${esc(typeof currentLanguage==="function"&&currentLanguage()==="ar"?"انسخ التصميم":"Copy design")}</button><button type="button" class="cw-button" data-ws-cancel-copy>${esc(t("Cancel"))}</button></div>`;
   shell.querySelector(".cw-stage-toolbar").insertBefore(copyControls,shell.querySelector(".cw-zoom-control"));
+  // Garment placement is a pure positioning aid, not a supplier template.
+  // Keep the surface guide available in both flat and mockup modes.
+  const placementControls=document.createElement("details");
+  placementControls.className="cw-placement-assistant";
+  placementControls.innerHTML='<summary>'+esc(tr("Placement assistant"))+'</summary><div class="cw-placement-assistant-body"><p>'+esc(tr("Choose a starting position, then fine-tune with the mouse. Safe bounds are provisional."))+'</p><div data-ws-placement-presets class="cw-placement-preset-list"></div><div class="cw-placement-utility"><button type="button" data-ws-fit-safe>'+esc(tr("Fit selected layer inside safe area"))+'</button><button type="button" data-ws-copy-layer>'+esc(tr("Copy selected layer to opposite side"))+'</button></div></div>';
+  copyControls.after(placementControls);
+
   const originalVisual=root.querySelector(".studio-workspace > .studio-visual");
   if (originalVisual) shell.querySelector("[data-ws-preview-pane]").append(originalVisual);
   // The interactive preview covers the actual 1000x1000 projected garment
@@ -362,6 +369,50 @@ const libraryPanel=document.createElement("section");
     position(selection,layer);selection.dataset.locked=String(!!layer.locked);
     selection.querySelectorAll("button").forEach(button=>button.hidden=!!layer.locked||(layer.type==="text"&&button.dataset.wsHandle?.length===1));
   }
+  function renderPlacementControls(){
+    const helper=window.VeeladPlacementAssistant;
+    if(!helper)return;
+    const type=instance.product().id,side=adapter.surface(),language=currentLanguage();
+    const key=type+':'+side+':'+language;
+    const list=placementControls.querySelector('[data-ws-placement-presets]');
+    if(list.dataset.key!==key){
+      list.innerHTML=helper.list(type,side).map(p=>'<button type="button" data-ws-placement-preset="'+esc(p.id)+'">'+esc(helper.title(p,language))+'</button>').join('');
+      list.dataset.key=key;
+    }
+    const layer=current(),canMove=!!layer&&!layer.locked;
+    list.querySelectorAll('button').forEach(button=>button.disabled=!canMove);
+    placementControls.querySelector('[data-ws-fit-safe]').disabled=!canMove;
+    const opposite=side==='front'?'back':'front',
+      dest=instance.state.scenes?.[type]?.[opposite],copy=placementControls.querySelector('[data-ws-copy-layer]');
+    copy.hidden=type!=='shirt';
+    copy.disabled=!layer||!!dest&&dest.layers.length>=24||totalLayers()>=120;
+    placementControls.dataset.surface=side;
+  }
+  function placeSelectedArtwork(key){
+    const layer=current(),helper=window.VeeladPlacementAssistant;
+    if(!layer||layer.locked||!helper)return;
+    const d=logical(),size=dimensions(layer),
+      updated=helper.apply(layer,key,{width:size.width/d.width,height:size.height/d.height},
+        d.height/d.width,instance.product().id,adapter.surface());
+    if(!updated){setStatus("This layer cannot fit that print region. Reduce the size first.",true);return;}
+    Object.assign(layer,updated);
+    commit();
+    setStatus("Artwork positioned within the provisional safe area.");
+  }
+  function copySelectedLayerToOppositeSide(){
+    const layer=current(),type=instance.product().id,side=adapter.surface();
+    if(type!=='shirt'||!layer)return;
+    const targetSide=side==='back'?'front':'back';
+    instance.state.scenes ||= {};
+    instance.state.scenes.shirt ||= {};
+    const target=instance.state.scenes.shirt[targetSide]||={background:'transparent',layers:[]};
+    if(target.layers.length>=24||totalLayers()>=120){
+      setStatus("The opposite side has reached the layer limit.",true);return;
+    }
+    target.layers.push({...cloneState(layer),id:uid()});
+    commit();
+    setStatus("Selected layer copied. Switch sides to position it independently.");
+  }
   function renderSurfaces(){
     const surfaces=adapter.surfaces(),active=adapter.surface(),key=surfaces.map(s=>s.id+":"+s.label).join("|");
     const node=shell.querySelector("[data-ws-surfaces]");
@@ -374,6 +425,7 @@ const libraryPanel=document.createElement("section");
     copy.dataset.source=other?.id||"";
     copy.querySelector("span").textContent=typeof currentLanguage==="function"&&currentLanguage()==="ar"?(other?.id==="front"?"انسخ تصميم الأمام":"انسخ تصميم الخلف"):(other?.id==="front"?"Copy front design":"Copy back design");
     copyControls.querySelector("[data-ws-copy-confirm]").hidden=true;
+    renderPlacementControls();
   }
 function renderElements(){
     const api=window.VeeladElements,pro=window.VeeladStudioPro,list=shell.querySelector("[data-ws-element-list]");
@@ -815,6 +867,9 @@ function renderElements(){
     else if(button.hasAttribute("data-ws-focus"))setFocus(!focused);
     else if(button.hasAttribute("data-ws-surface")){adapter.setSurface(button.dataset.wsSurface);selected=null;commit();}
     else if(button.hasAttribute("data-ws-copy-side"))copyOtherSide();
+    else if(button.hasAttribute("data-ws-placement-preset"))placeSelectedArtwork(button.dataset.wsPlacementPreset);
+    else if(button.hasAttribute("data-ws-fit-safe"))placeSelectedArtwork("safe-fit");
+    else if(button.hasAttribute("data-ws-copy-layer"))copySelectedLayerToOppositeSide();
     else if(button.hasAttribute("data-ws-confirm-copy"))copyOtherSide(true);
     else if(button.hasAttribute("data-ws-cancel-copy"))copyControls.querySelector("[data-ws-copy-confirm]").hidden=true;
     else if(button.hasAttribute("data-ws-choose-files"))shell.querySelector("[data-ws-upload]").click();
