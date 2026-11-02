@@ -138,8 +138,11 @@ const libraryPanel=document.createElement("section");
     if(direction<0&&history.length<2||direction>0&&!future.length)return;
     if(direction<0){future.push(history.pop());}else history.push(future.pop());
     restoring=true;
+    const previouslySelected=selected;
     Object.assign(instance.state,JSON.parse(history.at(-1)));
-    selected=null;lastHistoryGroup=null;
+    // Undo and redo should not discard the selection when that layer survives.
+    selected=layers().some(layer=>layer.id===previouslySelected)?previouslySelected:null;
+    lastHistoryGroup=null;
     instance.syncControls?.();adapter.commit({history:false});refresh();restoring=false;updateHistory();
   }
   function selectLayer(layerId,{focus=false}={}){
@@ -596,7 +599,10 @@ function renderElements(){
     else if(name==="centre-y")layer.y=.5;
     else if(["safe-left","safe-right","safe-top","safe-bottom"].includes(name)){
       const size=dimensions(layer),d=logical(),margin=.085;
-      const w=Math.min(.5,size.width/(d.width*2)),h=Math.min(.5,size.height/(d.height*2));
+      // Safe alignment uses the rotated bounding box seen by the customer.
+      const angle=(Number(layer.rotation)||0)*Math.PI/180,c=Math.abs(Math.cos(angle)),s=Math.abs(Math.sin(angle));
+      const w=Math.min(.5,(size.width*c+size.height*s)/(d.width*2));
+      const h=Math.min(.5,(size.height*c+size.width*s)/(d.height*2));
       if(name==="safe-left")layer.x=clamp(margin+w,0,1);
       else if(name==="safe-right")layer.x=clamp(1-margin-w,0,1);
       else if(name==="safe-top")layer.y=clamp(margin+h,0,1);
@@ -655,7 +661,13 @@ function renderElements(){
     if(!point)return;
     if(g.kind==="move"){
       layer.x=clamp(o.x+(point.x-g.point.x)/d.width,0,1);layer.y=clamp(o.y+(point.y-g.point.y)/d.height,0,1);
-      const useSnap=shell.querySelector("[data-ws-snap]").checked;
+      // Shift locks to one logical axis in both flat and product-preview modes.
+      // Alt bypasses magnetic guides without changing the stored preference.
+      if(event.shiftKey){
+        if(Math.abs(point.x-g.point.x)>=Math.abs(point.y-g.point.y))layer.y=o.y;
+        else layer.x=o.x;
+      }
+      const useSnap=shell.querySelector("[data-ws-snap]").checked&&!event.altKey&&!event.shiftKey;
       if(g.preview){
         const snap=window.VeeladPreviewSnap;
         if(useSnap&&snap){
@@ -696,18 +708,35 @@ function renderElements(){
     }
     if(gesture.preview){renderPreviewSelection();schedulePreviewRender();}else paint();event.preventDefault();
   }
+  function cancelGesture(){
+    const g=gesture;
+    if(!g)return false;
+    gesture=null;
+    const layer=layers().find(item=>item.id===g.id);
+    if(layer)Object.assign(layer,g.original);
+    shell.querySelectorAll(".cw-centre-line").forEach(node=>node.hidden=true);
+    renderPreviewGuides();
+    const target=g.preview?previewOverlay:artboard;
+    if(target.hasPointerCapture?.(g.pointer))target.releasePointerCapture(g.pointer);
+    renderInspector();render();
+    if(g.preview){renderPreviewSelection();void instance.render?.();}
+    return true;
+  }
   function finishGesture(event){
     if(!gesture||event.pointerId!==gesture.pointer)return;
+    if(event.type==="pointercancel"){cancelGesture();return;}
     const g=gesture;gesture=null;
     shell.querySelectorAll(".cw-centre-line").forEach(node=>node.hidden=true);
     renderPreviewGuides();
-    if(event.type==="pointercancel")Object.assign(layers().find(l=>l.id===g.id)||{},g.original);
-    else if(snapshot()!==g.before)commit();
+    if(snapshot()!==g.before)commit();
     renderInspector();render();
     if(g.preview){renderPreviewSelection();void instance.render?.();}
   }
   function keyboard(event){
-    if(event.key==="Escape"&&focused){event.preventDefault();setFocus(false);return;}
+    if(event.key==="Escape"){
+      if(cancelGesture()){event.preventDefault();return;}
+      if(focused){event.preventDefault();setFocus(false);return;}
+    }
     if(event.target.closest("input,textarea,select,[contenteditable=true]"))return;
     if(event.target.closest('[data-ws-font]')&&['ArrowUp','ArrowDown','Home','End'].includes(event.key)){
       const options=[...shell.querySelectorAll('[data-ws-font]')],index=options.indexOf(event.target.closest('[data-ws-font]'));
