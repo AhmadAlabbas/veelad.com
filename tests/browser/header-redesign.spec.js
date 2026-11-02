@@ -26,6 +26,18 @@ test('approved desktop header: generous search, grouped locale, visible Partners
    }
    const selects=await header.locator('.header-region select').evaluateAll(nodes=>nodes.map(n=>getComputedStyle(n).borderTopWidth));
    expect(selects).toEqual(['0px','0px']);
+   const geometry=await header.evaluate(el=>{
+    const select=[...el.querySelectorAll('.header-region select')];
+    const arrows=[...el.querySelectorAll('.header-region .international-selectors label')];
+    const region=el.querySelector('.header-region').getBoundingClientRect();
+    const actions=el.querySelector('.nav-actions').getBoundingClientRect();
+    return {selectAppearance:select.map(x=>getComputedStyle(x).appearance),
+      labels:arrows.map(x=>getComputedStyle(x,'::after').content),
+      regionHeight:region.height,actionsHeight:actions.height};
+   });
+   expect(geometry.selectAppearance).toEqual(['none','none']);
+   expect(geometry.labels).toEqual(['""','""']);
+   expect(geometry.actionsHeight).toBeLessThanOrEqual(49);
    await header.locator('.header-create-menu summary').click();
    await expect(header.locator('.header-create-options a')).toHaveCount(2);
    await expect(header.locator('.header-create-options a[href*="/sell"]')).toBeVisible();
@@ -48,6 +60,12 @@ test('narrow laptop keeps search wide and mobile retains menu and bag controls',
    const g=await page.locator('.global-search').boundingBox();
    expect(g.width).toBeGreaterThanOrEqual(width>=1024?590:430);
    expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width+1);
+   const spans=await page.evaluate(()=>{
+    const rect=selector=>{const r=document.querySelector(selector).getBoundingClientRect();return {top:r.top,bottom:r.bottom,left:r.left,right:r.right}};
+    return {search:rect('.global-search'),actions:rect('.nav-actions'),region:rect('.header-region')};
+   });
+   expect(spans.actions.top).toBeGreaterThanOrEqual(spans.search.bottom-1);
+   expect(spans.region.top).toBeGreaterThanOrEqual(spans.search.bottom-1);
   }
   for(const width of [390,320]){
    await page.setViewportSize({width,height:780});await page.goto(fixture.origin+'/en/shop');
