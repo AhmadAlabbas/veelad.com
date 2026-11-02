@@ -10,7 +10,6 @@ test('only administrator-provided, verified merchandise attributes become search
 
 test('unknown values, unsafe keys, wrong types and arrays fail closed',()=>{
  for(const v of [{color:'blue;DELETE'}, {color:['blue']},{size:'XL'},{material:'guessed'},[],null,'blue',{'__proto__':'x',color:'neon'}]){
-  if(v?.color==='neon')continue;
   assert.throws(()=>validateProductFacets(v));
  }
 });
