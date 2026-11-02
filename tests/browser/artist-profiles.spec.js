@@ -76,3 +76,40 @@ test('failed saves preserve the editor and two tabs cannot silently replace a ne
   await page.locator('.sidebar-links a[href*="tab=products"]').click();await expect(page).toHaveURL(/tab=products/);await fits(page);
  }finally{if(!other.isClosed()){other.on('dialog',dialog=>dialog.accept());await other.close();}await page.goto('about:blank').catch(()=>{});await f.close();}
 });
+
+
+test('artist collection workspace saves privately, persists across tabs and publishes only on explicit command',async({page,browser},info)=>{
+ test.setTimeout(100000);const f=await fixture(),errors=[];page.on('pageerror',error=>errors.push(error.message));const lang=info.project.name==='mobile'?'ar':'en';let visitor;
+ try{
+  await login(page,f,'artist-1',lang);
+  await page.goto(f.origin+'/'+lang+'/studio?tab=collections');
+  const editor=page.locator('[data-artist-editor-mode=collections]'),form=editor.locator('[data-artist-profile-form]');
+  await expect(editor).toBeVisible();
+  await expect(page.locator('.sidebar-links a[href*="tab=collections"]')).toHaveAttribute('aria-current','page');
+  await expect(editor.locator('.artist-collections-panel')).toBeVisible();
+  await expect(editor.locator('section.panel:has([name=bio])')).toBeHidden();
+  await form.locator('[data-artist-action=add-section]').click();
+  const collection=form.locator('[data-artist-section-editor]').last();
+  await collection.locator('[name=title]').fill('Weekend Forms');
+  await collection.locator('[name=title_ar]').fill('أشكال نهاية الأسبوع');
+  await collection.locator('[name=section-products][value=p1]').check();
+  await form.locator('button[type=submit]').click();
+  await expect(editor.locator('[data-artist-save-status]')).toHaveText(lang==='ar'?'تم حفظ المسودة الخاصة':'Private draft saved');
+  const privateVersion=await page.evaluate(()=>api('artist-profile'));
+  expect(privateVersion.draft.shop_sections.some(s=>s.title==='Weekend Forms'&&s.product_ids.includes('p1'))).toBe(true);
+  expect(privateVersion.published.shop_sections?.some(s=>s.title==='Weekend Forms')||false).toBe(false);
+  await page.goto(f.origin+'/'+lang+'/studio?tab=settings');
+  await expect(page.locator('[data-artist-profile-form] [name=bio]')).toBeVisible();
+  await expect(page.locator('[data-artist-section-editor] [name=title]')).toHaveValue('Weekend Forms');
+  await page.goto(f.origin+'/'+lang+'/studio?tab=collections');
+  await expect(page.locator('[data-artist-section-editor] [name=title]')).toHaveValue('Weekend Forms');
+  visitor=await browser.newContext();const publicPage=await visitor.newPage();
+  await publicPage.goto(f.origin+'/'+lang+'/artists/artist-1');
+  await expect(publicPage.locator('.artist-shop-tabs')).toHaveCount(0);
+  await page.locator('[data-artist-action=publish]').click();
+  await expect(page.locator('#toast')).toHaveText(lang==='ar'?'تم نشر الملف.':'Profile published.');
+  await publicPage.reload();
+  await expect(publicPage.locator('.artist-shop-tabs')).toContainText(lang==='ar'?'أشكال نهاية الأسبوع':'Weekend Forms');
+  expect(errors).toEqual([]);
+ }finally{await visitor?.close();await page.goto('about:blank').catch(()=>{});await f.close();}
+});
