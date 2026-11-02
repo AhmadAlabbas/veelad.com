@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 const htmlEscape=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function render(products){
- const context={
+ const context={URLSearchParams,
   t:value=>value,esc:htmlEscape,localField:(item,key)=>item[key],
   localNumber:value=>String(value),statusLabel:value=>value,
   normalUrl:(page,params)=>'/en/'+page+'?'+new URLSearchParams(params),
