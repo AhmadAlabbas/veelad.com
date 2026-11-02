@@ -55,3 +55,11 @@ html[dir=rtl] .cw-studio-title h3,html[dir=rtl] .cw-empty-canvas strong{letter-s
  .cw-focus-mode[data-panel-open=true] .cw-stage-column{height:34dvh;min-height:225px;max-height:320px}
  .cw-focus-mode .cw-panel-content{padding-bottom:max(14px,env(safe-area-inset-bottom))}
 }
+
+
+/* Phase 1: independent edge grips and zoom-correct smart alignment guides. */
+.cw-handle-n{top:-6px;left:50%;margin-left:-6px;cursor:ns-resize}
+.cw-handle-s{bottom:-6px;left:50%;margin-left:-6px;cursor:ns-resize}
+.cw-handle-e{right:-6px;top:50%;margin-top:-6px;cursor:ew-resize}
+.cw-handle-w{left:-6px;top:50%;margin-top:-6px;cursor:ew-resize}
+.cw-centre-line{background:#a43bba;box-shadow:0 0 0 1px #fff9}
