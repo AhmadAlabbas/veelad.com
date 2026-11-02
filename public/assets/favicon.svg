@@ -1,1 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#111"/><path d="M18 18h8l6 19 6-19h8L36 46h-8Z" fill="#fff"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Veelad</title>
+  <rect width="64" height="64" rx="15" fill="#fff"/>
+  <g fill="none" stroke="#9B81EF" stroke-width="5.5" stroke-linecap="round">
+    <path d="M32 14V50M14 32H50M19.3 19.3L44.7 44.7M44.7 19.3L19.3 44.7"/>
+  </g>
+</svg>
