@@ -14,6 +14,16 @@ const en={
  samplePrice:'Sample price · Staging preview',sampleListing:'Sample listing',
  sampleDetails:'This is a sample listing with an illustrative price and provisional product details. No real payment is collected.',
  exploreProducts:'Explore the products',
+ shopDescription:'Discover original designs for artist-made clothing and custom apparel at Veelad.',
+ artistsDescription:'Explore independent creators, their stories, and original clothing designs at Veelad.',
+ sellTitle:'Sell Your Original Designs | Veelad',
+ sellDescription:'Discover how independent artists can share their original clothing designs on Veelad.',
+ helpTitle:'Veelad Help & Contact | Customer Support',
+ helpDescription:'Find help with Veelad, learn about the marketplace and get in touch with our team.',
+ policiesTitle:'Veelad Policies | Privacy & Store Information',
+ policiesDescription:'Read the current Veelad privacy, terms and store policies before using our marketplace.',
+ partnersTitle:'Veelad Affiliate Partners | Collaborate With Us',
+ partnersDescription:'Explore the Veelad affiliate partner program and how collaborations work.',
  shopTitle:'Explore original designs | Veelad',
  artistsTitle:'Meet independent artists | Veelad',
  createTitle:'Create your own | Veelad',
@@ -43,6 +53,16 @@ const ar={
  samplePrice:'سعر تجريبي · للمعاينة',sampleListing:'منتج تجريبي',
  sampleDetails:'هذا منتج تجريبي بسعر للتوضيح وتفاصيل مبدئية. ما يتم تحصيل أي مبلغ.',
  exploreProducts:'شوف المنتجات',
+ shopDescription:'اكتشف ملابس بتصاميم أصلية من فنانين مستقلين ومنتجات قابلة للتخصيص على فيلاد.',
+ artistsDescription:'تعرّف على الفنانين المستقلين وقصصهم وتصاميمهم الأصلية على فيلاد.',
+ sellTitle:'اعرض تصاميمك الأصلية | فيلاد',
+ sellDescription:'تعرّف على كيفية مشاركة الفنانين المستقلين لتصاميم الملابس الأصلية على فيلاد.',
+ helpTitle:'المساعدة والتواصل | فيلاد',
+ helpDescription:'احصل على المساعدة وتعرّف على متجر فيلاد وطرق التواصل مع الفريق.',
+ policiesTitle:'سياسات فيلاد | الخصوصية وشروط المتجر',
+ policiesDescription:'اطّلع على سياسات الخصوصية والشروط ومعلومات المتجر الحالية قبل استخدام فيلاد.',
+ partnersTitle:'برنامج شركاء فيلاد بالعمولة',
+ partnersDescription:'تعرّف على برنامج التسويق بالعمولة وفرص التعاون مع فيلاد.',
  shopTitle:'تصاميم ومنتجات على ذوقك | فيلاد',
  artistsTitle:'وراء كل تصميم، فنان | فيلاد',
  createTitle:'صمّم منتجك | فيلاد',
@@ -58,7 +78,7 @@ const ar={
  // Keep the Latin logo intact in both directions.
  shareBrand:'veelad'
 };
-const zh={storeStarting:'商店正在启动，请稍后重试。',storeLoading:'正在加载商店…',storeTitle:'Veelad | 独立艺术家服饰与定制服装',storeDescription:'Veelad 即将推出独立艺术家设计服饰与定制服装，探索原创 T 恤、连帽卫衣和个性化穿搭。',productUnavailable:'商品不可用 | Veelad',artistUnavailable:'艺术家页面不可用 | Veelad',independentArtist:'独立艺术家',productTitle:'{title} — {artist} 设计 | Veelad',artistTitle:'{name} — 艺术家与原创设计 | Veelad',designedBy:'由 {artist} 创作',inStock:'有货',soldOut:'已售罄',samplePrice:'示例价格 · 测试预览',sampleListing:'样品展示',sampleDetails:'此为样品展示，价格及商品信息仅供参考，不会收取实际付款。',exploreProducts:'探索商品',shopTitle:'探索原创设计 | Veelad',artistsTitle:'认识独立艺术家 | Veelad',createTitle:'自由创作 | Veelad',myDesignsTitle:'我的设计 | Veelad',storeName:'Veelad',storeIntro:'探索独立艺术家的原创 T 恤、连帽卫衣与创意服装设计。',storeHeadline:'原创艺术，穿出自我。',storeComingSoon:'Veelad 即将上线。欢迎提前了解独立艺术家的创意作品。',exploreDesigns:'探索设计',meetArtists:'认识艺术家',shareTitle:'原创艺术，日常好物。',shareSubtitle:'Veelad · 独立艺术家',shareDesignedBy:'由 {artist} 创作',shareBrand:'veelad'};
+const zh={storeStarting:'商店正在启动，请稍后重试。',storeLoading:'正在加载商店…',storeTitle:'Veelad | 独立艺术家服饰与定制服装',storeDescription:'Veelad 即将推出独立艺术家设计服饰与定制服装，探索原创 T 恤、连帽卫衣和个性化穿搭。',productUnavailable:'商品不可用 | Veelad',artistUnavailable:'艺术家页面不可用 | Veelad',independentArtist:'独立艺术家',productTitle:'{title} — {artist} 设计 | Veelad',artistTitle:'{name} — 艺术家与原创设计 | Veelad',designedBy:'由 {artist} 创作',inStock:'有货',soldOut:'已售罄',samplePrice:'示例价格 · 测试预览',sampleListing:'样品展示',sampleDetails:'此为样品展示，价格及商品信息仅供参考，不会收取实际付款。',exploreProducts:'探索商品',shopDescription:'在 Veelad 探索独立艺术家的原创服装设计与定制服饰。',artistsDescription:'认识独立艺术家，了解他们的故事和原创服装设计。',sellTitle:'分享你的原创设计 | Veelad',sellDescription:'了解独立艺术家如何在 Veelad 分享自己的原创服装设计。',helpTitle:'Veelad 帮助与联系',helpDescription:'了解 Veelad 商店服务并与团队取得联系。',policiesTitle:'Veelad 政策 | 隐私与条款',policiesDescription:'查看 Veelad 当前的隐私政策、服务条款和商店规定。',partnersTitle:'Veelad 联盟合作伙伴',partnersDescription:'了解 Veelad 联盟推广与合作机会。',shopTitle:'探索原创设计 | Veelad',artistsTitle:'认识独立艺术家 | Veelad',createTitle:'自由创作 | Veelad',myDesignsTitle:'我的设计 | Veelad',storeName:'Veelad',storeIntro:'探索独立艺术家的原创 T 恤、连帽卫衣与创意服装设计。',storeHeadline:'原创艺术，穿出自我。',storeComingSoon:'Veelad 即将上线。欢迎提前了解独立艺术家的创意作品。',exploreDesigns:'探索设计',meetArtists:'认识艺术家',shareTitle:'原创艺术，日常好物。',shareSubtitle:'Veelad · 独立艺术家',shareDesignedBy:'由 {artist} 创作',shareBrand:'veelad'};
 export const pageTranslations=Object.freeze({en:Object.freeze(en),ar:Object.freeze(ar),'zh-CN':Object.freeze(zh)});
 export function pageText(language,key,values={}) {
  const source=pageTranslations[language]?.[key]??en[key]??key;

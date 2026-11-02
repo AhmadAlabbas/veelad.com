@@ -35,3 +35,10 @@ test('Arabic and Chinese staging article pages render localized body copy and co
  assert.match(zh.html,/面料/);
  assert.equal(zh.alternates.find(a=>a.locale==='zh-CN').url,'/zh-CN/journal/sample-materials-that-matter');
 });
+
+test('production Journal without published posts is noindex until original editorial content exists',async()=>{
+ const empty=await journalPageData(db,prod,'en');
+ assert.equal(empty.indexable,false);
+ const zh=await journalPageData(db,prod,'zh-CN');
+ assert.equal(zh.indexable,false);
+});
