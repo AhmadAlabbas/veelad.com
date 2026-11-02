@@ -87,9 +87,20 @@ function searchSuggestions(query,catalog,profiles) {
  const choices=[...new Set([...catalog.map(p=>localField(p,'title')),...catalog.map(p=>t(p.category)),...profiles.map(a=>localField(a,'name'))])];
  return needle.length<2||needle.length>80?[]:choices.map(value=>({value,score:distance(needle,searchText(value))})).filter(c=>c.score<=Math.max(2,Math.floor(needle.length/3))).sort((a,b)=>a.score-b.score).slice(0,3).map(c=>c.value);
 }
+function discoveryCategoryGallery(catalog) {
+ const language=currentLanguage();
+ const categories=cats.map(category=>({category,products:catalog.filter(p=>p.category===category&&p.status==='active')})).filter(item=>item.products.length);
+ if(!categories.length)return '';
+ const title=language==='ar'?'اكتشف حسب القطعة':language==='zh-CN'?'按商品类型探索':'Discover by product';
+ const description=language==='ar'?'ابدأ بالقطعة التي تحبها، ثم اختر تصميم الفنان الذي يشبهك.':language==='zh-CN'?'先挑喜欢的商品，再选属于你的独立艺术设计。':'Choose something you love using, then find the art that feels like you.';
+ const count=language==='ar'?'منتج متاح':language==='zh-CN'?'款商品':'products';
+ return `<section class="shop-category-gallery" aria-label="${esc(title)}"><div class="shop-category-heading"><div><span class="eyebrow">${esc(language==='ar'?'من تصاميم فنانينا':language==='zh-CN'?'独立艺术家作品':'ARTIST-MADE, EVERYDAY-READY')}</span><h2>${esc(title)}</h2><p>${esc(description)}</p></div></div><div class="shop-category-gallery-grid">${categories.map(({category,products:items})=>link('<div class="shop-category-visual">'+photo(items[0])+'</div><div class="shop-category-label"><div><strong>'+esc(t(category))+'</strong><small>'+localNumber(items.length)+' '+esc(count)+'</small></div>'+icon('arrow')+'</div>','shop','shop-category-link',{category,view:'products'})).join('')}</div></section>`;
+}
+
 function discoveryPage() {
  const values=Object.fromEntries(params),cat=values.category||'',q=values.q||'',allMatches=discoverProducts(products,artists,values),ps=values.view==='designs'?distinctDesigns(allMatches):cat||values.collection||values.view==='products'?allMatches:distinctDesigns(allMatches),suggestions=searchSuggestions(q,products,artists),style=designStyles.find(row=>row.id===values.style),pagination=cataloguePagination(ps),themes=discoverProducts(products,artists,{...values,tag:''}),facetable=discoverProducts(products,artists,{...values,color:'',material:'',fit:'',occasion:''});
  return `<main id="main" class="container section discovery-page"><div class="breadcrumb">${link(t('Home'),'home')} / ${t('Explore')}${style?' / '+esc(localField(style,'title')):''}</div><div class="shop-intro ${style?'has-design-style':''}"><div><span class="eyebrow">${t('INDEPENDENT ART. ENDLESS PERSONALITY.')}</span><h1>${q?t('Finds for “{query}”',{query:'<bdi dir="auto">'+esc(q)+'</bdi>'}):style?esc(localField(style,'title')):esc(t(cat||'Find your thing.'))}</h1><p>${style?esc(localField(style,'description')):t('Find a design, meet its artist, make it yours.')}</p></div>${style?styleArtwork(style):''}</div>
+ ${!cat&&!q&&!values.style&&!values.collection?discoveryCategoryGallery(products):''}
  ${shoppingEnabled?window.VeeladShop.catalogueIntro():''}<nav class="shop-style-nav" aria-label="${t('Design styles')}">${link(t('All styles'),'shop','chip '+(!values.style?'active':''),Object.fromEntries([...params].filter(([key])=>!['style','page'].includes(key))))}${designStyles.map(row=>link(esc(localField(row,'title')),'shop','chip '+(row.id===values.style?'active':''),{...Object.fromEntries([...params].filter(([key])=>key!=='page')),style:row.id})).join('')}</nav>
  <div class="chips">${['',...cats].map(c=>link(esc(t(c||'All products')),'shop','chip '+(cat===c?'active':''),shopCategoryParams(c))).join('')}</div>${shopFilterToolbar(ps.length)}${shoppingEnabled?window.VeeladShop.catalogueToolbar(ps.length,allMatches.length):''}
  <form class="filterbar" data-form="filters">${values.view?`<input type="hidden" name="view" value="${esc(values.view)}">`:""}<input type="hidden" name="q" value="${esc(q)}"><input type="hidden" name="category" value="${esc(cat)}"><input type="hidden" name="tag" value="${esc(values.tag||'')}">
