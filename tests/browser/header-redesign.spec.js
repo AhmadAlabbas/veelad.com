@@ -106,6 +106,8 @@ test('header Create label translates in English, Arabic and Chinese without brea
    if(language!=='en')await expect(menu.locator('summary')).not.toContainText('Create');
    await menu.locator('summary').click();
    await expect(menu.locator('.header-create-options a')).toHaveCount(2);
+   if(language==='ar')await expect(menu.locator('.header-create-options')).toContainText('صمّم معًا');
+   if(language==='zh-CN')await expect(menu.locator('.header-create-options')).toContainText('共同创作');
    await page.keyboard.press('Escape');
    await expect(menu).not.toHaveAttribute('open','');
   }
