@@ -158,6 +158,18 @@ test("layered workspace keeps multiple originals and independent sides through e
       .poll(async () => (await scene("front")).layers.find((l) => l.id === selectedImage.id).width)
       .toBeGreaterThan(widthBefore);
 
+    // The four edge grips resize one image axis without stretching the other.
+    await expect(shell.locator("[data-ws-handle]")).toHaveCount(9);
+    const edge = shell.locator("[data-ws-handle=e]");
+    const sideBefore = (await scene("front")).layers.find(l => l.id === selectedImage.id);
+    const grip = await edge.boundingBox();
+    await page.mouse.move(grip.x + grip.width / 2, grip.y + grip.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(grip.x + grip.width / 2 + 16, grip.y + grip.height / 2, { steps: 5 });
+    await page.mouse.up();
+    await expect.poll(async () => (await scene("front")).layers.find(l => l.id === selectedImage.id).width).toBeGreaterThan(sideBefore.width);
+    expect((await scene("front")).layers.find(l => l.id === selectedImage.id).height).toBeCloseTo(sideBefore.height);
+
     // Font browsing selects real local fonts from different scripts; text survives shaping and saving.
     await shell.locator("[data-ws-tool=text]").click();
     await shell.locator("[data-ws-add-text=body]").first().click();
