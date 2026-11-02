@@ -11,8 +11,8 @@ const base=()=>({id:'art-one',type:'image',upload_id:'art-same',x:.5,y:.5,width:
 
 test('T-shirt front/back have distinct named presets and localized three-language labels',()=>{
  const front=placement.list('shirt','front'),back=placement.list('shirt','back'),mug=placement.list('mug','wrap');
- assert.deepEqual(front.map(x=>x.id),['front-centre','left-chest','right-chest','front-wide','front-lower']);
- assert.deepEqual(back.map(x=>x.id),['upper-back','back-centre','back-lower','back-small']);
+ assert.deepEqual(Array.from(front,x=>x.id),['front-centre','left-chest','right-chest','front-wide','front-lower']);
+ assert.deepEqual(Array.from(back,x=>x.id),['upper-back','back-centre','back-lower','back-small']);
  assert.equal(mug.length,4);
  assert.ok(front.every(x=>placement.title(x,'en')&&placement.title(x,'ar')&&placement.title(x,'zh-CN')));
  assert.equal(placement.title(placement.safe,'ar'),'ملاءمة المساحة الآمنة');
