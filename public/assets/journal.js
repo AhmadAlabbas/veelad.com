@@ -29,6 +29,27 @@ window.VeeladJournal=(()=>{
  };
  const errorText=message=>currentLanguage()==='ar'?(errors[message]||localizedError(message)):localizedError(message);
 
+
+ const savedKey='veelad-journal-saved-v1';
+ function savedStories(){
+  try{const list=JSON.parse(localStorage.getItem(savedKey)||'[]');
+   return Array.isArray(list)?list.filter(x=>x&&typeof x.title==='string'&&typeof x.url==='string'&&/^\/(?:ar\/|zh-CN\/)?journal\//.test(x.url)).slice(0,50):[];
+  }catch{return [];}
+ }
+ function refreshSaved(){
+  const saved=new Set(savedStories().map(x=>x.url));
+  document.querySelectorAll('[data-journal-save]').forEach(button=>{
+   const active=saved.has(button.dataset.journalSave);button.setAttribute('aria-pressed',String(active));
+   button.textContent=active?say('Saved ✓','محفوظ ✓'):say('Save story ♡','حفظ المقال ♡');
+  });
+ }
+ function updateJournalReading(){
+  const bar=document.querySelector('[data-journal-progress] span');if(!bar)return;
+  const root=document.documentElement,remaining=Math.max(1,root.scrollHeight-innerHeight);
+  bar.style.transform='scaleX('+Math.max(0,Math.min(1,scrollY/remaining))+')';
+ }
+ window.addEventListener('scroll',updateJournalReading,{passive:true});
+
  const adminUrl=values=>normalUrl('admin',{tab:'journal',...values});
  const statusName=s=>({draft:say('Draft','مسودة'),published:say('Published','منشور'),scheduled:say('Scheduled','مجدول')})[s]||s;
  const input=(name,label,value='',extra='')=>`<label class="field">${e(label)}<input name="${name}" value="${e(value)}" ${extra}></label>`;
@@ -77,7 +98,7 @@ window.VeeladJournal=(()=>{
  async function save(form){const values=Object.fromEntries(new FormData(form));const draft=document.querySelector('.journal-rich-editor').cloneNode(true);for(const img of draft.querySelectorAll('img[data-journal-src]')){img.setAttribute('src',img.dataset.journalSrc);img.removeAttribute('data-journal-src');}const content=draft.innerHTML;const result=await api('admin-journal-save',{id:state.article.id,version:state.article.version,locale:state.locale,author_id:values.author_id,category_id:values.category_id,featured:values.featured==='on',archived:values.archived==='on',product_ids:state.article.product_ids||[],artist_ids:state.article.artist_ids||[],translation:{...values,content,tags:values.tags.split(/[,،]/).map(t=>t.trim()).filter(Boolean),publish_at:values.publish_at?new Date(values.publish_at).toISOString():null}});dirty=false;state.article.version=result.version;await window.render({preserveScroll:true});toast(say('Article saved.','تم حفظ المقال.'));}
  function beforeRoute(){if(!dirty)return true;if(!confirm(say('Leave without saving your article changes?','هل تريد المغادرة دون حفظ تعديلات المقال؟')))return false;dirty=false;return true;}
  function init(){
-  selection=null;
+  selection=null;refreshSaved();updateJournalReading();
   if(state?.article){state.relationNames=state.article.relation_names||{};document.querySelector('[data-journal-selected]').innerHTML=selectedRelations();}
   const editor=document.querySelector('.journal-rich-editor');if(editor){
    if(!editor.dataset.journalInitialized){editor.dataset.journalInitialized='true';
@@ -99,10 +120,22 @@ window.VeeladJournal=(()=>{
  });
  document.addEventListener('mousedown',event=>{if(event.target.closest('[data-journal-command]'))event.preventDefault();});
  document.addEventListener('click',async event=>{
-  const button=event.target.closest('[data-journal-action],[data-journal-command],[data-journal-close],[data-journal-copy],[data-journal-remove],[data-journal-pick]');if(!button)return;event.preventDefault();
+  const button=event.target.closest('[data-journal-action],[data-journal-command],[data-journal-close],[data-journal-copy],[data-journal-save],[data-journal-saved-open],[data-journal-remove],[data-journal-pick]');if(!button)return;event.preventDefault();
   try{
    if(button.hasAttribute('data-journal-close')){button.closest('dialog').close();return;}
    if(button.dataset.journalCommand){document.querySelector('.journal-rich-editor').focus();document.execCommand(button.dataset.journalCommand,false,button.dataset.value||null);markDirty();return;}
+   if(button.hasAttribute('data-journal-save')){
+    const url=button.dataset.journalSave,title=button.dataset.journalTitle;
+    let saved=savedStories();
+    if(saved.some(x=>x.url===url))saved=saved.filter(x=>x.url!==url);
+    else saved=[{url,title},...saved].slice(0,50);
+    try{localStorage.setItem(savedKey,JSON.stringify(saved));}catch{throw Error(say('Saving is unavailable in this browser.','تعذّر حفظ المقال في هذا المتصفح.'));}
+    refreshSaved();toast(say('Saved stories updated on this device.','تم تحديث المقالات المحفوظة على هذا الجهاز.'));return;
+   }
+   if(button.hasAttribute('data-journal-saved-open')){
+    const saved=savedStories();
+    dialog(saved.length?'<ul class="journal-saved-list">'+saved.map(x=>'<li><a href="'+e(x.url)+'">'+e(x.title)+'</a></li>').join('')+'</ul>':'<p>'+say('No saved stories on this device yet.','لا توجد مقالات محفوظة على هذا الجهاز بعد.')+'</p>',say('Saved stories','المقالات المحفوظة'));return;
+   }
    if(button.dataset.journalCopy){await navigator.clipboard.writeText(button.dataset.journalCopy);toast(say('Link copied.','تم نسخ الرابط.'));return;}
    if(button.dataset.journalRemove){const key=button.dataset.journalRemove+'_ids';state.article[key]=state.article[key].filter(id=>id!==button.dataset.id);document.querySelector('[data-journal-selected]').innerHTML=selectedRelations();markDirty();return;}
    if(button.dataset.journalPick){const key=button.dataset.journalPick+'_ids',ids=state.article[key]||[];if(ids.length>=8)throw Error(say('Choose up to eight of each type.','اختر حتى ثمانية من كل نوع.'));state.article[key]=[...new Set([...ids,button.dataset.id])];state.relationNames[button.dataset.id]=button.dataset.name;document.querySelector('[data-journal-selected]').innerHTML=selectedRelations();button.disabled=true;button.textContent=say('Added','تمت الإضافة');markDirty();return;}

@@ -53,3 +53,8 @@ No production content, verification settings, payment logic or credentials are c
 - Four focused Journal browser checks passed again after final changes, in desktop and phone Chromium. Screenshots were inspected for editorial layout and RTL. This is not a claim of real-device Safari testing.
 - Syntax/build and whitespace checks pass. Published test articles and test authors exist only in disposable local databases; none are seeded into staging or production.
 - Hosted staging browser checks passed at 1366, 390 and 320 px in English and Arabic, with correct direction, no horizontal overflow, working article search and no client errors. Both index routes return HTTP 200 with staging noindex; anonymous editorial API access returns HTTP 401. A visual review found and corrected an inherited link-color conflict on the dark empty-state button, with a browser regression assertion for its readable text.
+
+
+## November 2026 staging-only editorial sample pack
+
+Eight fictional stories are provided by `src/journal-demo.js` only when `APP_ENV=staging` and rendered with original local SVG cover artwork under `public/assets/journal-demo/`. They have URLs in English, Arabic and Simplified Chinese and appear in the public staging Journal search, category navigation and related-story area; they are not seeded as users, artists, products or CMS articles. Every fixture is visibly labelled **SAMPLE** and the entire demo edition disappears automatically in production. No data migrations, subscription capture, fake sales or product claims are introduced. The existing real Journal CMS remains available and unchanged for authored content. The experimental images are placeholders to be replaced with licensed original editorial photographs before publication.
