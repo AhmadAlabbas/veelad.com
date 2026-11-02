@@ -47,7 +47,7 @@ const catalog=Object.freeze(motifs.flatMap((m,mi)=>layouts.flatMap((l,li)=>Array
  base:'pattern-'+m.id+'-'+l.id+'-'+(edition+1).toString(36),
  variant:0,category:l.category,kind:'pattern',
  name:m.en+' · '+l.en+' '+String(edition+1).padStart(2,'0'),mi,li,edition
-})))));
+})))).sort((a,b)=>a.edition-b.edition||a.li-b.li||a.mi-b.mi));
 const lookup=new Map(catalog.map(item=>[item.id,item]));
 const palettes=[['#244f43','#eac38b','#ad5367'],['#483d73','#efb6a3','#93c0c8'],['#284967','#b5d5e6','#f0b257'],['#7e3948','#f6c8af','#a4b99e'],['#514b35','#d6d29e','#c39374'],['#313c50','#a1bdc1','#e0c2d2'],['#68432c','#e3ae89','#9dba95'],['#5a4370','#e6c5de','#90a3b8']];
 const clean=(v,f)=>/^#[0-9a-f]{6}$/i.test(v||'')?v.toLowerCase():f;
