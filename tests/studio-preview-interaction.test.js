@@ -35,7 +35,10 @@ test('all preview controls modify the shared scene and never write over the prod
  assert.ok(code.includes('function beginPreviewGesture(event)'));
  assert.ok(code.includes('function movePreviewGesture(event)'));
  assert.ok(code.includes('gesture={preview:true,id:layer.id'));
- assert.ok(code.includes('else if(snapshot()!==g.before)commit()'));
+ assert.ok(code.includes('if(event.type==="pointercancel"){cancelGesture();return;}'));
+ assert.ok(code.includes('if(snapshot()!==g.before)commit()'));
+ assert.ok(code.includes('if(layer)Object.assign(layer,g.original)'));
+ assert.ok(code.includes('if(cancelGesture()){event.preventDefault();return;}'));
  assert.ok(code.includes('if(g.preview){renderPreviewSelection();void instance.render?.();}'));
  assert.ok(code.includes('previewOverlay.addEventListener("pointerdown",beginPreviewGesture)'));
  assert.ok(html.indexOf('studio-preview-geometry.js')<html.indexOf('customer-workspace.js'));
