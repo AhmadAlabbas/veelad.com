@@ -29,7 +29,7 @@ test('approved desktop header: generous search, grouped locale, visible Partners
    await header.locator('.header-create-menu summary').click();
    await expect(header.locator('.header-create-options a')).toHaveCount(2);
    await expect(header.locator('.header-create-options a[href*="/sell"]')).toBeVisible();
-   await expect(header.locator('.header-create-options a[href*="/create"]')).toBeVisible();
+   await expect(header.locator('.header-create-options a[href*="/creative"], .header-create-options a[href*="/create"]')).toBeVisible();
    await page.keyboard.press('Escape');
    await expect(header.locator('.header-create-menu')).not.toHaveAttribute('open','');
    await header.locator('.header-region [data-international-language]').selectOption('ar');
