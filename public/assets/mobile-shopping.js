@@ -35,7 +35,7 @@ function activeShopFilters() {
  if(category)filters.push(['category',t(category)]);
  if(artistId)filters.push(['artist',localField(artist(artistId),'name')]);
  if(max&&Number(max)<1000)filters.push(['max',t('Up to SAR {price}',{price:localNumber(max)})]);
- if(tag)filters.push(['tag',tag]);if(params.get('min'))filters.push(['min',t('From SAR {price}',{price:localNumber(params.get('min'))})]);if(params.get('availability'))filters.push(['availability',params.get('availability')==='in_stock'?t('In stock'):t('Sold out')]);
+ if(tag)filters.push(['tag',tag]);for(const key of ['color','material','fit','occasion']){const value=params.get(key);if(value)filters.push([key,verifiedFacetName(key)+': '+verifiedFacetLabel(key,value)]);}if(params.get('min'))filters.push(['min',t('From SAR {price}',{price:localNumber(params.get('min'))})]);if(params.get('availability'))filters.push(['availability',params.get('availability')==='in_stock'?t('In stock'):t('Sold out')]);
  return filters;
 }
 function shopFilterToolbar(count) {
@@ -47,10 +47,10 @@ function openShopFilters() {
  const form=original.cloneNode(true);form.className='shopping-filter-form';form.querySelector('.results-count')?.remove();form.querySelector('button[type=submit]')?.remove();
  const category=form.querySelector('[name=category]');const value=category.value;
  category.outerHTML=`<select name="category" aria-label="${t('Filter by category')}"><option value="">${t('All categories')}</option>${cats.map(c=>`<option value="${esc(c)}" ${value===c?'selected':''}>${esc(t(c))}</option>`).join('')}</select>`;
- const labels={style:'Design style',category:'Category',artist:'Artist',max:'Maximum price',sort:'Sort by',availability:'Availability'};
+ const labels={style:'Design style',category:'Category',artist:'Artist',max:'Maximum price',sort:'Sort by',availability:'Availability',color:'Colour',material:'Material',fit:'Fit',occasion:'Occasion'};
  const minimum=form.querySelector('[name=min]');if(minimum){const label=document.createElement('label');label.className='field';label.textContent=t('Minimum price (SAR)');minimum.replaceWith(label);label.append(minimum);}
  for(const select of [...form.querySelectorAll('select')]){
-  const field=document.createElement('label');field.className='field';field.textContent=t(labels[select.name]||select.name);
+  const field=document.createElement('label');field.className='field';field.textContent=verifiedFacetLabels[select.name]?verifiedFacetName(select.name):t(labels[select.name]||select.name);
   select.replaceWith(field);field.append(select);
  }
  form.insertAdjacentHTML('beforeend',`<div class="sheet-actions">${button(t('Reset'),'reset-sheet-filters','','btn outline')}<button class="btn full" type="submit">${t('Show results')} ${icon('arrow')}</button></div>`);
@@ -76,9 +76,9 @@ document.addEventListener('click',event=>{
   const values=Object.fromEntries(params);delete values[control.dataset.key];go('shop',values);
  }
  if(action==='clear-shop-filters'){
-  const values=Object.fromEntries(params);for(const key of ['category','style','artist','min','max','tag','availability','page'])delete values[key];go('shop',values);
+  const values=Object.fromEntries(params);for(const key of ['category','style','artist','min','max','tag','availability','color','material','fit','occasion','page'])delete values[key];go('shop',values);
  }
  if(action==='reset-sheet-filters'){
-  const form=control.closest('form');for(const [key,value] of Object.entries({category:'',style:'',artist:'',max:'1000',sort:'featured',tag:'',min:'',availability:''})){const field=form.elements.namedItem(key);if(field)field.value=value;}
+  const form=control.closest('form');for(const [key,value] of Object.entries({category:'',style:'',artist:'',max:'1000',sort:'featured',tag:'',min:'',availability:'',color:'',material:'',fit:'',occasion:''})){const field=form.elements.namedItem(key);if(field)field.value=value;}
  }
 });
