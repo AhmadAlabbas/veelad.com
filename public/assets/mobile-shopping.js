@@ -60,6 +60,8 @@ document.addEventListener('change',event=>{
  if(event.target.matches('.product-option input[name=variant]')){
   const form=event.target.closest('form'),p=productById(form?.querySelector('[name=id]')?.value);if(!p||!p.variants.includes(event.target.value))return;
   productSelections.set(p.id,event.target.value);
+  const shortcut=document.querySelector('.product-customize-shortcut a');
+  if(shortcut){const target=new URL(shortcut.href,location.href);if(target.searchParams.get('product')===p.id){target.searchParams.set('variant',event.target.value);shortcut.href=target.pathname+target.search;}}
   for(const label of form.querySelectorAll('[data-product-choice]'))label.textContent=productChoiceLabel(p,event.target.value);
  }
 });
