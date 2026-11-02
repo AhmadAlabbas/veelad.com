@@ -82,3 +82,38 @@ test('legacy hash bookmarks translate into localized URLs and demo keeps hash na
  const browser=browserState('/ar#/shop?q=art&category=Home');vm.runInContext(navigationSource,browser.context);const current=vm.runInContext('currentPage()',browser.context);assert.equal(current.route,'shop');assert.equal(browser.location.pathname,'/ar/shop');assert.equal(current.params.get('q'),'art');assert.equal(browser.state.language,'ar');
  browser.context.mode='demo';browser.location.hash='#/product?id=design-1&lang=en&variant=S';await vm.runInContext("switchLanguage('ar')",browser.context);assert.equal(browser.location.pathname,'/ar/shop');assert.ok(browser.location.hash.includes('id=design-1'));assert.ok(browser.location.hash.includes('variant=S'));assert.ok(browser.location.hash.includes('lang=ar'));assert.equal(vm.runInContext('currentPage().route',browser.context),'product');assert.equal(browser.state.language,'ar');
 });
+
+test('localized homepages are crawlable, clothing-focused and carry WebSite schema',async()=>withPages('production',async base=>{
+ for(const lang of ['en','ar','zh-CN']){
+  const response=await fetch(base+'/'+lang),html=await response.text();
+  assert.equal(response.status,200);
+  assert.ok(html.includes('<title>'+pageTranslations[lang].storeTitle.replace(/&/g,'&amp;')+'</title>'));
+  assert.ok(html.includes('<div id="app"><main id="main" class="container section">'));
+  assert.ok(html.includes('<h1 id="veelad-home-title">'+pageTranslations[lang].storeHeadline+'</h1>'));
+  assert.ok(html.includes(pageTranslations[lang].storeDescription));
+  assert.ok(html.includes('rel="canonical" href="https://veelad.example/'+lang+'"'));
+  assert.ok(html.includes('hreflang="zh-CN" href="https://veelad.example/zh-CN"'));
+  assert.ok(html.includes('name="robots" content="index, follow"'));
+  assert.ok(!html.includes('art prints, accessories and homeware'));
+  const site=structured(html);
+  assert.equal(site['@graph'][0]['@type'],'Organization');
+  assert.equal(site['@graph'][1]['@type'],'WebSite');
+  assert.equal(site['@graph'][1].inLanguage,lang);
+ }
+}));
+test('staging homepage remains unindexable even when pre-rendered',async()=>withPages('staging',async base=>{
+ for(const lang of ['en','ar','zh-CN']){
+  const html=await (await fetch(base+'/'+lang)).text();
+  assert.ok(html.includes('name="robots" content="noindex, nofollow"'));
+  assert.ok(html.includes('<div id="app"><main'));
+ }
+ const robots=await (await fetch(base+'/robots.txt')).text();
+ assert.ok(robots.includes('Disallow: /'));
+}));
+test('prelaunch landing provides clothing-focused metadata and canonical URL',async()=>{
+ const source=await fs.readFile(new URL('../reference/coming-soon/index.html',import.meta.url),'utf8');
+ assert.ok(source.includes('rel="canonical" href="https://veelad.com/"'));
+ assert.ok(source.includes('Artist-Designed Clothing'));
+ assert.ok(source.includes('Custom Apparel'));
+ assert.ok(source.includes('application/ld+json'));
+});
