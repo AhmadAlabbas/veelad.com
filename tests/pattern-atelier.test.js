@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
+import sharp from 'sharp';
 import {validateScenes} from '../src/design-scenes.js';
 
 const previous={
@@ -69,4 +70,22 @@ test('search, categories, three languages and old saved artwork work together',(
   library_element:{id,colors:{primary:'#123456',secondary:'#abcdef',accent:'#fedcba'}}
  }]}}};
  assert.equal(validateScenes(scene).shirt.front.layers[0].library_element.id,id);
+});
+
+
+test('all 24 authored pattern families rasterise to visible, transparent artwork',async()=>{
+ const firstEdition=patterns.filter(item=>item.li===0&&item.edition===0);
+ assert.equal(firstEdition.length,24);
+ for(const item of firstEdition){
+  const image=await sharp(Buffer.from(api.svg(item.id))).ensureAlpha().raw().toBuffer({resolveWithObject:true});
+  assert.equal(image.info.width,256,item.id);
+  assert.equal(image.info.height,256,item.id);
+  let opaque=0,transparent=0;
+  for(let i=3;i<image.data.length;i+=4){
+   if(image.data[i]>12)opaque++;
+   else transparent++;
+  }
+  assert.ok(opaque>150,item.id+' should render actual visible artwork');
+  assert.ok(transparent>1000,item.id+' should preserve transparency');
+ }
 });
