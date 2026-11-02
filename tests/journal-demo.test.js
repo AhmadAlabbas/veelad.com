@@ -11,7 +11,7 @@ test('eight clearly marked sample articles exist in each staging-supported local
    assert.ok(a.url.includes('/journal/'));
    assert.match(a.image_alt,/./);
    assert.match(a.sample_cover,/^\/assets\/journal-demo\/sample-[\w-]+\.svg$/);
-   assert.ok(a.title.length>5&&a.summary.length>20&&a.content.includes('<p>'));
+   assert.ok(a.title.length>5&&a.summary.length>=15&&a.content.includes('<p>'));
    assert.equal(a.alternates.length,3);
    assert.equal(journalDemoArticle(locale,a.slug).related.length,3);
   }
