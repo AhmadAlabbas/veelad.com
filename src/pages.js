@@ -13,7 +13,7 @@ const publicDir=fileURLToPath(new URL('../public',import.meta.url));
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const publicPaths=['/','/shop','/artists','/sell','/help','/policies','/partners','/partners/terms','/partners/privacy'];
 const appPaths=[...publicPaths,'/my-designs','/create','/saved','/bag','/checkout','/confirmation','/login','/register','/account','/forgot','/verify-email','/reset','/admin','/studio','/track','/partners/apply','/partners/dashboard','/partners/products','/partners/campaigns','/partners/links','/partners/payouts','/partners/store','/partners/settings','/partners/referral'];
-appPaths.push(...['creative','creative/story','creative/gifts','creative/taste','creative/wishes','creative/templates','creative/stories','creative/rooms','creative/sample-room','creative/workspace','creative/wishes/:id','creative/stories/:id','creative/rooms/:id'].map(route=>'/'+route));
+appPaths.push(...['creative','creative/originals','creative/story','creative/gifts','creative/taste','creative/wishes','creative/templates','creative/stories','creative/rooms','creative/sample-room','creative/workspace','creative/wishes/:id','creative/stories/:id','creative/rooms/:id'].map(route=>'/'+route));
 const languages=languageCodes;
 const languageFor=req=>req.path.match(/^\/(en|ar|zh-CN)(?:\/|$)/)?.[1]||'en';
 const basePath=req=>req.path.replace(/^\/(en|ar|zh-CN)(?=\/|$)/,'').replace(/\/$/,'')||'/';
