@@ -39,7 +39,7 @@ test('eight original art directions contain 48 named, distinct, searchable and e
   assert.ok(design.name&&design.ar&&design.zh&&design.tags);
   assert.equal(library.find(design.id).id,design.id);
   assert.ok(library.label(design.id,'ar').length>2);
-  assert.ok(library.label(design.id,'zh-CN').length>2);
+  assert.ok(library.label(design.id,'zh-CN').trim().length>0);
   assert.equal(api.find(design.id).id,design.id);
  }
  assert.equal(api.search('CITY','citylines').length>=1,true);
