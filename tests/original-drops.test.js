@@ -44,7 +44,7 @@ test('eight original art directions contain 48 named, distinct, searchable and e
  }
  assert.equal(api.search('CITY','citylines').length>=1,true);
  assert.equal(api.search('زهرة','botanical').length>=1,true);
- assert.equal(api.search('未来','').length>=1,false); // Search content, not unsupported automatic translation.
+ assert.equal(api.search('未来','').length,6); // Technology collection is discoverable in Chinese.
 });
 
 test('48 pieces have distinct vector sources with recolourable and safe graphics',()=>{
