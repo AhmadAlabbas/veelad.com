@@ -28,9 +28,9 @@ function discoveryRelevance(product,terms,profile) {
  const query=terms.join(' ');
  let score=title===query?120:title.startsWith(query)?70:0;
  for(const term of terms){
-  if(title.split(/\\s+/).some(word=>word===term))score+=28;
+  if(title.split(/\s+/).some(word=>word===term))score+=28;
   else if(title.includes(term))score+=18;
-  if(tags.split(/\\s+/).includes(term))score+=12;
+  if(tags.split(/\s+/).includes(term))score+=12;
   else if(tags.includes(term))score+=5;
   if(category.includes(term))score+=8;
   if(artistName.includes(term))score+=6;
@@ -50,13 +50,13 @@ const discoveryThemeNames={
 };
 function discoveryThemeLabel(tag){
  const known=discoveryThemeNames[searchText(tag)];
- return known?known[currentLanguage()==='ar'?1:currentLanguage()==='zh-CN'?2:0]:String(tag).replace(/[-_]/g,' ').replace(/\\b\\w/g,ch=>ch.toUpperCase());
+ return known?known[currentLanguage()==='ar'?1:currentLanguage()==='zh-CN'?2:0]:String(tag).replace(/[-_]/g,' ').replace(/\b\w/g,ch=>ch.toUpperCase());
 }
 function discoveryThemes(items,activeTag){
  const counts=new Map();
  for(const p of items)for(const raw of new Set(p.tags||[])){
   const tag=String(raw).trim();
-  if(!tag||tag.length>32||!/[\\p{L}]/u.test(tag)||!/^[-\\p{L}\\p{N} ]+$/u.test(tag))continue;
+  if(!tag||tag.length>32||!/[\p{L}]/u.test(tag)||!/^[-\p{L}\p{N} ]+$/u.test(tag))continue;
   counts.set(tag,(counts.get(tag)||0)+1);
  }
  const ranked=[...counts].filter(([tag,count])=>count>=2||tag===activeTag)
@@ -68,8 +68,9 @@ function discoveryThemes(items,activeTag){
 function discoveryThemeNavigation(items,values){
  const themes=discoveryThemes(items,values.tag||'');
  if(!themes.length)return '';
- const current=Object.fromEntries(params);
- return `<nav class="shop-theme-navigation" aria-label="${t('Shop by theme')}"><div class="shop-theme-heading"><span>${t('Explore by theme')}</span><small>${t('Made from actual artist tags')}</small></div><div class="shop-theme-links">${themes.map(item=>link(esc(discoveryThemeLabel(item.tag))+' <span>'+localNumber(item.count)+'</span>','shop','shop-theme-chip '+(values.tag===item.tag?'active':''),{...current,tag:values.tag===item.tag?'':item.tag,page:''})).join('')}</div></nav>`;
+ const current=Object.fromEntries(params),language=currentLanguage();
+ const labels=language==='ar'?['تصفّح حسب الطابع','وسوم من تصاميم الفنانين']:language==='zh-CN'?['按主题探索','来自真实艺术家作品的标签']:['Explore by theme','Based on artists’ design tags'];
+ return `<nav class="shop-theme-navigation" aria-label="${esc(labels[0])}"><div class="shop-theme-heading"><span>${esc(labels[0])}</span><small>${esc(labels[1])}</small></div><div class="shop-theme-links">${themes.map(item=>link(esc(discoveryThemeLabel(item.tag))+' <span>'+localNumber(item.count)+'</span>','shop','shop-theme-chip '+(values.tag===item.tag?'active':''),{...current,tag:values.tag===item.tag?'':item.tag,page:''})).join('')}</div></nav>`;
 }
 
 function searchSuggestions(query,catalog,profiles) {
