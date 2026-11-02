@@ -12,8 +12,8 @@ const db={
  async one(query,values){return query.includes('FROM products')&&values[0]===product.id?{...product,data:JSON.stringify(product)}:null;},
  async q(query){if(query.includes('FROM artists'))return [{data:JSON.stringify(artist)}];if(query.includes('FROM products'))return [{id:product.id}];return [];}
 };
-async function withPages(mode,run,listing=product){
- const pageDb={...db,async one(query,values){return query.includes('FROM products')&&values[0]===listing.id?{...listing,data:JSON.stringify(listing)}:null;}};
+async function withPages(mode,run,listing=product,options={}){
+ const pageDb={...db,async one(query,values){return query.includes('FROM products')&&values[0]===listing.id?{...listing,data:JSON.stringify(listing)}:null;},async q(query){if(options.empty&&(query.includes('FROM products')||query.includes('FROM artists')))return [];return db.q(query);}};
  const app=express();pageRoutes(app,{mode,origin:'https://veelad.example',uploadDir:'/tmp',numberingSystem:'latn',revision:'f'.repeat(40)},pageDb,{status:'ready'});
  const server=app.listen(0,'127.0.0.1');await new Promise(resolve=>server.once('listening',resolve));
  try{await run('http://127.0.0.1:'+server.address().port);}finally{await new Promise(resolve=>server.close(resolve));}
@@ -121,3 +121,29 @@ test('prelaunch landing provides clothing-focused metadata and canonical URL',as
  assert.ok(source.includes('Custom Apparel'));
  assert.ok(source.includes('application/ld+json'));
 });
+
+test('empty production shop, artist index, and inactive affiliate pages are not indexed or placed in the sitemap',async()=>withPages('production',async base=>{
+ for(const path of ['/en/shop','/ar/artists','/zh-CN/partners']){
+  const html=await (await fetch(base+path)).text();
+  assert.ok(html.includes('name="robots" content="noindex, nofollow"'),path);
+ }
+ for(const path of ['/en','/ar','/zh-CN','/en/sell','/ar/help','/zh-CN/policies']){
+  const html=await (await fetch(base+path)).text();
+  assert.ok(html.includes('name="robots" content="index, follow"'),path);
+ }
+ const sitemap=await (await fetch(base+'/sitemap.xml')).text();
+ assert.ok(sitemap.includes('<loc>https://veelad.example/en</loc>'));
+ assert.ok(!sitemap.includes('<loc>https://veelad.example/en/shop</loc>'));
+ assert.ok(!sitemap.includes('<loc>https://veelad.example/ar/artists</loc>'));
+ assert.ok(!sitemap.includes('<loc>https://veelad.example/zh-CN/partners</loc>'));
+ assert.ok(!sitemap.includes('/products/design-1'));
+},product,{empty:true}));
+test('localized public sections have specific titles and descriptions rather than duplicate homepage metadata',async()=>withPages('production',async base=>{
+ for(const [language,path,key,desc] of [['en','sell','sellTitle','sellDescription'],['ar','help','helpTitle','helpDescription'],['zh-CN','policies','policiesTitle','policiesDescription']]){
+  const html=await (await fetch(base+'/'+language+'/'+path)).text();
+  assert.ok(html.includes('<title>'+pageTranslations[language][key]+'</title>'));
+  assert.ok(html.includes(pageTranslations[language][desc]));
+ }
+ const filtered=await (await fetch(base+'/en/shop?category=shirts')).text();
+ assert.ok(filtered.includes('name="robots" content="noindex, nofollow"'));
+}));
