@@ -6,6 +6,7 @@ import {socialLinks} from './social-links.js';
 import {orderMessage} from './order-mail.js';
 import {artistProfileRoute,recordArtistRelease} from './artist-profiles.js';
 import {shoppingRoute} from './shopping-quality.js';
+import {validateProductFacets} from './product-facets.js';
 import {readScalableMaster} from './scalable-editions.js';
 import {fileHash} from './private-bundle.js';
 import express from 'express';
@@ -140,7 +141,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
  function preserveDetails(p,old) {
   if(!old) return;
   const previous=json(old.data),optionsSupplied=p.purchase_options!==undefined;
-  for(const key of [...Object.keys(detailLimits),...Object.keys(translationLimits),'production_notes','print_formats','tags','tags_ar','tags_zh','design_styles','price_is_placeholder','purchase_options','gallery_upload_ids','design_studio','mockup_upload_id','customer_customizable','collection_id','design_group','story','story_ar','artwork_attribution','sample_pricing','stock_is_simulated']) if(p[key]===undefined && previous[key]!==undefined) p[key]=previous[key];
+  for(const key of [...Object.keys(detailLimits),...Object.keys(translationLimits),'production_notes','print_formats','tags','tags_ar','tags_zh','design_styles','price_is_placeholder','purchase_options','gallery_upload_ids','design_studio','mockup_upload_id','customer_customizable','discovery_attributes','collection_id','design_group','story','story_ar','artwork_attribution','sample_pricing','stock_is_simulated']) if(p[key]===undefined && previous[key]!==undefined) p[key]=previous[key];
   if(!optionsSupplied&&(previous.upload_id!==p.upload_id||previous.category!==p.category)){if(p.purchase_options)p.purchase_options={...p.purchase_options,confirmed:false};}
   if(previous.upload_id===p.upload_id&&previous.artwork_metadata!==undefined)p.artwork_metadata=previous.artwork_metadata;
   if(p.design_studio?.artwork_id!==(p.upload_id||null)){delete p.design_studio;delete p.mockup_upload_id;}
@@ -180,6 +181,10 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
   if(!artistSubmission&&v.price_is_placeholder!==undefined){if(typeof v.price_is_placeholder!=='boolean')fail(422,'Please check the price placeholder status.');p.price_is_placeholder=v.price_is_placeholder;}
   Object.assign(p,optionalDetails(v,detailLimits));
   if(v.design_styles!==undefined)p.design_styles=validateDesignStyles(v.design_styles);
+  if(v.discovery_attributes!==undefined){
+   if(artistSubmission)fail(403,'Verified discovery attributes require administrator approval.');
+   p.discovery_attributes=validateProductFacets(v.discovery_attributes);
+  }
   Object.assign(p,optionalTranslations(v,{...translationLimits,production_notes:2000}));
   if(v.print_formats!==undefined) {
    if(!Array.isArray(v.print_formats)||v.print_formats.length>categories.length||v.print_formats.some(format=>!categories.includes(format))) fail(422,'Choose supported print formats.');
