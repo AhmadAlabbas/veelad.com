@@ -7,7 +7,19 @@ function phase3ArtistLaunchCenter(products=[]) {
   ['pending','Awaiting approval','Your work is private until an administrator approves it.'],
   ['active','Published work','See your live portfolio and storefront.']
  ];
- return '<section class="panel phase3-launch" aria-label="'+esc(t('Artist action centre'))+'"><div class="row between phase3-heading"><div><span class="eyebrow">'+t('PHASE 3 / ARTIST WORKSPACE')+'</span><h2>'+t('Your next creative steps')+'</h2></div>'+link(t('Upload new artwork'),'studio','btn sm',{tab:'upload'})+'</div><div class="phase3-tiles">'+states.map(([state,name,detail])=>'<article class="phase3-tile"><strong>'+localNumber(products.filter(p=>p.status===state).length)+'</strong><h3>'+t(name)+'</h3><p>'+t(detail)+'</p>'+link(t('View designs'),'studio','text-link',{tab:'products',status:state})+'</article>').join('')+'</div></section>';
+
+ const attention=products.filter(p=>['changes_requested','draft','pending'].includes(p.status))
+   .sort((a,b)=>({changes_requested:0,draft:1,pending:2}[a.status]-{changes_requested:0,draft:1,pending:2}[b.status]))
+   .slice(0,5);
+ const collectionsHref=normalUrl('studio',{tab:'collections'});
+ const openShop=normalUrl('studio',{tab:'settings'});
+ const escapeText=value=>esc(String(value??''));
+ const queue='<section class="phase5-queue" aria-label="'+escapeText(t('Your design review queue'))+'"><div class="phase5-queue-heading"><div><span class="eyebrow">ARTIST WORKFLOW</span><h3>'+t('What needs your attention')+'</h3></div><a class="text-link" href="'+escapeText(normalUrl('studio',{tab:'products'}))+'">'+t('All designs')+'</a></div>'
+ + (attention.length?attention.map(item=>'<article class="phase5-queue-row" data-artist-work-item="'+escapeText(item.status)+'"><div><strong>'+escapeText(localField(item,'title')||item.title||t('Untitled design'))+'</strong><small>'+escapeText(statusLabel(item.status))+' · '+escapeText(item.category)+'</small>'
+ +(item.status==='changes_requested'&&item.review?.feedback?'<p class="phase5-feedback">'+escapeText(item.review.feedback.slice(0,240))+'</p>':'')
+ +'</div><div>'+button(t(item.status==='pending'?'View submission':'Continue editing'), 'edit-artist-product','data-id="'+escapeText(item.id)+'"','btn outline sm')+'</div></article>').join(''):'<p class="phase5-queue-empty">'+t('No drafts or submissions need attention right now.')+'</p>')
+ +'<div class="phase5-queue-links"><a class="btn outline sm" href="'+escapeText(collectionsHref)+'">'+t('Organise shop collections')+'</a><a class="btn outline sm" href="'+escapeText(openShop)+'">'+t('Edit shop profile')+'</a></div></section>';
+ return '<section class="panel phase3-launch" aria-label="'+esc(t('Artist action centre'))+'"><div class="row between phase3-heading"><div><span class="eyebrow">'+t('ARTIST / WORKFLOW')+'</span><h2>'+t('Your next creative steps')+'</h2></div>'+link(t('Upload new artwork'),'studio','btn sm',{tab:'upload'})+'</div><div class="phase3-tiles">'+states.map(([state,name,detail])=>'<article class="phase3-tile"><strong>'+localNumber(products.filter(p=>p.status===state).length)+'</strong><h3>'+t(name)+'</h3><p>'+t(detail)+'</p>'+link(t('View designs'),'studio','text-link',{tab:'products',status:state})+'</article>').join('')+'</div>'+queue+'</section>';
 }
 function phase3ArtistSalesDashboard(summary) {
  if (!summary) return '<section class="panel phase3-sales" aria-label="'+esc(t('Artist sales report'))+'"><h2>'+t('Artist sales report')+'</h2><p>'+t('Connected sales data is unavailable in this workspace. No payout balance can be confirmed.')+'</p></section>';

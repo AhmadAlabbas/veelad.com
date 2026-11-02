@@ -11,3 +11,12 @@
 .artist-shop-location,.artist-shop-section h2,.artist-shop-product-group>h3,.artist-notifications a{overflow-wrap:anywhere}.artist-notifications article>div{min-width:0}
 
 .artist-editor-heading-actions{display:grid;gap:10px;flex-shrink:0}.artist-editor-heading-actions .btn{font-size:12px}.artist-editor-save{position:static}.artist-editor-preview .artist-preview-shell{order:-1}#artist-profile-actions{scroll-margin-top:20px}@media(max-width:760px){.artist-editor-heading-actions{display:flex;flex-wrap:wrap;margin-top:20px}.artist-editor-heading-actions .btn{font-size:11px;flex:1;padding-inline:12px}}
+
+/* Artist collection workbench reuses the secure profile draft, save and publish form.
+   Hidden sections keep their values in the form; they are NEVER removed or reset. */
+.artist-editor-collections [data-artist-profile-form] > section.panel:not(.artist-collections-panel){display:none}
+.artist-editor-collections .artist-editor-heading{border-bottom:1px solid #ece8ef;padding-bottom:20px}
+.artist-editor-collections .artist-collections-panel{border:1px solid #d9cfeb;background:#fff;border-radius:18px}
+.artist-editor-collections .artist-editor-save{margin-top:18px}
+.artist-collections-panel{scroll-margin-top:20px}
+@media(max-width:760px){.artist-editor-collections .artist-editor-heading{display:block}.artist-editor-collections .artist-collections-panel{padding:14px}}

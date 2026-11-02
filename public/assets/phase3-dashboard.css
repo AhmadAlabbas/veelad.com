@@ -1,1 +1,14 @@
 .phase3-launch,.phase3-sales,.phase3-triage{margin:24px 0}.phase3-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px}.phase3-heading h2,.phase3-sales h2{font-size:clamp(22px,2.1vw,30px);margin:6px 0}.phase3-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,205px),1fr));gap:12px;margin-top:18px}.phase3-tile{border:1px solid #e0e0dc;background:#fff;border-radius:12px;padding:18px;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:9px}.phase3-tile>strong{font-size:clamp(22px,2vw,30px);line-height:1.2;overflow-wrap:anywhere}.phase3-tile h3{font-size:16px;letter-spacing:-.01em}.phase3-tile p{font-size:12px;line-height:1.5}.phase3-tile .text-link{margin-top:auto}.phase3-financial-notice{border-top:1px solid #dededb;margin-top:20px;padding-top:17px}.phase3-financial-notice strong{display:block;margin-bottom:5px}.phase3-sales>p{margin-top:8px}.phase3-triage .phase3-tiles{grid-template-columns:repeat(auto-fit,minmax(min(100%,185px),1fr))}@media(max-width:640px){.phase3-launch,.phase3-sales,.phase3-triage{margin:16px 0}.phase3-tile{padding:15px}.phase3-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}.phase3-heading .btn{width:100%}}@media(max-width:350px){.phase3-tiles{grid-template-columns:1fr}}
+/* Priority 5 artist workflow: action queue built only from own artist products */
+.phase5-queue{margin-top:20px;padding:19px;background:#fff;border:1px solid #e5dfe7;border-radius:16px}
+.phase5-queue-heading{display:flex;align-items:start;justify-content:space-between;gap:14px;margin-bottom:13px}
+.phase5-queue-heading h3{font-size:19px;margin:3px 0 0;letter-spacing:-.025em}
+.phase5-queue-heading .eyebrow{font-size:10px;letter-spacing:.12em;color:#7d687f}
+.phase5-queue-row{border-top:1px solid #eee9ed;padding:13px 0;display:flex;align-items:center;justify-content:space-between;gap:18px}
+.phase5-queue-row>div:first-child{min-width:0}
+.phase5-queue-row strong{font-size:13px;display:block;overflow-wrap:anywhere}
+.phase5-queue-row small{display:block;color:#777080;margin-top:3px;font-size:11px}
+.phase5-feedback{font-size:11px;line-height:1.6;color:#806047;background:#fff6ed;border-left:3px solid #e3b38e;border-radius:3px;padding:9px;margin:7px 0 0;overflow-wrap:anywhere;white-space:normal}
+.phase5-queue-links{display:flex;flex-wrap:wrap;gap:9px;border-top:1px solid #eee9ed;padding-top:14px}
+.phase5-queue-empty{font-size:12px;color:#65616c;margin:11px 0 20px}
+@media(max-width:630px){.phase5-queue{padding:13px}.phase5-queue-row{align-items:flex-start;flex-direction:column;gap:8px}.phase5-queue-heading h3{font-size:16px}.phase5-queue-links .btn{min-height:40px}}
