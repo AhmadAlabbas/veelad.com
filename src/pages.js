@@ -30,6 +30,14 @@ export function pageRoutes(app,c,db,schema) {
   res.set('Cache-Control','private, no-store').set('Vary','Cookie').redirect(302,'/'+preference);
  });
  async function listing(id){const row=await db.one("SELECT * FROM products WHERE id=? AND status='active'",[id]);return row?product(row):null;}
+ async function searchableProducts(){
+  const rows=await db.q("SELECT id,data FROM products WHERE status='active'");
+  return rows.filter(row=>{
+   if(row.data==null)return true;
+   try{const detail=typeof row.data==='string'?JSON.parse(row.data):row.data;return detail.sample_pricing!==true&&detail.stock_is_simulated!==true;}
+   catch{return false;}
+  });
+ }
  async function artist(id){return (await publicArtists(db)).find(a=>a.id===id)||null;}
  function ready(req,res){if(schema.status!=='ready'){res.status(503).set('Retry-After','2').send(pageText(languageFor(req),'storeStarting'));return false;}return true;}
  async function html(req,res,{title,description,image,canonical=basePath(req),body='',structured=null,status=200,indexable=true}={}) {
@@ -52,7 +60,8 @@ export function pageRoutes(app,c,db,schema) {
  app.get(['/sitemap.xml',...languages.map(code=>'/sitemap-'+code+'.xml')],async(req,res)=>{
   const selected=languages.find(code=>req.path==='/sitemap-'+code+'.xml'),included=selected?[selected]:languages;
   if(!ready(req,res))return;
-  const paths=c.mode==='staging'?[]:[...publicPaths,...(await db.q("SELECT id FROM products WHERE status='active'")).map(p=>'/products/'+encodeURIComponent(p.id)),...(await publicArtists(db)).map(a=>'/artists/'+encodeURIComponent(a.id))];
+  const listings=c.mode==='staging'?[]:await searchableProducts(),artists=c.mode==='staging'?[]:await publicArtists(db);
+  const paths=c.mode==='staging'?[]:[...publicPaths.filter(p=>(p!=='/shop'||listings.length>0)&&(p!=='/artists'||artists.length>0)&&(!p.startsWith('/partners')||c.partners?.enabled===true)),...listings.map(p=>'/products/'+encodeURIComponent(p.id)),...artists.map(a=>'/artists/'+encodeURIComponent(a.id))];
   res.type('application/xml').send(`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">${paths.flatMap(p=>included.map(language=>`<url><loc>${esc(c.origin+localizedPath(p,language))}</loc>${languages.map(code=>`<xhtml:link rel="alternate" hreflang="${code}" href="${esc(c.origin+localizedPath(p,code))}"/>`).join('')}<xhtml:link rel="alternate" hreflang="x-default" href="${esc(c.origin+localizedPath(p,'en'))}"/></url>`)).join('')}${await journalSitemap(db,c,selected)}</urlset>`);
  });
  app.get(equivalents('/products/:id'),async(req,res)=>{
@@ -61,7 +70,7 @@ export function pageRoutes(app,c,db,schema) {
   const a=await artist(p.artist_id),pathname='/products/'+encodeURIComponent(p.id),url=c.origin+localizedPath(pathname,language),image='/share/'+language+pathname+'.png',name=field(p,'title',language),description=field(p,'description',language),artistName=field(a,'name',language)||pageText(language,'independentArtist'),sample=p.sample_pricing===true||p.stock_is_simulated===true;
   return html(req,res,{title:field(p,'seo_title',language)||pageText(language,'productTitle',{title:name,artist:artistName}),description:field(p,'seo_description',language)||description,image,canonical:pathname,
    body:`<main><h1>${esc(name)}</h1><p>${esc(description)}</p>${sample?`<p><strong>${esc(pageText(language,'samplePrice'))}</strong> · ${esc(pageMoney(p.price,language,c.numberingSystem||'latn'))} · ${esc(pageText(language,'sampleListing'))}</p><p>${esc(pageText(language,'sampleDetails'))}</p>`:`<p>${esc(pageMoney(p.price,language,c.numberingSystem||'latn'))} · ${p.stock?pageText(language,'inStock'):pageText(language,'soldOut')}</p>`}<a href="${localizedPath('/artists/'+encodeURIComponent(p.artist_id),language)}">${esc(pageText(language,'designedBy',{artist:artistName}))}</a></main>`,
-   structured:{'@context':'https://schema.org','@type':'Product',name,description,inLanguage:language,image:c.origin+image,sku:p.id,brand:{'@type':'Brand',name:artistName},...(sample?{}:{offers:{'@type':'Offer',url,priceCurrency:'SAR',price:(p.price/100).toFixed(2),availability:'https://schema.org/'+(p.stock?'InStock':'OutOfStock')}})}});
+   indexable:!sample,structured:{'@context':'https://schema.org','@type':'Product',name,description,inLanguage:language,image:c.origin+image,sku:p.id,brand:{'@type':'Brand',name:artistName},...(sample?{}:{offers:{'@type':'Offer',url,priceCurrency:'SAR',price:(p.price/100).toFixed(2),availability:'https://schema.org/'+(p.stock?'InStock':'OutOfStock')}})}});
  });
  app.get(equivalents('/artists/:id'),async(req,res)=>{
   if(!ready(req,res))return;const a=await artist(req.params.id),language=languageFor(req);if(!a)return html(req,res,{title:pageText(language,'artistUnavailable'),status:404,indexable:false});
@@ -70,10 +79,15 @@ export function pageRoutes(app,c,db,schema) {
  });
  app.get([...appPaths,'/studio/preview/:id','/partners/store/:username'].flatMap(equivalents).filter(path=>path!=='/'),async(req,res)=>{
   if(!ready(req,res))return;
-  const pathname=basePath(req),language=languageFor(req),titles={'/my-designs':pageText(language,'myDesignsTitle'),'/create':pageText(language,'createTitle'),'/shop':pageText(language,'shopTitle'),'/artists':pageText(language,'artistsTitle')};
+  const pathname=basePath(req),language=languageFor(req),titles={'/my-designs':pageText(language,'myDesignsTitle'),'/create':pageText(language,'createTitle'),'/shop':pageText(language,'shopTitle'),'/artists':pageText(language,'artistsTitle'),'/sell':pageText(language,'sellTitle'),'/help':pageText(language,'helpTitle'),'/policies':pageText(language,'policiesTitle'),'/partners':pageText(language,'partnersTitle')};
+  const descriptions={'/shop':pageText(language,'shopDescription'),'/artists':pageText(language,'artistsDescription'),'/sell':pageText(language,'sellDescription'),'/help':pageText(language,'helpDescription'),'/policies':pageText(language,'policiesDescription'),'/partners':pageText(language,'partnersDescription')};
+  const emptyCatalog=pathname==='/shop'&&(await searchableProducts()).length===0;
+  const emptyArtists=pathname==='/artists'&&(await publicArtists(db)).length===0;
+  const disabledPartners=pathname.startsWith('/partners')&&c.partners?.enabled!==true;
+  const searchable=publicPaths.includes(pathname)&&Object.keys(req.query).length===0&&!emptyCatalog&&!emptyArtists&&!disabledPartners;
   const homepage=pathname==='/';
   const structured=homepage?{'@context':'https://schema.org','@graph':[{'@type':'Organization','@id':c.origin+'/#organization',name:'Veelad',url:c.origin+'/'},{'@type':'WebSite','@id':c.origin+'/#website',name:'Veelad',url:c.origin+'/',description:pageText(language,'storeDescription'),inLanguage:language,publisher:{'@id':c.origin+'/#organization'}}]}:null;
-  return html(req,res,{title:pathname.startsWith('/partners')?interfaceText(language,'Veelad Partners','شركاء فيلاد')+' — '+interfaceText(language,'Share what you love. Earn with Veelad.','شارك ما تحب، واربح مع فيلاد.'):titles[pathname],canonical:pathname,indexable:publicPaths.includes(pathname)&&!req.query.q,structured,body:homepage?homepageBody(language):`<main><h1>${pageText(language,'storeName')}</h1><p>${pageText(language,'storeIntro')}</p><a href="${localizedPath('/shop',language)}">${pageText(language,'exploreDesigns')}</a><a href="${localizedPath('/artists',language)}">${pageText(language,'meetArtists')}</a></main>`});
+  return html(req,res,{title:pathname.startsWith('/partners')?interfaceText(language,'Veelad Partners','شركاء فيلاد')+' — '+interfaceText(language,'Share what you love. Earn with Veelad.','شارك ما تحب، واربح مع فيلاد.'):titles[pathname],canonical:pathname,indexable:searchable,description:descriptions[pathname],structured,body:homepage?homepageBody(language):`<main><h1>${pageText(language,'storeName')}</h1><p>${pageText(language,'storeIntro')}</p><a href="${localizedPath('/shop',language)}">${pageText(language,'exploreDesigns')}</a><a href="${localizedPath('/artists',language)}">${pageText(language,'meetArtists')}</a></main>`});
  });
  app.get(['/share/store.png','/share/products/:image','/share/artists/:image',...languages.flatMap(language=>['/share/'+language+'/store.png','/share/'+language+'/products/:image','/share/'+language+'/artists/:image'])],async(req,res)=>{
   if(!ready(req,res))return;const language=req.path.match(/^\/share\/(en|ar|zh-CN)\//)?.[1]||'en';let item=null,a=null,title=pageText(language,'shareTitle'),subtitle=pageText(language,'shareSubtitle'),imageBytes=null;
