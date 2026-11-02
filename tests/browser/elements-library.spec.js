@@ -14,8 +14,19 @@ test('creators insert, recolour and persist a private vector element in the desi
   await page.goto(fixture.origin+'/en/create?product=p1');
   const form=page.locator('[data-form=customer-design]'),studio=form.locator('.customer-workspace');
   await expect(form.locator('.design-studio')).toHaveAttribute('data-ready','true');
-  await expect.poll(()=>page.evaluate(()=>window.VeeladElements?.catalog.length)).toBe(4290);
-  await studio.locator('[data-ws-tool=elements]').click();
+  await expect.poll(()=>page.evaluate(()=>window.VeeladElements?.catalog.length)).toBe(10050);
+  // Pattern Atelier: real editable PNG export and searchable original variants.
+  const patternReady=await page.evaluate(async()=>{
+    const api=window.VeeladElements;
+    const sample=api.catalog.find(item=>item.id==='pattern-daisy-grid-1-0');
+    const png=await api.file(sample.id,{primary:'#e14369',secondary:'#fff3d6',accent:'#184f42'});
+    return {count:api.stats.patternCompositions,id:sample.id,type:png.type,size:png.size,svg:api.svg(sample.id)};
+  });
+  expect(patternReady.count).toBe(5760);
+  expect(patternReady.type).toBe('image/png');
+  expect(patternReady.size).toBeGreaterThan(1000);
+  expect(patternReady.svg).toContain('#e14369');
+    await studio.locator('[data-ws-tool=elements]').click();
   await studio.locator('[data-ws-element-category]').selectOption('Botanicals');
   await expect(studio.locator('[data-ws-element-list] .cw-element-tile')).toHaveCount(15);
   await expect(studio.locator('[data-ws-element=botanical-sunflower-0]')).toBeVisible();
@@ -109,7 +120,18 @@ test('creators insert, recolour and persist a private vector element in the desi
   await expect.poll(async()=> (await scene()).layers.length).toBe(3);
   expect((await scene()).layers.some(layer=>layer.type==='text'&&layer.text==='MAKE IT BLOOM')).toBe(true);
 
-  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+  // Fully exercise the actual Pattern Atelier -> uploaded image layer -> recolour pipeline.
+  await studio.locator('[data-ws-tool=elements]').click();
+  await studio.locator('[data-ws-element-category]').selectOption('Patterns');
+  await studio.locator('[data-ws-element-search]').fill('Daisy');
+  await expect(studio.locator('[data-ws-element=pattern-daisy-grid-1-0]')).toBeVisible();
+  await studio.locator('[data-ws-element=pattern-daisy-grid-1-0]').click();
+  await expect.poll(async()=> (await scene()).layers.some(l=>l.library_element?.id==='pattern-daisy-grid-1-0')).toBe(true);
+  const pattern=(await scene()).layers.find(l=>l.library_element?.id==='pattern-daisy-grid-1-0');
+  await expect(studio.locator('[data-ws-element-colour=primary]')).toBeVisible();
+  await studio.locator('[data-ws-element-colour=primary]').fill('#3167a4');
+  await expect.poll(async()=> (await scene()).layers.find(l=>l.id===pattern.id)?.library_element?.colors.primary).toBe('#3167a4');
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
   expect(errors).toEqual([]);
  }finally{await page.goto('about:blank').catch(()=>{});await fixture.close();}
 });

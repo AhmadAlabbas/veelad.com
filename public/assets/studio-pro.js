@@ -9,6 +9,7 @@ const folders=Object.freeze([
  {id:'travel',title:'Travel essentials',ar:'لوازم السفر',zh:'旅行主题',keys:['camera-0','compass-0','airplane-0','skyline-0','cottage-0','lighthouse-0']},
  {id:'celebrate',title:'Celebrations',ar:'المناسبات',zh:'庆祝主题',keys:['heart-0','gift-0','balloon-0','confetti-0','star-0']},
  {id:'minimal',title:'Minimal shapes',ar:'الأشكال البسيطة',zh:'极简图案',keys:['diamond-0','arches-0','checker-0','spiral-0']},
+ {id:'pattern-atelier',title:'Pattern Atelier',ar:'مرسم الزخارف',zh:'图案创作坊',keys:['pattern-daisy-grid-1-0','pattern-rose-bouquet-2-0','pattern-sprig-grid-1-0','pattern-sprig-corners-1-0','pattern-fern-cascade-5-0','pattern-sun-orbit-3-0','pattern-moon-medallion-3-0','pattern-shell-scatter-4-0','pattern-wave-stripes-2-0','pattern-arch-frame-4-0','pattern-star-diagonal-2-0','pattern-coffee-stagger-2-0','pattern-bird-bouquet-1-0','pattern-heart-orbit-1-0','pattern-diamond-chevron-1-0','pattern-bolt-diagonal-1-0']},
  {id:'botanical-atelier',title:'Botanical Atelier',ar:'مرسم الزهور والنباتات',zh:'植物艺术工坊',keys:['botanical-sunflower-0','botanical-poppies-0','botanical-tulips-0','botanical-monstera-0','botanical-orchid-0','botanical-fern-0','botanical-mushrooms-0','botanical-butterfly-0','botanical-citrus-0','botanical-roses-0','botanical-coral-0','botanical-lotus-0','botanical-lavender-0','botanical-maple-0','botanical-daisy-0']}
 ]);
 const templates=Object.freeze([
