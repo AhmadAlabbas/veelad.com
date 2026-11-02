@@ -291,7 +291,7 @@ export function snapLayerPosition(layer, peers, canvas, { threshold = 8 } = {}) 
     y: [0, canvas.height / 2, canvas.height],
   };
   for (const peer of peers) {
-    if (peer.visible === false || peer.id === layer.id) continue;
+    if (peer.visible === false || (layer.id !== undefined && peer.id === layer.id)) continue;
     const box = bounds(peer);
     targets.x.push(...box.x);
     targets.y.push(...box.y);
