@@ -32,3 +32,14 @@
 .journal-inspiration .btn{display:inline-flex}
 .journal[dir=rtl] .journal-inspiration h2{letter-spacing:normal}
 @media (max-width:640px){.journal-departments{gap:22px;padding:15px 0}.journal-demo-notice{margin:14px 0}.journal-article>.journal-demo-notice{margin-top:18px}}
+
+/* Reader experience: browser-local saved stories and subtle reading progress. */
+.journal-card-save,.journal-saved-open{font:inherit;font-size:12px;border:1px solid #d9d5d5;background:#fff;color:#363036;padding:8px 13px;cursor:pointer;margin-top:16px;border-radius:3px}
+.journal-saved-open{margin:0 0 0 auto;white-space:nowrap}
+.journal-card-save[aria-pressed=true],.journal-share [data-journal-save][aria-pressed=true]{color:#704399;font-weight:700}
+.journal-reading-progress{position:fixed;top:0;inset-inline:0;height:3px;z-index:400;pointer-events:none}
+.journal-reading-progress span{display:block;height:100%;width:100%;transform:scaleX(0);transform-origin:top left;background:#7651b5}
+[dir=rtl] .journal-reading-progress span{transform-origin:top right}
+.journal-saved-list{list-style:none;padding:0;margin:10px 0;display:grid;gap:14px}
+.journal-saved-list li{border-bottom:1px solid #ddd;padding-bottom:12px}
+.journal-saved-list a{color:inherit;text-decoration:underline;text-underline-offset:4px}
