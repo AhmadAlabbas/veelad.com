@@ -1,0 +1,17 @@
+/* Priority 4 — garment placement controls. Provisional preview coordinates only. */
+.cw-placement-assistant{min-width:0;position:relative;background:#fff;border:1px solid #e4dfe6;border-radius:12px;margin:0 0 8px;color:#292631;max-width:100%}
+.cw-placement-assistant summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;cursor:pointer;font-size:12px;font-weight:750;list-style:none}
+.cw-placement-assistant summary::-webkit-details-marker{display:none}
+.cw-placement-assistant summary::after{content:"+";font-size:18px;line-height:1;color:#756c7b;font-weight:500}
+.cw-placement-assistant[open] summary::after{content:"−"}
+.cw-placement-assistant summary:focus-visible{outline:3px solid #a992ef;outline-offset:2px}
+.cw-placement-assistant-body{padding:0 12px 12px;display:grid;gap:10px}
+.cw-placement-assistant-body>p{margin:0;color:#756e7c;font-size:11px;line-height:1.5}
+.cw-placement-preset-list{display:flex;flex-wrap:wrap;gap:6px}
+.cw-placement-preset-list button,.cw-placement-utility button{border:1px solid #ded9e4!important;background:#faf8fc!important;border-radius:999px!important;color:#463b53!important;padding:7px 11px!important;font-size:11px!important;font-weight:700!important;line-height:1.3!important;max-width:100%;white-space:normal}
+.cw-placement-preset-list button:not(:disabled):hover,.cw-placement-utility button:not(:disabled):hover{border-color:#9e8caf!important;background:#efeaf5!important}
+.cw-placement-utility{display:flex;flex-wrap:wrap;gap:7px;padding-top:4px;border-top:1px solid #eee9f0}
+.cw-placement-utility button{background:#fff!important}
+.cw-placement-assistant button:disabled{opacity:.4!important;cursor:not-allowed}
+@media(max-width:700px){.cw-placement-assistant{margin:4px 0}.cw-placement-preset-list button,.cw-placement-utility button{font-size:10px!important;padding:7px 9px!important}}
+@media(prefers-reduced-motion:reduce){.cw-placement-assistant button{transition:none}}
