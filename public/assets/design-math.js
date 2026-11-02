@@ -265,3 +265,56 @@ export function projectTexture(
   }
   return output;
 }
+
+
+/**
+ * Align flat artwork to canvas and other visible layers using logical pixels.
+ * This is deliberately independent of CSS zoom. Product-preview snapping
+ * keeps using the projected garment mesh in VeeladPreviewSnap.
+ */
+export function snapLayerPosition(layer, peers, canvas, { threshold = 8 } = {}) {
+  const bounds = (item) => {
+    const angle = ((item.rotation || 0) * Math.PI) / 180;
+    const width = Math.abs(Math.cos(angle)) * item.width +
+      Math.abs(Math.sin(angle)) * item.height;
+    const height = Math.abs(Math.sin(angle)) * item.width +
+      Math.abs(Math.cos(angle)) * item.height;
+    return {
+      x: [item.x - width / 2, item.x, item.x + width / 2],
+      y: [item.y - height / 2, item.y, item.y + height / 2],
+    };
+  };
+  const source = bounds(layer);
+  const targets = {
+    x: [0, canvas.width / 2, canvas.width],
+    y: [0, canvas.height / 2, canvas.height],
+  };
+  for (const peer of peers) {
+    if (peer.visible === false || (layer.id !== undefined && peer.id === layer.id)) continue;
+    const box = bounds(peer);
+    targets.x.push(...box.x);
+    targets.y.push(...box.y);
+  }
+  const snapped = { x: layer.x, y: layer.y, guides: { x: null, y: null } };
+  if (!Number.isFinite(threshold) || threshold <= 0) return snapped;
+  for (const axis of ["x", "y"]) {
+    let best = threshold;
+    let shift = 0;
+    let guide = null;
+    for (const origin of source[axis]) {
+      for (const target of targets[axis]) {
+        const delta = target - origin;
+        if (Math.abs(delta) < best) {
+          best = Math.abs(delta);
+          shift = delta;
+          guide = target;
+        }
+      }
+    }
+    if (guide !== null) {
+      snapped[axis] += shift;
+      snapped.guides[axis] = guide;
+    }
+  }
+  return snapped;
+}
