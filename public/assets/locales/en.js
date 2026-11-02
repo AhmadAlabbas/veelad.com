@@ -2,6 +2,7 @@
 'use strict';
 window.VEELAD_LOCALES = window.VEELAD_LOCALES || {};
 window.VEELAD_LOCALES.en = Object.freeze({
+  "Create": "Create",
   "Backup restoration rehearsal": "Backup restoration rehearsal",
   "Complete snapshot restored and verified": "Complete snapshot restored and verified",
   "Restore verification needs attention": "Restore verification needs attention",

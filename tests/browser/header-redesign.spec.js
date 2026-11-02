@@ -92,3 +92,30 @@ test('narrow laptop keeps search wide and mobile retains menu and bag controls',
   }
  }finally{await page.goto('about:blank').catch(()=>{});await fixture.close();}
 });
+
+test('header Create label translates in English, Arabic and Chinese without breaking dropdown',async({page})=>{
+ test.setTimeout(120000);
+ const fixture=await googleApp();
+ try{
+  await page.setViewportSize({width:1600,height:900});
+  const header=page.locator('.global-nav');
+  for(const [language,label] of [['en','Create'],['ar','أنشئ'],['zh-CN','创作']]){
+   await page.goto(fixture.origin+'/'+language+'/shop');
+   const menu=header.locator('.header-create-menu');
+   await expect(menu.locator('summary')).toContainText(label);
+   if(language!=='en')await expect(menu.locator('summary')).not.toContainText('Create');
+   await menu.locator('summary').click();
+   await expect(menu.locator('.header-create-options a')).toHaveCount(2);
+   await page.keyboard.press('Escape');
+   await expect(menu).not.toHaveAttribute('open','');
+  }
+  await header.locator('[data-preference-menu=language] summary').click();
+  await header.locator('[data-international-choice=language][data-value=ar]').click();
+  await expect(page).toHaveURL(/\/ar\/shop$/);
+  await expect(header.locator('.header-create-menu summary')).toContainText('أنشئ');
+  await header.locator('[data-preference-menu=language] summary').click();
+  await header.locator('[data-international-choice=language][data-value=zh-CN]').click();
+  await expect(page).toHaveURL(/\/zh-CN\/shop$/);
+  await expect(header.locator('.header-create-menu summary')).toContainText('创作');
+ }finally{await page.goto('about:blank').catch(()=>{});await fixture.close();}
+});
