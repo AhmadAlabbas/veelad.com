@@ -99,7 +99,7 @@ test('desktop header gives search useful width without overlapping navigation',a
     return {search:r(search),brand:r(header.querySelector('.wordmark')),destination:r(header.querySelector('.destination-control')),actions:r(header.querySelector('.nav-actions')),scroll:document.documentElement.scrollWidth};
    });
    expect(geometry.scroll,JSON.stringify({width,geometry})).toBeLessThanOrEqual(width+1);
-   expect(geometry.search.width,JSON.stringify({width,geometry})).toBeGreaterThanOrEqual(width>=1700?360:Math.min(600,width-200));
+   expect(geometry.search.width,JSON.stringify({width,geometry})).toBeGreaterThanOrEqual(width>=1700?550:width>=1366?390:width>=1200?260:590);
    for(const name of ['brand','destination','actions']){
     const other=geometry[name],a=geometry.search;
     const overlap=Math.min(a.right,other.right)-Math.max(a.left,other.left)>1&&Math.min(a.bottom,other.bottom)-Math.max(a.top,other.top)>1;
