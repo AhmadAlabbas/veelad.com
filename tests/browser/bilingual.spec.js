@@ -1,4 +1,5 @@
 import {test,expect} from '@playwright/test';
+import {chooseHeaderPreference} from '../helpers/header-preferences.js';
 import fs from 'node:fs/promises';
 import sharp from 'sharp';
 import {config} from '../../src/config.js';
@@ -7,7 +8,7 @@ try{process.loadEnvFile('.env');}catch(error){if(error.code!=='ENOENT')throw err
 // Each bilingual journey starts with fresh local attempt counters; production throttles stay unchanged.
 test.beforeEach(async()=>{const c=config();if(c.mode!=='local'||c.db.database!=='veelad_local')throw Error('Bilingual browser fixtures require the isolated local database');const db=database(c);try{await db.q('DELETE FROM rate_limits');}finally{await db.pool.end();}});
 async function noOverflow(page){await page.evaluate(()=>document.fonts.ready);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBeTruthy();}
-async function toggle(page){await page.locator('[data-international-language]').first().selectOption(await page.locator('html').getAttribute('lang')==='ar'?'en':'ar');}
+async function toggle(page){await chooseHeaderPreference(page,'language',await page.locator('html').getAttribute('lang')==='ar'?'en':'ar');}
 async function adminLogin(page){const c=JSON.parse(await fs.readFile('var/local-admin.json','utf8'));await page.goto('/en/login');const f=page.locator('[data-form=login]');await f.locator('[name=email]').fill(c.email);await f.locator('[name=password]').fill(c.password);await f.locator('[type=submit]').click();await expect(page).toHaveURL(/admin/);await page.goto('/en/admin');}
 
 test('language switching preserves product, filters, cart and preference while changing direction',async({page})=>{
