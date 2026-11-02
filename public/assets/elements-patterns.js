@@ -15,7 +15,7 @@ const raw=[
  ['berries','Berries','توت','浆果','fruit berry garden','M-14-27Q-27-4-12 4-32 13-18 28-1 38 7 20 29 29 31 7 19-2 28-19 8-24 1-5-2-30-14-27Z'],
  ['heart','Heart','قلب','爱心','love valentines','M0 29-27 3q-17-18-3-31 13-12 30 7 17-19 30-7 14 13-3 31Z'],
  ['star','Star','نجمة','五角星','celestial stars','M0-32 9-11 31-9 15 7 18 30 0 19-18 30-15 7-31-9-9-11Z'],
- ['spark','Spark','闪光','لمعة','sparkle magic','M0-32Q6-6 32 0 6 6 0 32-6 6-32 0-6-6 0-32Z'],
+ ['spark','Spark','لمعة','闪光','sparkle magic','M0-32Q6-6 32 0 6 6 0 32-6 6-32 0-6-6 0-32Z'],
  ['moon','Crescent','هلال','新月','celestial moon','M9-32A32 32 0 1 0 29 13 26 26 0 0 1 9-32Z'],
  ['sun','Sun','شمس','太阳','sunshine celestial','M0-32 7-20 22-25 20-9 33 0 20 9 22 25 7 20 0 33-7 20-22 25-20 9-33 0-20-9-22-25-7-20Z'],
  ['cloud','Cloud','سحابة','云','weather sky','M-24 22Q-40 13-31-4q7-11 19-9 4-24 23-22 15 0 21 18 19-3 24 17 2 16-18 22Z'],
@@ -51,7 +51,7 @@ const catalog=Object.freeze(motifs.flatMap((m,mi)=>layouts.flatMap((l,li)=>Array
 const lookup=new Map(catalog.map(item=>[item.id,item]));
 const palettes=[['#244f43','#eac38b','#ad5367'],['#483d73','#efb6a3','#93c0c8'],['#284967','#b5d5e6','#f0b257'],['#7e3948','#f6c8af','#a4b99e'],['#514b35','#d6d29e','#c39374'],['#313c50','#a1bdc1','#e0c2d2'],['#68432c','#e3ae89','#9dba95'],['#5a4370','#e6c5de','#90a3b8']];
 const clean=(v,f)=>/^#[0-9a-f]{6}$/i.test(v||'')?v.toLowerCase():f;
-const defaultsFor=item=>{const row=palettes[item.mi%palettes.length];return{primary:row[0],secondary:row[1],accent:row[2]};};
+const defaultsFor=item=>{const row=palettes[(item.mi*3+item.edition+item.li)%palettes.length];return{primary:row[0],secondary:row[1],accent:row[2]};};
 const localized=(row,lang)=>lang==='ar'?row.ar:lang==='zh-CN'?row.zh:row.en;
 const categories=Object.freeze([...new Set([...previous.categories,'Patterns','Borders','Textures'])]);
 const labels={Patterns:{ar:'الزخارف والأنماط',zh:'花纹图案'},Borders:{ar:'الإطارات',zh:'边框'},Textures:{ar:'الخامات الزخرفية',zh:'装饰纹理'}};
