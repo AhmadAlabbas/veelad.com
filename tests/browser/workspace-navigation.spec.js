@@ -50,7 +50,7 @@ test('workspace navigation stays reachable at short heights and gives each desti
   // Artists use the same shell, including its scroll and current-page behavior.
   await fixture.db.q('UPDATE users SET role=? WHERE id=?',['artist',adminId]);
   await page.goto(fixture.origin+'/ar/studio?tab=settings');
-  await expect(page.locator('.sidebar-links a')).toHaveCount(6);
+  await expect(page.locator('.sidebar-links a')).toHaveCount(7);
   await expect(page.locator('.sidebar-links [aria-current=page] svg')).toHaveAttribute('data-symbol','settings');
   expect(errors).toEqual([]);
  }finally{await page.goto('about:blank').catch(()=>{});await fixture.close();}
