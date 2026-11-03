@@ -165,15 +165,23 @@ test("layered workspace keeps multiple originals and independent sides through e
 
     // Resize from the middle of an edge without stretching the opposite axis.
     await expect(shell.locator("[data-ws-handle]")).toHaveCount(9);
+    console.info("[workspace-ci] edge-9-counted");
     console.info("[workspace-ci] edge-grip");
     const edge = shell.locator("[data-ws-handle=e]");
     const sideBefore = (await scene("front")).layers.find(l => l.id === selectedImage.id);
+    console.info("[workspace-ci] edge-before-boundingbox");
     const grip = await edge.boundingBox();
+    console.info("[workspace-ci] edge-after-boundingbox");
     await page.mouse.move(grip.x + grip.width / 2, grip.y + grip.height / 2);
+    console.info("[workspace-ci] edge-move-initial");
     await page.mouse.down();
+    console.info("[workspace-ci] edge-pointer-down");
     await page.mouse.move(grip.x + grip.width / 2 + 16, grip.y + grip.height / 2, { steps: 5 });
+    console.info("[workspace-ci] edge-pointer-moved");
     await page.mouse.up();
+    console.info("[workspace-ci] edge-pointer-up");
     await expect.poll(async () => (await scene("front")).layers.find(l => l.id === selectedImage.id).width).toBeGreaterThan(sideBefore.width);
+    console.info("[workspace-ci] edge-width-confirmed");
     expect((await scene("front")).layers.find(l => l.id === selectedImage.id).height).toBeCloseTo(sideBefore.height);
 
     // Precision tools keep the same selected layer after an undo and respect
