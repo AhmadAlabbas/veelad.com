@@ -6,9 +6,10 @@ import {readArtwork,artworkRenderSource} from './artwork.js';
 import {renderDesignTexture} from './mockup-renderer.js';
 import {orderMessage} from './order-mail.js';
 import {syncPartnerOrder} from './partners-finance.js';
+import {phaseOneRoute,phaseOneRoutes,phaseOneAdminRoutes,supplierRoles,supplierMay,printFingerprint,evidenceReady} from './fulfillment-phase1.js';
 
-const adminRoutes=new Set(['admin-fulfillment-suppliers','admin-fulfillment-supplier','admin-fulfillment-member','admin-fulfillment-assign','admin-fulfillment-pool','admin-fulfillment-dispatch']);
-const routeNames=new Set(['fulfillment-session','fulfillment-orders','fulfillment-order','fulfillment-artwork','fulfillment-progress',...adminRoutes]);
+const adminRoutes=new Set(['admin-fulfillment-suppliers','admin-fulfillment-supplier','admin-fulfillment-member','admin-fulfillment-assign','admin-fulfillment-pool','admin-fulfillment-dispatch',...phaseOneAdminRoutes]);
+const routeNames=new Set(['fulfillment-session','fulfillment-orders','fulfillment-order','fulfillment-artwork','fulfillment-progress',...adminRoutes,...phaseOneRoutes]);
 const stamp=()=>now();
 const cleanId=(v,key='id')=>text(v,key,64);
 const activeAccount=(u)=>u?.status==='active';
@@ -31,7 +32,7 @@ export async function fulfillmentRoute({route,method,v,req,res,db,c,me,role,thro
     }
     return supplier;
   };
-  const members=async()=>admin?[]:await q("SELECT s.id,s.name FROM fulfillment_members m JOIN fulfillment_suppliers s ON m.supplier_id=s.id WHERE m.user_id=? AND m.access='active' AND s.status='active' ORDER BY s.name",[u.id]);
+  const members=async()=>admin?[]:await q("SELECT s.id,s.name,m.supplier_role FROM fulfillment_members m JOIN fulfillment_suppliers s ON m.supplier_id=s.id WHERE m.user_id=? AND m.access='active' AND s.status='active' ORDER BY s.name",[u.id]);
   const jobByOrder=async(id,conn,lock=false)=>{
     const job=await one('SELECT * FROM fulfillment_jobs WHERE order_id=?'+(lock?' FOR UPDATE':''),[id],conn);
     if(!job)fail(404,'Production job not found.');
@@ -46,6 +47,7 @@ export async function fulfillmentRoute({route,method,v,req,res,db,c,me,role,thro
     if(!row)fail(404,'Production job not found.');
     return row;
   };
+  if(phaseOneRoutes.has(route))return phaseOneRoute({route,method,v,req,res,db,c,u,admin,one,q,audit,queue,throttle,supplierAccess,jobByOrder,orderById});
   if(route==='fulfillment-session'&&method==='GET'){
     const linked=await members();
     return res.json({user:{id:u.id,name:u.name,role:u.role},admin,suppliers:admin?await q("SELECT id,name,status FROM fulfillment_suppliers ORDER BY name"):linked,csrf:req.session.csrf});
@@ -74,10 +76,11 @@ export async function fulfillmentRoute({route,method,v,req,res,db,c,me,role,thro
     const email=text(v,'email',190).toLowerCase();
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))fail(422,'Enter an existing Veelad account email.');
     if(!['active','suspended'].includes(v.access))fail(422,'Choose an access state.');
+    const supplierRole=v.supplier_role||'production';if(!supplierRoles.includes(supplierRole))fail(422,'Choose a supplier role.');
     const target=await one('SELECT id,role,status FROM users WHERE email=?',[email]);
     if(!target||target.status!=='active'||target.role==='admin')fail(422,'Choose an active non-administrator Veelad account.');
     await db.tx(async conn=>{
-      await q('INSERT INTO fulfillment_members (supplier_id,user_id,access,created_at) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE access=VALUES(access)',[supplierId,target.id,v.access,stamp()],conn);
+      await q('INSERT INTO fulfillment_members (supplier_id,user_id,access,supplier_role,created_at) VALUES (?,?,?,?,?) ON DUPLICATE KEY UPDATE access=VALUES(access),supplier_role=VALUES(supplier_role)',[supplierId,target.id,v.access,supplierRole,stamp()],conn);
       await audit(u,'fulfillment.member.'+v.access,supplierId+':'+target.id,conn);
     });
     return res.json({ok:true});
