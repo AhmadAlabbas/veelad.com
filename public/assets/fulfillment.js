@@ -201,12 +201,38 @@ async function progress(action,extra={}){
  notice('Production update saved.');await reload({preserveDetail:true});
 }
 async function submit(form){
- const data=Object.fromEntries(new FormData(form));
- if(form.dataset.form==='supplier')await api('admin-fulfillment-supplier',{method:'POST',body:{name:data.name,status:'active'}});
- if(form.dataset.form==='member')await api('admin-fulfillment-member',{method:'POST',body:data});
- if(form.dataset.form==='assign')await api('admin-fulfillment-assign',{method:'POST',body:data});
- if(form.dataset.form==='hold')return progress('hold',{note:data.note});
- if(form.dataset.form==='dispatch')return progress('dispatch_submitted',{carrier:data.carrier,tracking:data.tracking});
+ const data=Object.fromEntries(new FormData(form)),kind=form.dataset.form;
+ if(kind==='supplier')await api('admin-fulfillment-supplier',{method:'POST',body:{name:data.name,status:'active'}});
+ else if(kind==='member')await api('admin-fulfillment-member',{method:'POST',body:data});
+ else if(kind==='assign')await api('admin-fulfillment-assign',{method:'POST',body:data});
+ else if(kind==='invite'){
+  const issued=await api('admin-fulfillment-invites',{method:'POST',body:data});
+  state.inviteLink=issued.invitation_url;await loadAdminSetup();render();notice('Invitation created. Copy the secure link now and share it privately with the named employee.');return;
+ }
+ else if(kind==='print-spec'){
+  for(const key of ['print_width_mm','print_height_mm','bleed_mm','min_dpi'])data[key]=Number(data[key]);
+  await api('admin-fulfillment-print-specs',{method:'POST',body:data});await loadAdminSetup();render();notice('Supplier print specifications saved. Previous approvals are invalidated if the measurements changed.');return;
+ }
+ else if(kind==='preflight'){
+  await api('admin-fulfillment-preflight',{method:'POST',body:{order_id:state.selected.job.id,review_note:data.review_note,confirm:data.confirm==='yes'}});
+  await reload({preserveDetail:true});notice('Print preflight approved for these exact order details and supplier specifications.');return;
+ }
+ else if(kind==='photo'){
+  const file=form.querySelector('[name=photo]')?.files?.[0];
+  if(!file||!['image/png','image/jpeg'].includes(file.type)||file.size>8*1024*1024)throw Error('Choose a PNG or JPEG inspection photo, up to 8 MB.');
+  const multipart=new FormData();multipart.set('artwork',file,file.name);
+  const response=await fetch(urlFor('upload'),{method:'POST',body:multipart,credentials:'same-origin',headers:{'X-CSRF-Token':state.session.csrf},cache:'no-store'});
+  const result=await response.json().catch(()=>({}));
+  if(!response.ok||!result.upload_id)throw Error(result.error||'Could not upload the inspection photograph.');
+  await api('fulfillment-evidence',{method:'POST',body:{order_id:state.selected.job.id,line_id:data.line_id,kind:data.kind,upload_id:result.upload_id}});
+  await reload({preserveDetail:true});notice('Photograph submitted. A separate quality reviewer must approve it.');return;
+ }
+ else if(kind==='issue'){
+  await api('fulfillment-issues',{method:'POST',body:{order_id:state.selected.job.id,category:data.category,severity:data.severity,note:data.note}});
+  await reload({preserveDetail:true});notice('Production issue recorded. Work is paused until it is resolved.');return;
+ }
+ else if(kind==='hold')return progress('hold',{note:data.note});
+ else if(kind==='dispatch')return progress('dispatch_submitted',{carrier:data.carrier,tracking:data.tracking});
  notice('Changes saved successfully.');await bootstrap();
 }
 async function bootstrap(){
