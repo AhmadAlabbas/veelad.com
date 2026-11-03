@@ -64,3 +64,25 @@
 [data-form="line-packing"] .checkline{margin:0}
 [data-line-open], [data-invoice-open]{white-space:nowrap}
 @media(max-width:750px){.data-table select{min-width:130px}.data-table td{padding:10px}.api-example{font-size:10px}}
+
+
+/* Merchlist partner-only authentication — separate from the consumer storefront. */
+.portal-sign-out{padding:8px 12px;min-height:34px;white-space:nowrap}
+.supplier-auth{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(330px,.95fr);gap:0;max-width:1050px;margin:18px auto 0;padding:0;overflow:hidden;border:1px solid var(--line);min-height:500px}
+.supplier-auth-intro{padding:58px 46px;background:#17151d;color:#fff;display:flex;flex-direction:column;align-items:flex-start}
+.supplier-auth-intro .eyebrow{color:#bda5ff;margin-top:45px}
+.supplier-auth-intro h2{font-size:37px;line-height:1.15;letter-spacing:-1.4px;margin:0 0 16px}
+.supplier-auth-intro>p:not(.eyebrow){color:#bbb7c4;line-height:1.8;font-size:14px;max-width:360px}
+.supplier-auth-mark{display:grid;place-items:center;width:58px;height:58px;background:#9b81ef;color:#181521;border-radius:16px;font-family:Manrope,sans-serif;font-size:30px;font-weight:800;letter-spacing:-5px;padding-right:7px}
+.supplier-auth-steps{display:flex;flex-wrap:wrap;gap:10px;margin-top:auto;padding-top:30px}
+.supplier-auth-steps span{border:1px solid #494353;border-radius:20px;padding:8px 12px;color:#e3dbea;font-size:11px}
+.supplier-auth-form{padding:58px 48px;display:flex;flex-direction:column;justify-content:center;background:#fff}
+.supplier-auth-form h2{font-size:27px;margin-bottom:8px;letter-spacing:-.7px}
+.supplier-auth-form .section-subtitle{line-height:1.7;margin-bottom:25px}
+.supplier-auth-form form{display:grid;gap:16px}
+.supplier-auth-form form .field{margin-bottom:0}
+.supplier-auth-form form .button{margin-top:10px;width:100%;min-height:45px;background:#9b81ef;border-color:#9b81ef;color:#1b1430}
+.supplier-auth-form .form-help{margin-top:20px;line-height:1.6}
+.auth-switch{border:0;background:transparent;color:#6b4ba6;font-weight:800;text-decoration:underline;padding:0}
+@media(max-width:960px){.supplier-auth{grid-template-columns:1fr;max-width:620px}.supplier-auth-intro{padding:32px;min-height:290px}.supplier-auth-intro .eyebrow{margin-top:20px}.supplier-auth-intro h2{font-size:29px}.supplier-auth-form{padding:36px 32px}}
+@media(max-width:540px){.supplier-auth{margin-top:0;border-radius:12px}.supplier-auth-intro{min-height:250px;padding:25px}.supplier-auth-steps span{font-size:10px;padding:6px 8px}.supplier-auth-form{padding:26px 22px}.portal-sign-out{font-size:11px;padding:7px}}
