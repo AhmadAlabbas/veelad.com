@@ -44,12 +44,32 @@ test('premium card layout and nav stay reachable at narrow mobile, laptop and wi
     const search=document.querySelector('.global-nav .global-search'),body=document.documentElement;
     return {viewport:innerWidth,scrollWidth:body.scrollWidth,cardWidth:card.getBoundingClientRect().width,
       quickWidth:quick.getBoundingClientRect().width,quickHeight:quick.getBoundingClientRect().height,
-      searchWidth:search.getBoundingClientRect().width};
+      searchWidth:search.getBoundingClientRect().width,
+      spotlightVisuals:[...document.querySelectorAll('.premium-spotlight-image .product-photo')].map(node=>{
+        const photo=node.getBoundingClientRect(),frame=node.parentElement.getBoundingClientRect();
+        const mockup=node.querySelector('img');
+        return {photoWidth:photo.width,photoHeight:photo.height,frameWidth:frame.width,frameHeight:frame.height,
+          objectFit:mockup?getComputedStyle(mockup).objectFit:null};
+      }),
+      featuredPhoto:(()=>{
+        const node=document.querySelector('.premium-feature-image > .product-photo');
+        const box=node.getBoundingClientRect();return {width:box.width,height:box.height};
+      })()
+      };
    });
    expect(geometry.scrollWidth,JSON.stringify(geometry)).toBeLessThanOrEqual(width+1);
    expect(geometry.cardWidth).toBeGreaterThan(100);
    expect(geometry.quickWidth).toBeGreaterThan(90);
    expect(geometry.quickHeight).toBeGreaterThanOrEqual(43);
+   expect(geometry.spotlightVisuals,JSON.stringify({width,geometry})).toHaveLength(2);
+   for(const visual of geometry.spotlightVisuals){
+    // Product-photo is an aspect-ratio square DIV: object-fit alone cannot fix a stretched parent.
+    expect(visual.photoWidth,JSON.stringify({width,visual})).toBeGreaterThan(80);
+    expect(Math.abs(visual.photoWidth-visual.photoHeight),JSON.stringify({width,visual})).toBeLessThanOrEqual(2);
+    expect(Math.abs(visual.frameWidth-visual.frameHeight),JSON.stringify({width,visual})).toBeLessThanOrEqual(2);
+    if(visual.objectFit)expect(visual.objectFit).toBe('contain');
+   }
+   expect(Math.abs(geometry.featuredPhoto.width-geometry.featuredPhoto.height),JSON.stringify({width,geometry})).toBeLessThanOrEqual(2);
    await expect(page.locator('.global-nav .nav-actions a[href*="/bag"]')).toBeVisible();
    if(width<=760)await expect(page.locator('.global-nav [data-action=mobile-menu]')).toBeVisible();
    else {
