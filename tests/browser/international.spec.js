@@ -16,7 +16,7 @@ async function fixture(){
  await f.db.q('UPDATE products SET data=? WHERE id=?',[JSON.stringify(product),'p1']);
  return {...f,product};
 }
-async function ready(page){await expect(page.locator('.global-nav [data-preference-menu=language] summary')).toBeVisible();await page.evaluate(()=>document.fonts.ready);}
+async function ready(page){const desktop=page.locator('.global-nav [data-preference-menu=language] summary');const mobile=page.locator('[data-international-language]').first();await expect(mobile).toHaveCount(1);if(await desktop.isVisible())await expect(desktop).toBeVisible();else await expect(mobile).toBeAttached();await page.evaluate(()=>document.fonts.ready);}
 async function fits(page){expect(await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth}))).toEqual(expect.objectContaining({scroll:expect.any(Number)}));expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);}
 test('all 27 language/currency combinations retain the product and use the expected localized estimate',async({page},info)=>{
  test.setTimeout(120000);const f=await fixture(),errors=[];page.on('pageerror',error=>errors.push(error.message));

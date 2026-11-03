@@ -1,4 +1,5 @@
 import {test,expect} from '@playwright/test';
+import {chooseHeaderPreference} from '../helpers/header-preferences.js';
 import {googleApp} from '../helpers/google-app.js';
 try{process.loadEnvFile('.env');}catch(error){if(error.code!=='ENOENT')throw error;}
 
@@ -14,7 +15,7 @@ test('empty home offers eleven style cards without removing the Arabic lettering
    await expect(page.locator('.design-style-card[href*="arabic-lettering"]')).toHaveCount(0);
    await expect(page.locator('.home-product-types .category-card')).toHaveCount(7);
    await expect(page.locator('.product-card')).toHaveCount(0);
-   await expect(page.locator('.home-everyday-edit')).toBeVisible();
+   await expect(page.locator('.home-creative-section')).toBeVisible();
    await expect(page.locator('.home-questions details')).toHaveCount(4);
    expect(await page.locator('main').evaluate(el=>el.scrollHeight)).toBeGreaterThan(2800);
    const methodImages=page.locator('.footer-payments img');await expect(methodImages).toHaveCount(5);
@@ -31,7 +32,7 @@ test('empty home offers eleven style cards without removing the Arabic lettering
    await expect(page.locator('.shop-intro h1')).toHaveText(language==='ar'?'مدن ورحلات':'Vintage travel');
    await expect(page.locator('.product-card')).toHaveCount(0);
    await expect(page.locator('main .empty h2')).toHaveText(language==='ar'?'تصاميم جديدة من هالنوع، في الطريق.':'This style is taking shape.');
-   await page.locator('[data-international-language]').first().selectOption(await page.locator('html').getAttribute('lang')==='ar'?'en':'ar');
+   await chooseHeaderPreference(page,'language',(await page.locator('html').getAttribute('lang'))==='ar'?'en':'ar');
    expect(new URL(page.url()).searchParams.get('style')).toBe('vintage-travel');
   }
   expect((await fixture.db.one('SELECT COUNT(*) AS n FROM products')).n).toBe(0);

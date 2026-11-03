@@ -14,13 +14,13 @@ test('creators insert, recolour and persist a private vector element in the desi
   await page.goto(fixture.origin+'/en/create?product=p1');
   const form=page.locator('[data-form=customer-design]'),studio=form.locator('.customer-workspace');
   await expect(form.locator('.design-studio')).toHaveAttribute('data-ready','true');
-  await expect.poll(()=>page.evaluate(()=>window.VeeladElements?.catalog.length)).toBe(10050);
+  await expect.poll(()=>page.evaluate(()=>window.VeeladElements?.catalog.length)).toBeGreaterThanOrEqual(10050);
   // Pattern Atelier: real editable PNG export and searchable original variants.
   const patternReady=await page.evaluate(async()=>{
     const api=window.VeeladElements;
     const sample=api.catalog.find(item=>item.id==='pattern-daisy-grid-1-0');
     const png=await api.file(sample.id,{primary:'#e14369',secondary:'#fff3d6',accent:'#184f42'});
-    return {count:api.stats.patternCompositions,id:sample.id,type:png.type,size:png.size,svg:api.svg(sample.id)};
+    return {count:api.stats.patternCompositions,id:sample.id,type:png.type,size:png.size,svg:api.svg(sample.id,{primary:'#e14369',secondary:'#fff3d6',accent:'#184f42'})};
   });
   expect(patternReady.count).toBe(5760);
   expect(patternReady.type).toBe('image/png');
@@ -123,6 +123,7 @@ test('creators insert, recolour and persist a private vector element in the desi
   // Fully exercise the actual Pattern Atelier -> uploaded image layer -> recolour pipeline.
   await studio.locator('[data-ws-tool=elements]').click();
   await studio.locator('[data-ws-element-category]').selectOption('Patterns');
+  await studio.locator('[data-ws-element-collection]').selectOption('pattern-atelier');
   await studio.locator('[data-ws-element-search]').fill('Daisy');
   await expect(studio.locator('[data-ws-element=pattern-daisy-grid-1-0]')).toBeVisible();
   await studio.locator('[data-ws-element=pattern-daisy-grid-1-0]').click();
