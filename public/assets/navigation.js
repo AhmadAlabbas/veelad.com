@@ -52,7 +52,7 @@ async function switchLanguage(language=currentLanguage()==='en'?'ar':'en') {
 }
 function updatePageMetadata() {
  if(route==='journal')return;
- for(const element of document.querySelectorAll('meta[property^="article:"],meta[property="og:image:alt"]'))element.remove();
+ for(const element of document.querySelectorAll('meta[property^="article:"]'))element.remove();
  document.querySelector('meta[property="og:type"]')?.setAttribute('content',route==='product'?'product':'website');
  document.querySelector('meta[name="twitter:card"]')?.setAttribute('content','summary_large_image');
  if(route==='creative'||route.startsWith('creative/')){
@@ -70,12 +70,30 @@ function updatePageMetadata() {
  const title=p&&localField(p,'seo_title')?localField(p,'seo_title'):collection?localField(collection,'title')+' | '+t('Veelad'):p?t('{title} by {artist} | Veelad',{title:localField(p,'title'),artist:localField(artist(p.artist_id),'name')}):a?t('{name} — Artist & original designs | Veelad',{name:localField(a,'name')}):t('Veelad — {page}',{page:t({'my-designs':'My Designs',create:'Create your own',home:'Art for your kind of everyday.',shop:'Find your thing.',artists:'Meet independent artists',sell:'Sell your designs',help:'Help',policies:'Store policies',saved:'Saved designs',bag:'Shopping bag',checkout:'Checkout',confirmation:'Order confirmation',login:'Sign in',register:'Create account',account:'Your account',forgot:'Password recovery','verify-email':'Email verification',reset:'Reset password',admin:'Admin dashboard',studio:'Artist studio',track:'Track order'}[route]||'Page unavailable')});
  const description=(collection?localField(collection,'description'):p?localField(p,'seo_description')||localField(p,'description'):a?localField(a,'bio'):t('Discover original designs and independent artists at Veelad.')).slice(0,180),values=['product','artist','preview'].includes(route)?{id:params.get('id')}:{},canonical=location.origin+normalUrl(route,values),image=location.origin+'/share/'+language+(p?'/products/'+encodeURIComponent(p.id)+'.png':a?'/artists/'+encodeURIComponent(a.id)+'.png':'/store.png');
  document.title=title;
- const metadata=[['meta[name=description]','content',description],['meta[property="og:title"]','content',title],['meta[property="og:description"]','content',description],['meta[property="og:url"]','content',canonical],['meta[property="og:image"]','content',image],['meta[property="og:locale"]','content',language==='ar'?'ar_SA':language==='zh-CN'?'zh_CN':'en_US'],['meta[property="og:locale:alternate"]','content',language==='ar'?'en_US':'ar_SA'],['link[rel=canonical]','href',canonical]];
- for(const [selector,attribute,value] of metadata){const element=document.querySelector(selector);if(element)element.setAttribute(attribute,value);}
- for(const code of ['en','ar','zh-CN','x-default']){
-  let alternate=document.querySelector('link[rel=alternate][hreflang="'+code+'"]');if(!alternate){alternate=document.createElement('link');alternate.rel='alternate';alternate.hreflang=code;document.head.append(alternate);}alternate.href=location.origin+normalUrl(route,values,code==='x-default'?'en':code);
+ const metadata=[['meta[name=description]','content',description],['meta[property="og:title"]','content',title],['meta[property="og:description"]','content',description],['meta[property="og:url"]','content',canonical],['meta[property="og:image"]','content',image],['meta[property="og:image:alt"]','content',p?localField(p,'title'):a?localField(a,'name'):title],['meta[name="twitter:title"]','content',title],['meta[name="twitter:description"]','content',description],['meta[name="twitter:image"]','content',image],['meta[property="og:locale"]','content',language==='ar'?'ar_SA':language==='zh-CN'?'zh_CN':'en_US'],['meta[property="og:locale:alternate"]','content',language==='ar'?'en_US':'ar_SA'],['link[rel=canonical]','href',canonical]];
+ for(const [selector,attribute,value] of metadata){
+  let element=document.querySelector(selector);
+  if(!element&&/^(meta\[name="twitter:|meta\[property="og:image:alt)/.test(selector)){
+   element=document.createElement('meta');
+   const match=selector.match(/^meta\[(name|property)="([^"]+)"\]$/);
+   element.setAttribute(match[1],match[2]);document.head.append(element);
+  }
+  if(element)element.setAttribute(attribute,value);
  }
- const robots=document.querySelector('meta[name=robots]');if(robots)robots.content=location.hostname==='staging.veelad.com'||(route==='shop'&&params.size>0)||!['home','shop','artists','artist','product','sell','help','policies'].includes(route)?'noindex, nofollow':'index, follow';
+ // Private, filtered and illustrative sample listings must never be indexed,
+ // nor produce alternate-language search URLs as if they were public pages.
+ const publicRoute=['home','shop','artists','artist','product','sell','help','policies'].includes(route),
+   indexableRoute=publicRoute&&!(route==='shop'&&params.size>0)
+    &&!(p&&(p.sample_pricing===true||p.stock_is_simulated===true));
+ if(indexableRoute){
+  for(const code of ['en','ar','zh-CN','x-default']){
+   let alternate=document.querySelector('link[rel=alternate][hreflang="'+code+'"]');
+   if(!alternate){alternate=document.createElement('link');alternate.rel='alternate';alternate.hreflang=code;document.head.append(alternate);}
+   alternate.href=location.origin+normalUrl(route,values,code==='x-default'?'en':code);
+  }
+ }else document.querySelectorAll('link[rel=alternate][hreflang]').forEach(element=>element.remove());
+ const robots=document.querySelector('meta[name=robots]');
+ if(robots)robots.content=location.hostname.startsWith('staging.')||!indexableRoute?'noindex, nofollow':'index, follow';
  let schema=document.querySelector('script[data-page-schema]');
  const data=p?{'@context':'https://schema.org','@type':'Product',name:localField(p,'title'),description:localField(p,'description'),inLanguage:language,image,sku:p.id,...(p.sample_pricing===true||p.stock_is_simulated===true?{}:{offers:{'@type':'Offer',url:canonical,priceCurrency:'SAR',price:(p.price/100).toFixed(2),availability:'https://schema.org/'+(p.stock?'InStock':'OutOfStock')}})}:a?{'@context':'https://schema.org','@type':'Person',name:localField(a,'name'),description:localField(a,'bio'),inLanguage:language,url:canonical,image}:null;
  if(data){if(!schema){schema=document.createElement('script');schema.type='application/ld+json';schema.dataset.pageSchema='';document.head.append(schema);}schema.textContent=JSON.stringify(data);}else schema?.remove();
