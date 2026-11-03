@@ -596,7 +596,10 @@ async function submit(form){
 }
 async function bootstrap(){
  try{
-  state.session=await api('fulfillment-session');state.activeSupplier=state.session.admin?state.activeSupplier:(state.session.suppliers[0]?.id||null);
+  state.session=await api('fulfillment-session');
+   // Store managers work from their own Veelad admin panel, not the supplier workplace.
+   if(state.session.admin&&!state.invitationToken){location.replace('/en/admin?tab=fulfillment');return;}
+   state.activeSupplier=state.session.suppliers[0]?.id||null;
   if(state.session.admin&&state.activeSupplier&&!state.session.suppliers.some(s=>s.id===state.activeSupplier))state.activeSupplier=null;
   $('environment').textContent=location.hostname.startsWith('staging.')?'STAGING':'';
   state.selected=null;state.phase3.selected=null;await reload();
