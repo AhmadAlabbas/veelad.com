@@ -438,6 +438,19 @@ $('content').addEventListener('click',async event=>{
    await api('fulfillment-issue-resolve',{method:'POST',body:{order_id:state.selected.job.id,issue_id:b.dataset.resolve,resolution}});
    await reload({preserveDetail:true});notice('Issue marked resolved. Production can resume after all issues are closed.');
   }
+  else if(b.dataset.alertRead){
+   await api('fulfillment-notification-read',{method:'POST',body:{id:b.dataset.alertRead}});
+   await loadOperations();render();notice('Notification marked as read.');
+  }
+  else if(b.dataset.bulkAccept){
+   if(!state.activeSupplier)throw Error('Choose a supplier account first.');
+   const ids=[...document.querySelectorAll('input[data-bulk-job]:checked')].map(e=>e.dataset.bulkJob);
+   if(!ids.length||ids.length>20)throw Error('Select 1 to 20 assigned jobs.');
+   if(!confirm('Accept '+ids.length+' selected production jobs?'))return;
+   const jobs=ids.map(id=>{const j=state.jobs.find(x=>x.id===id);return {order_id:id,revision:j.revision};});
+   await api('fulfillment-bulk-accept',{method:'POST',body:{supplier_id:state.activeSupplier,jobs}});
+   await reload();notice(ids.length+' production jobs accepted successfully.');
+  }
   else if(b.dataset.approveDispatch){
    if(confirm('Approve carrier tracking and mark this order shipped?')){
     await api('admin-fulfillment-dispatch',{method:'POST',body:{order_id:state.selected.job.id}});notice('Dispatch approved. Customer order marked as shipped.');state.selected=null;await reload();
@@ -450,7 +463,7 @@ $('content').addEventListener('submit',async event=>{
  event.preventDefault();const button=form.querySelector('button[type=submit]');if(button)button.disabled=true;
  try{await submit(form);}catch(error){notice(error.message,'error');}finally{if(button)button.disabled=false;}
 });
-$('content').addEventListener('change',event=>{if(event.target.id==='job-filter'){state.filter=event.target.value;render();}});
+$('content').addEventListener('change',event=>{if(event.target.id==='job-filter'){state.filter=event.target.value;render();}if(event.target.id==='bulk-all'){for(const input of document.querySelectorAll('[data-bulk-job]'))input.checked=event.target.checked;}});
 $('content').addEventListener('input',event=>{if(event.target.id==='job-search'){state.search=event.target.value;const pos=event.target.selectionStart;render();const input=$('job-search');input?.focus();input?.setSelectionRange(pos,pos);}});
 if(state.invitationToken)history.replaceState(null,'','/fulfillment/invite');
 bootstrap();
