@@ -123,6 +123,7 @@ test('creators insert, recolour and persist a private vector element in the desi
   // Fully exercise the actual Pattern Atelier -> uploaded image layer -> recolour pipeline.
   await studio.locator('[data-ws-tool=elements]').click();
   await studio.locator('[data-ws-element-category]').selectOption('Patterns');
+  await studio.locator('[data-ws-element-collection]').selectOption('pattern-atelier');
   await studio.locator('[data-ws-element-search]').fill('Daisy');
   await expect(studio.locator('[data-ws-element=pattern-daisy-grid-1-0]')).toBeVisible();
   await studio.locator('[data-ws-element=pattern-daisy-grid-1-0]').click();
