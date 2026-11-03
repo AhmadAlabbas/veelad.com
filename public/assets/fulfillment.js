@@ -9,10 +9,14 @@ const views=[
  {id:'orders',label:'Orders',icon:'▤',title:'Assigned orders',subtitle:'Every approved job, with its original order details.'},
  {id:'production',label:'Production',icon:'⚙',title:'Production pipeline',subtitle:'Move approved work through each manufacturing milestone.'},
  {id:'artwork',label:'Artwork & files',icon:'▧',title:'Artwork centre',subtitle:'Original design files and provisional placement instructions.'},
- {id:'shipping',label:'Shipping',icon:'↗',title:'Shipping desk',subtitle:'Prepare dispatch details and submit them for Veelad review.'},
+ {id:'shipping',label:'Shipping',icon:'↗',title:'Shipping desk',subtitle:'Manage carrier handoff, tracking and delivery exceptions.'},
+ {id:'packaging',label:'Packaging',icon:'▣',title:'Packaging centre',subtitle:'Supplier packaging instructions and checklists.'},
+ {id:'messages',label:'Messages',icon:'✉',title:'Order communication',subtitle:'Private conversations between Veelad and suppliers.'},
+ {id:'bulk',label:'Bulk operations',icon:'☷',title:'Batch operations',subtitle:'Accept assigned jobs and export picking lists.'},
+ {id:'notifications',label:'Alerts',icon:'◉',title:'Operations alerts',subtitle:'Assignments, deadlines, issues and shipping updates.'},
  {id:'suppliers',label:'Suppliers',icon:'♙',title:'Supplier management',subtitle:'Manage company access and assign approved orders.',admin:true}
 ];
-const state={session:null,activeSupplier:null,jobs:[],pool:[],selected:null,view:'overview',filter:'all',search:'',busy:false,phase1:null,adminSetup:{invites:[],specs:[]},inviteLink:'',invitationToken:new URLSearchParams(location.hash.replace(/^#/, '')).get('token')||new URLSearchParams(location.search).get('token')||null};
+const state={session:null,activeSupplier:null,jobs:[],pool:[],selected:null,view:'overview',filter:'all',search:'',busy:false,phase1:null,adminSetup:{invites:[],specs:[]},inviteLink:'',phase2:null,ops:{jobs:[]},alerts:{notifications:[],unread:0},adminOps:{id:null,rules:[],policy:null},invitationToken:new URLSearchParams(location.hash.replace(/^#/, '')).get('token')||new URLSearchParams(location.search).get('token')||null};
 const urlFor=(route,params={})=>{
  const url=new URL('/api.php',location.origin);url.searchParams.set('route',route);
  Object.entries(params).forEach(([key,value])=>{if(value!==null&&value!==undefined&&value!=='')url.searchParams.set(key,String(value));});
@@ -50,10 +54,11 @@ async function reload({preserveDetail=false}={}){
  ]);
  state.jobs=results[0].jobs||[];state.pool=results[1].orders||[];
  if(preserveDetail&&state.selected){
-  try{state.selected=(await api('fulfillment-order',{params:{order_id:state.selected.job.id}}));await loadPhase1(state.selected.job.id);}
+  try{state.selected=(await api('fulfillment-order',{params:{order_id:state.selected.job.id}}));await Promise.all([loadPhase1(state.selected.job.id),loadPhase2(state.selected.job.id)]);}
   catch{state.selected=null;state.phase1=null;}
  }
- if(state.session?.admin)await loadAdminSetup();
+ await loadOperations();
+ if(state.session?.admin)await Promise.all([loadAdminSetup(),loadAdminOperations()]);
  render();
 }
 function metric(label,count,icon,note=''){return '<div class="metric"><div class="metric-top">'+escapeHTML(label)+'<span class="metric-icon">'+icon+'</span></div><div class="metric-value">'+count+'</div><div class="metric-note">'+escapeHTML(note)+'</div></div>';}
@@ -67,7 +72,7 @@ function dashboard(){
  const jobs=state.jobs,active=jobs.filter(j=>!['packed','dispatch_submitted'].includes(j.status)),open=jobs.filter(j=>j.status==='assigned'),printing=jobs.filter(j=>['printing','quality_check'].includes(j.status)),hold=jobs.filter(j=>j.status==='on_hold');
  return '<div class="metrics">'+metric('Assigned orders',jobs.length,'▤','Visible to your supplier account')+metric('Ready to accept',open.length,'◷','Waiting for supplier acceptance')+metric('In production',printing.length,'⚙','Printing and quality checks')+metric('On hold',hold.length,'!','Require attention')+'</div>'+
  '<div class="two-col"><section class="card"><div class="card-title"><h2>Recent production jobs</h2><button type="button" class="text-link" data-view="orders">View all orders →</button></div>'+jobTable(jobs.slice(0,6))+'</section>'+
- '<section class="card"><div class="card-title"><h2>How the workflow works</h2></div><div class="stepper"><div class="step done">01 · Approval</div><div class="step">02 · Printing</div><div class="step">03 · Quality check</div><div class="step">04 · Dispatch</div></div><p class="section-subtitle">Veelad verifies payment and approves the final artwork before a supplier can download production files. Supplier updates remain auditable. Shipping requires a final Veelad administrator approval.</p><div class="hint">Only orders assigned to your company are visible. Artwork, customer delivery details and operational data must stay inside the authorized team.</div></section></div>';
+ '<section class="card"><div class="card-title"><h2>How the workflow works</h2></div><div class="stepper"><div class="step done">01 · Approval</div><div class="step">02 · Printing</div><div class="step">03 · Quality check</div><div class="step">04 · Dispatch</div></div><p class="section-subtitle">Veelad verifies payment and approves the final artwork before a supplier can download production files. Supplier updates remain auditable. Shipping requires a final Veelad administrator approval.</p><div class="hint">Only orders assigned to your company are visible. Artwork, customer delivery details and operational data must stay inside the authorized team.</div></section></div>'+overviewOps();
 }
 function ordersView(scope='all'){
  const jobs=state.jobs.filter(j=>scope==='all'||(scope==='artwork'?true:scope==='shipping'?['packed','dispatch_submitted'].includes(j.status):['assigned','accepted','printing','quality_check','on_hold'].includes(j.status)));
@@ -105,7 +110,7 @@ function detailView(){
  const shipping=d.shipping?'<dl>'+Object.entries(d.shipping).filter(([,v])=>v).map(([key,value])=>'<div class="value-block"><dt>'+escapeHTML(key.replaceAll('_',' '))+'</dt><dd>'+escapeHTML(value)+'</dd></div>').join('')+'</dl>':'<div class="hint">The delivery address becomes available to the authorized supplier once the order is packed.</div>';
  return '<div class="actions" style="margin-bottom:17px"><button type="button" class="button secondary" data-view="orders">← All orders</button><span class="pill-note">Order '+escapeHTML(j.id)+'</span>'+(d.test_order?'<span class="status on_hold">Test payment · staging only</span>':'')+'</div>'+
  '<div class="metrics">'+metric('Items',j.items.length,'▦')+metric('Units',j.items.reduce((n,x)=>n+Number(x.qty||0),0),'◫')+metric('Order status',escapeHTML(j.order_status||'—'),'◷')+metric('Revision',j.revision,'↻')+'</div>'+
- '<div class="two-col"><div>'+progressPanel(j)+preflightPanel()+evidencePanel()+issuesPanel()+'<section class="card"><div class="card-title"><h2>Print artwork & job sheets</h2></div><p class="section-subtitle">These files are based on the exact purchased designs, not the current product catalogue. Artwork is provisional until the supplier verifies printable dimensions, colour, bleed and quality.</p>'+items+'</section></div><div>'+
+ '<div class="two-col"><div>'+progressPanel(j)+packingPanel()+conversationPanel()+shippingEventsPanel()+preflightPanel()+evidencePanel()+issuesPanel()+'<section class="card"><div class="card-title"><h2>Print artwork & job sheets</h2></div><p class="section-subtitle">These files are based on the exact purchased designs, not the current product catalogue. Artwork is provisional until the supplier verifies printable dimensions, colour, bleed and quality.</p>'+items+'</section></div><div>'+
  '<section class="card"><div class="card-title"><h2>Supplier assignment</h2></div><dl><div class="value-block"><dt>Company</dt><dd>'+escapeHTML(supplierName(j.supplier_id))+'</dd></div><div class="value-block"><dt>Placed</dt><dd>'+fmt(j.created_at)+'</dd></div><div class="value-block"><dt>Last updated</dt><dd>'+fmt(j.updated_at)+'</dd></div><div class="value-block"><dt>Payment</dt><dd>'+(d.payment_verified?'Verified':'Not verified')+'</dd></div><div class="value-block"><dt>Veelad production</dt><dd>'+escapeHTML(d.production_stage.replaceAll('_',' '))+'</dd></div></dl></section>'+
  '<section class="card"><div class="card-title"><h2>Shipping information</h2></div>'+shipping+(d.tracking?'<div class="hint">Submitted tracking: '+escapeHTML(d.carrier)+' / '+escapeHTML(d.tracking)+'</div>':'')+'</section>'+
  (d.issue?'<section class="card"><div class="card-title"><h2>Last reported issue</h2></div><p class="section-subtitle">'+escapeHTML(d.issue)+'</p></section>':'')+
@@ -119,7 +124,7 @@ function suppliersView(){
  '<div class="table-scroll" style="margin-top:17px"><table class="data-table"><thead><tr><th>Company</th><th>Status</th></tr></thead><tbody>'+(state.session?.suppliers||[]).map(s=>'<tr><td>'+escapeHTML(s.name)+'</td><td>'+status(s.status)+' <button type="button" class="text-link" data-supplier-status="'+escapeHTML(s.id)+'">'+(s.status==='active'?'Suspend':'Reactivate')+'</button></td></tr>').join('')+'</tbody></table></div></section>'+
  '<section class="card"><div class="card-title"><div><h2>Grant employee access</h2><p>Suppliers use existing Veelad accounts, with explicit approval.</p></div></div><form data-form="member"><div class="field"><label for="member-supplier">Supplier</label><select id="member-supplier" name="supplier_id" required>'+supplierOptions+'</select></div><div class="field"><label for="member-email">Existing account email</label><input id="member-email" name="email" type="email" autocomplete="off" placeholder="team@example.com" required></div><div class="field"><label for="member-role">Supplier permissions</label><select id="member-role" name="supplier_role"><option value="production">Production operator</option><option value="quality">Quality reviewer</option><option value="manager">Supplier manager</option></select></div><div class="field"><label for="member-access">Access</label><select id="member-access" name="access"><option value="active">Grant access</option><option value="suspended">Suspend access</option></select></div><button class="button accent" type="submit" '+(!supplierOptions?'disabled':'')+'>Update employee access</button></form><p class="form-help" style="margin-top:12px">Never share account passwords. Grant each employee their own role. Suspending a membership blocks its supplier access immediately.</p></section></div>'+
  '<section class="card"><div class="card-title"><div><h2>Assign an approved order</h2><p>Only paid processing orders with approved proofs appear here.</p></div></div>'+
- (state.pool.length?'<form data-form="assign"><div class="form-row"><div class="field"><label for="assign-order">Approved order</label><select name="order_id" id="assign-order" required>'+state.pool.map(o=>'<option value="'+escapeHTML(o.id)+'">'+escapeHTML(o.id)+' · '+o.items.length+' item lines</option>').join('')+'</select></div><div class="field"><label for="assign-supplier">Fulfillment company</label><select name="supplier_id" id="assign-supplier" required>'+supplierOptions+'</select></div></div><button class="button accent" '+(!supplierOptions?'disabled':'')+' type="submit">Assign selected order</button></form>':empty('No orders ready to assign','Complete a test checkout, record the staging payment and approve each order proof before releasing a job.'))+'</section>'+adminPhaseOnePanel();
+ (state.pool.length?'<form data-form="assign"><div class="form-row"><div class="field"><label for="assign-order">Approved order</label><select name="order_id" id="assign-order" required>'+state.pool.map(o=>'<option value="'+escapeHTML(o.id)+'">'+escapeHTML(o.id)+' · '+o.items.length+' item lines</option>').join('')+'</select></div><div class="field"><label for="assign-supplier">Fulfillment company</label><select name="supplier_id" id="assign-supplier" required>'+supplierOptions+'</select></div></div><button class="button accent" '+(!supplierOptions?'disabled':'')+' type="submit">Assign selected order</button></form>':empty('No orders ready to assign','Complete a test checkout, record the staging payment and approve each order proof before releasing a job.'))+'</section>'+adminPhaseOnePanel()+adminPhaseTwoPanel();
 }
 
 async function loadPhase1(id){
@@ -192,7 +197,7 @@ function render(){
  if(state.selected){$('content').innerHTML=detailView();return;}
  $('content').innerHTML=state.view==='overview'?dashboard():state.view==='suppliers'&&state.session.admin?suppliersView():ordersView(state.view);
 }
-async function openOrder(id){state.selected=await api('fulfillment-order',{params:{order_id:id}});await loadPhase1(id);render();window.scrollTo({top:0,behavior:'smooth'});}
+async function openOrder(id){state.selected=await api('fulfillment-order',{params:{order_id:id}});await Promise.all([loadPhase1(id),loadPhase2(id)]);render();window.scrollTo({top:0,behavior:'smooth'});}
 async function progress(action,extra={}){
  if(!state.selected)return;
  const j=state.selected.job;
