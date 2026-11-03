@@ -83,7 +83,10 @@ function updatePageMetadata() {
  // Private, filtered and illustrative sample listings must never be indexed,
  // nor produce alternate-language search URLs as if they were public pages.
  const publicRoute=['home','shop','artists','artist','product','sell','help','policies'].includes(route),
-   indexableRoute=publicRoute&&!(route==='shop'&&params.size>0)
+   indexableRoute=publicRoute&&!(route==='shop'&&(params.size>0||!products.length))
+    &&!(route==='artists'&&!artists.length)
+    &&!(route==='product'&&!p)
+    &&!(route==='artist'&&!a)
     &&!(p&&(p.sample_pricing===true||p.stock_is_simulated===true));
  if(indexableRoute){
   for(const code of ['en','ar','zh-CN','x-default']){
