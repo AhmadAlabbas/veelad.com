@@ -79,16 +79,24 @@ function ordersView(scope='all'){
 const steps=['assigned','accepted','printing','quality_check','packed','dispatch_submitted'];
 const stageNames=['Assigned','Accepted','Printing','Quality check','Packed','Dispatch submitted'];
 function progressPanel(job){
- const index=steps.indexOf(job.status),held=job.status==='on_hold';
+ const index=steps.indexOf(job.status),held=job.status==='on_hold',role=state.selected?.staff_role||'viewer';
  const next=index>=0&&index<steps.length-1?steps[index+1]:null;
- return '<section class="card"><div class="card-title"><div><h2>Production progress</h2><p>Updates are saved to the official order history.</p></div>'+status(job.status)+'</div>'+
- '<div class="stepper">'+steps.map((s,i)=>'<div class="step '+(!held&&i===index?'active':i<index?'done':'')+'"><span class="step-number">'+(i+1)+'</span>'+stageNames[i]+'</div>').join('')+'</div>'+
- (held?'<div class="hint">This job is on hold. The supplier must resolve the issue before work continues.</div><div class="actions" style="margin-top:15px"><button type="button" class="button accent" data-progress="resume">Resume previous step</button></div>':
- next==='dispatch_submitted'?'<form id="dispatch-form" data-form="dispatch"><div class="form-row"><div class="field"><label for="carrier">Shipping carrier</label><input id="carrier" name="carrier" maxlength="100" required placeholder="Carrier name"></div><div class="field"><label for="tracking">Tracking reference</label><input id="tracking" name="tracking" maxlength="120" required placeholder="Carrier tracking number"></div></div><button class="button accent" type="submit">Submit for dispatch approval</button></form>':
- next?'<div class="actions"><button class="button accent" type="button" data-progress="'+next+'">'+escapeHTML({'accepted':'Accept order','printing':'Start printing','quality_check':'Pass quality check','packed':'Confirm packaging'}[next]||'Continue')+'</button></div>':
- '<div class="hint">The supplier has submitted the shipment details. A Veelad administrator must approve the final dispatch.</div>')+
- (!held&&job.status!=='dispatch_submitted'?'<form id="hold-form" data-form="hold" style="margin-top:20px"><div class="field"><label for="hold-note">Production issue (required to pause)</label><textarea id="hold-note" name="note" maxlength="1000" placeholder="Explain the printing, artwork, inventory or quality concern…" required></textarea></div><button type="submit" class="button danger">Put production on hold</button></form>':'')+
- (state.session.admin&&job.status==='dispatch_submitted'?'<hr style="border:0;border-top:1px solid #eeeaf1;margin:22px 0"><div class="hint">Administrator action: approving dispatch marks the customer order shipped and sends the normal Veelad status notification when mail is configured.</div><button type="button" class="button accent" style="margin-top:15px" data-approve-dispatch="1">Approve customer dispatch</button>':'')+'</section>';
+ const ability={accepted:'accept',printing:'printing',quality_check:'quality_check',packed:'packed',dispatch_submitted:'dispatch'};
+ const canNext=!!next&&phase1.can(role,ability[next]);
+ const control=held?(phase1.can(role,'hold')?
+   '<div class="hint">Resolve the reported issues first. Once all issues are resolved, production can be resumed from the previous stage.</div><div class="actions" style="margin-top:14px"><button type="button" class="button accent" data-progress="resume">Resume production</button></div>':
+   '<p class="hint">A manager must resolve the issues before production resumes.</p>'):
+  next==='dispatch_submitted'&&canNext?
+   '<form id="dispatch-form" data-form="dispatch"><div class="form-row"><div class="field"><label for="carrier">Shipping carrier</label><input id="carrier" name="carrier" maxlength="100" required placeholder="Carrier name"></div><div class="field"><label for="tracking">Tracking reference</label><input id="tracking" name="tracking" maxlength="120" required placeholder="Carrier tracking number"></div></div><button class="button accent" type="submit">Submit for dispatch approval</button></form>':
+  next&&canNext?
+   '<button class="button accent" type="button" data-progress="'+next+'">'+escapeHTML({accepted:'Accept order',printing:'Start printing',quality_check:'Confirm approved quality check',packed:'Confirm packaging'}[next]||'Continue')+'</button>':
+  next?'<div class="hint">This production step must be completed by an authorized '+(next==='quality_check'?'quality-control reviewer':'supplier team member')+'.</div>':
+  '<div class="hint">Shipment details were submitted. A Veelad administrator must approve final dispatch.</div>';
+ return '<section class="card"><div class="card-title"><div><h2>Production progress</h2><p>Role-based actions are checked and recorded on the server.</p></div>'+status(job.status)+'</div>'+
+ '<div class="stepper">'+steps.map((x,k)=>'<div class="step '+(!held&&k===index?'active':k<index?'done':'')+'"><span class="step-number">'+(k+1)+'</span>'+stageNames[k]+'</div>').join('')+'</div>'+
+ control+(!held&&job.status!=='dispatch_submitted'&&phase1.can(role,'issue')?'<p class="form-help" style="margin-top:16px">To pause production, use the issue report below. It creates a tracked, auditable issue rather than an unstructured status change.</p>':'')+
+ (state.session.admin&&job.status==='dispatch_submitted'?'<hr class="p1-panel-divider"><div class="hint">Administrator action: approve tracking before the customer order becomes shipped and the notification is sent.</div>'+
+ '<button type="button" class="button accent" style="margin-top:14px" data-approve-dispatch="1">Approve customer dispatch</button>':'')+'</section>';
 }
 function detailView(){
  const d=state.selected;if(!d)return empty('Select an order','Choose an assigned order to open its production details.');
@@ -101,7 +109,8 @@ function detailView(){
      else links.push({label:'Composed layout · PNG',kind:'layout'});
    }
    for(const id of i.source_ids)links.push({label:'Original · '+id.slice(0,12),kind:'original',source_id:id});
-   return '<div class="item-card"><h3>'+escapeHTML(i.title)+'</h3><p class="item-meta">'+escapeHTML(i.category)+' · '+escapeHTML(i.variant)+' · '+Number(i.qty||0)+' units'+(i.design_title?' · '+escapeHTML(i.design_title):'')+'<br>Line ID: <span class="mono">'+escapeHTML(i.line_id)+'</span></p><div class="file-list">'+links.map(link=>'<a href="'+escapeHTML(urlFor('fulfillment-artwork',{...params,kind:link.kind,...(link.surface?{surface:link.surface}:{}),...(link.source_id?{source_id:link.source_id}:{})}))+'" download>'+escapeHTML(link.label)+' ↓</a>').join('')+'</div></div>';
+   const canExport=d.staff_role==='admin'||(phase1.can(d.staff_role,'file')&&phase1.isPackApproved());
+   return '<div class="item-card"><h3>'+escapeHTML(i.title)+'</h3><p class="item-meta">'+escapeHTML(i.category)+' · '+escapeHTML(i.variant)+' · '+Number(i.qty||0)+' units'+(i.design_title?' · '+escapeHTML(i.design_title):'')+'<br>Line ID: <span class="mono">'+escapeHTML(i.line_id)+'</span></p><div class="file-list">'+(canExport?links.map(link=>'<a href="'+escapeHTML(urlFor('fulfillment-artwork',{...params,kind:link.kind,...(link.surface?{surface:link.surface}:{}),...(link.source_id?{source_id:link.source_id}:{})}))+'" download>'+escapeHTML(link.label)+' ↓</a>').join(''):'<span class="form-help">Source downloads unlock after supplier pack approval and the correct employee role.</span>')+'</div></div>';
  }).join('');
  const shipping=d.shipping?'<dl>'+Object.entries(d.shipping).filter(([,v])=>v).map(([key,value])=>'<div class="value-block"><dt>'+escapeHTML(key.replaceAll('_',' '))+'</dt><dd>'+escapeHTML(value)+'</dd></div>').join('')+'</dl>':'<div class="hint">The delivery address becomes available to the authorized supplier once the order is packed.</div>';
  return '<div class="actions" style="margin-bottom:17px"><button type="button" class="button secondary" data-view="orders">← All orders</button><span class="pill-note">Order '+escapeHTML(j.id)+'</span>'+(d.test_order?'<span class="status on_hold">Test payment · staging only</span>':'')+'</div>'+
