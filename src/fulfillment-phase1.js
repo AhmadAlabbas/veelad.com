@@ -1,11 +1,14 @@
 import crypto from 'node:crypto';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import sharp from 'sharp';
 import {fail,uid,token,text,now,hash,integer} from './security.js';
 import {studioSourceIds} from './design-scenes.js';
-import {artworkMetadata,readArtwork} from './artwork.js';
+import {artworkMetadata,readArtwork,validateArtwork} from './artwork.js';
 
 export const supplierRoles=['manager','production','quality'];
 export const phaseOneAdminRoutes=new Set(['admin-fulfillment-invites','admin-fulfillment-invite-revoke','admin-fulfillment-print-specs','admin-fulfillment-preflight']);
-export const phaseOneRoutes=new Set([...phaseOneAdminRoutes,'fulfillment-invite','fulfillment-preflight','fulfillment-evidence','fulfillment-evidence-review','fulfillment-evidence-file','fulfillment-issues','fulfillment-issue-resolve']);
+export const phaseOneRoutes=new Set([...phaseOneAdminRoutes,'fulfillment-invite','fulfillment-preflight','fulfillment-evidence','fulfillment-evidence-upload','fulfillment-evidence-review','fulfillment-evidence-file','fulfillment-issues','fulfillment-issue-resolve']);
 const cleanId=(v,key='order_id')=>text(v,key,64);
 const signed=(v)=>v===true;
 export function supplierMay(role,action){
@@ -78,7 +81,7 @@ export async function phaseOneRoute({route,method,v,req,res,db,c,u,admin,one,q,a
    await audit(u,'fulfillment.invite.issue',id,conn);
   });
   // Do not enqueue third-party mail from the staging environment: staging SMTP is owner-only.
-  return res.json({ok:true,id,expires_at:expiresAt,invitation_url:c.origin+'/fulfillment/invite?token='+secret,delivery:'copy_link'});
+  return res.json({ok:true,id,expires_at:expiresAt,invitation_url:c.origin+'/fulfillment/invite#token='+secret,delivery:'copy_link'});
  }
  if(route==='admin-fulfillment-invite-revoke'&&method==='POST'){
   const id=cleanId(v,'id');
@@ -131,7 +134,7 @@ export async function phaseOneRoute({route,method,v,req,res,db,c,u,admin,one,q,a
    if(!spec){blocks.push('Missing verified print specifications for '+line.category);continue;}
    const sources=studioSourceIds(line.design_studio,line.upload_id);
    const metadata=[];
-   if(!sources.length){warnings.push('Text-only or vector layout for '+line.line_id+' needs manual output proof review.');}
+   if(!sources.length){blocks.push('Missing printable raster source for '+line.line_id+'. Create and attach a verified print original before approving production.');}
    for(const source of sources){
     const file=await one('SELECT * FROM uploads WHERE id=?',[source]);
     if(!file){blocks.push('Missing source image for '+line.line_id);continue;}
@@ -166,7 +169,7 @@ export async function phaseOneRoute({route,method,v,req,res,db,c,u,admin,one,q,a
   }
   return res.json({report,approval,approved:!!approval});
  }
- if(['fulfillment-evidence','fulfillment-evidence-review','fulfillment-evidence-file','fulfillment-issues','fulfillment-issue-resolve'].includes(route)){
+ if(['fulfillment-evidence','fulfillment-evidence-upload','fulfillment-evidence-review','fulfillment-evidence-file','fulfillment-issues','fulfillment-issue-resolve'].includes(route)){
   const id=rid(),job=await jobByOrder(id),order=await orderById(id),data=JSON.parse(order.data);
   const memberRole=await roleFor(job);
   if(route==='fulfillment-evidence'&&method==='GET'){
@@ -182,6 +185,36 @@ export async function phaseOneRoute({route,method,v,req,res,db,c,u,admin,one,q,a
    const bytes=await readArtwork(c.uploadDir,record);
    await audit(u,'fulfillment.evidence.view',id+':'+evidenceId);
    return res.set('Content-Disposition','inline').type(record.mime).send(bytes);
+  }
+  if(route==='fulfillment-evidence-upload'&&method==='POST'){
+   if(!supplierMay(memberRole,'evidence'))fail(403,'Your supplier role cannot submit evidence.');
+   if(order.status!=='processing'||!['printing','quality_check','on_hold'].includes(job.status))fail(409,'Production is not at the quality inspection stage.');
+   const lineId=text(req.query,'line_id',100),kind=text(req.query,'kind',30);
+   if(!['final_print','placement','packaging'].includes(kind))fail(422,'Choose a supported inspection photo type.');
+   if(!data.items.some(line=>line.line_id===lineId))fail(404,'Order line not found.');
+   if(!req.file?.buffer||!['image/jpeg','image/png'].includes(req.file.mimetype))fail(422,'Use an actual JPEG or PNG photograph, up to 8 MB.');
+   const original=await validateArtwork(req.file.buffer);
+   if(!['jpeg','png'].includes(original.format)||original.width<350||original.height<350)fail(422,'Inspection photographs must be at least 350 × 350 pixels.');
+   const sanitized=await sharp(req.file.buffer,{limitInputPixels:60000000}).rotate().jpeg({quality:90,mozjpeg:true}).toBuffer();
+   if(sanitized.length>8*1024*1024)fail(422,'Inspection photo exceeds the 8 MB limit after conversion.');
+   const uploadId=uid('qc-'),fileName=uploadId+'.jpg',filePath=path.join(c.uploadDir,fileName);
+   // EXIF, GPS and other private camera metadata are removed by re-encoding.
+   await fs.mkdir(c.uploadDir,{recursive:true,mode:0o700});
+   await fs.writeFile(filePath,sanitized,{flag:'wx',mode:0o600});
+   try{
+    await db.tx(async conn=>{
+     const current=await jobByOrder(id,conn,true);
+     if(!['printing','quality_check','on_hold'].includes(current.status))fail(409,'Production moved to another stage. Refresh before uploading.');
+     const cnt=await one('SELECT COUNT(*) AS total FROM fulfillment_qc_evidence WHERE order_id=?',[id],conn);
+     if(Number(cnt?.total||0)>=60)fail(422,'The inspection evidence limit has been reached. Contact Veelad support.');
+     await q('INSERT INTO uploads (id,user_id,path,mime) VALUES (?,?,?,?)',[uploadId,u.id,fileName,'image/jpeg'],conn);
+     if(kind==='final_print')await q("UPDATE fulfillment_qc_evidence SET status='superseded' WHERE order_id=? AND line_id=? AND kind='final_print' AND status='approved'",[id,lineId],conn);
+     await q('INSERT INTO fulfillment_qc_evidence (id,order_id,line_id,upload_id,kind,status,submitted_by,created_at) VALUES (?,?,?,?,?,?,?,?)',
+       [uid('fqce-'),id,lineId,uploadId,kind,'pending',u.id,now()],conn);
+     await audit(u,'fulfillment.evidence.upload',id+':'+lineId,conn);
+    });
+   }catch(error){await fs.unlink(filePath).catch(()=>{});throw error;}
+   return res.json({ok:true});
   }
   if(route==='fulfillment-evidence'&&method==='POST'){
    if(!supplierMay(memberRole,'evidence'))fail(403,'Your supplier role cannot submit evidence.');
