@@ -51,7 +51,17 @@ window.VeeladJournal=(()=>{
   // other page sections; reading progress should reach 100% at the last paragraph.
   const rect=article.getBoundingClientRect(),top=window.scrollY+rect.top,
     start=top-innerHeight*.28,end=top+rect.height-innerHeight*.72,
-    fraction=Math.min(1,Math.max(0,(window.scrollY-start)/Math.max(1,end-start)));
+    scrollFraction=Math.min(1,Math.max(0,(window.scrollY-start)/Math.max(1,end-start)));
+  // An in-article anchor is a deliberate jump into the story. On short
+  // articles a browser can reach the heading without enough page scroll to
+  // advance the viewport-only fraction, especially on narrow screens.
+  let anchorId='';
+  try{anchorId=decodeURIComponent(window.location.hash.slice(1));}catch{}
+  const anchorHeading=[...article.querySelectorAll('h2[id],h3[id]')].find(node=>node.id===anchorId);
+  const anchorFraction=anchorHeading
+    ?Math.min(1,Math.max(.08,(anchorHeading.getBoundingClientRect().top-rect.top)/Math.max(1,rect.height)))
+    :0;
+  const fraction=Math.max(scrollFraction,anchorFraction);
   bar.style.transform='scaleX('+fraction+')';
   const links=main.querySelectorAll('[data-journal-toc] a');
   let active=null;const threshold=Math.min(210,innerHeight*.28);
@@ -63,6 +73,31 @@ window.VeeladJournal=(()=>{
  }
  window.addEventListener('scroll',updateJournalReading,{passive:true});
  window.addEventListener('resize',updateJournalReading,{passive:true});
+ // Preserve reliable in-article navigation after responsive images settle and
+ // when the same chapter is selected twice. Do not intercept external links.
+ document.addEventListener('click',event=>{
+  const link=event.target.closest('[data-journal-toc] a[href^="#"]');
+  if(!link)return;
+  const article=document.querySelector('.journal-article');
+  const id=link.getAttribute('href').slice(1);
+  const heading=[...article?.querySelectorAll('.journal-prose h2[id],.journal-prose h3[id]')||[]].find(node=>node.id===id);
+  if(!heading)return;
+  // Native navigation updates the fragment; align the heading again once
+  // the current frame's layout has completed.
+  requestAnimationFrame(()=>{
+   heading.scrollIntoView({block:'start',behavior:'auto'});
+   updateJournalReading();
+  });
+ });
+ window.addEventListener('hashchange',()=>{
+  requestAnimationFrame(()=>{
+   const article=document.querySelector('.journal-article');
+   let id='';try{id=decodeURIComponent(location.hash.slice(1));}catch{}
+   const heading=[...article?.querySelectorAll('.journal-prose h2[id],.journal-prose h3[id]')||[]].find(node=>node.id===id);
+   if(heading)heading.scrollIntoView({block:'start',behavior:'auto'});
+   updateJournalReading();
+  });
+ });
 
  const adminUrl=values=>normalUrl('admin',{tab:'journal',...values});
  const statusName=s=>({draft:say('Draft','مسودة'),published:say('Published','منشور'),scheduled:say('Scheduled','مجدول')})[s]||s;
