@@ -54,8 +54,13 @@ export async function retentionRoute(ctx){
   const u=await me(req,true),collections=await listCollections(db,u.id);
   const follows=await db.q('SELECT artist_id,email_updates FROM artist_follows WHERE user_id=? ORDER BY created_at DESC LIMIT 500',[u.id]);
   const notifications=await db.q("SELECT n.id,n.product_id,n.artist_id,n.created_at,n.is_read FROM artist_notifications n JOIN products p ON p.id=n.product_id AND p.status='active' JOIN artist_follows f ON f.user_id=n.user_id AND f.artist_id=n.artist_id WHERE n.user_id=? ORDER BY n.created_at DESC LIMIT 30",[u.id]);
-  const entries=await db.q('SELECT challenge_id,status,created_at FROM community_entries WHERE user_id=? ORDER BY created_at DESC LIMIT 30',[u.id]);
-  res.json({collections,follows:follows.map(x=>({artist_id:x.artist_id,email_updates:!!x.email_updates})),notifications:notifications.map(x=>({...x,is_read:!!x.is_read})),entries});return true;
+  // Return the member's own participation history, never someone else's pending submissions.
+  const entries=await db.q("SELECT e.id,e.challenge_id,e.status,e.created_at,c.title,c.title_ar,c.title_zh,c.status AS challenge_status FROM community_entries e JOIN community_challenges c ON c.id=e.challenge_id WHERE e.user_id=? ORDER BY e.created_at DESC LIMIT 30",[u.id]);
+  let discussions=[];
+  if(c.commentsEnabled===true){
+   discussions=await db.q("SELECT c.id,c.product_id,c.parent_id,c.status,c.created_at,(SELECT COUNT(*) FROM product_comments r JOIN users ru ON ru.id=r.user_id AND ru.status='active' WHERE r.parent_id=COALESCE(c.parent_id,c.id) AND r.status='approved' AND r.user_id<>?) AS reply_count FROM product_comments c JOIN products p ON p.id=c.product_id AND p.status='active' WHERE c.user_id=? AND c.status IN ('pending','approved','hidden') ORDER BY c.created_at DESC LIMIT 30",[u.id,u.id]);
+  }
+  res.json({collections,follows:follows.map(x=>({artist_id:x.artist_id,email_updates:!!x.email_updates})),notifications:notifications.map(x=>({...x,is_read:!!x.is_read})),entries,discussions:discussions.map(x=>({...x,reply_count:Number(x.reply_count)||0}))});return true;
  }
  if(route==='retention-collections'&&method==='GET'){
   const u=await me(req,true);res.json({collections:await listCollections(db,u.id)});return true;
