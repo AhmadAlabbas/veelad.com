@@ -262,7 +262,7 @@ export async function fulfillmentRoute({route,method,v,req,res,db,c,me,role,thro
       if(!supplierMay(supplierRole,action))fail(403,'Your supplier role cannot perform this production action.');
       const openIssues=await one("SELECT COUNT(*) AS count FROM fulfillment_issues WHERE order_id=? AND status='open'",[id],conn);
       if(['resume','printing','quality_check','packed','dispatch_submitted'].includes(action)&&Number(openIssues?.count||0))fail(409,'Resolve all open production issues before continuing.');
-      if(action==='printing'){
+      if(['printing','quality_check','packed','dispatch_submitted'].includes(action)){
         const specs=await q('SELECT category,print_width_mm,print_height_mm,bleed_mm,min_dpi FROM fulfillment_print_specs WHERE supplier_id=? ORDER BY category',[job.supplier_id],conn);
         const fingerprint=printFingerprint(d,job.supplier_id,specs);
         const approval=await one('SELECT snapshot_hash,report_json FROM fulfillment_preflight WHERE order_id=?',[id],conn);
@@ -310,6 +310,10 @@ export async function fulfillmentRoute({route,method,v,req,res,db,c,me,role,thro
       if(order.status!=='processing'||job.status!=='dispatch_submitted'||!job.carrier||!job.tracking)fail(409,'Supplier dispatch is not ready for approval.');
       ensureFulfillmentReady(d,c.mode);
       if(d.production?.stage!=='packed')fail(409,'Quality control and packaging must be complete.');
+      const specs=await q('SELECT category,print_width_mm,print_height_mm,bleed_mm,min_dpi FROM fulfillment_print_specs WHERE supplier_id=? ORDER BY category',[job.supplier_id],conn);
+      const approval=await one('SELECT snapshot_hash,report_json FROM fulfillment_preflight WHERE order_id=?',[id],conn);
+      if(!approval||approval.snapshot_hash!==printFingerprint(d,job.supplier_id,specs))fail(409,'Approved print specifications are outdated. Revalidate before dispatch.');
+      await verifyApprovedPrintSources(db,c,approval.report_json);
       const openIssues=await one("SELECT COUNT(*) AS count FROM fulfillment_issues WHERE order_id=? AND status='open'",[id],conn);
       const evidence=await q("SELECT line_id,kind,status FROM fulfillment_qc_evidence WHERE order_id=?",[id],conn);
       if(Number(openIssues?.count||0)||!evidenceReady(d.items||[],evidence))fail(409,'Resolve inspection issues and approve final-print evidence before dispatch.');
