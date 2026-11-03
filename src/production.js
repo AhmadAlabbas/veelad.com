@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import {maybeAutoAssignMerchlist} from './fulfillment-auto-assign.js';
 import {
   fail,
   uid,
@@ -299,6 +300,8 @@ export async function productionRoute({
       [JSON.stringify(data), row.id],
       conn,
     );
+    // The supplier queue starts only after paid, approved proof has reached Ready.
+    await maybeAutoAssignMerchlist(db,c,row.id,conn);
     return u?.role === "admin"
       ? order({ ...row, data: JSON.stringify(data) })
       : customerOrder({ ...row, data: JSON.stringify(data) });
