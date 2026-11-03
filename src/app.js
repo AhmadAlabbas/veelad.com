@@ -111,6 +111,22 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
  });
  api.use(express.json({limit:'256kb',inflate:false}));
  const upload=multer({storage:multer.memoryStorage(),limits:{fileSize:artworkLimits.bytes,files:1,fields:0}});
+ const qcUpload=multer({storage:multer.memoryStorage(),limits:{fileSize:8*1024*1024,files:1,fields:3,parts:4}});
+ let qcUploading=0;
+ api.use(async(req,res,next)=>{
+  if(req.method!=='POST'||req.query.route!=='fulfillment-qc-photo-upload')return next();
+  try{
+   if(!c.fulfillmentEnabled)fail(404,'Endpoint not found.');
+   const employee=await me(req,true);
+   await throttle(req,'fulfillment-qc-upload',30,employee.id);
+   if(qcUploading>=3)fail(429,'Too many quality-control uploads are running.');
+   qcUploading++;let released=false;
+   const release=()=>{if(!released){released=true;qcUploading--;}};
+   req.once('aborted',release);res.once('close',release);res.once('finish',release);
+   qcUpload.single('photo')(req,res,error=>{if(error)release();next(error);});
+  }catch(error){next(error);}
+ });
+
  let parsingUploads=0;
  api.use(async(req,res,next)=>{
   if(req.method!=='POST'||!['upload','admin-artwork-restore'].includes(req.query.route))return next();
