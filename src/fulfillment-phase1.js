@@ -28,6 +28,21 @@ export function safePrintSpec(v){
 export function evidenceReady(items,records){
  return items.every(line=>records.some(e=>e.line_id===line.line_id&&e.kind==='final_print'&&e.status==='approved'));
 }
+
+export async function verifyApprovedPrintSources(db,c,reportJson){
+ let report;
+ try{report=typeof reportJson==='string'?JSON.parse(reportJson):reportJson;}catch{fail(409,'Invalid approved print report. Re-run the production checks.');}
+ if(report?.schema!=='veelad.print-preflight.v1'||!Array.isArray(report.checks)||report.blocks?.length)fail(409,'Approved production report is invalid.');
+ for(const line of report.checks){
+  for(const source of line.source_metadata||[]){
+   const record=await db.one('SELECT * FROM uploads WHERE id=?',[source.source_id]);
+   if(!record||!source.sha256)fail(409,'Approved artwork source metadata is incomplete. Revalidate the print pack.');
+   const digest=crypto.createHash('sha256').update(await readArtwork(c.uploadDir,record)).digest('hex');
+   if(digest!==source.sha256)fail(409,'An artwork original changed after print approval. Revalidate and sign off again.');
+  }
+ }
+}
+
 export async function phaseOneRoute({route,method,v,req,res,db,c,u,admin,one,q,audit,queue,throttle,supplierAccess,jobByOrder,orderById}){
  if(!phaseOneRoutes.has(route))return false;
  if(phaseOneAdminRoutes.has(route)&&!admin)fail(403,'Only Veelad administrators can perform this action.');
@@ -123,7 +138,8 @@ export async function phaseOneRoute({route,method,v,req,res,db,c,u,admin,one,q,a
     try{
      const m=await artworkMetadata(c.uploadDir,file);
      const dpi=Math.round(Math.min(m.width/((spec.print_width_mm+2*spec.bleed_mm)/25.4),m.height/((spec.print_height_mm+2*spec.bleed_mm)/25.4)));
-     metadata.push({source_id:source,width:m.width,height:m.height,format:m.format,color_space:m.color_space,effective_dpi:dpi,minimum_dpi:spec.min_dpi});
+     const fileSha256=crypto.createHash('sha256').update(await readArtwork(c.uploadDir,file)).digest('hex');
+     metadata.push({source_id:source,width:m.width,height:m.height,format:m.format,color_space:m.color_space,effective_dpi:dpi,minimum_dpi:spec.min_dpi,sha256:fileSha256});
      if(dpi<spec.min_dpi)blocks.push('Source '+source.slice(0,12)+' below minimum resolution for '+line.line_id);
     }catch{blocks.push('Source '+source.slice(0,12)+' cannot be validated for '+line.line_id);}
    }
