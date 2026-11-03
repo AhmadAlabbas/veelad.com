@@ -102,9 +102,9 @@ export async function fulfillmentRoute({route,method,v,req,res,db,c,me,role,thro
       const d=json(row.data);
       try{
         ensureFulfillmentReady(d,c.mode);
-        if(d.production?.stage!=='ready')continue;
+        if(!['ready','printing'].includes(d.production?.stage))continue;
       }catch{continue;}
-      orders.push({id:row.id,created_at:row.created_at,items:(d.items||[]).map(item=>({line_id:item.line_id,title:item.title,variant:item.variant,qty:item.qty}))});
+      orders.push({id:row.id,created_at:row.created_at,production_stage:d.production.stage,needs_reconciliation:d.production.stage==='printing',items:(d.items||[]).map(item=>({line_id:item.line_id,title:item.title,variant:item.variant,qty:item.qty}))});
     }
     return res.json({orders});
   }
@@ -114,15 +114,17 @@ export async function fulfillmentRoute({route,method,v,req,res,db,c,me,role,thro
       const order=await orderById(id,conn,true),data=json(order.data);
       if(order.status!=='processing')fail(409,'Only paid processing orders can be assigned.');
       ensureFulfillmentReady(data,c.mode);
-      if(data.production?.stage!=='ready')fail(409,'Approve the final production proof before assigning a supplier.');
+      if(!['ready','printing'].includes(data.production?.stage))fail(409,'Approve the final production proof before assigning a supplier.');
+      const reconcileExisting=data.production.stage==='printing';
+      if(reconcileExisting&&v.confirm_existing_printing!==true)fail(409,'This order is already printing. Explicitly confirm that Merchlist has not already received the job before linking it.');
       await supplierAccess(supplierId,conn);
       const existing=await one('SELECT order_id FROM fulfillment_jobs WHERE order_id=? FOR UPDATE',[id],conn);
       if(existing)fail(409,'This order is already assigned; review its supplier job.');
       if(await one('SELECT order_id FROM fulfillment_routing WHERE order_id=?',[id],conn))fail(409,'This order was already split between suppliers.');
-      await q('INSERT INTO fulfillment_jobs (order_id,supplier_id,status,revision,created_at,updated_at) VALUES (?,?,?,0,?,?)',[id,supplierId,'assigned',stamp(),stamp()],conn);
+      await q('INSERT INTO fulfillment_jobs (order_id,supplier_id,status,revision,created_at,updated_at) VALUES (?,?,?,0,?,?)',[id,supplierId,reconcileExisting?'printing':'assigned',stamp(),stamp()],conn);
       await initializeJobDeadlines(db,id,supplierId,u.id,conn);
-      await audit(u,'fulfillment.assign',id+':'+supplierId,conn);
-      await notifyFulfillment(db,supplierId,id,'assigned','Veelad assigned a new production order.',conn);
+      await audit(u,reconcileExisting?'fulfillment.reconcile_existing_printing':'fulfillment.assign',id+':'+supplierId,conn);
+      await notifyFulfillment(db,supplierId,id,'assigned',reconcileExisting?'Veelad linked an existing printing order for review. Confirm actual production state before proceeding.':'Veelad assigned a new production order.',conn);
     });
     return res.json({ok:true});
   }
