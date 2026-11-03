@@ -49,6 +49,7 @@ import {creativePersonalisationRoute,validateCreativePersonalisation} from './cr
 import {partnerRoute,partnerReferral,resolvePartnerAttribution} from './partners.js';
 import {partnerPayoutRoute} from './partners-payouts.js';
 import {fulfillmentRoute} from './fulfillment.js';
+import {fulfillmentIntegrationHandler} from './fulfillment-phase3-integration.js';
 import {capturePartnerOrder,syncPartnerOrder} from './partners-finance.js';
 const publicDir=fileURLToPath(new URL('../public',import.meta.url));
 const categories=['T-shirts','Tote bags','Phone cases','Art prints','Mugs','Stickers','Notebooks'];
@@ -63,6 +64,11 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
  app.use(helmet({contentSecurityPolicy:{directives:{defaultSrc:["'self'"],scriptSrc:["'self'"],styleSrc:["'self'","'unsafe-inline'","https://fonts.googleapis.com"],imgSrc:["'self'",'data:','blob:'],fontSrc:["'self'","https://fonts.gstatic.com"],connectSrc:["'self'"],upgradeInsecureRequests:c.secure ? [] : null}},crossOriginEmbedderPolicy:false}));
  const store=new MySQLSessionStore(db);
  app.locals.sessionStore=store;
+ // Supplier service credentials bypass browser sessions but require their own expiring scoped bearer token.
+ app.use('/api/fulfillment/v1',express.json({limit:'8kb',inflate:false}),async(req,res)=>{
+  if(schema.status!=='ready')fail(503,'Supplier integration database is starting.');
+  return fulfillmentIntegrationHandler(req,res,{db,c});
+ });
  const api=express.Router();
  api.use((req,res,next)=>{res.set('Cache-Control','no-store');next();});
  api.use((req,res,next)=>{
@@ -116,16 +122,17 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
  const upload=multer({storage:multer.memoryStorage(),limits:{fileSize:artworkLimits.bytes,files:1,fields:0}});
  const supplierEvidenceUpload=multer({storage:multer.memoryStorage(),limits:{fileSize:8*1024*1024,files:1,fields:0,parts:1}});
  const supplierMessageUpload=multer({storage:multer.memoryStorage(),limits:{fileSize:8*1024*1024,files:1,fields:1,parts:2,fieldSize:2048}});
+ const supplierLineQcUpload=multer({storage:multer.memoryStorage(),limits:{fileSize:8*1024*1024,files:1,fields:0,parts:1}});
  let parsingUploads=0;
  api.use(async(req,res,next)=>{
-  if(req.method!=='POST'||!['upload','admin-artwork-restore','fulfillment-evidence-upload','fulfillment-message-upload'].includes(req.query.route))return next();
+  if(req.method!=='POST'||!['upload','admin-artwork-restore','fulfillment-evidence-upload','fulfillment-message-upload','fulfillment-line-evidence-upload'].includes(req.query.route))return next();
   try {
    const u=req.query.route==='admin-artwork-restore'?await role(req,'admin'):await me(req,true);
    await throttle(req,'upload-admission',40);await throttle(req,'upload-account',40,u.id);
    if(parsingUploads>=4)return next(new ApiError(429,'Uploads are busy. Please try again shortly.'));
    parsingUploads++;let released=false;const release=()=>{if(!released){released=true;parsingUploads--;}};
    res.once('close',release);res.once('finish',release);req.once('aborted',release);
-   (req.query.route==='fulfillment-evidence-upload'?supplierEvidenceUpload:req.query.route==='fulfillment-message-upload'?supplierMessageUpload:upload).single('artwork')(req,res,error=>{if(error)release();next(error);});
+   (req.query.route==='fulfillment-evidence-upload'?supplierEvidenceUpload:req.query.route==='fulfillment-message-upload'?supplierMessageUpload:req.query.route==='fulfillment-line-evidence-upload'?supplierLineQcUpload:upload).single('artwork')(req,res,error=>{if(error)release();next(error);});
   }catch(error){next(error);}
  });
  const q=db.q, one=db.one;
