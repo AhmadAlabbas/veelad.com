@@ -46,6 +46,7 @@ import {creativePersonalisationRoute,validateCreativePersonalisation} from './cr
 import {partnerRoute,partnerReferral,resolvePartnerAttribution} from './partners.js';
 import {partnerPayoutRoute} from './partners-payouts.js';
 import {fulfillmentRoute} from './fulfillment.js';
+import {demandMfa} from './fulfillment-mfa.js';
 import {capturePartnerOrder,syncPartnerOrder} from './partners-finance.js';
 const publicDir=fileURLToPath(new URL('../public',import.meta.url));
 const categories=['T-shirts','Tote bags','Phone cases','Art prints','Mugs','Stickers','Notebooks'];
@@ -118,6 +119,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
   try{
    if(!c.fulfillmentEnabled)fail(404,'Endpoint not found.');
    const employee=await me(req,true);
+   await demandMfa(db,req,employee);
    await throttle(req,'fulfillment-qc-upload',30,employee.id);
    if(qcUploading>=3)fail(429,'Too many quality-control uploads are running.');
    qcUploading++;let released=false;
