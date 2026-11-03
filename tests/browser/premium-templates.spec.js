@@ -51,5 +51,5 @@ test('240 design templates are searchable, filterable and add three editable pri
   await studio().locator('[data-ws-tool=layers]').click();
   await expect(studio().locator('[data-ws-sort-layer]')).toHaveCount(3);
   expect(errors).toEqual([]);
- }finally{await page.goto('about:blank').catch(()=>{});await db.close();}
+ }finally{await page.goto('about:blank').catch(()=>{});await db.q('UPDATE products SET status=\'archived\' WHERE id=?',[id]);await db.pool.end();}
 });
