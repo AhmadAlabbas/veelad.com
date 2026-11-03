@@ -12,7 +12,7 @@ test('Fulfillment Phase 2 administrator configures packaging, supplier deadlines
   await page.goto(f.origin+'/en/login');await page.locator('[data-form=login]').waitFor();
   await page.evaluate(credentials=>api('login',credentials),{email:'fulfillment-ops-admin@example.test',password});
   await page.goto(f.origin+'/fulfillment');
-  await expect(page.getByRole('heading',{name:'Fulfillment overview'})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Manufacturing dashboard'})).toBeVisible();
   await page.getByRole('button',{name:/Suppliers/}).click();
   await expect(page.getByText('Veelad packaging manual')).toBeVisible();
   const pack=page.locator('[data-form=packaging-policy]');
@@ -34,8 +34,8 @@ test('Fulfillment Phase 2 administrator configures packaging, supplier deadlines
   const policy=await f.db.one('SELECT accept_hours,production_hours,dispatch_hours FROM fulfillment_sla_policies WHERE supplier_id=?',['phase2-supplier']);
   expect(Number(policy.accept_hours)).toBe(12);
   expect(Number(policy.production_hours)).toBe(72);
-  await page.getByRole('button',{name:'Packaging',exact:true}).click();
-  await expect(page.getByRole('heading',{name:'Packaging centre'})).toBeVisible();
+  await page.getByRole('button',{name:'Packing',exact:true}).click();
+  await expect(page.getByRole('heading',{name:'Packing desk'})).toBeVisible();
   await page.getByRole('button',{name:'Bulk operations'}).click();
   await expect(page.getByRole('heading',{name:'Batch operations'})).toBeVisible();
   await page.getByRole('button',{name:'Alerts'}).click();
