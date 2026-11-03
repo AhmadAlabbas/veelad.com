@@ -42,9 +42,9 @@ export async function splitRole(db,job,actor,conn){
  const member=await read(db,"SELECT m.supplier_role FROM fulfillment_members m JOIN fulfillment_suppliers s ON s.id=m.supplier_id AND s.status='active' WHERE m.supplier_id=? AND m.user_id=? AND m.access='active'",[job.supplier_id,actor.id],conn);
  return member?.supplier_role||null;
 }
-async function splitCurrent(db,c,job,conn){
+async function splitCurrent(db,c,job,conn,{allowShipped=false}={}){
  const order=await read(db,'SELECT * FROM orders WHERE id=?',[job.order_id],conn);
- if(!order||order.status!=='processing')fail(409,'Customer order is no longer in active production.');
+ if(!order||(order.status!=='processing'&&!(allowShipped&&order.status==='shipped'&&job.status==='dispatched')))fail(409,'Customer order is no longer in active production.');
  const d=json(order.data),line=lineData(d,job.line_id);
  ensureFulfillmentReady(d,c.mode);
  return {order,d,line};
@@ -131,7 +131,7 @@ export async function phaseThreeRoutingRoute({route,method,v,req,res,db,c,u,admi
  if(splitAdminRoutes.has(route)&&!admin)fail(403,'Only Veelad administrators can route supplier orders.');
  const actor={id:u.id,role:u.role},get=method==='GET',input=get?req.query:v;
  const member=async job=>splitRole(db,job,actor);
- const open=async(job)=>{const {order,d,line}=await splitCurrent(db,c,job);return {order,d,line}};
+ const open=async(job)=>{const {order,d,line}=await splitCurrent(db,c,job,null,{allowShipped:true});return {order,d,line}};
  if(route==='admin-fulfillment-route-options'&&get){
   const [orders,suppliers]=await Promise.all([
    q("SELECT o.id,o.data FROM orders o LEFT JOIN fulfillment_jobs j ON j.order_id=o.id LEFT JOIN fulfillment_routing r ON r.order_id=o.id WHERE o.status='processing' AND j.order_id IS NULL AND r.order_id IS NULL ORDER BY o.created_at DESC LIMIT 100"),
@@ -392,6 +392,11 @@ export async function phaseThreeRoutingRoute({route,method,v,req,res,db,c,u,admi
    const siblings=await q('SELECT * FROM fulfillment_line_jobs WHERE order_id=? FOR UPDATE',[job.order_id],conn);
    if(siblings.length!==d.items.length||new Set(siblings.map(x=>x.line_id)).size!==d.items.length)fail(409,'Supplier routing does not cover all purchased order lines.');
    if(siblings.every(x=>x.status==='dispatched')){
+    for(const sibling of siblings){
+     const purchased=lineData(d,sibling.line_id);
+     await requireCertifiedLine(db,c,sibling,d,purchased,conn);
+     await requirePacking(db,sibling,d,purchased,conn);
+    }
     d.shipments=siblings.map(x=>({line_id:x.line_id,carrier:x.carrier,tracking:x.tracking,dispatched_at:x.dispatched_at}));
     d.carrier=d.shipments.length===1?d.shipments[0].carrier:'Multiple carriers';
     d.tracking=d.shipments.map(x=>x.tracking).join(', ');
