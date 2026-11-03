@@ -115,6 +115,7 @@ const libraryPanel=document.createElement("section");
     inspector=shell.querySelector("[data-ws-inspector]"), imageCache=new Map(), glyphCache=new Map(), layerAssets=new Map(),libraryLoads=new Set();
   let elementLimit=48,elementBusy=false;
   let originalCollection="",originalQuery="",originalLimit=24;
+  let premiumQuery="",premiumCollection="",premiumLayout="",premiumLimit=18;
   let selected=null,tool="uploads",mode="edit",zoom="fit",fitScale=.5,renderSerial=0,gesture=null,fontsReady=false,fontLimit=60,
     lastHistoryGroup=null,lastHistoryTime=0,restoring=false,activeKey="",fontObserver=null,disposed=false,focused=false;
   const history=[],future=[];
@@ -465,10 +466,62 @@ function renderElements(){
     commit();
     setStatus("Original design added. Customise the artwork and headline.");
   }
+
+  function renderPremiumTemplateCards(){
+    const lib=window.VeeladPremiumTemplates,api=window.VeeladElements,host=shell.querySelector('[data-ws-premium-list]');
+    if(!lib||!api||!host)return;
+    const locale=currentLanguage(),matched=lib.search(premiumQuery,premiumCollection,premiumLayout),
+      chosen=matched.slice(0,premiumLimit),label=(en,ar,zh)=>locale==='ar'?ar:locale==='zh-CN'?zh:en;
+    const position=(point)=>'left:'+(point.x*100).toFixed(1)+'%;top:'+(point.y*100).toFixed(1)+'%';
+    host.innerHTML=chosen.map(item=>{
+      const shape=lib.composition(item);
+      return '<button type="button" class="cw-premium-card" data-ws-premium-apply="'+esc(item.id)+'" aria-label="'+esc(label('Add editable template ','إضافة قالب قابل للتعديل ','添加可编辑模板 ')+lib.title(item,locale))+'">'
+      +'<span class="cw-premium-miniature cw-premium-'+esc(item.layout)+'" aria-hidden="true">'
+      +'<span class="cw-premium-miniature-art" style="'+position(shape.art)+';width:'+(shape.art.width*100)+'%;height:'+(shape.art.height*100)+'%">'+api.svg(item.artworkId,item.colors)+'</span>'
+      +'<span class="cw-premium-miniature-heading" style="'+position(shape.headline)+'">'+esc(lib.headline(item,locale))+'</span>'
+      +'<span class="cw-premium-miniature-detail" style="'+position(shape.detail)+'">'+esc(lib.detail(item,locale))+'</span></span>'
+      +'<span class="cw-premium-card-title">'+esc(lib.title(item,locale))+'</span>'
+      +'<span class="cw-premium-card-tag">'+esc(label('3 independent editable layers','٣ طبقات قابلة للتعديل','3 个独立可编辑图层'))+'</span></button>';
+    }).join('')||'<p class="cw-muted">'+esc(label('No matching templates. Try another search or collection.','لا توجد قوالب مطابقة. جرّب بحثًا أو مجموعة أخرى.','没有匹配的模板，请调整搜索或分类。'))+'</p>';
+    shell.querySelector('[data-ws-premium-count]').textContent=chosen.length+' / '+matched.length;
+    shell.querySelector('[data-ws-premium-more]').hidden=chosen.length>=matched.length;
+  }
+  function renderPremiumTemplateShell(target){
+    const lib=window.VeeladPremiumTemplates;if(!lib)return;
+    const locale=currentLanguage(),label=(en,ar,zh)=>locale==='ar'?ar:locale==='zh-CN'?zh:en;
+    const title=row=>locale==='ar'?row.ar:locale==='zh-CN'?row.zh:row.title;
+    const section=document.createElement('section');section.className='cw-premium-templates';section.dataset.wsPremiumTemplates='';
+    const choices=(list,value)=>list.map(item=>'<option value="'+esc(item.id)+'" '+(value===item.id?'selected':'')+'>'+esc(title(item))+'</option>').join('');
+    section.innerHTML='<div class="cw-premium-head"><span class="cw-premium-kicker">VEELAD TEMPLATE ATELIER · 01</span>'
+    +'<h5>'+esc(label('Design templates','قوالب التصميم','设计模板'))+'</h5>'
+    +'<p>'+esc(label('240 original compositions. Browse, add and edit every element, colour and word.','٢٤٠ تنسيقًا أصليًا. اختر قالبًا وعدّل العناصر والألوان والكلمات كما تحب.','240 套原创排版；所有图形、颜色与文字都可自由编辑。'))+'</p></div>'
+    +'<div class="cw-premium-controls"><label><span>'+esc(label('Search','بحث','搜索'))+'</span><input type="search" data-ws-premium-query value="'+esc(premiumQuery)+'" placeholder="'+esc(label('Flowers, cities, geometry…','زهور، مدن، أشكال…','花朵、城市、几何图形…'))+'"></label>'
+    +'<label><span>'+esc(label('Collection','المجموعة','合集'))+'</span><select data-ws-premium-collection><option value="">'+esc(label('All collections','كل المجموعات','全部合集'))+'</option>'+choices(lib.collections,premiumCollection)+'</select></label>'
+    +'<label><span>'+esc(label('Composition','التنسيق','版式'))+'</span><select data-ws-premium-layout><option value="">'+esc(label('All layouts','كل التنسيقات','全部版式'))+'</option>'+choices(lib.layouts,premiumLayout)+'</select></label></div>'
+    +'<p class="cw-premium-count" data-ws-premium-count aria-live="polite"></p>'
+    +'<div class="cw-premium-grid" data-ws-premium-list></div>'
+    +'<button type="button" class="cw-premium-more" data-ws-premium-more>'+esc(label('Show more templates','عرض قوالب إضافية','显示更多模板'))+'</button>'
+    +'<p class="cw-premium-guidance">'+esc(label('Templates add artwork and two editable text layers to the current side. Existing work is kept. These are concept designs: confirm final print dimensions with the supplier.','القوالب تضيف رسمة ونصين قابلين للتعديل على الجهة الحالية، دون حذف عملك. تحقق من مقاسات الطباعة النهائية مع المورّد.','模板在当前印刷面添加图形与两行可编辑文字，不会删除已有作品。最终印刷尺寸须与供应商确认。'))+'</p>';
+    target.prepend(section);renderPremiumTemplateCards();
+  }
+  async function applyPremiumTemplate(templateId){
+    const lib=window.VeeladPremiumTemplates,template=lib?.find(templateId),shape=lib?.composition(template);
+    if(!template||!shape||elementBusy||!canAdd(3))return;
+    const product=instance.product().id,surface=adapter.surface();
+    const artwork=await addElement(template.artworkId);
+    if(!artwork||!root.isConnected||instance.product().id!==product||adapter.surface()!==surface)return;
+    artwork.x=shape.art.x;artwork.y=shape.art.y;
+    const scale=Math.min(shape.art.width/artwork.width,shape.art.height/artwork.height,1.15);
+    artwork.width*=scale;artwork.height*=scale;
+    const added=lib.textLayers(template,currentLanguage()).map(item=>({id:uid(),...item}));
+    layers().push(...added);selected=added[0].id;
+    commit();setStatus("Template added. Select any layer to edit text, move artwork or change colours.");
+  }
   function renderProLayouts(){
     const pro=window.VeeladStudioPro,api=window.VeeladElements,target=shell.querySelector('[data-ws-original-layouts]');
     if(!pro||!target)return;
     target.innerHTML='<h5>'+esc(tr("Ready-made designs"))+'</h5><p class="cw-muted">'+esc(tr("Original editable starting points"))+'</p><div class="cw-original-layout-grid">'+pro.templates.map(template=>`<button type="button" class="cw-original-layout" data-ws-pro-layout="${esc(template.id)}"><span class="cw-original-layout-art">${api.svg(template.element)}</span><strong>${esc(pro.title(template,currentLanguage()))}</strong><small>${esc(template.tag)}</small></button>`).join('')+'</div>';
+    renderPremiumTemplateShell(target);
     const drops=window.VeeladOriginalDrops;
     if(drops){
       const options=drops.collections.map(row=>'<option value="'+esc(row.id)+'" '+(originalCollection===row.id?'selected':'')+'>'+esc(currentLanguage()==='ar'?row.ar:currentLanguage()==='zh-CN'?row.zh:row.title)+'</option>').join('');
@@ -876,6 +929,8 @@ function renderElements(){
     else if(button.hasAttribute("data-ws-element"))await addElement(button.dataset.wsElement);
     else if(button.hasAttribute("data-ws-elements-view")){elementsView=button.dataset.wsElementsView;elementLimit=48;renderElements();}
     else if(button.hasAttribute("data-ws-favourite")){window.VeeladStudioPro?.favourite(button.dataset.wsFavourite);renderElements();}
+    else if(button.hasAttribute("data-ws-premium-apply"))await applyPremiumTemplate(button.dataset.wsPremiumApply);
+    else if(button.hasAttribute("data-ws-premium-more")){premiumLimit+=18;renderPremiumTemplateCards();}
     else if(button.hasAttribute("data-ws-pro-layout"))await applyProLayout(button.dataset.wsProLayout);
     else if(button.hasAttribute("data-ws-original-apply"))await applyOriginalDrop(button.dataset.wsOriginalApply);
     else if(button.hasAttribute("data-ws-original-drop-more")){originalLimit+=24;renderOriginalDropCards();}
@@ -925,6 +980,7 @@ function renderElements(){
     if(input.hasAttribute("data-ws-prop"))changeProperty(input);
     else if(input.hasAttribute("data-ws-font-search")){fontLimit=60;renderFonts();}
     else if(input.hasAttribute("data-ws-element-search")){elementLimit=48;renderElements();}
+    else if(input.hasAttribute("data-ws-premium-query")){premiumQuery=input.value;premiumLimit=18;renderPremiumTemplateCards();}
     else if(input.hasAttribute("data-ws-original-query")){originalQuery=input.value;originalLimit=24;renderOriginalDropCards();}
     else if(input.hasAttribute("data-ws-background")){adapter.scene().background=input.value;shell.querySelector("[data-ws-transparent]").checked=false;commit("background");}
   });
@@ -933,6 +989,8 @@ function renderElements(){
     if(input.hasAttribute("data-ws-upload"))addImages(input.files);
     else if(input.hasAttribute("data-ws-element-category")){elementLimit=48;renderElements();}
     else if(input.hasAttribute("data-ws-element-collection")){elementLimit=48;renderElements();}
+    else if(input.hasAttribute("data-ws-premium-collection")){premiumCollection=input.value;premiumLimit=18;renderPremiumTemplateCards();}
+    else if(input.hasAttribute("data-ws-premium-layout")){premiumLayout=input.value;premiumLimit=18;renderPremiumTemplateCards();}
     else if(input.hasAttribute("data-ws-original-collection")){originalCollection=input.value;originalLimit=24;renderOriginalDropCards();}
     else if(input.hasAttribute("data-ws-element-colour")){const layer=current();if(layer)void recolourElement(layer.id,input.dataset.wsElementColour,input.value);}
     else if(input.hasAttribute("data-ws-zoom")){zoom=input.value;resizeStage();}
