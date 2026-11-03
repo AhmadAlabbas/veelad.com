@@ -1,0 +1,47 @@
+name: Staging old-workflow browser contracts (isolated)
+on:
+  push:
+    branches: [qa/staging-browser-contracts-20261103]
+permissions:
+  contents: read
+jobs:
+  browser-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    services:
+      mysql:
+        image: mysql:8.4@sha256:24989179f58856db763f418010c1169fecc944e3ec1ea7e921572d83eb070f70
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+          MYSQL_DATABASE: veelad_local
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1"
+          --health-interval=5s --health-timeout=5s --health-retries=30
+    env:
+      APP_ENV: local
+      APP_ORIGIN: http://127.0.0.1:3000
+      DB_HOST: 127.0.0.1
+      DB_PORT: '3306'
+      DB_NAME: veelad_local
+      DB_USER: root
+      SESSION_SECRET: isolated-browser-regression-suite-only-not-production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: mysql -h127.0.0.1 -uroot -e 'CREATE DATABASE IF NOT EXISTS veelad_test'
+      - run: npx playwright install --with-deps chromium
+      - name: Test legacy contracts on responsive front end
+        run: >-
+          npx playwright test
+          tests/browser/international.spec.js
+          tests/browser/catalogue-launch.spec.js
+          tests/browser/discovery-priority6.spec.js
+          tests/browser/creative-navigation.spec.js
+          tests/browser/creative-laptop.spec.js
+          tests/browser/elements-library.spec.js
+          --project=desktop --project=mobile --reporter=line
