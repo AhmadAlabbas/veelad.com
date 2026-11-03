@@ -25,6 +25,7 @@ import {pipeline} from 'node:stream/promises';
 import {ApiError,fail,uid,token,trackingToken,hash,equal,text,email,integer,password,passwordHash,verifyPassword,safeUser,json,product,order,now} from './security.js';
 import {operationsStatus,probeStorage,createBackup,backupReady,privateDirectory} from './operations.js';
 import {pageRoutes} from './pages.js';
+import {staticAssetCacheHeaders} from './static-cache.js';
 import {publicArtists,profileDetails,reviewedProducts,optionalTranslations} from './artists.js';
 import {artworkLimits,artworkPath,validateArtwork,artworkMetadata,artworkPreview,artworkRenderSource,readArtwork} from './artwork.js';
 import {prepareArtworkArchive} from './artwork-archive.js';
@@ -716,7 +717,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
  journalPages(app,c,db,schema);
  pageRoutes(app,c,db,schema);
  if(c.fulfillmentEnabled) app.get(['/fulfillment','/fulfillment/','/fulfillment/login','/fulfillment/orders','/fulfillment/production','/fulfillment/artwork','/fulfillment/shipping','/fulfillment/suppliers'],(req,res)=>res.set('Cache-Control','private, no-store').set('X-Robots-Tag','noindex, nofollow').sendFile(path.join(publicDir,'fulfillment.html')));
- app.use(express.static(publicDir,{dotfiles:'deny',index:'index.html'}));
+ app.use(express.static(publicDir,{dotfiles:'deny',index:'index.html',setHeaders:staticAssetCacheHeaders(publicDir,c.revision)}));
  }
  app.use((req,res)=>res.status(404).json({error:'Not found.'}));
  app.use((e,req,res,next)=>{
