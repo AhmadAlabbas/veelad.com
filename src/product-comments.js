@@ -4,10 +4,11 @@ import {fail,uid,now,text} from './security.js';
 const PAGE_SIZE=15;
 const allowedReportReasons=new Set(['spam','abuse','copyright','other']);
 const idField=(value,key)=>text({[key]:value},key,64);
-const display=row=>({
+const display=(row,viewerId=null)=>({
  id:row.id,
  parent_id:row.parent_id||null,
  body:row.body,
+ own:viewerId!==null&&viewerId===row.user_id,
  created_at:row.created_at,
  author:{name:row.author_name,kind:row.author_role==='admin'?'team':row.user_id===row.product_artist_id&&row.author_role==='artist'?'artist':'customer'},
 });
@@ -23,7 +24,7 @@ function bodyValue(v){
  if(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f\u202a-\u202e\u2066-\u2069]/u.test(body))fail(422,'Please remove unsupported characters.');
  return body.normalize('NFC');
 }
-async function publicComments(db,productId,page){
+async function publicComments(db,productId,page,viewerId){
  const count=await db.one("SELECT COUNT(*) AS total FROM product_comments c JOIN users u ON u.id=c.user_id AND u.status='active' WHERE c.product_id=? AND c.parent_id IS NULL AND c.status='approved'",[productId]);
  const roots=await db.q(
   "SELECT c.*,u.name AS author_name,u.role AS author_role,p.artist_id AS product_artist_id FROM product_comments c JOIN users u ON u.id=c.user_id AND u.status='active' JOIN products p ON p.id=c.product_id WHERE c.product_id=? AND c.parent_id IS NULL AND c.status='approved' ORDER BY c.created_at DESC,c.id DESC LIMIT ? OFFSET ?",
@@ -34,12 +35,12 @@ async function publicComments(db,productId,page){
   "SELECT c.*,u.name AS author_name,u.role AS author_role,p.artist_id AS product_artist_id FROM product_comments c JOIN users u ON u.id=c.user_id AND u.status='active' JOIN products p ON p.id=c.product_id WHERE c.product_id=? AND c.parent_id IN ("+placeholders+") AND c.status='approved' ORDER BY c.created_at ASC,c.id ASC LIMIT 500",
   [productId,...ids]);
  const grouped=new Map(ids.map(id=>[id,[]]));
- for(const row of replies)grouped.get(row.parent_id)?.push(display(row));
- return {comments:roots.map(row=>({...display(row),replies:grouped.get(row.id)})),total:Number(count.total),page,has_more:(page+1)*PAGE_SIZE<Number(count.total)};
+ for(const row of replies)grouped.get(row.parent_id)?.push(display(row,viewerId));
+ return {comments:roots.map(row=>({...display(row,viewerId),replies:grouped.get(row.id)})),total:Number(count.total),page,has_more:(page+1)*PAGE_SIZE<Number(count.total)};
 }
 async function moderationRows(db){
  const rows=await db.q(
-  "SELECT c.*,u.name AS author_name,u.role AS author_role,p.artist_id AS product_artist_id,JSON_UNQUOTE(JSON_EXTRACT(p.data,'$.title')) AS product_title,(SELECT COUNT(*) FROM product_comment_reports r WHERE r.comment_id=c.id) AS reports FROM product_comments c JOIN users u ON u.id=c.user_id JOIN products p ON p.id=c.product_id WHERE c.status='pending' OR (c.status='approved' AND EXISTS(SELECT 1 FROM product_comment_reports r WHERE r.comment_id=c.id)) ORDER BY CASE WHEN c.status='pending' THEN 0 ELSE 1 END,c.created_at DESC LIMIT 100");
+  "SELECT c.*,u.name AS author_name,u.role AS author_role,p.artist_id AS product_artist_id,JSON_UNQUOTE(JSON_EXTRACT(p.data,'$.title')) AS product_title,(SELECT COUNT(*) FROM product_comment_reports r WHERE r.comment_id=c.id AND r.resolved_at IS NULL) AS reports FROM product_comments c JOIN users u ON u.id=c.user_id JOIN products p ON p.id=c.product_id WHERE c.status='pending' OR (c.status='approved' AND EXISTS(SELECT 1 FROM product_comment_reports r WHERE r.comment_id=c.id AND r.resolved_at IS NULL)) ORDER BY CASE WHEN c.status='pending' THEN 0 ELSE 1 END,c.created_at DESC LIMIT 100");
  return rows.map(row=>({...display(row),product_id:row.product_id,product_title:row.product_title||'',status:row.status,report_count:Number(row.reports)}));
 }
 export async function productCommentRoute({route,method,v,req,res,db,c,me,role,throttle,audit}){
@@ -49,7 +50,7 @@ export async function productCommentRoute({route,method,v,req,res,db,c,me,role,t
   const product=await activeProduct(db,req.query.product_id);
   const raw=String(req.query.page??'0');
   if(!/^(0|[1-9]\d{0,2})$/.test(raw)||Number(raw)>100)fail(422,'Check the page number.');
-  res.json(await publicComments(db,product.id,Number(raw)));return true;
+  const viewer=await me(req);res.json(await publicComments(db,product.id,Number(raw),viewer?.id||null));return true;
  }
  if(route==='product-comment'&&method==='POST'){
   const u=await me(req,true);
@@ -107,7 +108,8 @@ export async function productCommentRoute({route,method,v,req,res,db,c,me,role,t
    if(!comment||comment.status==='deleted')fail(404,'Comment unavailable.');
    await db.q('UPDATE product_comments SET status=?,moderation_note=?,moderated_by=?,moderated_at=?,updated_at=? WHERE id=?',
     [v.status,reason,u.id,now(),now(),id],conn);
-   // Reports remain as a private moderation record and are not publicly displayed.
+   // Keep a private record of reports while marking this moderation decision complete.
+   await db.q('UPDATE product_comment_reports SET resolved_at=?,resolved_by=? WHERE comment_id=? AND resolved_at IS NULL',[now(),u.id,id],conn);
    await audit(u,'product-comment.'+v.status,id,conn);
   });
   res.json({ok:true});return true;
