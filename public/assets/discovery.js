@@ -5,8 +5,29 @@ function facetLanguageIndex(){return currentLanguage()==='ar'?1:currentLanguage(
 function verifiedFacetLabel(type,value){const facet=verifiedFacetLabels[type];return facet?.values[value]?.[facetLanguageIndex()]||String(value||'');}
 function verifiedFacetName(type){return verifiedFacetLabels[type]?.label[facetLanguageIndex()]||type;}
 function verifiedFacetFields(p={}){const existing=p.discovery_attributes||{};const lang=currentLanguage();return `<fieldset class="listing-details verified-merchandise-facets"><legend>${esc(lang==='ar'?'تفاصيل المنتج المؤكّدة':lang==='zh-CN'?'已核实商品属性':'Verified product details')}</legend><p class="small muted">${esc(lang==='ar'?'أضف المعلومات بعد التأكد منها من المورد؛ لا تخمّن الألوان أو الخامات.':lang==='zh-CN'?'仅填写供应商确认的信息；不要根据图片推测材质或颜色。':'Only choose attributes verified against your merchandise or supplier specifications. Never infer details from a photo.')}</p><div class="form-grid">${Object.entries(verifiedFacetLabels).map(([type,options])=>`<label class="field">${esc(verifiedFacetName(type))}<select name="facet_${type}" aria-label="${esc(verifiedFacetName(type))}"><option value="">${esc(lang==='ar'?'غير محدّد':lang==='zh-CN'?'未确认':'Not confirmed')}</option>${Object.keys(options.values).map(value=>`<option value="${esc(value)}" ${existing[type]===value?'selected':''}>${esc(verifiedFacetLabel(type,value))}</option>`).join('')}</select></label>`).join('')}</div></fieldset>`}
+// These are search vocabulary only, not inferred colours, materials or available stock.
+// Every alias resolves to a real existing physical-product category.
+const discoveryCategoryAliases=Object.freeze({
+ 'T-shirts':['tee','tee shirt','tshirt','t shirt','تيشيرت','تي شيرت','تيشرت','تي شيرتات','تيشيرتات','t恤','短袖上衣'],
+ 'Mugs':['mug','coffee cup','coffee mug','cup','كوب','اكواب','أكواب','مج','马克杯','咖啡杯'],
+ 'Tote bags':['tote','tote bag','canvas bag','شنطة قماش','شنط قماش','حقيبة قماش','帆布袋','托特包'],
+ 'Notebooks':['notebook','journal','دفتر','دفاتر','مفكرة','笔记本','记事本'],
+ 'Phone cases':['phone case','mobile cover','جراب جوال','غطاء جوال','كفر جوال','手机壳','手机保护壳'],
+ 'Art prints':['art print','wall art','poster','لوحة فنية','لوحات فنية','ملصق فني','艺术微喷','装饰画'],
+ 'Stickers':['sticker','stickers','ملصق','ملصقات','ستيكر','贴纸','贴画']
+});
+function discoveryCategorySearchText(category){return (discoveryCategoryAliases[category]||[]).join(' ');}
 function verifiedFacetChoices(catalog,key,selected){const counts=new Map();for(const p of catalog){const value=p.discovery_attributes?.[key];if(value&&verifiedFacetLabels[key]?.values[value])counts.set(value,(counts.get(value)||0)+1);}return [...counts].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]));}
-function verifiedFacetSelects(catalog,values){return Object.entries(verifiedFacetLabels).map(([key,descriptor])=>{const candidates=verifiedFacetChoices(catalog,key,values[key]);if(!candidates.length)return '';const title=verifiedFacetName(key);return `<select name="${key}" aria-label="${esc(title)}"><option value="">${esc(title)}</option>${candidates.map(([value,count])=>`<option value="${esc(value)}" ${values[key]===value?'selected':''}>${esc(verifiedFacetLabel(key,value))} (${localNumber(count)})</option>`).join('')}</select>`}).join('')}
+function verifiedFacetSelects(catalog,values,profiles=[]){return Object.entries(verifiedFacetLabels).map(([key])=>{
+ // Count options with ALL other filters still applied. Clearing only this
+ // facet makes counts meaningful and avoids false promises of results.
+ const eligible=discoverProducts(catalog,profiles,{...values,[key]:''});
+ const candidates=verifiedFacetChoices(eligible,key,values[key]);
+ if(values[key]&&verifiedFacetLabels[key].values[values[key]]&&!candidates.some(([id])=>id===values[key]))candidates.push([values[key],0]);
+ if(!candidates.length)return '';
+ const title=verifiedFacetName(key);
+ return `<select name="${key}" aria-label="${esc(title)}"><option value="">${esc(title)}</option>${candidates.map(([value,count])=>`<option value="${esc(value)}" ${values[key]===value?'selected':''}>${esc(verifiedFacetLabel(key,value))} (${localNumber(count)})</option>`).join('')}</select>`;
+ }).join('')}
 
 function discoverProducts(catalog,profiles,values) {
  const query=searchText(values.q),terms=query.split(/\s+/).filter(Boolean),min=Math.max(0,Number(values.min)||0),max=values.max?Math.max(0,Number(values.max)||0):1000;
@@ -14,7 +35,7 @@ function discoverProducts(catalog,profiles,values) {
  const result=catalog.filter(p=>{
   const a=profiles.find(a=>a.id===p.artist_id)||{};
   const styleNames=styles.filter(style=>(p.design_styles||[]).includes(style.id)).flatMap(style=>[style.title,style.title_ar,style.title_zh]);
-  const haystack=searchText([p.title,p.title_ar,p.title_zh,p.description,p.description_ar,p.description_zh,p.category,t(p.category),a.name,a.name_ar,a.name_zh,...styleNames,...(p.tags||[]),...(p.tags_ar||[]),...(p.tags_zh||[]),...(p.variants||[])].join(' '));
+  const haystack=searchText([p.title,p.title_ar,p.title_zh,p.description,p.description_ar,p.description_zh,p.category,t(p.category),discoveryCategorySearchText(p.category),a.name,a.name_ar,a.name_zh,...styleNames,...(p.tags||[]),...(p.tags_ar||[]),...(p.tags_zh||[]),...(p.variants||[])].join(' '));
   return (!values.style||(p.design_styles||[]).includes(values.style))&&(!values.category||p.category===values.category)&&(!values.artist||p.artist_id===values.artist)&&p.price>=min*100&&p.price<=max*100&&terms.every(t=>haystack.includes(t))&&(!values.tag||(p.tags||[]).includes(values.tag)||(p.tags_ar||[]).includes(values.tag)||(p.tags_zh||[]).includes(values.tag))&&(!values.availability||(values.availability==='in_stock'?p.stock>0:p.stock===0))&&Object.keys(verifiedFacetLabels).every(key=>!values[key]||p.discovery_attributes?.[key]===values[key]);
  });
  if(terms.length&&(!values.sort||values.sort==='featured')){
@@ -34,6 +55,7 @@ function discoveryRelevance(product,terms,profile) {
  const tags=searchText([...(product.tags||[]),...(product.tags_ar||[]),...(product.tags_zh||[])].join(' '));
  const category=searchText([product.category,t(product.category)].join(' '));
  const query=terms.join(' ');
+ const categoryAliases=searchText(discoveryCategorySearchText(product.category));
  let score=title===query?120:title.startsWith(query)?70:0;
  for(const term of terms){
   if(title.split(/\s+/).some(word=>word===term))score+=28;
@@ -41,6 +63,7 @@ function discoveryRelevance(product,terms,profile) {
   if(tags.split(/\s+/).includes(term))score+=12;
   else if(tags.includes(term))score+=5;
   if(category.includes(term))score+=8;
+  else if(categoryAliases.split(/\s+/).includes(term))score+=8;
   if(artistName.includes(term))score+=6;
  }
  return score;
@@ -98,7 +121,7 @@ function discoveryCategoryGallery(catalog) {
 }
 
 function discoveryPage() {
- const values=Object.fromEntries(params),cat=values.category||'',q=values.q||'',allMatches=discoverProducts(products,artists,values),ps=values.view==='designs'?distinctDesigns(allMatches):cat||values.collection||values.view==='products'?allMatches:distinctDesigns(allMatches),suggestions=searchSuggestions(q,products,artists),style=designStyles.find(row=>row.id===values.style),pagination=cataloguePagination(ps),themes=discoverProducts(products,artists,{...values,tag:''}),facetable=discoverProducts(products,artists,{...values,color:'',material:'',fit:'',occasion:''});
+ const values=Object.fromEntries(params),cat=values.category||'',q=values.q||'',allMatches=discoverProducts(products,artists,values),ps=values.view==='designs'?distinctDesigns(allMatches):cat||values.collection||values.view==='products'?allMatches:distinctDesigns(allMatches),suggestions=searchSuggestions(q,products,artists),style=designStyles.find(row=>row.id===values.style),pagination=cataloguePagination(ps),themes=discoverProducts(products,artists,{...values,tag:''});
  return `<main id="main" class="container section discovery-page"><div class="breadcrumb">${link(t('Home'),'home')} / ${t('Explore')}${style?' / '+esc(localField(style,'title')):''}</div><div class="shop-intro ${style?'has-design-style':''}"><div><span class="eyebrow">${t('INDEPENDENT ART. ENDLESS PERSONALITY.')}</span><h1>${q?t('Finds for “{query}”',{query:'<bdi dir="auto">'+esc(q)+'</bdi>'}):style?esc(localField(style,'title')):esc(t(cat||'Find your thing.'))}</h1><p>${style?esc(localField(style,'description')):t('Find a design, meet its artist, make it yours.')}</p></div>${style?styleArtwork(style):''}</div>
  ${!cat&&!q&&!values.style&&!values.collection?discoveryCategoryGallery(products):''}
  ${shoppingEnabled?window.VeeladShop.catalogueIntro():''}<nav class="shop-style-nav" aria-label="${t('Design styles')}">${link(t('All styles'),'shop','chip '+(!values.style?'active':''),Object.fromEntries([...params].filter(([key])=>!['style','page'].includes(key))))}${designStyles.map(row=>link(esc(localField(row,'title')),'shop','chip '+(row.id===values.style?'active':''),{...Object.fromEntries([...params].filter(([key])=>key!=='page')),style:row.id})).join('')}</nav>
@@ -106,7 +129,7 @@ function discoveryPage() {
  <form class="filterbar" data-form="filters">${values.view?`<input type="hidden" name="view" value="${esc(values.view)}">`:""}<input type="hidden" name="q" value="${esc(q)}"><input type="hidden" name="category" value="${esc(cat)}"><input type="hidden" name="tag" value="${esc(values.tag||'')}">
  <select name="style" aria-label="${t('Design style')}"><option value="">${t('All styles')}</option>${designStyles.map(row=>`<option value="${esc(row.id)}" ${values.style===row.id?'selected':''}>${esc(localField(row,'title'))}</option>`).join('')}</select>
  <select name="artist" aria-label="${t('Filter by artist')}"><option value="">${t('All artists')}</option>${artists.map(a=>`<option value="${esc(a.id)}" ${values.artist===a.id?'selected':''}>${esc(localField(a,'name'))}</option>`).join('')}</select>
- ${verifiedFacetSelects(facetable,values)}
+ ${verifiedFacetSelects(products,values,artists)}
  <input name="min" type="number" min="0" max="1000" step="1" aria-label="${t('Minimum price')}" placeholder="${t('Min SAR')}" value="${esc(values.min||'')}">
  <select name="max" aria-label="${t('Maximum price')}">${[1000,150,100,60].map(n=>`<option value="${n}" ${Number(values.max||1000)===n?'selected':''}>${n===1000?t('Any price'):t('Up to SAR {price}',{price:localNumber(n)})}</option>`).join('')}</select>
  <select name="availability" aria-label="${t('Availability')}"><option value="">${t('Any availability')}</option><option value="in_stock" ${values.availability==='in_stock'?'selected':''}>${t('In stock')}</option><option value="sold_out" ${values.availability==='sold_out'?'selected':''}>${t('Sold out')}</option></select>
