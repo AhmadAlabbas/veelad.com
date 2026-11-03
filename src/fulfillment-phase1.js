@@ -197,6 +197,7 @@ export async function phaseOneRoute({route,method,v,req,res,db,c,u,admin,one,q,a
     await jobByOrder(id,conn,true);
     const previous=await one('SELECT id FROM fulfillment_qc_evidence WHERE order_id=? AND upload_id=? FOR UPDATE',[id,uploadId],conn);
     if(previous)fail(409,'This photograph was already submitted.');
+    if(kind==='final_print')await q("UPDATE fulfillment_qc_evidence SET status='superseded' WHERE order_id=? AND line_id=? AND kind='final_print' AND status='approved'",[id,lineId],conn);
     await q('INSERT INTO fulfillment_qc_evidence (id,order_id,line_id,upload_id,kind,status,submitted_by,created_at) VALUES (?,?,?,?,?,?,?,?)',
       [uid('fqce-'),id,lineId,uploadId,kind,'pending',u.id,now()],conn);
     await audit(u,'fulfillment.evidence.upload',id+':'+lineId,conn);
