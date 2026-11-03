@@ -28,7 +28,7 @@ export async function rehearseBackup(c,db,backup) {
   conn=await db.pool.getConnection();
   locked=!!(await db.one("SELECT GET_LOCK('veelad_restore_rehearsal',0) AS acquired",[],conn))?.acquired;
   if(!locked)return {status:'busy'};
-  const prefix='vld_restore_'+randomBytes(8).toString('hex')+'_',tableName=name=>prefix+name;
+  const prefix='vr_'+randomBytes(6).toString('hex')+'_',tableName=name=>prefix+name; // Keep temporary table names under MySQL's 64-character identifier limit even for manufacturing tables.
   for(const table of backupTables){
    const target=tableName(table);check(/^[a-z][a-z0-9_]{0,63}$/.test(target),'RESTORE_TARGET_INVALID');
    await db.q('CREATE TEMPORARY TABLE `'+target+'` LIKE `'+table+'`',[],conn);created.push(target);
