@@ -34,7 +34,7 @@ test('Fulfillment Phase 2 administrator configures packaging, supplier deadlines
   const policy=await f.db.one('SELECT accept_hours,production_hours,dispatch_hours FROM fulfillment_sla_policies WHERE supplier_id=?',['phase2-supplier']);
   expect(Number(policy.accept_hours)).toBe(12);
   expect(Number(policy.production_hours)).toBe(72);
-  await page.getByRole('button',{name:'Packaging'}).click();
+  await page.getByRole('button',{name:'Packaging',exact:true}).click();
   await expect(page.getByRole('heading',{name:'Packaging centre'})).toBeVisible();
   await page.getByRole('button',{name:'Bulk operations'}).click();
   await expect(page.getByRole('heading',{name:'Batch operations'})).toBeVisible();
