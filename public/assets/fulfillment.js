@@ -587,6 +587,62 @@ $('content').addEventListener('click',async event=>{
  try{
   b.disabled=true;
   if(b.dataset.view){state.view=b.dataset.view;state.selected=null;state.phase3.selected=null;render();}
+  else if(b.dataset.lineOpen)await openSplitLine(b.dataset.lineOpen);
+  else if(b.dataset.lineProgress){
+   const j=state.phase3.selected.job,action=b.dataset.lineProgress;
+   if(['packed','printing'].includes(action)&&!confirm('Confirm that the required physical manufacturing checks have been completed?'))return;
+   await api('fulfillment-line-progress',{method:'POST',body:{line_job_id:j.id,revision:j.revision,action}});
+   await reload();notice('Manufacturing line advanced to '+action.replaceAll('_',' ')+'.');
+  }
+  else if(b.dataset.lineDispatch){
+   if(!confirm('Approve this supplier shipment? The customer order will be marked shipped only when ALL lines are dispatched.'))return;
+   await api('admin-fulfillment-line-dispatch',{method:'POST',body:{line_job_id:b.dataset.lineDispatch}});
+   await reload();notice('Supplier product-line dispatch approved.');
+  }
+  else if(b.dataset.lineReview){
+   const evidence_id=b.dataset.lineReview,decision=b.dataset.lineDecision;
+   let review_note='';
+   if(decision==='rejected'){review_note=prompt('Describe why the print or packaging photo fails QC (at least 10 characters):')||'';if(review_note.trim().length<10)throw Error('A rejection needs a detailed correction note.');}
+   else if(!confirm('Have you independently checked this inspection photograph against the approved sample?'))return;
+   await api('fulfillment-line-evidence-review',{method:'POST',body:{line_job_id:state.phase3.selected.job.id,evidence_id,decision,review_note}});
+   await reload();notice('Line inspection photo '+decision+'.');
+  }
+  else if(b.dataset.lineResolve){
+   const resolution=prompt('Explain how the manufacturing issue was corrected (at least 10 characters):')||'';
+   if(resolution.trim().length<10)throw Error('Describe the actual correction before resolving an issue.');
+   await api('fulfillment-line-issue-resolve',{method:'POST',body:{line_job_id:state.phase3.selected.job.id,issue_id:b.dataset.lineResolve,resolution}});
+   await reload();notice('Manufacturing issue resolved. Production may be resumed.');
+  }
+  else if(b.dataset.invoiceOpen){
+   state.phase3.invoice=(await api('fulfillment-invoice',{params:{invoice_id:b.dataset.invoiceOpen}})).invoice;render();
+  }
+  else if(b.dataset.invoiceAction){
+   const invoice=state.phase3.invoice,action=b.dataset.invoiceAction;
+   if(!invoice)throw Error('Select a supplier invoice first.');
+   const payload={invoice_id:invoice.id,action};
+   if(action==='record_paid'){
+    if(!confirm('Have you independently verified the supplier payment in your bank account?'))return;
+    payload.payment_reference=prompt('Enter the external bank transfer reference (this does not send a payment):')||'';
+    if(payload.payment_reference.trim().length<8)throw Error('An external settlement reference is required.');
+   }else if(!confirm('Change supplier invoice status to '+action+'?'))return;
+   await api('fulfillment-invoice-action',{method:'POST',body:payload});
+   state.phase3.invoice=(await api('fulfillment-invoice',{params:{invoice_id:invoice.id}})).invoice;
+   await reload();notice('Manufacturing invoice status updated. No funds were transferred.');
+  }
+  else if(b.hasAttribute('data-copy-api-token')){
+   if(!state.phase3.lastToken)throw Error('New integration credential is no longer available.');
+   await navigator.clipboard.writeText(state.phase3.lastToken);notice('Supplier API credential copied securely.');
+  }
+  else if(b.hasAttribute('data-dismiss-api-token')){state.phase3.lastToken=null;render();}
+  else if(b.dataset.apiKeyRevoke){
+   if(!confirm('Revoke this supplier API key immediately? Existing integrations using it will stop working.'))return;
+   await api('admin-fulfillment-key',{method:'POST',body:{action:'revoke',id:b.dataset.apiKeyRevoke}});
+   await reload();notice('Supplier integration credential revoked.');
+  }
+  else if(b.hasAttribute('data-sla-sweep')){
+   const result=await api('admin-fulfillment-sla-sweep',{method:'POST',body:{}});
+   await reload();notice('Deadline monitor checked '+result.scanned+' lines and generated '+result.generated+' new alerts.');
+  }
   else if(b.dataset.open)await openOrder(b.dataset.open);
   else if(b.dataset.progress)await progress(b.dataset.progress);
   else if(b.dataset.supplierStatus){
@@ -649,7 +705,7 @@ $('content').addEventListener('submit',async event=>{
  event.preventDefault();const button=form.querySelector('button[type=submit]');if(button)button.disabled=true;
  try{await submit(form);}catch(error){notice(error.message,'error');}finally{if(button)button.disabled=false;}
 });
-$('content').addEventListener('change',event=>{if(event.target.id==='job-filter'){state.filter=event.target.value;render();}if(event.target.id==='bulk-all'){for(const input of document.querySelectorAll('[data-bulk-job]'))input.checked=event.target.checked;}});
+$('content').addEventListener('change',async event=>{if(event.target.id==='job-filter'){state.filter=event.target.value;render();}if(event.target.id==='bulk-all'){for(const input of document.querySelectorAll('[data-bulk-job]'))input.checked=event.target.checked;}if(event.target.id==='route-order-picker'){state.phase3.routeOrder=event.target.value;render();}if(event.target.id==='invoice-supplier-picker'){state.phase3.invoiceSupplier=event.target.value;state.activeSupplier=event.target.value;try{await reload();}catch(error){notice(error.message,'error');}}});
 $('content').addEventListener('input',event=>{if(event.target.id==='job-search'){state.search=event.target.value;const pos=event.target.selectionStart;render();const input=$('job-search');input?.focus();input?.setSelectionRange(pos,pos);}});
 if(state.invitationToken)history.replaceState(null,'','/fulfillment/invite');
 bootstrap();
