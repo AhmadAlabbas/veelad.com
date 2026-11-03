@@ -1,0 +1,66 @@
+name: Fulfillment focused verification
+on:
+  push:
+    branches: [feature/fulfillment-phase2-operations-20261103]
+  pull_request:
+    paths:
+      - 'src/fulfillment*'
+      - 'public/assets/fulfillment*'
+      - 'public/fulfillment.html'
+      - 'migrations/zz-2026110*-fulfillment*'
+      - 'tests/fulfillment*'
+      - 'tests/browser/fulfillment*'
+      - '.github/workflows/fulfillment-checks.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: fulfillment-check-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  focused:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4@sha256:24989179f58856db763f418010c1169fecc944e3ec1ea7e921572d83eb070f70
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+          MYSQL_DATABASE: veelad_local
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1"
+          --health-interval=5s --health-timeout=5s --health-retries=30
+    env:
+      APP_ENV: local
+      APP_ORIGIN: http://127.0.0.1:3000
+      DB_HOST: 127.0.0.1
+      DB_PORT: '3306'
+      DB_NAME: veelad_local
+      DB_USER: root
+      SESSION_SECRET: ci-only-session-secret-with-no-production-access
+      MANUAL_TEST_PAYMENTS: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run check && npm run build
+      - run: mysql -h127.0.0.1 -uroot -e 'CREATE DATABASE veelad_test'
+      - run: node --test tests/fulfillment-core.test.js tests/fulfillment-phase1.test.js tests/fulfillment-phase2.test.js
+      - run: npm run migrate && npm run local:provision
+      - run: npx playwright install --with-deps chromium
+      - name: Fulfillment desktop and mobile browser tests
+        run: |
+          npm start > /tmp/veelad-fulfillment.log 2>&1 &
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent 'http://127.0.0.1:3000/api.php?route=health' >/dev/null; then break; fi
+            sleep 1
+          done
+          npx playwright test tests/browser/fulfillment-phase1.spec.js tests/browser/fulfillment-phase2.spec.js --project=desktop --project=mobile --reporter=line
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: fulfillment-test-results
+          path: test-results/

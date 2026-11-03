@@ -6,9 +6,15 @@ import {readArtwork,artworkRenderSource} from './artwork.js';
 import {renderDesignTexture} from './mockup-renderer.js';
 import {orderMessage} from './order-mail.js';
 import {syncPartnerOrder} from './partners-finance.js';
+import {phaseOneRoute,phaseOneRoutes,phaseOneAdminRoutes,supplierRoles,supplierMay,printFingerprint,evidenceReady,verifyApprovedPrintSources} from './fulfillment-phase1.js';
+import {prepareSupplierPack} from './fulfillment-pack.js';
+import {phaseTwoRoute,phaseTwoRoutes,phaseTwoAdminRoutes,verifyPackingSignoff,notifyFulfillment,initializeJobDeadlines} from './fulfillment-phase2.js';
+import {artworkPath} from './artwork.js';
+import {Readable} from 'node:stream';
+import {pipeline} from 'node:stream/promises';
 
-const adminRoutes=new Set(['admin-fulfillment-suppliers','admin-fulfillment-supplier','admin-fulfillment-member','admin-fulfillment-assign','admin-fulfillment-pool','admin-fulfillment-dispatch']);
-const routeNames=new Set(['fulfillment-session','fulfillment-orders','fulfillment-order','fulfillment-artwork','fulfillment-progress',...adminRoutes]);
+const adminRoutes=new Set(['admin-fulfillment-suppliers','admin-fulfillment-supplier','admin-fulfillment-member','admin-fulfillment-assign','admin-fulfillment-pool','admin-fulfillment-dispatch',...phaseOneAdminRoutes,...phaseTwoAdminRoutes]);
+const routeNames=new Set(['fulfillment-session','fulfillment-orders','fulfillment-order','fulfillment-artwork','fulfillment-pack','fulfillment-progress',...adminRoutes,...phaseOneRoutes,...phaseTwoRoutes]);
 const stamp=()=>now();
 const cleanId=(v,key='id')=>text(v,key,64);
 const activeAccount=(u)=>u?.status==='active';
@@ -31,7 +37,7 @@ export async function fulfillmentRoute({route,method,v,req,res,db,c,me,role,thro
     }
     return supplier;
   };
-  const members=async()=>admin?[]:await q("SELECT s.id,s.name FROM fulfillment_members m JOIN fulfillment_suppliers s ON m.supplier_id=s.id WHERE m.user_id=? AND m.access='active' AND s.status='active' ORDER BY s.name",[u.id]);
+  const members=async()=>admin?[]:await q("SELECT s.id,s.name,m.supplier_role FROM fulfillment_members m JOIN fulfillment_suppliers s ON m.supplier_id=s.id WHERE m.user_id=? AND m.access='active' AND s.status='active' ORDER BY s.name",[u.id]);
   const jobByOrder=async(id,conn,lock=false)=>{
     const job=await one('SELECT * FROM fulfillment_jobs WHERE order_id=?'+(lock?' FOR UPDATE':''),[id],conn);
     if(!job)fail(404,'Production job not found.');
@@ -46,6 +52,8 @@ export async function fulfillmentRoute({route,method,v,req,res,db,c,me,role,thro
     if(!row)fail(404,'Production job not found.');
     return row;
   };
+  if(phaseOneRoutes.has(route))return phaseOneRoute({route,method,v,req,res,db,c,u,admin,one,q,audit,queue,throttle,supplierAccess,jobByOrder,orderById});
+  if(phaseTwoRoutes.has(route))return phaseTwoRoute({route,method,v,req,res,db,c,u,admin,one,q,audit,throttle,supplierAccess,jobByOrder,orderById});
   if(route==='fulfillment-session'&&method==='GET'){
     const linked=await members();
     return res.json({user:{id:u.id,name:u.name,role:u.role},admin,suppliers:admin?await q("SELECT id,name,status FROM fulfillment_suppliers ORDER BY name"):linked,csrf:req.session.csrf});
@@ -74,10 +82,11 @@ export async function fulfillmentRoute({route,method,v,req,res,db,c,me,role,thro
     const email=text(v,'email',190).toLowerCase();
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))fail(422,'Enter an existing Veelad account email.');
     if(!['active','suspended'].includes(v.access))fail(422,'Choose an access state.');
+    const supplierRole=v.supplier_role||'production';if(!supplierRoles.includes(supplierRole))fail(422,'Choose a supplier role.');
     const target=await one('SELECT id,role,status FROM users WHERE email=?',[email]);
     if(!target||target.status!=='active'||target.role==='admin')fail(422,'Choose an active non-administrator Veelad account.');
     await db.tx(async conn=>{
-      await q('INSERT INTO fulfillment_members (supplier_id,user_id,access,created_at) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE access=VALUES(access)',[supplierId,target.id,v.access,stamp()],conn);
+      await q('INSERT INTO fulfillment_members (supplier_id,user_id,access,supplier_role,created_at) VALUES (?,?,?,?,?) ON DUPLICATE KEY UPDATE access=VALUES(access),supplier_role=VALUES(supplier_role)',[supplierId,target.id,v.access,supplierRole,stamp()],conn);
       await audit(u,'fulfillment.member.'+v.access,supplierId+':'+target.id,conn);
     });
     return res.json({ok:true});
@@ -108,7 +117,9 @@ export async function fulfillmentRoute({route,method,v,req,res,db,c,me,role,thro
       const existing=await one('SELECT order_id FROM fulfillment_jobs WHERE order_id=? FOR UPDATE',[id],conn);
       if(existing)fail(409,'This order is already assigned; review its supplier job.');
       await q('INSERT INTO fulfillment_jobs (order_id,supplier_id,status,revision,created_at,updated_at) VALUES (?,?,?,0,?,?)',[id,supplierId,'assigned',stamp(),stamp()],conn);
+      await initializeJobDeadlines(db,id,supplierId,u.id,conn);
       await audit(u,'fulfillment.assign',id+':'+supplierId,conn);
+      await notifyFulfillment(db,supplierId,id,'assigned','Veelad assigned a new production order.',conn);
     });
     return res.json({ok:true});
   }
@@ -136,6 +147,61 @@ export async function fulfillmentRoute({route,method,v,req,res,db,c,me,role,thro
       surfaces:item.design_studio?.scene_version===sceneVersion?Object.keys(item.design_studio.scenes?.[printProductFor(item.category)?.id]||{}):[],
       has_layout:!!item.design_studio
     })),shipping,carrier:job.carrier,tracking:job.tracking,issue:job.issue_note,production_stage:d.production?.stage||'preparing',payment_verified:d.payment_status==='paid',test_order:d.test_payment===true});
+  }
+  if(route==='fulfillment-pack'&&method==='GET'){
+    await throttle(req,'fulfillment-pack-download',12,u.id);
+    const job=await jobByOrder(cleanId(req.query,'order_id'));
+    const order=await orderById(job.order_id),d=json(order.data);
+    if(order.status!=='processing')fail(409,'Production order is not active.');
+    ensureFulfillmentReady(d,c.mode);
+    const specs=await q('SELECT category,print_width_mm,print_height_mm,bleed_mm,min_dpi FROM fulfillment_print_specs WHERE supplier_id=? ORDER BY category',[job.supplier_id]);
+    const certificate=await one('SELECT * FROM fulfillment_preflight WHERE order_id=?',[job.order_id]);
+    if(!certificate||certificate.snapshot_hash!==printFingerprint(d,job.supplier_id,specs))fail(409,'A current print preflight must be approved before exporting production files.');
+    await verifyApprovedPrintSources(db,c,certificate.report_json);
+    const approvedReport=json(certificate.report_json);
+    const entries=[],lines=[],safe=v=>String(v||'').replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,70);
+    for(const [index,line] of (d.items||[]).entries()){
+      const folder='lines/'+String(index+1).padStart(2,'0')+'-'+safe(line.line_id)+'/',uploads=studioSourceIds(line.design_studio,line.upload_id);
+      const originals=[],layouts=[];
+      const sources=new Map();
+      for(const id of uploads){
+        const record=await one('SELECT * FROM uploads WHERE id=?',[id]);
+        if(!record)fail(409,'One of the purchased artwork originals is missing.');
+        sources.set(id,record);
+        const name=folder+'original-'+safe(id)+(record.mime==='image/png'?'.png':'.jpg');
+        entries.push({name,path:artworkPath(c.uploadDir,record)});originals.push(name);
+      }
+      if(line.design_studio){
+        const type=printProductFor(line.category);
+        if(!type)fail(409,'No design placement template for this product.');
+        const surfaces=line.design_studio.scene_version===sceneVersion?Object.keys(line.design_studio.scenes?.[type.id]||{}):[sceneSurface(type.id,line.design_studio.placements?.[type.id]?.view)];
+        for(const surface of surfaces){
+          if(!sceneSurfaces(type.id).includes(surface))fail(409,'Unexpected print placement surface.');
+          const primary=line.upload_id?sources.get(line.upload_id):null;
+          const bytes=await renderDesignTexture(primary?await artworkRenderSource(c.uploadDir,primary):null,line.category,line.design_studio,(type.canvas||type.preview)[0],{
+            surface,resolveSource:async id=>{
+              const record=sources.get(id);
+              if(!record)fail(409,'Artwork original no longer matches the approved order.');
+              return artworkRenderSource(c.uploadDir,record);
+            }
+          });
+          const name=folder+'placement-'+safe(surface)+'-provisional.png';
+          entries.push({name,bytes});layouts.push(name);
+        }
+      }
+      lines.push({line_id:line.line_id,title:line.title,category:line.category,variant:line.variant,quantity:line.qty,options:line.purchase_choices||null,originals,layouts,design_studio:line.design_studio||null});
+    }
+    const manifest={schema:'veelad.supplier-production-pack.v2',order_id:job.order_id,supplier_id:job.supplier_id,approved_at:certificate.approved_at,
+      specifications:specs,validation:approvedReport,items:lines,
+      disclaimer:'Artwork positioning and raster layouts remain provisional until checked against the physical printing equipment, material, bleed and approved colour proof. Approved originals must not be altered without reapproval.'};
+    entries.unshift({name:'README-PRODUCTION.json',bytes:Buffer.from(JSON.stringify(manifest,null,2))});
+    const archive=await prepareSupplierPack(entries);
+    try{
+      await audit(u,'fulfillment.production_pack.download',job.order_id);
+      res.attachment('veelad-'+safe(job.order_id)+'-approved-production-pack.zip').type('application/zip').set('X-Content-Type-Options','nosniff');
+      await pipeline(Readable.from(archive.stream),res);
+    }finally{await archive.close();}
+    return;
   }
   if(route==='fulfillment-artwork'&&method==='GET'){
     await throttle(req,'fulfillment-download',35,u.id);
@@ -195,9 +261,30 @@ export async function fulfillmentRoute({route,method,v,req,res,db,c,me,role,thro
       if(order.status!=='processing')fail(409,'Order is no longer in production.');
       ensureFulfillmentReady(d,c.mode);
       if(!Number.isSafeInteger(v.revision)||v.revision!==job.revision)fail(409,'Production job changed. Refresh before updating.');
+      const membership=admin?null:await one("SELECT m.supplier_role FROM fulfillment_members m JOIN fulfillment_suppliers s ON s.id=m.supplier_id AND s.status='active' WHERE m.supplier_id=? AND m.user_id=? AND m.access='active'",[job.supplier_id,u.id],conn);
+      const supplierRole=admin?'admin':membership?.supplier_role;
+      if(!supplierMay(supplierRole,action))fail(403,'Your supplier role cannot perform this production action.');
+      const openIssues=await one("SELECT COUNT(*) AS count FROM fulfillment_issues WHERE order_id=? AND status='open'",[id],conn);
+      if(['resume','printing','quality_check','packed','dispatch_submitted'].includes(action)&&Number(openIssues?.count||0))fail(409,'Resolve all open production issues before continuing.');
+      if(['printing','quality_check','packed','dispatch_submitted'].includes(action)){
+        const specs=await q('SELECT category,print_width_mm,print_height_mm,bleed_mm,min_dpi FROM fulfillment_print_specs WHERE supplier_id=? ORDER BY category',[job.supplier_id],conn);
+        const fingerprint=printFingerprint(d,job.supplier_id,specs);
+        const approval=await one('SELECT snapshot_hash,report_json FROM fulfillment_preflight WHERE order_id=?',[id],conn);
+        if(!approval||approval.snapshot_hash!==fingerprint)fail(409,'Veelad must approve a current print-preflight report before printing.');
+        await verifyApprovedPrintSources(db,c,approval.report_json);
+      }
+      if(['quality_check','packed'].includes(action)){
+        const evidence=await q("SELECT line_id,kind,status FROM fulfillment_qc_evidence WHERE order_id=?",[id],conn);
+        if(!evidenceReady(d.items||[],evidence))fail(409,'Each order line requires a separately approved final-print photograph.');
+      }
+      if(['packed','dispatch_submitted'].includes(action))await verifyPackingSignoff(db,job,d,conn);
       const next=nextFulfillmentStep(job.status,action);
       let prior=job.prior_status,issue=job.issue_note,carrier=job.carrier,tracking=job.tracking;
-      if(action==='hold'){issue=text(v,'note',1000);prior=job.status;}
+      if(action==='hold'){
+        issue=text(v,'note',1000);if(issue.length<10)fail(422,'Explain the hold in at least ten characters.');
+        prior=job.status;
+        await q('INSERT INTO fulfillment_issues (id,order_id,category,severity,status,note,created_by,created_at) VALUES (?,?,?,?,?,?,?,?)',[uid('fissue-'),id,'other','medium','open',issue,u.id,stamp()],conn);
+      }
       if(action==='resume'){if(!prior)fail(409,'The previous job state is missing.');}
       if(action==='dispatch_submitted'){
         carrier=text(v,'carrier',100);tracking=text(v,'tracking',120);
@@ -218,6 +305,7 @@ export async function fulfillmentRoute({route,method,v,req,res,db,c,me,role,thro
       await q('UPDATE fulfillment_jobs SET status=?,revision=revision+1,prior_status=?,issue_note=?,carrier=?,tracking=?,updated_at=? WHERE order_id=?',
         [updated,action==='resume'?null:prior,issue,carrier,tracking,stamp(),id],conn);
       await audit(u,'fulfillment.'+action,id,conn);
+      await notifyFulfillment(db,job.supplier_id,id,action,'Supplier updated the job to '+action.replaceAll('_',' ')+'.',conn);
     });
     return res.json({ok:true});
   }
@@ -228,12 +316,21 @@ export async function fulfillmentRoute({route,method,v,req,res,db,c,me,role,thro
       if(order.status!=='processing'||job.status!=='dispatch_submitted'||!job.carrier||!job.tracking)fail(409,'Supplier dispatch is not ready for approval.');
       ensureFulfillmentReady(d,c.mode);
       if(d.production?.stage!=='packed')fail(409,'Quality control and packaging must be complete.');
+      const specs=await q('SELECT category,print_width_mm,print_height_mm,bleed_mm,min_dpi FROM fulfillment_print_specs WHERE supplier_id=? ORDER BY category',[job.supplier_id],conn);
+      const approval=await one('SELECT snapshot_hash,report_json FROM fulfillment_preflight WHERE order_id=?',[id],conn);
+      if(!approval||approval.snapshot_hash!==printFingerprint(d,job.supplier_id,specs))fail(409,'Approved print specifications are outdated. Revalidate before dispatch.');
+      await verifyApprovedPrintSources(db,c,approval.report_json);
+      const openIssues=await one("SELECT COUNT(*) AS count FROM fulfillment_issues WHERE order_id=? AND status='open'",[id],conn);
+      const evidence=await q("SELECT line_id,kind,status FROM fulfillment_qc_evidence WHERE order_id=?",[id],conn);
+      if(Number(openIssues?.count||0)||!evidenceReady(d.items||[],evidence))fail(409,'Resolve inspection issues and approve final-print evidence before dispatch.');
+      await verifyPackingSignoff(db,job,d,conn);
       d.tracking=job.tracking;d.carrier=job.carrier;d.shipped_at=stamp();
       await q("UPDATE orders SET status='shipped',data=? WHERE id=?",[JSON.stringify(d),id],conn);
       await audit(u,'fulfillment.dispatch.approved',id,conn);
       const message=orderMessage(c,{...d,id,status:'shipped'},trackingToken(order.request_key,c.secret),{update:true});
       await queue(order.email,message.subject,message.body,conn);
       await syncPartnerOrder(db,c,id,conn);
+      await notifyFulfillment(db,job.supplier_id,id,'shipped','Veelad approved dispatch and marked the customer order shipped.',conn);
     });
     return res.json({ok:true});
   }
