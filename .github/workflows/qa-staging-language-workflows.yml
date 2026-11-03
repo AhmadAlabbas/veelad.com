@@ -1,0 +1,47 @@
+name: Test language switching in customer checkout and design studio
+on:
+  push:
+    branches: [qa/staging-language-workflows-20261103]
+permissions:
+  contents: read
+jobs:
+  isolated-language:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      mysql:
+        image: mysql:8.4@sha256:24989179f58856db763f418010c1169fecc944e3ec1ea7e921572d83eb070f70
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+          MYSQL_DATABASE: veelad_local
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1"
+          --health-interval=5s --health-timeout=5s --health-retries=30
+    env:
+      APP_ENV: local
+      APP_ORIGIN: http://127.0.0.1:3000
+      DB_HOST: 127.0.0.1
+      DB_PORT: '3306'
+      DB_NAME: veelad_local
+      DB_USER: root
+      SESSION_SECRET: temporary-staging-language-qa-only-test-key
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: mysql -h127.0.0.1 -uroot -e 'CREATE DATABASE IF NOT EXISTS veelad_test'
+      - run: npx playwright install --with-deps chromium
+      - name: Exercise customer flows across header language controls
+        run: >-
+          npx playwright test
+          tests/browser/customer-categories.spec.js
+          tests/browser/customer-library.spec.js
+          tests/browser/customer-starters.spec.js
+          tests/browser/customer-studio.spec.js
+          tests/browser/customer-workspace.spec.js
+          tests/browser/storefront.spec.js
+          --project=desktop --project=mobile --reporter=line
