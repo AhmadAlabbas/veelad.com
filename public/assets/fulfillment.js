@@ -12,7 +12,7 @@ const views=[
  {id:'shipping',label:'Shipping',icon:'↗',title:'Shipping desk',subtitle:'Prepare dispatch details and submit them for Veelad review.'},
  {id:'suppliers',label:'Suppliers',icon:'♙',title:'Supplier management',subtitle:'Manage company access and assign approved orders.',admin:true}
 ];
-const state={session:null,activeSupplier:null,jobs:[],pool:[],selected:null,view:'overview',filter:'all',search:'',busy:false};
+const state={session:null,activeSupplier:null,jobs:[],pool:[],selected:null,view:'overview',filter:'all',search:'',busy:false,phase1:null,adminSetup:{invites:[],specs:[]},inviteLink:'',invitationToken:new URLSearchParams(location.search).get('token')||null};
 const urlFor=(route,params={})=>{
  const url=new URL('/api.php',location.origin);url.searchParams.set('route',route);
  Object.entries(params).forEach(([key,value])=>{if(value!==null&&value!==undefined&&value!=='')url.searchParams.set(key,String(value));});
@@ -50,9 +50,10 @@ async function reload({preserveDetail=false}={}){
  ]);
  state.jobs=results[0].jobs||[];state.pool=results[1].orders||[];
  if(preserveDetail&&state.selected){
-  try{state.selected=(await api('fulfillment-order',{params:{order_id:state.selected.job.id}}));}
-  catch{state.selected=null;}
+  try{state.selected=(await api('fulfillment-order',{params:{order_id:state.selected.job.id}}));await loadPhase1(state.selected.job.id);}
+  catch{state.selected=null;state.phase1=null;}
  }
+ if(state.session?.admin)await loadAdminSetup();
  render();
 }
 function metric(label,count,icon,note=''){return '<div class="metric"><div class="metric-top">'+escapeHTML(label)+'<span class="metric-icon">'+icon+'</span></div><div class="metric-value">'+count+'</div><div class="metric-note">'+escapeHTML(note)+'</div></div>';}
@@ -120,6 +121,64 @@ function suppliersView(){
  '<section class="card"><div class="card-title"><div><h2>Assign an approved order</h2><p>Only paid processing orders with approved proofs appear here.</p></div></div>'+
  (state.pool.length?'<form data-form="assign"><div class="form-row"><div class="field"><label for="assign-order">Approved order</label><select name="order_id" id="assign-order" required>'+state.pool.map(o=>'<option value="'+escapeHTML(o.id)+'">'+escapeHTML(o.id)+' · '+o.items.length+' item lines</option>').join('')+'</select></div><div class="field"><label for="assign-supplier">Fulfillment company</label><select name="supplier_id" id="assign-supplier" required>'+supplierOptions+'</select></div></div><button class="button accent" '+(!supplierOptions?'disabled':'')+' type="submit">Assign selected order</button></form>':empty('No orders ready to assign','Complete a test checkout, record the staging payment and approve each order proof before releasing a job.'))+'</section>';
 }
+
+async function loadPhase1(id){
+ const [preflight,evidence,issues]=await Promise.all([
+  api('fulfillment-preflight',{params:{order_id:id}}),
+  api('fulfillment-evidence',{params:{order_id:id}}),
+  api('fulfillment-issues',{params:{order_id:id}})
+ ]);
+ state.phase1={preflight,evidence:evidence.evidence||[],issues:issues.issues||[]};
+}
+async function loadAdminSetup(){
+ const id=state.activeSupplier||state.session?.suppliers?.find(s=>s.status==='active')?.id;
+ if(!id){state.adminSetup={invites:[],specs:[]};return;}
+ try{
+  const [inv,spec]=await Promise.all([
+   api('admin-fulfillment-invites',{params:{supplier_id:id}}),
+   api('admin-fulfillment-print-specs',{params:{supplier_id:id}})
+  ]);
+  state.adminSetup={supplier_id:id,invites:inv.invites||[],specs:spec.specs||[]};
+ }catch{state.adminSetup={supplier_id:id,invites:[],specs:[]};}
+}
+function preflightPanel(){
+ if(!state.phase1)return '';
+ const p=state.phase1.preflight,r=p.report,approved=p.approved;
+ return '<section class="card"><div class="card-title"><div><h2>Print specification & validation</h2><p>Validated against approved supplier templates and artwork metadata.</p></div>'+status(approved?'approved':r.blocks.length?'on_hold':'awaiting_approval')+'</div>'+
+ '<div class="hint">Print approval is not a factory certification. Verify correct garment, surfaces, position, transparency, CMYK/profile, physical measurements and samples with your supplier.</div>'+
+ '<div class="qc-kpis"><span>Product lines: <strong>'+r.checks.length+'</strong></span><span>Blocking issues: <strong>'+r.blocks.length+'</strong></span><span>Manual reviews: <strong>'+r.warnings.length+'</strong></span></div>'+
+ (r.blocks.length?'<h3 class="small-heading">Must be resolved</h3><ul class="audit-list">'+r.blocks.map(b=>'<li class="critical-item">'+escapeHTML(b)+'</li>').join('')+'</ul>':'<p class="good-copy">No automatic metadata blockers found.</p>')+
+ (r.checks.length?'<div class="table-scroll"><table class="data-table"><thead><tr><th>Line</th><th>Print area</th><th>Min. DPI</th><th>Sources</th></tr></thead><tbody>'+r.checks.map(x=>'<tr><td>'+escapeHTML(x.line_id)+'</td><td>'+x.spec.print_width_mm+' × '+x.spec.print_height_mm+' mm</td><td>'+x.spec.min_dpi+'</td><td>'+x.source_metadata.map(m=>escapeHTML(m.effective_dpi+' DPI')).join(', ')+'</td></tr>').join('')+'</tbody></table></div>':'')+
+ (r.warnings.length?'<details class="detail-expander"><summary>'+r.warnings.length+' manual checks required</summary><ul class="audit-list">'+r.warnings.map(x=>'<li>'+escapeHTML(x)+'</li>').join('')+'</ul></details>':'')+
+ (approved?'<p class="good-copy">Approved by Veelad · '+fmt(p.approval.approved_at)+' · Approval is bound to this exact purchased design and print template.</p>':state.session.admin?'<form data-form="preflight"><label class="field"><span>Manual supplier-template review and sign-off</span><textarea name="review_note" minlength="15" required placeholder="Confirm Merchlist print area, bleed, colour profile, layer scale, garment specifications and physical proof."></textarea></label><label class="checkline"><input type="checkbox" name="confirm" value="yes" required> I have verified the manufacturing requirements outside the automated checks.</label><button class="button accent" type="submit" '+(r.blocks.length?'disabled':'')+'>Approve this print pack</button></form>':'<div class="hint">Waiting for Veelad to approve the supplier-specific print pack.</div>')+
+ '</section>';
+}
+function evidencePanel(){
+ if(!state.phase1)return '';
+ const d=state.selected,e=state.phase1.evidence,reviewer=state.session.admin||['quality','manager'].includes(state.session?.suppliers?.find(s=>s.id===d.job.supplier_id)?.supplier_role);
+ return '<section class="card"><div class="card-title"><div><h2>Photographic quality control</h2><p>Each order line needs an approved final-print photograph from a separate reviewer.</p></div></div>'+
+ '<form data-form="photo"><div class="form-row"><label class="field"><span>Order line</span><select name="line_id" required>'+d.items.map(i=>'<option value="'+escapeHTML(i.line_id)+'">'+escapeHTML(i.title)+' · '+escapeHTML(i.variant)+'</option>').join('')+'</select></label><label class="field"><span>Inspection photo type</span><select name="kind"><option value="final_print">Final printed product</option><option value="placement">Artwork placement</option><option value="packaging">Packaging</option></select></label></div><label class="field"><span>Photo (PNG/JPEG, up to 8 MB)</span><input type="file" name="photo" accept="image/png,image/jpeg" required></label><button class="button accent" type="submit">Upload inspection photograph</button></form>'+
+ (e.length?'<div class="evidence-grid">'+e.map(x=>'<div class="evidence-card"><a target="_blank" rel="noopener noreferrer" href="'+escapeHTML(urlFor('fulfillment-evidence-file',{order_id:d.job.id,evidence_id:x.id}))+'"><img loading="lazy" src="'+escapeHTML(urlFor('fulfillment-evidence-file',{order_id:d.job.id,evidence_id:x.id}))+'" alt="Production inspection photo for '+escapeHTML(x.line_id)+'"></a><div class="evidence-meta"><strong>'+escapeHTML(x.line_id)+'</strong><span>'+escapeHTML(x.kind.replaceAll('_',' '))+'</span><span>'+status(x.status)+'</span></div>'+(x.review_note?'<p>'+escapeHTML(x.review_note)+'</p>':'')+(reviewer&&x.status==='pending'?'<div class="actions"><button class="button secondary" data-review="'+escapeHTML(x.id)+'" data-decision="approved">Approve</button><button class="button danger" data-review="'+escapeHTML(x.id)+'" data-decision="rejected">Reject</button></div>':'')+'</div>').join('')+'</div>':empty('No inspection photos','Upload real photos for each order line, then have a separate quality reviewer approve them.'))+
+ '</section>';
+}
+function issuesPanel(){
+ if(!state.phase1)return '';
+ const issues=state.phase1.issues,canResolve=state.session.admin||['manager','quality'].includes(state.session.suppliers.find(s=>s.id===state.selected.job.supplier_id)?.supplier_role);
+ return '<section class="card"><div class="card-title"><div><h2>Production issues & escalations</h2><p>Every issue is recorded, tracked and must be resolved before resuming work.</p></div>'+status(issues.some(x=>x.status==='open')?'on_hold':'resolved')+'</div>'+
+ '<form data-form="issue"><div class="form-row"><label class="field"><span>Issue type</span><select name="category"><option value="artwork">Artwork</option><option value="print_quality">Printing quality</option><option value="materials">Materials</option><option value="dimensions">Dimensions</option><option value="packaging">Packaging</option><option value="shipping">Shipping</option><option value="other">Other</option></select></label><label class="field"><span>Severity</span><select name="severity"><option value="medium">Medium</option><option value="low">Low</option><option value="high">High</option><option value="critical">Critical</option></select></label></div><label class="field"><span>Explain the problem</span><textarea name="note" minlength="10" maxlength="1000" required placeholder="Which product or print was affected, and what needs to change?"></textarea></label><button class="button danger" type="submit">Report issue and pause production</button></form>'+
+ (issues.length?'<div class="issue-list">'+issues.map(x=>'<div class="issue-item"><div class="status-line"><strong>'+escapeHTML(x.category.replaceAll('_',' '))+'</strong> '+status(x.status)+' <span class="secondary-text">'+escapeHTML(x.severity)+' · '+fmt(x.created_at)+'</span></div><p>'+escapeHTML(x.note)+'</p>'+(x.resolution?'<p class="good-copy">Resolution: '+escapeHTML(x.resolution)+'</p>':'')+(x.status==='open'&&canResolve?'<button class="button secondary" data-resolve="'+escapeHTML(x.id)+'">Record resolution</button>':'')+'</div>').join('')+'</div>':'')+'</section>';
+}
+function adminPhaseOnePanel(){
+ if(!state.session?.admin)return '';
+ const id=state.adminSetup.supplier_id||'',opts=state.session.suppliers.filter(x=>x.status==='active').map(s=>'<option value="'+escapeHTML(s.id)+'" '+(s.id===id?'selected':'')+'>'+escapeHTML(s.name)+'</option>').join('');
+ const roles='<option value="production">Production operator</option><option value="quality">Quality reviewer</option><option value="manager">Supplier manager</option>';
+ return '<div class="two-col"><section class="card"><div class="card-title"><div><h2>Secure supplier invitations</h2><p>Invite links are one-time, expire after 48 hours, and require the exact email to sign in.</p></div></div><form data-form="invite"><label class="field"><span>Supplier company</span><select name="supplier_id" required>'+opts+'</select></label><label class="field"><span>Employee email</span><input name="email" type="email" placeholder="operator@merchlist.example" required></label><label class="field"><span>Supplier permissions</span><select name="supplier_role">'+roles+'</select></label><button class="button accent" type="submit" '+(!id?'disabled':'')+'>Generate secure invite</button></form>'+
+ (state.inviteLink?'<div class="invite-link"><label for="invite-link">One-time invitation URL — copy now; it will not be shown again</label><input readonly id="invite-link" value="'+escapeHTML(state.inviteLink)+'"><button type="button" class="button secondary" data-copy-invite>Copy invitation link</button><p class="form-help">Staging intentionally does not email third parties. Share the link only with the verified recipient.</p></div>':'')+
+ '<div class="section-list">'+state.adminSetup.invites.slice(0,12).map(x=>'<div class="issue-item"><div class="status-line"><strong>'+escapeHTML(x.email)+'</strong>'+status(x.revoked_at?'revoked':x.accepted_at?'approved':new Date(x.expires_at)<new Date()?'expired':'pending')+'</div><p class="form-help">'+escapeHTML(x.supplier_role)+' · Expires '+fmt(x.expires_at)+'</p>'+(!x.revoked_at&&!x.accepted_at?'<button type="button" class="button danger" data-revoke-invite="'+escapeHTML(x.id)+'">Revoke</button>':'')+'</div>').join('')+'</div></section>'+
+ '<section class="card"><div class="card-title"><div><h2>Supplier print specification templates</h2><p>Enter confirmed factory limits — never guess these measurements.</p></div></div><form data-form="print-spec"><label class="field"><span>Supplier</span><select name="supplier_id" required>'+opts+'</select></label><label class="field"><span>Product category (exact Veelad category)</span><input name="category" list="phase1-categories" placeholder="T-shirts" required></label><datalist id="phase1-categories"><option value="T-shirts"><option value="Hoodies"><option value="Sweatshirts"><option value="Art prints"></datalist><div class="form-row"><label class="field"><span>Printable width (mm)</span><input name="print_width_mm" type="number" min="10" max="2000" required></label><label class="field"><span>Printable height (mm)</span><input name="print_height_mm" type="number" min="10" max="2000" required></label></div><div class="form-row"><label class="field"><span>Bleed (mm)</span><input name="bleed_mm" type="number" min="0" max="100" value="0" required></label><label class="field"><span>Minimum DPI</span><input name="min_dpi" type="number" min="100" max="1200" value="300" required></label></div><button class="button accent" type="submit" '+(!id?'disabled':'')+'>Save verified print template</button></form>'+
+ (state.adminSetup.specs.length?'<div class="table-scroll"><table class="data-table"><thead><tr><th>Category</th><th>Print area</th><th>Resolution</th></tr></thead><tbody>'+state.adminSetup.specs.map(s=>'<tr><td>'+escapeHTML(s.category)+'</td><td>'+s.print_width_mm+' × '+s.print_height_mm+' mm</td><td>'+s.min_dpi+' DPI</td></tr>').join('')+'</tbody></table></div>':'<p class="hint">No printing templates have been confirmed. Production preflight will remain blocked until you add them.</p>')+'</section></div>';
+}
+
 function render(){
  if(!state.session){heading('Secure fulfillment workspace','Sign in with your approved Veelad account.');$('content').innerHTML='<section class="card">'+empty('Sign in required','This workspace is private to Veelad administrators and authorized manufacturing partners.')+'<div class="actions" style="justify-content:center"><a class="button accent" href="/en/login">Sign in to Veelad</a></div></section>';return;}
  syncNavigation();
@@ -129,7 +188,7 @@ function render(){
  if(state.selected){$('content').innerHTML=detailView();return;}
  $('content').innerHTML=state.view==='overview'?dashboard():state.view==='suppliers'&&state.session.admin?suppliersView():ordersView(state.view);
 }
-async function openOrder(id){state.selected=await api('fulfillment-order',{params:{order_id:id}});render();window.scrollTo({top:0,behavior:'smooth'});}
+async function openOrder(id){state.selected=await api('fulfillment-order',{params:{order_id:id}});await loadPhase1(id);render();window.scrollTo({top:0,behavior:'smooth'});}
 async function progress(action,extra={}){
  if(!state.selected)return;
  const j=state.selected.job;
