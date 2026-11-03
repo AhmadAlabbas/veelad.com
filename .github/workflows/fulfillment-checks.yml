@@ -1,7 +1,7 @@
 name: Fulfillment focused verification
 on:
   push:
-    branches: [feature/fulfillment-phase2-operations-20261103]
+    branches: [feature/fulfillment-phase2-operations-20261103, feature/fulfillment-phase3-multisupplier-20261103]
   pull_request:
     paths:
       - 'src/fulfillment*'
@@ -48,7 +48,7 @@ jobs:
       - run: npm ci
       - run: npm run check && npm run build
       - run: mysql -h127.0.0.1 -uroot -e 'CREATE DATABASE veelad_test'
-      - run: node --test tests/fulfillment-core.test.js tests/fulfillment-phase1.test.js tests/fulfillment-phase2.test.js
+      - run: node --test tests/fulfillment-core.test.js tests/fulfillment-phase1.test.js tests/fulfillment-phase2.test.js tests/fulfillment-phase3.test.js
       - run: npm run migrate && npm run local:provision
       - run: npx playwright install --with-deps chromium
       - name: Fulfillment desktop and mobile browser tests
@@ -58,7 +58,7 @@ jobs:
             if curl --fail --silent 'http://127.0.0.1:3000/api.php?route=health' >/dev/null; then break; fi
             sleep 1
           done
-          npx playwright test tests/browser/fulfillment-phase1.spec.js tests/browser/fulfillment-phase2.spec.js --project=desktop --project=mobile --reporter=line
+          npx playwright test tests/browser/fulfillment-phase1.spec.js tests/browser/fulfillment-phase2.spec.js tests/browser/fulfillment-phase3.spec.js --project=desktop --project=mobile --reporter=line
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
