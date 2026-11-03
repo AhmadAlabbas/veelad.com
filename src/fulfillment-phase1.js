@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import {notifyFulfillment} from './fulfillment-phase2.js';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
@@ -255,6 +256,7 @@ export async function phaseOneRoute({route,method,v,req,res,db,c,u,admin,one,q,a
       [current.status==='on_hold'?current.prior_status:current.status,note,now(),id],conn);
     }
     await audit(u,'fulfillment.evidence.'+decision,id+':'+evidenceId,conn);
+    await notifyFulfillment(db,current.supplier_id,id,decision==='rejected'?'quality_rejected':'quality_approved',decision==='rejected'?'An inspection photo was rejected; production is on hold.':'An inspection photo was approved.',conn);
    });
    return res.json({ok:true});
   }
@@ -275,6 +277,7 @@ export async function phaseOneRoute({route,method,v,req,res,db,c,u,admin,one,q,a
     await q("UPDATE fulfillment_jobs SET status='on_hold',prior_status=?,revision=revision+1,issue_note=?,updated_at=? WHERE order_id=?",
       [current.status==='on_hold'?current.prior_status:current.status,note,now(),id],conn);
     await audit(u,'fulfillment.issue.report',id+':'+category,conn);
+    await notifyFulfillment(db,current.supplier_id,id,'issue','A production issue was reported; work is on hold.',conn);
    });
    return res.json({ok:true});
   }
@@ -283,11 +286,12 @@ export async function phaseOneRoute({route,method,v,req,res,db,c,u,admin,one,q,a
    const issueId=cleanId(v,'issue_id'),resolution=text(v,'resolution',1000);
    if(resolution.length<10)fail(422,'Describe how the issue was resolved in at least 10 characters.');
    await db.tx(async conn=>{
-    await jobByOrder(id,conn,true);
+    const current=await jobByOrder(id,conn,true);
     const row=await one("SELECT * FROM fulfillment_issues WHERE id=? AND order_id=? FOR UPDATE",[issueId,id],conn);
     if(!row||row.status!=='open')fail(409,'This issue is no longer open.');
     await q("UPDATE fulfillment_issues SET status='resolved',resolution=?,resolved_by=?,resolved_at=? WHERE id=?",[resolution,u.id,now(),issueId],conn);
     await audit(u,'fulfillment.issue.resolve',id+':'+issueId,conn);
+    await notifyFulfillment(db,current.supplier_id,id,'issue_resolved','A production issue was resolved.',conn);
    });
    return res.json({ok:true});
   }
