@@ -80,6 +80,7 @@ test("layered workspace keeps multiple originals and independent sides through e
       fixture.origin,
       "workspace-" + info.project.name + "@example.test",
     );
+    console.info("[workspace-ci] enter-studio");
     await page.goto(fixture.origin + "/en/create?product=p1");
     const form = page.locator("[data-form=customer-design]"),
       shell = form.locator(".customer-workspace"),
@@ -98,6 +99,7 @@ test("layered workspace keeps multiple originals and independent sides through e
     const red = await original("front-coral.png", "#dc594ddd"),
       teal = await original("front-teal.png", "#157d82bb"),
       blue = await original("back-blue.png", "#384bbaee");
+    console.info("[workspace-ci] upload-originals");
     await shell.locator("[data-ws-upload]").setInputFiles([red, teal]);
     await expect
       .poll(async () => (await scene("front")).layers.filter((l) => l.type === "image").length)
@@ -136,6 +138,7 @@ test("layered workspace keeps multiple originals and independent sides through e
     if (await shell.locator("[data-ws-close-panel]").isVisible())
       await shell.locator("[data-ws-close-panel]").click();
     const object = shell.locator(`[data-ws-layer="${selectedImage.id}"]`);
+    console.info("[workspace-ci] drag-layer");
     await object.scrollIntoViewIfNeeded();
     const position = await object.boundingBox();
     const xDragged = (await scene("front")).layers.find((l) => l.id === selectedImage.id).x;
@@ -147,6 +150,7 @@ test("layered workspace keeps multiple originals and independent sides through e
       .poll(async () => (await scene("front")).layers.find((l) => l.id === selectedImage.id).x)
       .toBeGreaterThan(xDragged);
     const widthBefore = (await scene("front")).layers.find((l) => l.id === selectedImage.id).width;
+    console.info("[workspace-ci] resize-layer");
     const resize = shell.locator("[data-ws-handle=se]");
     await resize.scrollIntoViewIfNeeded();
     await resize.hover();
@@ -161,6 +165,7 @@ test("layered workspace keeps multiple originals and independent sides through e
 
     // Resize from the middle of an edge without stretching the opposite axis.
     await expect(shell.locator("[data-ws-handle]")).toHaveCount(9);
+    console.info("[workspace-ci] edge-grip");
     const edge = shell.locator("[data-ws-handle=e]");
     const sideBefore = (await scene("front")).layers.find(l => l.id === selectedImage.id);
     const grip = await edge.boundingBox();
@@ -212,9 +217,11 @@ test("layered workspace keeps multiple originals and independent sides through e
     expect(cancelled.y).toBeCloseTo(beforeCancelled.y, 5);
 
     // Font browsing selects real local fonts from different scripts; text survives shaping and saving.
+    console.info("[workspace-ci] insert-text");
     await shell.locator("[data-ws-tool=text]").click();
     await shell.locator("[data-ws-add-text=body]").first().click();
     await shell.locator("[data-ws-prop=text]").fill("أفكار تصير حقيقة");
+    console.info("[workspace-ci] font-picker");
     await shell.locator("[data-ws-tool=fonts]").click();
     await shell.locator("[data-ws-font-script]").selectOption("Arab");
     await shell.locator("[data-ws-font-search]").fill("Amiri");
@@ -238,9 +245,11 @@ test("layered workspace keeps multiple originals and independent sides through e
         return window.VeeladFonts.catalogue().length;
       }),
     ).toBeGreaterThanOrEqual(100);
+    console.info("[workspace-ci] front-scene");
     const front = await scene("front");
     await shell.screenshot({ path: info.outputPath("layered-workspace-en.png") });
 
+    console.info("[workspace-ci] back-scene");
     await shell.locator("[data-ws-surface=back]").click();
     await expect(shell).toHaveAttribute("data-surface", "back");
     await expect.poll(async () => (await scene("back")).layers.length).toBe(0);
@@ -264,6 +273,7 @@ test("layered workspace keeps multiple originals and independent sides through e
     expect(stored.design_studio.scenes.shirt.front).toMatchObject(front);
     expect(stored.design_studio.scenes.shirt.back).toMatchObject(back);
 
+    console.info("[workspace-ci] reload-draft");
     await page.reload();
     await expect(form.locator(".design-studio")).toHaveAttribute("data-ready", "true");
     await expect(shell).toHaveAttribute("data-surface", "back");
@@ -271,6 +281,7 @@ test("layered workspace keeps multiple originals and independent sides through e
     expect(await scene("back")).toMatchObject(back);
     await shell.locator("[data-ws-surface=front]").click();
     await expect(shell.locator("[data-ws-layer]")).toHaveCount(4);
+    console.info("[workspace-ci] switch-language");
     await chooseHeaderPreference(page,'language',(await page.locator('html').getAttribute('lang'))==='ar'?'en':'ar');
     await expect(page).toHaveURL(/\/ar\/create/);
     await expect(form.locator(".design-studio")).toHaveAttribute("data-ready", "true");
@@ -278,6 +289,7 @@ test("layered workspace keeps multiple originals and independent sides through e
     await expect(shell).toBeVisible();
     expect(await scene("front")).toMatchObject(front);
     expect(await scene("back")).toMatchObject(back);
+    console.info("[workspace-ci] font-readiness");
     await page.evaluate(() => document.fonts.ready);
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
@@ -287,6 +299,7 @@ test("layered workspace keeps multiple originals and independent sides through e
     // The UI hands every side and every original to the immutable bag design.
     await form.locator("[name=rights]").check();
     await form.locator("[name=preview_accepted]").check();
+    console.info("[workspace-ci] persist-order");
     const savedResponse = page.waitForResponse(
       (response) => response.url().includes("route=customer-design") && response.request().method() === "POST",
     );
@@ -318,6 +331,7 @@ test("layered workspace keeps multiple originals and independent sides through e
     expect(await scene('back')).toMatchObject(back);
 
     // Focus mode leaves a usable canvas on a phone and cleans up on navigation.
+    console.info("[workspace-ci] focus-mode");
     await shell.locator('[data-ws-focus]').click();
     await expect(page.locator('body')).toHaveClass(/has-studio-focus/);
     expect(await shell.locator('.cw-panel-content').evaluate(node=>node.getBoundingClientRect().height)).toBeGreaterThan(100);
@@ -326,6 +340,7 @@ test("layered workspace keeps multiple originals and independent sides through e
     await shell.locator('[data-ws-artboard]').press('Escape');
     await expect(page.locator('body')).not.toHaveClass(/has-studio-focus/);
     await shell.locator('[data-ws-focus]').click();
+    console.info("[workspace-ci] leave-focus");
     await page.evaluate(() => go('shop'));
     await expect(page).toHaveURL(/\/ar\/shop/);
     await expect(page.locator('body')).not.toHaveClass(/has-studio-focus/);
