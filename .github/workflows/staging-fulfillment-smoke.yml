@@ -1,0 +1,25 @@
+name: Staging fulfillment smoke check
+on:
+  push:
+    branches: [staging]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: staging-fulfillment-smoke
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify Hostinger deployment reports this exact staging commit
+        env:
+          EXPECTED_COMMIT: ${{ github.sha }}
+        run: node scripts/verify-deployment.js staging
+      - name: Verify private supplier portal route exists
+        run: |
+          node --input-type=module -e "const r=await fetch('https://staging.veelad.com/fulfillment',{signal:AbortSignal.timeout(10000)});const html=await r.text();if(!r.ok||!html.includes('Veelad | Fulfillment workspace'))throw Error('Staging supplier workspace not served');console.log('Staging fulfillment route verified');"
