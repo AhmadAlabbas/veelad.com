@@ -20,7 +20,7 @@ test('creators insert, recolour and persist a private vector element in the desi
     const api=window.VeeladElements;
     const sample=api.catalog.find(item=>item.id==='pattern-daisy-grid-1-0');
     const png=await api.file(sample.id,{primary:'#e14369',secondary:'#fff3d6',accent:'#184f42'});
-    return {count:api.stats.patternCompositions,id:sample.id,type:png.type,size:png.size,svg:api.svg(sample.id)};
+    return {count:api.stats.patternCompositions,id:sample.id,type:png.type,size:png.size,svg:api.svg(sample.id,{primary:'#e14369',secondary:'#fff3d6',accent:'#184f42'})};
   });
   expect(patternReady.count).toBe(5760);
   expect(patternReady.type).toBe('image/png');
