@@ -275,7 +275,7 @@ export async function phase1Route(ctx){
   if(v.placement!==true||v.colour!==true||v.finish!==true)fail(422,'All three quality checks must be confirmed.');
   await db.tx(async conn=>{
    const locked=await jobByOrder(orderId,conn,true),order=await orderById(orderId,conn,true);
-   if(order.status!=='processing'||locked.status!=='printing')fail(409,'Finish printing before confirming QC.');
+   if(order.status!=='processing'||!['printing','quality_check'].includes(locked.status))fail(409,'Quality sign-off requires an active printing or quality-check stage.');
    if(!Number.isSafeInteger(v.revision)||v.revision!==locked.revision)fail(409,'Job revision has changed. Refresh.');
    const photos=await q('SELECT line_id FROM fulfillment_qc_evidence WHERE order_id=?',[orderId],conn);
    if((json(order.data).items||[]).some(line=>!photos.some(p=>p.line_id===line.line_id)))fail(409,'Upload a photo for each order line before approving QC.');
