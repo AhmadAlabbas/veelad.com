@@ -20,11 +20,11 @@ test('workspace navigation stays reachable at short heights and gives each desti
    await page.goto(fixture.origin+'/'+language+'/admin?tab=partners');
    const menu=page.locator('.sidebar-links'),items=menu.locator('a.nav-item');
    await expect(page.locator('.partner-admin')).toBeVisible();
-   await expect(items).toHaveCount(17);
+   await expect(items).toHaveCount(19);
    await expect(menu.locator('[aria-current=page]')).toContainText(language==='ar'?'شركاء فيلاد':'Veelad Partners');
    await expect.poll(()=>menu.evaluate(element=>{const box=element.getBoundingClientRect(),active=element.querySelector('[aria-current=page]').getBoundingClientRect();return active.top>=box.top-1&&active.bottom<=box.bottom+1&&active.left>=box.left-1&&active.right<=box.right+1;})).toBe(true);
    const glyphs=await items.locator('svg').evaluateAll(elements=>elements.map(element=>element.innerHTML));
-   expect(new Set(glyphs).size).toBe(17);
+   expect(new Set(glyphs).size).toBe(19);
    await expect(items.locator('svg[data-symbol=settings] circle')).toHaveAttribute('r','3.2');
    const exit=page.locator('.sidebar .back-store');
    if(size.width>760){
@@ -50,7 +50,7 @@ test('workspace navigation stays reachable at short heights and gives each desti
   // Artists use the same shell, including its scroll and current-page behavior.
   await fixture.db.q('UPDATE users SET role=? WHERE id=?',['artist',adminId]);
   await page.goto(fixture.origin+'/ar/studio?tab=settings');
-  await expect(page.locator('.sidebar-links a')).toHaveCount(6);
+  await expect(page.locator('.sidebar-links a')).toHaveCount(7);
   await expect(page.locator('.sidebar-links [aria-current=page] svg')).toHaveAttribute('data-symbol','settings');
   expect(errors).toEqual([]);
  }finally{await page.goto('about:blank').catch(()=>{});await fixture.close();}

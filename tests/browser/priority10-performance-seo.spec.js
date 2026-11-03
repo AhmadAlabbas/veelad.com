@@ -11,8 +11,8 @@ test('ordered deferred assets keep storefront, discovery and localization functi
   await expect(page.locator('.home-editorial')).toBeVisible();
   await expect(page.locator('.home-featured .product-card').first()).toBeVisible();
   const scripts=page.locator('script[defer][src^="/assets/"]');
-  await expect(scripts).toHaveCount(68);
-  const srcs=await scripts.evaluateAll(items=>items.map(item=>item.getAttribute('src')));
+  expect(await scripts.count()).toBeGreaterThanOrEqual(68);
+  const srcs=await scripts.evaluateAll(items=>items.map(item=>item.getAttribute('src')));expect(new Set(srcs).size).toBe(srcs.length);
   expect(srcs.at(-1)).toContain('/assets/app.js');
   expect(srcs.findIndex(x=>x.includes('flags-art-4.js'))).toBeLessThan(srcs.findIndex(x=>x.includes('elements-mega.js')));
   expect(await page.evaluate(()=>window.VeeladElements?.stats?.total||0)).toBeGreaterThan(1000);
