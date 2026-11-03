@@ -222,7 +222,7 @@ export async function fulfillmentRoute({route,method,v,req,res,db,c,me,role,thro
       const permissions={accepted:'accept',printing:'printing',quality_check:'quality_check',packed:'packed',dispatch_submitted:'dispatch',hold:'hold',resume:'hold'};
       demandPermission(await getRole(job.supplier_id,conn),permissions[action]||'forbidden');
       const next=nextFulfillmentStep(job.status,action);
-      if(action==='printing')await requireApprovedPack({db,c,order,job});
+      if(['printing','quality_check','packed','dispatch_submitted'].includes(action))await requireApprovedPack({db,c,order,job});
       if(['quality_check','packed','dispatch_submitted'].includes(action))await requireQualityEvidence({db,order,job});
       if(action==='resume'&&await openIssueCount(db,id))fail(409,'Resolve all open issues before resuming production.');
       if(['packed','dispatch_submitted'].includes(action)&&await openIssueCount(db,id))fail(409,'Resolve open issues before progressing production.');
@@ -258,6 +258,7 @@ export async function fulfillmentRoute({route,method,v,req,res,db,c,me,role,thro
       if(order.status!=='processing'||job.status!=='dispatch_submitted'||!job.carrier||!job.tracking)fail(409,'Supplier dispatch is not ready for approval.');
       ensureFulfillmentReady(d,c.mode);
       if(d.production?.stage!=='packed')fail(409,'Quality control and packaging must be complete.');
+      await requireApprovedPack({db,c,order,job});
       await requireQualityEvidence({db,order,job});
       d.tracking=job.tracking;d.carrier=job.carrier;d.shipped_at=stamp();
       await q("UPDATE orders SET status='shipped',data=? WHERE id=?",[JSON.stringify(d),id],conn);
