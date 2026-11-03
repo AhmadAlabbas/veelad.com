@@ -6,10 +6,14 @@ import {readArtwork,artworkRenderSource} from './artwork.js';
 import {renderDesignTexture} from './mockup-renderer.js';
 import {orderMessage} from './order-mail.js';
 import {syncPartnerOrder} from './partners-finance.js';
-import {phaseOneRoute,phaseOneRoutes,phaseOneAdminRoutes,supplierRoles,supplierMay,printFingerprint,evidenceReady} from './fulfillment-phase1.js';
+import {phaseOneRoute,phaseOneRoutes,phaseOneAdminRoutes,supplierRoles,supplierMay,printFingerprint,evidenceReady,verifyApprovedPrintSources} from './fulfillment-phase1.js';
+import {prepareSupplierPack} from './fulfillment-pack.js';
+import {artworkPath} from './artwork.js';
+import {Readable} from 'node:stream';
+import {pipeline} from 'node:stream/promises';
 
 const adminRoutes=new Set(['admin-fulfillment-suppliers','admin-fulfillment-supplier','admin-fulfillment-member','admin-fulfillment-assign','admin-fulfillment-pool','admin-fulfillment-dispatch',...phaseOneAdminRoutes]);
-const routeNames=new Set(['fulfillment-session','fulfillment-orders','fulfillment-order','fulfillment-artwork','fulfillment-progress',...adminRoutes,...phaseOneRoutes]);
+const routeNames=new Set(['fulfillment-session','fulfillment-orders','fulfillment-order','fulfillment-artwork','fulfillment-pack','fulfillment-progress',...adminRoutes,...phaseOneRoutes]);
 const stamp=()=>now();
 const cleanId=(v,key='id')=>text(v,key,64);
 const activeAccount=(u)=>u?.status==='active';
@@ -206,8 +210,9 @@ export async function fulfillmentRoute({route,method,v,req,res,db,c,me,role,thro
       if(action==='printing'){
         const specs=await q('SELECT category,print_width_mm,print_height_mm,bleed_mm,min_dpi FROM fulfillment_print_specs WHERE supplier_id=? ORDER BY category',[job.supplier_id],conn);
         const fingerprint=printFingerprint(d,job.supplier_id,specs);
-        const approval=await one('SELECT snapshot_hash FROM fulfillment_preflight WHERE order_id=?',[id],conn);
+        const approval=await one('SELECT snapshot_hash,report_json FROM fulfillment_preflight WHERE order_id=?',[id],conn);
         if(!approval||approval.snapshot_hash!==fingerprint)fail(409,'Veelad must approve a current print-preflight report before printing.');
+        await verifyApprovedPrintSources(db,c,approval.report_json);
       }
       if(['quality_check','packed'].includes(action)){
         const evidence=await q("SELECT line_id,kind,status FROM fulfillment_qc_evidence WHERE order_id=?",[id],conn);
