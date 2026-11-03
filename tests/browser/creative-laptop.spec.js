@@ -13,7 +13,7 @@ test('creative landing fits laptop viewports at native zoom with readable choice
    const images=await page.locator('.creative-home img').evaluateAll(images=>Promise.all(images.map(async image=>{await image.decode();return image.naturalWidth>0;})));
    expect(images.length).toBeGreaterThanOrEqual(5);expect(images.every(Boolean)).toBe(true);
    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
-   await expect(page.locator('.creative-experience-card')).toHaveCount(8);
+   await expect(page.locator('.creative-experience-card')).toHaveCount(9);
    await expect(page.locator('.creative-picks .creative-product-card')).toHaveCount(4);
    const photo=await page.locator('.creative-hero-photo > img').boundingBox();
    expect(photo.height).toBeLessThan(photo.width);expect(photo.height).toBeLessThan(500);
