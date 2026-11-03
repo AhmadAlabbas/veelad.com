@@ -45,6 +45,7 @@ import {designRoomRoute} from './design-rooms.js';
 import {creativePersonalisationRoute,validateCreativePersonalisation} from './creative-personalisation.js';
 import {partnerRoute,partnerReferral,resolvePartnerAttribution} from './partners.js';
 import {partnerPayoutRoute} from './partners-payouts.js';
+import {fulfillmentRoute} from './fulfillment.js';
 import {capturePartnerOrder,syncPartnerOrder} from './partners-finance.js';
 const publicDir=fileURLToPath(new URL('../public',import.meta.url));
 const categories=['T-shirts','Tote bags','Phone cases','Art prints','Mugs','Stickers','Notebooks'];
@@ -265,6 +266,11 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
   if(route.startsWith('partners-')||route==='admin-partners'||route.startsWith('admin-partners-')){
    const context={route,method,v,req,res,db,c,me,role,throttle,audit,queue};
    if(await partnerRoute(context)||await partnerPayoutRoute(context))return;
+   fail(404,'Endpoint not found.');
+  }
+  if(route.startsWith('fulfillment-')||route.startsWith('admin-fulfillment-')){
+   if(!c.fulfillmentEnabled)fail(404,'Endpoint not found.');
+   if(await fulfillmentRoute({route,method,v,req,res,db,c,me,role,throttle,audit,queue}))return;
    fail(404,'Endpoint not found.');
   }
   if(method==='GET' && route==='bootstrap') {const catalog=await products(),catalogueRevision=hash(JSON.stringify(catalog)),requested=req.get('x-veelad-catalogue'),omitCatalogue=requested==='deferred'||requested===catalogueRevision;const u=await me(req),locale=u?(await state(u.id)).user_locale:null,googleReturn=req.session.google_login_complete===true;delete req.session.google_login_complete;return res.json({mode:'server',authentication:await authenticationStatus(c,db,u),partners:{enabled:c.partners?.enabled===true},creative:{enabled:c.creativeEnabled===true},shopping:{enabled:c.shoppingEnabled===true},artist_profiles:{enabled:c.artistProfilesEnabled===true},auth_event:googleReturn?'google-login':null,csrf:req.session.csrf,user:u ? safeUser(u) : null,locale:['ar','en','zh-CN'].includes(locale)?locale:null,category_translations:await categoryTranslations(db),international:await internationalStatus(db),currency:u?(await state(u.id)).user_currency||null:null,products:omitCatalogue?null:catalog,catalogue_revision:catalogueRevision,catalogue_deferred:omitCatalogue,artists:await publicArtists(db),design_styles:designStyles,settings:publicStoreSettings(collectionSettings(await settings(),catalog,{publicOnly:true})),email_delivery:{available:mailStatus(c).ready,staging_restricted:c.mode==='staging'}});}
@@ -709,6 +715,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
  app.use(['/api.php','/auth/google/callback'],api);
  journalPages(app,c,db,schema);
  pageRoutes(app,c,db,schema);
+ if(c.fulfillmentEnabled) app.get(['/fulfillment','/fulfillment/','/fulfillment/login','/fulfillment/orders','/fulfillment/production','/fulfillment/artwork','/fulfillment/shipping','/fulfillment/suppliers'],(req,res)=>res.set('Cache-Control','private, no-store').set('X-Robots-Tag','noindex, nofollow').sendFile(path.join(publicDir,'fulfillment.html')));
  app.use(express.static(publicDir,{dotfiles:'deny',index:'index.html'}));
  }
  app.use((req,res)=>res.status(404).json({error:'Not found.'}));
