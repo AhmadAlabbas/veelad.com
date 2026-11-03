@@ -12,7 +12,7 @@
 - Reports are available for approved comments. One report per account/comment prevents repeated flagging; every report is retained privately with moderation resolution, and reporting one's own comment is disallowed.
 - Administrators visit **Admin → Product comments** to approve pending comments, hide inappropriate content with a reason, and resolve reported approved comments. Actions are audited.
 - If a product is archived/unpublished, its conversations are not publicly readable; moderation data remains private for continuity.
-- The interface uses the existing style system, accessible buttons, text input labels and response messages. User-supplied content is escaped, never inserted as HTML.
+- The interface uses the existing style system, accessible buttons, text input labels and response messages. Public commenters show an abbreviated first name and surname initial (administrator replies use the Veelad name), with explicit notice before posting. User-supplied content is escaped, never inserted as HTML.
 
 ## Feature flag and rollout
 
