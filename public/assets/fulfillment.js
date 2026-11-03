@@ -184,6 +184,104 @@ function adminPhaseOnePanel(){
  (state.adminSetup.specs.length?'<div class="table-scroll"><table class="data-table"><thead><tr><th>Category</th><th>Print area</th><th>Resolution</th></tr></thead><tbody>'+state.adminSetup.specs.map(s=>'<tr><td>'+escapeHTML(s.category)+'</td><td>'+s.print_width_mm+' × '+s.print_height_mm+' mm</td><td>'+s.min_dpi+' DPI</td></tr>').join('')+'</tbody></table></div>':'<p class="hint">No printing templates have been confirmed. Production preflight will remain blocked until you add them.</p>')+'</section></div>';
 }
 
+
+async function loadOperations(){
+ if(!state.session?.admin&&!state.activeSupplier){state.ops={jobs:[]};state.alerts={notifications:[],unread:0};return;}
+ const params=state.activeSupplier?{supplier_id:state.activeSupplier}:{};
+ const [ops,alerts]=await Promise.all([api('fulfillment-operations',{params}),api('fulfillment-notifications')]);
+ state.ops=ops;state.alerts=alerts;
+}
+async function loadPhase2(id){
+ const [packing,messages,shipping]=await Promise.all([
+  api('fulfillment-packaging-signoff',{params:{order_id:id}}),
+  api('fulfillment-messages',{params:{order_id:id}}),
+  api('fulfillment-shipping-events',{params:{order_id:id}})
+ ]);
+ state.phase2={packing,messages:messages.messages||[],self_id:messages.self_id,shipping};
+}
+async function loadAdminOperations(){
+ const id=state.activeSupplier||state.session.suppliers?.find(s=>s.status==='active')?.id;
+ if(!id){state.adminOps={id:null,rules:[],policy:null};return;}
+ const [pack,sla]=await Promise.all([api('admin-fulfillment-packaging',{params:{supplier_id:id}}),api('admin-fulfillment-sla',{params:{supplier_id:id}})]);
+ state.adminOps={id,rules:pack.rules||[],policy:sla.policy};
+}
+function overviewOps(){
+ const overdue=(state.ops.jobs||[]).filter(x=>x.deadline?.overdue);
+ const count=state.alerts.unread||0;
+ return '<div class="metrics" style="margin-top:20px">'+metric('Overdue milestones',overdue.length,'◷','Based on configured supplier deadlines')+metric('Unread operations alerts',count,'◉','Private alerts for your account')+'</div>'+
+ (overdue.length?'<section class="card"><div class="card-title"><h2>Milestones needing attention</h2><button type="button" class="text-link" data-view="bulk">Manage queue →</button></div><div class="ops-list">'+overdue.slice(0,8).map(x=>'<button type="button" class="ops-row" data-open="'+escapeHTML(x.order_id)+'"><strong>'+escapeHTML(x.order_id)+'</strong><span>'+escapeHTML(x.deadline.label)+'</span><span class="due-over">Overdue · '+fmt(x.deadline.due_at)+'</span></button>').join('')+'</div></section>':'');
+}
+function packagingDesk(){
+ const items=state.jobs.filter(x=>['quality_check','packed','dispatch_submitted'].includes(x.status));
+ return '<section class="card"><div class="card-title"><h2>Packaging operations</h2><span class="pill-note">Veelad brand only · #9B81EF</span></div><p class="section-subtitle">Check the approved supplier packaging instructions on each order. Record mandatory packing checks and approved photos before marking the order packed. Use the internal picking sheet — it is not a carrier label.</p>'+jobTable(items)+'</section>'+
+ (state.session.admin?adminPhaseTwoPanel():'<div class="hint">Packaging templates are set by Veelad administrators. Use the order page to inspect your assigned requirements.</div>');
+}
+function notificationsView(){
+ const a=state.alerts.notifications||[];
+ return '<section class="card"><div class="card-title"><h2>Notifications</h2><span class="pill-note">'+Number(state.alerts.unread||0)+' unread</span></div>'+
+ (a.length?'<div class="ops-list">'+a.map(x=>'<div class="ops-alert '+(!x.read_at?'unread':'')+'"><div><strong>'+escapeHTML(x.kind.replaceAll('_',' '))+'</strong><p>'+escapeHTML(x.message)+'</p><small>'+fmt(x.created_at)+' · '+escapeHTML(x.order_id)+'</small></div><div class="actions"><button type="button" class="button secondary" data-open="'+escapeHTML(x.order_id)+'">Open</button>'+(!x.read_at?'<button type="button" class="button secondary" data-alert-read="'+escapeHTML(x.id)+'">Mark read</button>':'')+'</div></div>').join('')+'</div>':empty('No alerts','Assigned jobs and fulfillment updates will generate private in-app notifications.'))+'</section>';
+}
+function messagesView(){
+ return '<section class="card"><div class="card-title"><h2>Supplier order conversations</h2></div><p class="section-subtitle">Open an assigned order to send a private message or attach a JPEG/PNG image. Messages are visible only to Veelad administrators and authorized employees of the assigned supplier.</p>'+jobTable(state.jobs)+'</section>';
+}
+function bulkView(){
+ if(!state.activeSupplier)return '<section class="card">'+empty('Choose one supplier','Select a supplier using the menu above to accept jobs in bulk or export its picking list.')+'</section>';
+ const ready=state.jobs.filter(x=>x.supplier_id===state.activeSupplier&&x.status==='assigned');
+ return '<section class="card"><div class="card-title"><h2>Batch acceptance</h2><span class="pill-note">Up to 20 jobs per operation</span></div><p class="section-subtitle">Each job is checked again on the server for verified payment, current approval, permissions and revision. All selected jobs succeed together or none changes.</p>'+
+ (ready.length?'<div class="table-scroll"><table class="data-table"><thead><tr><th><input type="checkbox" id="bulk-all" aria-label="Select all displayed jobs"></th><th>Order</th><th>Items</th><th>Revision</th></tr></thead><tbody>'+
+ ready.slice(0,20).map(j=>'<tr><td><input type="checkbox" data-bulk-job="'+escapeHTML(j.id)+'" aria-label="Select '+escapeHTML(j.id)+'"></td><td>'+escapeHTML(j.id)+'</td><td>'+j.items.length+'</td><td>'+j.revision+'</td></tr>').join('')+'</tbody></table></div><div class="actions" style="margin-top:18px"><button class="button accent" type="button" data-bulk-accept="1">Accept selected jobs</button></div>':empty('No orders awaiting acceptance','Approved new orders assigned to this supplier appear here.'))+'</section>'+
+ '<section class="card"><div class="card-title"><h2>Export picking list</h2></div><p class="section-subtitle">CSV includes assigned order IDs, products, variants and quantities only — never customer payment information, artist earnings or shipping addresses.</p><a class="button secondary" download href="'+escapeHTML(urlFor('fulfillment-picklist',{supplier_id:state.activeSupplier}))+'">↓ Download supplier picking list</a></section>';
+}
+function deadlinePanel(){
+ const j=state.selected?.job,ops=state.ops.jobs?.find(x=>x.order_id===j?.id);
+ if(!j)return '';
+ const d=ops?.deadline;
+ return '<section class="card"><div class="card-title"><h2>Operational deadlines</h2>'+(d?.overdue?'<span class="status on_hold">Overdue</span>':'')+'</div>'+
+ (ops?.accept_by?'<dl><div class="value-block"><dt>Accept by</dt><dd>'+fmt(ops.accept_by)+'</dd></div><div class="value-block"><dt>Production by</dt><dd>'+fmt(ops.production_by)+'</dd></div><div class="value-block"><dt>Dispatch by</dt><dd>'+fmt(ops.dispatch_by)+'</dd></div></dl>':'<div class="hint">No supplier SLA has been set for this order. Vielad will not invent production deadlines.</div>')+
+ (state.session.admin?'<details class="detail-expander"><summary>Adjust this order’s deadlines</summary><form data-form="deadline"><div class="field"><label for="deadline-accept">Acceptance deadline (local)</label><input id="deadline-accept" name="accept_by" type="datetime-local" required></div><div class="field"><label for="deadline-production">Production deadline (local)</label><input id="deadline-production" name="production_by" type="datetime-local" required></div><div class="field"><label for="deadline-dispatch">Dispatch deadline (local)</label><input id="deadline-dispatch" name="dispatch_by" type="datetime-local" required></div><button class="button accent" type="submit">Save deadlines</button></form></details>':'')+'</section>';
+}
+function packingPanel(){
+ const p=state.phase2?.packing,job=state.selected?.job;
+ if(!p||!job)return '';
+ const member=state.session.suppliers.find(x=>x.id===job.supplier_id);
+ const reviewer=state.session.admin||['quality','manager'].includes(member?.supplier_role);
+ const fields=[['garments','Garments and sizes verified'],['artwork','Printed design and QC approved'],['branding','Veelad-only exterior branding'],['insert','Required inserts added'],['address','Delivery address and recipient verified'],['sealed','Package securely sealed']];
+ return '<section class="card"><div class="card-title"><div><h2>Packaging & handoff</h2><p>Versioned brand requirements, checked per assigned order.</p></div>'+status(p.signoff?'approved':p.missing.length?'on_hold':'awaiting_approval')+'</div>'+
+ (p.missing.length?'<div class="notice error">Missing approved supplier packaging rules: '+escapeHTML(p.missing.join(', '))+'</div>':'')+
+ (p.rules.length?'<div class="packing-rules">'+p.rules.map(r=>'<div class="item-card"><h3>'+escapeHTML(r.category)+' · '+escapeHTML(r.container)+'</h3><p>'+escapeHTML(r.instructions)+'</p><p class="form-help">Inserts: '+escapeHTML(r.inserts.join(', ')||'None')+' · '+(r.require_photo?'Approved packaging photo required':'Photo optional')+' · Policy v'+Number(r.revision)+'</p></div>').join('')+'</div>':'')+
+ '<div class="actions"><a class="button secondary" target="_blank" rel="noopener noreferrer" href="'+escapeHTML(urlFor('fulfillment-packing-slip',{order_id:job.id}))+'">View internal picking sheet</a></div>'+
+ (p.signoff?'<p class="good-copy">Packaging sign-off recorded · '+fmt(p.signoff.checked_at)+'</p>':
+ reviewer&&job.status==='quality_check'&&!p.missing.length?'<form data-form="packing-signoff" class="packing-checklist">'+fields.map(([id,label])=>'<label class="checkline"><input type="checkbox" name="'+id+'" required> '+escapeHTML(label)+'</label>').join('')+'<button class="button accent" type="submit">Approve packaging checklist</button></form>':'<p class="section-subtitle" style="margin-top:16px">Packaging approval requires the quality-control stage and an authorized reviewer.</p>')+
+ deadlinePanel()+'</section>';
+}
+function conversationPanel(){
+ const data=state.phase2,j=state.selected?.job;
+ if(!data||!j)return '';
+ return '<section class="card"><div class="card-title"><div><h2>Order conversation</h2><p>Private supplier-to-Veelad communication, with an audit trail.</p></div></div>'+
+ '<div class="message-thread">'+(data.messages.length?data.messages.map(m=>'<div class="message-bubble '+(m.author_id===data.self_id?'mine':'')+'"><strong>'+(m.author_id===data.self_id?'You':'Team member')+'</strong><p>'+escapeHTML(m.body)+'</p>'+(m.attachment_id?'<a target="_blank" rel="noopener noreferrer" href="'+escapeHTML(urlFor('fulfillment-message-file',{order_id:j.id,message_id:m.id}))+'">View private photo attachment</a>':'')+'<small>'+fmt(m.created_at)+'</small></div>').join(''):empty('No messages yet','Use this thread to discuss print specifications, defects, materials or handoff.'))+'</div>'+
+ '<form data-form="message" class="message-form"><label class="field"><span>New message</span><textarea name="message" maxlength="2000" minlength="2" placeholder="Ask a question or leave an operational update…" required></textarea></label><label class="field"><span>Optional photo (JPEG or PNG, up to 8 MB)</span><input type="file" name="photo" accept="image/png,image/jpeg"></label><button class="button accent" type="submit">Send private message</button></form></section>';
+}
+function shippingEventsPanel(){
+ const d=state.phase2?.shipping,j=state.selected?.job;
+ if(!d||!j)return '';
+ const allowed=['packed','dispatch_submitted'].includes(j.status)||d.order_status==='shipped';
+ return '<section class="card"><div class="card-title"><h2>Shipping handoff & exceptions</h2></div><p class="section-subtitle">Manual carrier event log. Recording an event never purchases a shipping label, confirms delivery, or changes the customer order status.</p>'+
+ (d.carrier?'<p><strong>Carrier:</strong> '+escapeHTML(d.carrier)+' · <strong>Tracking:</strong> '+escapeHTML(d.tracking||'Pending')+'</p>':'<p class="form-help">Submit carrier and tracking information in the Production panel after packing.</p>')+
+ (allowed?'<form data-form="shipping-event"><label class="field"><span>Carrier event</span><select name="event_type"><option value="courier_handoff">Courier handoff</option><option value="delivery_exception">Shipping exception</option><option value="delivery_update">Delivery update (manual)</option></select></label><label class="field"><span>Event details</span><textarea name="notes" maxlength="1000" minlength="8" required placeholder="Describe the verified carrier event or delivery issue."></textarea></label><button class="button secondary" type="submit">Record shipping event</button></form>':'<div class="hint">Carrier events unlock once the package is ready for dispatch.</div>')+
+ (d.events?.length?'<div class="ops-list">'+d.events.map(e=>'<div class="ops-alert"><div><strong>'+escapeHTML(e.event_type.replaceAll('_',' '))+'</strong><p>'+escapeHTML(e.notes)+'</p><small>'+fmt(e.created_at)+'</small></div></div>').join('')+'</div>':'')+'</section>';
+}
+function adminPhaseTwoPanel(){
+ if(!state.session.admin)return '';
+ const id=state.adminOps.id;
+ if(!id)return '<section class="card">'+empty('Add a supplier first','Manufacturing policies are configured per supplier company.')+'</section>';
+ const opts=state.session.suppliers.filter(x=>x.status==='active').map(x=>'<option value="'+escapeHTML(x.id)+'" '+(x.id===id?'selected':'')+'>'+escapeHTML(x.name)+'</option>').join('');
+ const policy=state.adminOps.policy;
+ return '<div class="two-col"><section class="card"><div class="card-title"><div><h2>Veelad packaging manual</h2><p>Define factory-confirmed instructions for each category.</p></div></div><form data-form="packaging-policy"><label class="field"><span>Supplier</span><select name="supplier_id" required>'+opts+'</select></label><label class="field"><span>Exact product category</span><input name="category" maxlength="60" placeholder="T-shirts" required></label><label class="field"><span>Packaging container</span><select name="container"><option value="mailer">Mailer</option><option value="box">Box</option><option value="tube">Tube</option><option value="other">Other</option></select></label><label class="field"><span>Packaging instructions</span><textarea name="instructions" minlength="20" maxlength="2000" required placeholder="Use Veelad branding only. Specify tissue paper, garment folding and protection requirements…"></textarea></label><label class="field"><span>Inserts (comma-separated)</span><input name="inserts" placeholder="Thank you card, care instructions"></label><label class="checkline"><input name="require_photo" type="checkbox" checked> Require independently approved packaging photographs</label><button type="submit" class="button accent">Save versioned packaging rule</button></form>'+
+ (state.adminOps.rules.length?'<div class="ops-list">'+state.adminOps.rules.map(r=>'<div class="ops-alert"><strong>'+escapeHTML(r.category)+'</strong><span>'+escapeHTML(r.container)+' · v'+Number(r.revision)+'</span><p>'+escapeHTML(r.instructions)+'</p></div>').join('')+'</div>':'<p class="form-help">No rules saved yet. Unspecified categories cannot be marked packed.</p>')+'</section>'+
+ '<section class="card"><div class="card-title"><div><h2>Supplier service-level targets</h2><p>Targets are measured from initial job assignment.</p></div></div><form data-form="sla"><label class="field"><span>Supplier company</span><select name="supplier_id">'+opts+'</select></label><label class="field"><span>Acceptance deadline (hours)</span><input type="number" name="accept_hours" min="1" max="168" value="'+Number(policy?.accept_hours||24)+'" required></label><label class="field"><span>Production deadline (hours from assignment)</span><input type="number" name="production_hours" min="1" max="720" value="'+Number(policy?.production_hours||72)+'" required></label><label class="field"><span>Dispatch deadline (hours from assignment)</span><input type="number" name="dispatch_hours" min="1" max="1440" value="'+Number(policy?.dispatch_hours||120)+'" required></label><button class="button accent" type="submit">Save SLA targets</button></form><p class="form-help">Existing jobs keep their recorded deadlines unless an administrator edits them. No deadlines are invented for suppliers without saved targets.</p>'+
+ (policy?'<div class="hint">Current policy: '+Number(policy.accept_hours)+'h acceptance · '+Number(policy.production_hours)+'h production · '+Number(policy.dispatch_hours)+'h dispatch</div>':'<div class="hint">No supplier SLA policy is active yet.</div>')+'</section></div>';
+}
+
 function render(){
  if(!state.session){heading('Secure fulfillment workspace','Sign in with your approved Veelad account.');$('content').innerHTML='<section class="card">'+empty(state.invitationToken?'Sign in to accept your invitation':'Sign in required',state.invitationToken?'Sign in using the exact email address on the invitation, then return to this link.':'This workspace is private to Veelad administrators and authorized manufacturing partners.')+'<div class="actions" style="justify-content:center"><a class="button accent" href="/en/login">Sign in to Veelad</a></div></section>';return;}
  syncNavigation();
