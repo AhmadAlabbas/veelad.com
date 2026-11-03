@@ -53,7 +53,11 @@ test('Staging Journal stories include server-rendered article navigation in all 
   assert.match(article.html,/SAMPLE STORY|مقال تجريبي|示例文章/);
   assert.equal(article.indexable,true,'Indexability stays data based; staging noindex comes from meta layer');
  }
+ const index=await journalPageData(db,staging,'en');
+ assert.match(index.html,/journal-tag-discovery/,'Only real published or labeled demo topics should be discoverable');
+ assert.match(index.html,/\?tag=/);
  const empty=await journalPageData(db,production,'en');
  assert.equal(empty.indexable,false);
+ assert.doesNotMatch(empty.html,/journal-tag-discovery/);
  assert.doesNotMatch(empty.html,/sample-everyday-style/);
 });
