@@ -1,0 +1,22 @@
+name: Prelaunch monitor regression
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/monitor.js'
+      - 'tests/monitor.test.js'
+      - '.github/workflows/prelaunch-monitor-checks.yml'
+permissions:
+  contents: read
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node --check scripts/monitor.js
+      - name: Verify prelaunch and live-production fail-closed handling
+        run: node --test tests/monitor.test.js
