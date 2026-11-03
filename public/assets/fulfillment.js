@@ -411,11 +411,11 @@ $('content').addEventListener('click',async event=>{
     notice('Supplier access updated.');await bootstrap();
    }
   }
-  else if(b.dataset.acceptInvite){
+  else if(b.hasAttribute('data-accept-invite')){
    await api('fulfillment-invite',{method:'POST',body:{token:state.invitationToken}});
    state.invitationToken=null;history.replaceState(null,'','/fulfillment');await bootstrap();notice('Invitation accepted. You can now access your supplier workspace.');
   }
-  else if(b.dataset.copyInvite){
+  else if(b.hasAttribute('data-copy-invite')){
    if(!state.inviteLink)throw Error('No invitation link to copy.');
    await navigator.clipboard.writeText(state.inviteLink);notice('Invitation link copied. Send it privately to the verified employee.');
   }
