@@ -1,5 +1,6 @@
 (() => {
 'use strict';
+const phase1=window.VeeladFulfillmentPhase1;
 const $=id=>document.getElementById(id);
 const escapeHTML=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const fmt=value=>value?new Date(value).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—';
@@ -12,7 +13,7 @@ const views=[
  {id:'shipping',label:'Shipping',icon:'↗',title:'Shipping desk',subtitle:'Prepare dispatch details and submit them for Veelad review.'},
  {id:'suppliers',label:'Suppliers',icon:'♙',title:'Supplier management',subtitle:'Manage company access and assign approved orders.',admin:true}
 ];
-const state={session:null,activeSupplier:null,jobs:[],pool:[],selected:null,view:'overview',filter:'all',search:'',busy:false};
+const state={session:null,activeSupplier:null,jobs:[],pool:[],selected:null,view:'overview',filter:'all',search:'',busy:false,mfaSetup:null};
 const urlFor=(route,params={})=>{
  const url=new URL('/api.php',location.origin);url.searchParams.set('route',route);
  Object.entries(params).forEach(([key,value])=>{if(value!==null&&value!==undefined&&value!=='')url.searchParams.set(key,String(value));});
@@ -29,6 +30,7 @@ async function api(route,{method='GET',body=null,params={}}={}){
  return payload;
 }
 const notice=(message,kind='info')=>{const el=$('notice');el.hidden=!message;el.textContent=message||'';el.classList.toggle('error',kind==='error');};
+phase1.configure({api,urlFor,notice,refresh:bootstrap,openOrder});
 const empty=(heading,description)=>'<div class="empty"><div class="empty-icon">▦</div><h3>'+escapeHTML(heading)+'</h3><p>'+escapeHTML(description)+'</p></div>';
 const heading=(title,subtitle,label='SUPPLIER WORKSPACE')=>{$('page-title').textContent=title;$('page-subtitle').textContent=subtitle;$('section-label').textContent=label;$('breadcrumb').textContent=title;};
 function syncNavigation(){
@@ -50,7 +52,7 @@ async function reload({preserveDetail=false}={}){
  ]);
  state.jobs=results[0].jobs||[];state.pool=results[1].orders||[];
  if(preserveDetail&&state.selected){
-  try{state.selected=(await api('fulfillment-order',{params:{order_id:state.selected.job.id}}));}
+  try{state.selected=(await api('fulfillment-order',{params:{order_id:state.selected.job.id}}));await phase1.loadJob(state.selected);}
   catch{state.selected=null;}
  }
  render();
@@ -108,7 +110,7 @@ function detailView(){
  '<section class="card"><div class="card-title"><h2>Supplier assignment</h2></div><dl><div class="value-block"><dt>Company</dt><dd>'+escapeHTML(supplierName(j.supplier_id))+'</dd></div><div class="value-block"><dt>Placed</dt><dd>'+fmt(j.created_at)+'</dd></div><div class="value-block"><dt>Last updated</dt><dd>'+fmt(j.updated_at)+'</dd></div><div class="value-block"><dt>Payment</dt><dd>'+(d.payment_verified?'Verified':'Not verified')+'</dd></div><div class="value-block"><dt>Veelad production</dt><dd>'+escapeHTML(d.production_stage.replaceAll('_',' '))+'</dd></div></dl></section>'+
  '<section class="card"><div class="card-title"><h2>Shipping information</h2></div>'+shipping+(d.tracking?'<div class="hint">Submitted tracking: '+escapeHTML(d.carrier)+' / '+escapeHTML(d.tracking)+'</div>':'')+'</section>'+
  (d.issue?'<section class="card"><div class="card-title"><h2>Last reported issue</h2></div><p class="section-subtitle">'+escapeHTML(d.issue)+'</p></section>':'')+
- '</div></div>';
+ '</div></div>'+phase1.orderPanel(d);
 }
 function suppliersView(){
  const supplierOptions=(state.session?.suppliers||[]).filter(s=>s.status==='active').map(s=>'<option value="'+escapeHTML(s.id)+'">'+escapeHTML(s.name)+'</option>').join('');
@@ -118,18 +120,48 @@ function suppliersView(){
  '<div class="table-scroll" style="margin-top:17px"><table class="data-table"><thead><tr><th>Company</th><th>Status</th></tr></thead><tbody>'+(state.session?.suppliers||[]).map(s=>'<tr><td>'+escapeHTML(s.name)+'</td><td>'+status(s.status)+' <button type="button" class="text-link" data-supplier-status="'+escapeHTML(s.id)+'">'+(s.status==='active'?'Suspend':'Reactivate')+'</button></td></tr>').join('')+'</tbody></table></div></section>'+
  '<section class="card"><div class="card-title"><div><h2>Grant employee access</h2><p>Suppliers use existing Veelad accounts, with explicit approval.</p></div></div><form data-form="member"><div class="field"><label for="member-supplier">Supplier</label><select id="member-supplier" name="supplier_id" required>'+supplierOptions+'</select></div><div class="field"><label for="member-email">Existing account email</label><input id="member-email" name="email" type="email" autocomplete="off" placeholder="team@example.com" required></div><div class="field"><label for="member-access">Access</label><select id="member-access" name="access"><option value="active">Grant access</option><option value="suspended">Suspend access</option></select></div><button class="button accent" type="submit" '+(!supplierOptions?'disabled':'')+'>Update employee access</button></form><p class="form-help" style="margin-top:12px">Never share account passwords. Grant each employee their own role. Suspending a membership blocks its supplier access immediately.</p></section></div>'+
  '<section class="card"><div class="card-title"><div><h2>Assign an approved order</h2><p>Only paid processing orders with approved proofs appear here.</p></div></div>'+
- (state.pool.length?'<form data-form="assign"><div class="form-row"><div class="field"><label for="assign-order">Approved order</label><select name="order_id" id="assign-order" required>'+state.pool.map(o=>'<option value="'+escapeHTML(o.id)+'">'+escapeHTML(o.id)+' · '+o.items.length+' item lines</option>').join('')+'</select></div><div class="field"><label for="assign-supplier">Fulfillment company</label><select name="supplier_id" id="assign-supplier" required>'+supplierOptions+'</select></div></div><button class="button accent" '+(!supplierOptions?'disabled':'')+' type="submit">Assign selected order</button></form>':empty('No orders ready to assign','Complete a test checkout, record the staging payment and approve each order proof before releasing a job.'))+'</section>';
+ (state.pool.length?'<form data-form="assign"><div class="form-row"><div class="field"><label for="assign-order">Approved order</label><select name="order_id" id="assign-order" required>'+state.pool.map(o=>'<option value="'+escapeHTML(o.id)+'">'+escapeHTML(o.id)+' · '+o.items.length+' item lines</option>').join('')+'</select></div><div class="field"><label for="assign-supplier">Fulfillment company</label><select name="supplier_id" id="assign-supplier" required>'+supplierOptions+'</select></div></div><button class="button accent" '+(!supplierOptions?'disabled':'')+' type="submit">Assign selected order</button></form>':empty('No orders ready to assign','Complete a test checkout, record the staging payment and approve each order proof before releasing a job.'))+'</section>'+phase1.supplierPanel(state.session);
+}
+function mfaPanel(){
+ const mfa=state.session?.mfa||{},setup=state.mfaSetup;
+ const form='<form data-form="mfa"><label for="mfa-code">Six-digit authenticator code</label>'+
+ '<input id="mfa-code" name="code" maxlength="6" minlength="6" pattern="[0-9]{6}" inputmode="numeric" autocomplete="one-time-code" placeholder="000000" required>'+
+ '<button class="button accent" type="submit">'+(mfa.enrolled?'Verify and unlock':'Activate authenticator')+'</button></form>';
+ return '<section class="card p1-mfa"><div class="card-title"><div><h2>Secure fulfillment sign-in</h2><p>Two-factor verification protects customer artwork and supplier assignments.</p></div><span class="p1-pill">2-STEP VERIFICATION</span></div>'+
+ (mfa.enrolled?'<p class="p1-mfa-intro">Enter a new code from the authenticator associated with your Veelad account. Verification is required after every new session and expires after eight hours.</p>'+form:
+ setup?'<p class="p1-mfa-intro">Scan this QR in your authenticator app (Google Authenticator, Microsoft Authenticator or 1Password), then enter the displayed six-digit code. Save the secret securely; it will not be displayed again.</p>'+
+ '<img class="p1-mfa-qr" alt="Authenticator setup QR code" src="'+escapeHTML(setup.qr)+'">'+
+ '<p class="p1-secret">'+escapeHTML(setup.setup_secret)+'</p>'+form:
+ '<p class="p1-mfa-intro">Before entering the fulfillment workspace, connect your own authenticator. No supplier or admin artwork is available until you confirm the code.</p>'+
+ '<button class="button accent" type="button" data-mfa-enroll="1">Set up authenticator</button>')+
+ '<hr class="p1-panel-divider"><p class="p1-mfa-note">Do not share your authenticator code. If you lose the authenticator, contact a Veelad administrator for a verified account-recovery process.</p></section>';
 }
 function render(){
- if(!state.session){heading('Secure fulfillment workspace','Sign in with your approved Veelad account.');$('content').innerHTML='<section class="card">'+empty('Sign in required','This workspace is private to Veelad administrators and authorized manufacturing partners.')+'<div class="actions" style="justify-content:center"><a class="button accent" href="/en/login">Sign in to Veelad</a></div></section>';return;}
+ if(!state.session){
+  heading('Secure fulfillment workspace','Sign in with an approved Veelad account.');
+  $('content').innerHTML=phase1.inviteBanner(null)+'<section class="card">'+empty('Sign in required','Supplier employees must sign in using their own verified account. Invitations are one-time and expire after 48 hours.')+
+  '<div class="actions" style="justify-content:center"><a class="button accent" href="/en/login" target="_blank" rel="noopener">Sign in to Veelad (new tab)</a></div><p class="form-help" style="text-align:center;margin-top:12px">Return to this tab and select Refresh after signing in.</p></section>';
+  return;
+ }
+ if(!state.session.mfa?.verified){
+  heading('Authenticator verification','Required to access private manufacturing records.');
+  $('navigation').innerHTML='';
+  $('content').innerHTML=mfaPanel();
+  return;
+ }
  syncNavigation();
- if(!state.session.admin&&state.session.suppliers.length===0){heading('Supplier access required','Your account needs to be approved by Veelad.');$('content').innerHTML='<section class="card">'+empty('No supplier permissions','Ask the Veelad administrator to add your registered account to your company. No order data is available until access is granted.')+'</section>';return;}
+ const invite=phase1.inviteBanner(state.session);
+ if(!state.session.admin&&state.session.suppliers.length===0){
+  heading('Supplier access required','Your account needs an approved company invitation.');
+  $('content').innerHTML=invite+'<section class="card">'+empty('No supplier permissions','Ask the Veelad administrator to invite your verified account. Open the private link above to accept it.')+'</section>';return;
+ }
  const section=views.find(v=>v.id===state.view)||views[0];
- heading(state.selected?'Production order '+state.selected.job.id:section.title,state.selected?'Review artwork, quality and shipping status.':section.subtitle, state.session.admin?'VEELAD · OPERATIONS ADMIN':'SUPPLIER WORKSPACE');
- if(state.selected){$('content').innerHTML=detailView();return;}
- $('content').innerHTML=state.view==='overview'?dashboard():state.view==='suppliers'&&state.session.admin?suppliersView():ordersView(state.view);
+ heading(state.selected?'Production order '+state.selected.job.id:section.title,state.selected?'Review print master, quality evidence and issue resolution.':section.subtitle,state.session.admin?'VEELAD · OPERATIONS ADMIN':'SUPPLIER WORKSPACE');
+ if(state.selected){$('content').innerHTML=invite+detailView();return;}
+ $('content').innerHTML=invite+(state.view==='overview'?dashboard():state.view==='suppliers'&&state.session.admin?suppliersView():ordersView(state.view));
 }
-async function openOrder(id){state.selected=await api('fulfillment-order',{params:{order_id:id}});render();window.scrollTo({top:0,behavior:'smooth'});}
+
+async function openOrder(id){state.selected=await api('fulfillment-order',{params:{order_id:id}});await phase1.loadJob(state.selected);render();window.scrollTo({top:0,behavior:'smooth'});}
 async function progress(action,extra={}){
  if(!state.selected)return;
  const j=state.selected.job;
@@ -139,6 +171,11 @@ async function progress(action,extra={}){
 }
 async function submit(form){
  const data=Object.fromEntries(new FormData(form));
+ if(form.dataset.form==='mfa'){
+  await api('fulfillment-mfa-verify',{method:'POST',body:{code:data.code}});
+  state.mfaSetup=null;await bootstrap();notice('Authenticator verified.');return;
+ }
+ if(await phase1.submit(form,{state,render}))return;
  if(form.dataset.form==='supplier')await api('admin-fulfillment-supplier',{method:'POST',body:{name:data.name,status:'active'}});
  if(form.dataset.form==='member')await api('admin-fulfillment-member',{method:'POST',body:data});
  if(form.dataset.form==='assign')await api('admin-fulfillment-assign',{method:'POST',body:data});
@@ -148,10 +185,14 @@ async function submit(form){
 }
 async function bootstrap(){
  try{
-  state.session=await api('fulfillment-session');state.activeSupplier=state.session.admin?state.activeSupplier:(state.session.suppliers[0]?.id||null);
-  if(state.session.admin&&state.activeSupplier&&!state.session.suppliers.some(s=>s.id===state.activeSupplier))state.activeSupplier=null;
+  state.session=await api('fulfillment-session');
   $('environment').textContent=location.hostname.startsWith('staging.')?'STAGING':'';
-  state.selected=null;await reload();
+  state.selected=null;
+  if(!state.session.mfa?.verified){state.jobs=[];state.pool=[];render();return;}
+  state.mfaSetup=null;
+  state.activeSupplier=state.session.admin?state.activeSupplier:(state.session.suppliers[0]?.id||null);
+  if(state.session.admin&&state.activeSupplier&&!state.session.suppliers.some(s=>s.id===state.activeSupplier))state.activeSupplier=null;
+  await phase1.bootstrap(state.session);await reload();
  }catch(error){
   if(error.message==='Please sign in to continue.'){state.session=null;render();return;}
   notice(error.message,'error');state.session=null;render();
@@ -170,6 +211,11 @@ $('content').addEventListener('click',async event=>{
  const b=event.target.closest('button');if(!b)return;
  try{
   b.disabled=true;
+  if(b.dataset.mfaEnroll){
+   state.mfaSetup=await api('fulfillment-mfa-enroll',{method:'POST',body:{}});
+   render();return;
+  }
+  if(await phase1.click(b,{state,render}))return;
   if(b.dataset.view){state.view=b.dataset.view;state.selected=null;render();}
   else if(b.dataset.open)await openOrder(b.dataset.open);
   else if(b.dataset.progress)await progress(b.dataset.progress);
@@ -192,7 +238,12 @@ $('content').addEventListener('submit',async event=>{
  event.preventDefault();const button=form.querySelector('button[type=submit]');if(button)button.disabled=true;
  try{await submit(form);}catch(error){notice(error.message,'error');}finally{if(button)button.disabled=false;}
 });
-$('content').addEventListener('change',event=>{if(event.target.id==='job-filter'){state.filter=event.target.value;render();}});
+$('content').addEventListener('change',async event=>{
+ try{
+  if(await phase1.change(event.target,{state,render}))return;
+  if(event.target.id==='job-filter'){state.filter=event.target.value;render();}
+ }catch(error){notice(error.message,'error');}
+});
 $('content').addEventListener('input',event=>{if(event.target.id==='job-search'){state.search=event.target.value;const pos=event.target.selectionStart;render();const input=$('job-search');input?.focus();input?.setSelectionRange(pos,pos);}});
 bootstrap();
 })();
