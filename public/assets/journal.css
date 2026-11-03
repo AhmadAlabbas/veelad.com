@@ -107,3 +107,20 @@
 .journal-grid .journal-card-copy>p:not(.journal-kicker){flex:0 0 auto}
 @media(max-width:800px){.journal-tag-discovery{align-items:flex-start;flex-direction:column;gap:11px}}
 @media(max-width:520px){.journal-tag-discovery>div{max-width:100%;flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;padding:2px 2px 7px;scrollbar-width:thin}.journal-tag-discovery a{flex:0 0 auto;min-height:40px}}
+
+
+/* Readability fix: a discreet but visible article-progress track, including
+   when the reading fill is at 0%. Keep it above the sticky storefront header. */
+.journal-article .journal-reading-progress{
+ height:5px;
+ background:#eee9f4;
+ box-shadow:0 1px 3px #1d17201a;
+ z-index:1200;
+}
+.journal-article .journal-reading-progress span{
+ background:#9b81ef;
+ transition:transform .09s linear;
+}
+@media(prefers-reduced-motion:reduce){
+ .journal-article .journal-reading-progress span{transition:none}
+}
