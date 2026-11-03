@@ -256,6 +256,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
    fail(404,'Endpoint not found.');
   }
   if(route.startsWith('fulfillment-')||route.startsWith('admin-fulfillment-')){
+   if(!c.fulfillmentEnabled)fail(404,'Endpoint not found.');
    if(await fulfillmentRoute({route,method,v,req,res,db,c,me,role,throttle,audit,queue}))return;
    fail(404,'Endpoint not found.');
   }
@@ -699,7 +700,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
  });
  app.use(['/api.php','/auth/google/callback'],api);
  pageRoutes(app,c,db,schema);
- app.get(['/fulfillment','/fulfillment/','/fulfillment/login','/fulfillment/orders','/fulfillment/production','/fulfillment/artwork','/fulfillment/shipping','/fulfillment/suppliers'],(req,res)=>res.set('Cache-Control','private, no-store').set('X-Robots-Tag','noindex, nofollow').sendFile(path.join(publicDir,'fulfillment.html')));
+ if(c.fulfillmentEnabled) app.get(['/fulfillment','/fulfillment/','/fulfillment/login','/fulfillment/orders','/fulfillment/production','/fulfillment/artwork','/fulfillment/shipping','/fulfillment/suppliers'],(req,res)=>res.set('Cache-Control','private, no-store').set('X-Robots-Tag','noindex, nofollow').sendFile(path.join(publicDir,'fulfillment.html')));
  app.use(express.static(publicDir,{dotfiles:'deny',index:'index.html'}));
  }
  app.use((req,res)=>res.status(404).json({error:'Not found.'}));
