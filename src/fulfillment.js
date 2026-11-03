@@ -35,7 +35,10 @@ export async function fulfillmentRoute({route,method,v,req,res,db,c,me,role,thro
   const jobByOrder=async(id,conn,lock=false)=>{
     const job=await one('SELECT * FROM fulfillment_jobs WHERE order_id=?'+(lock?' FOR UPDATE':''),[id],conn);
     if(!job)fail(404,'Production job not found.');
-    await supplierAccess(job.supplier_id,conn);
+    if(!admin){
+      const permitted=await one("SELECT m.user_id FROM fulfillment_members m JOIN fulfillment_suppliers s ON s.id=m.supplier_id AND s.status='active' WHERE m.supplier_id=? AND m.user_id=? AND m.access='active'",[job.supplier_id,u.id],conn);
+      if(!permitted)fail(404,'Production job not found.');
+    }
     return job;
   };
   const orderById=async(id,conn,lock=false)=>{
