@@ -2,6 +2,7 @@ import {socialLinks} from './social-links.js';
 import {orderMessage} from './order-mail.js';
 import {artistProfileRoute,recordArtistRelease} from './artist-profiles.js';
 import {shoppingRoute} from './shopping-quality.js';
+import {productCommentRoute} from './product-comments.js';
 import {readScalableMaster} from './scalable-editions.js';
 import {fileHash} from './private-bundle.js';
 import express from 'express';
@@ -242,6 +243,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
    return res.json({subtotal,discount,shipping,total:subtotal-discount+shipping,coupon_applied:!!code&&discount>0,provisional:true});
   }
   if(await artistProfileRoute({route,method,v,req,res,db,c,me,role,throttle,audit}))return;
+  if(route.startsWith('product-comment')||route.startsWith('admin-product-comment')){if(await productCommentRoute({route,method,v,req,res,db,c,me,role,throttle,audit}))return;fail(404,'Endpoint not found.');}
   if(route.startsWith('shopping-')||route.startsWith('admin-shopping-')){if(await shoppingRoute({route,method,v,req,res,db,c,me,role,throttle,audit,queue}))return;fail(404,'Endpoint not found.');}
   if(route==='creative-status'&&method==='GET')return res.json({enabled:c.creativeEnabled===true});
   if(route.startsWith('creative-')||route.startsWith('admin-creative')||route.startsWith('room-')||route.startsWith('admin-room-')){
@@ -260,7 +262,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
    if(await fulfillmentRoute({route,method,v,req,res,db,c,me,role,throttle,audit,queue}))return;
    fail(404,'Endpoint not found.');
   }
-  if(method==='GET' && route==='bootstrap') {const catalog=await products(),catalogueRevision=hash(JSON.stringify(catalog)),requested=req.get('x-veelad-catalogue'),omitCatalogue=requested==='deferred'||requested===catalogueRevision;const u=await me(req),locale=u?(await state(u.id)).user_locale:null,googleReturn=req.session.google_login_complete===true;delete req.session.google_login_complete;return res.json({mode:'server',authentication:await authenticationStatus(c,db,u),partners:{enabled:c.partners?.enabled===true},creative:{enabled:c.creativeEnabled===true},shopping:{enabled:c.shoppingEnabled===true},artist_profiles:{enabled:c.artistProfilesEnabled===true},auth_event:googleReturn?'google-login':null,csrf:req.session.csrf,user:u ? safeUser(u) : null,locale:['ar','en'].includes(locale)?locale:null,products:omitCatalogue?null:catalog,catalogue_revision:catalogueRevision,catalogue_deferred:omitCatalogue,artists:await publicArtists(db),design_styles:designStyles,settings:publicStoreSettings(collectionSettings(await settings(),catalog,{publicOnly:true})),email_delivery:{available:mailStatus(c).ready,staging_restricted:c.mode==='staging'}});}
+  if(method==='GET' && route==='bootstrap') {const catalog=await products(),catalogueRevision=hash(JSON.stringify(catalog)),requested=req.get('x-veelad-catalogue'),omitCatalogue=requested==='deferred'||requested===catalogueRevision;const u=await me(req),locale=u?(await state(u.id)).user_locale:null,googleReturn=req.session.google_login_complete===true;delete req.session.google_login_complete;return res.json({mode:'server',authentication:await authenticationStatus(c,db,u),partners:{enabled:c.partners?.enabled===true},creative:{enabled:c.creativeEnabled===true},shopping:{enabled:c.shoppingEnabled===true},comments:{enabled:c.commentsEnabled===true},artist_profiles:{enabled:c.artistProfilesEnabled===true},auth_event:googleReturn?'google-login':null,csrf:req.session.csrf,user:u ? safeUser(u) : null,locale:['ar','en'].includes(locale)?locale:null,products:omitCatalogue?null:catalog,catalogue_revision:catalogueRevision,catalogue_deferred:omitCatalogue,artists:await publicArtists(db),design_styles:designStyles,settings:publicStoreSettings(collectionSettings(await settings(),catalog,{publicOnly:true})),email_delivery:{available:mailStatus(c).ready,staging_restricted:c.mode==='staging'}});}
   if(method==='POST' && route==='language-preference') {
    const u=await me(req,true);if(!['ar','en'].includes(v.locale))fail(422,'Choose Arabic or English.');
    await db.tx(async conn=>{await q('SELECT id FROM users WHERE id=? FOR UPDATE',[u.id],conn);const s=await state(u.id,conn);s.user_locale=v.locale;await putState(u.id,s,conn);});return res.json({ok:true,locale:v.locale});
