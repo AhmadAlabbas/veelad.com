@@ -18,7 +18,7 @@ test('Merchlist staff create email/password access inside fulfillment and see on
   await page.locator('[data-form=supplier-login] [name=email]').fill('merchlist-portal-admin@example.test');
   await page.locator('[data-form=supplier-login] [name=password]').fill(adminPassword);
   await page.locator('[data-form=supplier-login] button[type=submit]').click();
-  await expect(page).toHaveURL(/admin\\?tab=fulfillment/);
+  await expect(page).toHaveURL(/admin\?tab=fulfillment/);
   await expect(page.getByRole('heading',{name:'Supplier & fulfillment management'})).toBeVisible();
   await page.locator('[data-fma-tab=suppliers]').click();
   await page.locator('[data-fma-form=invite] [name=email]').fill('merchlist-newstaff@example.test');
