@@ -67,8 +67,7 @@ test('published discussions require moderation, distinguish artist replies and r
   expect(report.reason).toBe('spam');expect(report.resolved_at).toBeNull();
   await adminPage.reload();await expect(adminPage.locator('.conversation-admin-item')).toHaveCount(1);
   await adminPage.locator('[data-comment-moderate=approved]').click();
-  const resolved=await f.db.one('SELECT resolved_at FROM product_comment_reports WHERE comment_id=?',[reply.id]);
-  expect(resolved.resolved_at).toBeTruthy();
+  await expect.poll(async()=>Boolean((await f.db.one('SELECT resolved_at FROM product_comment_reports WHERE comment_id=?',[reply.id]))?.resolved_at)).toBe(true);
   await expect(adminPage.locator('.conversation-admin-item')).toHaveCount(0);
   expect(errors).toEqual([]);
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
