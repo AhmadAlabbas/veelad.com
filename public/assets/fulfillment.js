@@ -419,7 +419,14 @@ async function openSplitLine(id){
 }
 
 function render(){
- if(!state.session){heading('Secure fulfillment workspace','Sign in with your approved Veelad account.');$('content').innerHTML='<section class="card">'+empty(state.invitationToken?'Sign in to accept your invitation':'Sign in required',state.invitationToken?'Sign in using the exact email address on the invitation, then return to this link.':'This workspace is private to Veelad administrators and authorized manufacturing partners.')+'<div class="actions" style="justify-content:center"><a class="button accent" href="/en/login">Sign in to Veelad</a></div></section>';return;}
+ if(!state.session){
+  heading('Merchlist production portal','Private manufacturing access · powered by Veelad','PARTNER FULFILLMENT');
+  $('sign-out').hidden=true;
+  const register=state.invitationToken&&state.authMode==='register';
+  const action=register?'supplier-register':'supplier-login';
+  $('content').innerHTML='<section class="card supplier-auth"><div class="supplier-auth-intro"><span class="supplier-auth-mark">v.</span><p class="eyebrow">SECURE PARTNER ACCESS</p><h2>Print. Pack. Dispatch.</h2><p>Manage approved orders, print files, quality control and shipping in one workspace. Only assigned supplier jobs are visible.</p><div class="supplier-auth-steps"><span>01 · Orders</span><span>02 · Printing</span><span>03 · QC & packing</span><span>04 · Shipping</span></div></div><div class="supplier-auth-form"><h2>'+(register?'Create your supplier account':'Welcome back')+'</h2><p class="section-subtitle">'+(register?'Your invite is required to activate supplier access.':'Sign in using your own Veelad partner credentials.')+'</p><form data-form="'+action+'">'+(register?'<label class="field"><span>Full name</span><input name="name" autocomplete="name" maxlength="100" required></label>':'')+'<label class="field"><span>Work email</span><input type="email" name="email" autocomplete="email" required></label><label class="field"><span>Password</span><input type="password" name="password" autocomplete="'+(register?'new-password':'current-password')+'" minlength="8" required></label><button type="submit" class="button accent">'+(register?'Create account and join':'Sign in to production portal')+'</button></form>'+(state.invitationToken?'<p class="form-help">'+(register?'Already have a Veelad account?':'New to this supplier workspace?')+' <button type="button" class="auth-switch" data-auth-mode="'+(register?'login':'register')+'">'+(register?'Sign in instead':'Create account with invitation')+'</button></p>':'<p class="form-help">Supplier access is by invitation from Veelad only. Ask your company manager for an invitation if needed.</p>')+'</div></section>';
+  return;
+ }
  syncNavigation();
  if(state.invitationToken){
   heading('Join your supplier workspace','Your invitation is one-time and restricted to your approved Veelad email account.');
@@ -442,6 +449,16 @@ async function progress(action,extra={}){
 }
 async function submit(form){
  const data=Object.fromEntries(new FormData(form)),kind=form.dataset.form;
+ if(kind==='supplier-login'||kind==='supplier-register'){
+  if(!state.authCsrf)throw Error('Secure session not ready. Refresh and try again.');
+  const route=kind==='supplier-register'?'register':'login';
+  await api(route,{method:'POST',body:route==='register'?{name:data.name,email:data.email,password:data.password,role:'buyer'}:{email:data.email,password:data.password}});
+  if(state.invitationToken){
+   await api('fulfillment-invite',{method:'POST',body:{token:state.invitationToken}});
+   state.invitationToken=null;history.replaceState(null,'','/fulfillment');
+  }
+  state.authCsrf=null;state.authMode='login';await bootstrap();notice('Signed in to your secure manufacturing workspace.');return;
+ }
  if(kind==='split-route'){
   const selectors=[...form.querySelectorAll('[data-route-line]')];
   const allocations=selectors.map(sel=>({line_id:sel.dataset.routeLine,supplier_id:sel.value}));
@@ -575,7 +592,7 @@ async function bootstrap(){
   $('environment').textContent=location.hostname.startsWith('staging.')?'STAGING':'';
   state.selected=null;state.phase3.selected=null;await reload();
  }catch(error){
-  if(error.message==='Please sign in to continue.'){state.session=null;render();return;}
+  if(error.message==='Please sign in to continue.'){state.session=null;try{state.authCsrf=(await api('bootstrap')).csrf;}catch{notice('Unable to establish a secure sign-in session. Refresh the page.','error');}render();return;}
   notice(error.message,'error');state.session=null;render();
  }
 }
@@ -588,11 +605,13 @@ $('supplier-picker').addEventListener('change',async event=>{
  try{await reload();notice('');}catch(error){notice(error.message,'error');}
 });
 $('refresh').addEventListener('click',async()=>{try{await bootstrap();notice('Workspace refreshed.');}catch(error){notice(error.message,'error');}});
+$('sign-out').addEventListener('click',async()=>{try{await api('logout',{method:'POST',body:{}});state.session=null;state.authCsrf=null;state.activeSupplier=null;state.selected=null;state.phase3.selected=null;await bootstrap();notice('You have signed out.');}catch(error){notice(error.message,'error');}});
 $('content').addEventListener('click',async event=>{
  const b=event.target.closest('button');if(!b)return;
  try{
   b.disabled=true;
-  if(b.dataset.view){state.view=b.dataset.view;state.selected=null;state.phase3.selected=null;render();}
+  if(b.dataset.authMode){state.authMode=b.dataset.authMode;notice('');render();}
+  else if(b.dataset.view){state.view=b.dataset.view;state.selected=null;state.phase3.selected=null;render();}
   else if(b.dataset.lineOpen)await openSplitLine(b.dataset.lineOpen);
   else if(b.dataset.lineProgress){
    const j=state.phase3.selected.job,action=b.dataset.lineProgress;
@@ -713,6 +732,6 @@ $('content').addEventListener('submit',async event=>{
 });
 $('content').addEventListener('change',async event=>{if(event.target.id==='job-filter'){state.filter=event.target.value;render();}if(event.target.id==='bulk-all'){for(const input of document.querySelectorAll('[data-bulk-job]'))input.checked=event.target.checked;}if(event.target.id==='route-order-picker'){state.phase3.routeOrder=event.target.value;render();}if(event.target.id==='invoice-supplier-picker'){state.phase3.invoiceSupplier=event.target.value;state.activeSupplier=event.target.value;try{await reload();}catch(error){notice(error.message,'error');}}});
 $('content').addEventListener('input',event=>{if(event.target.id==='job-search'){state.search=event.target.value;const pos=event.target.selectionStart;render();const input=$('job-search');input?.focus();input?.setSelectionRange(pos,pos);}});
-if(state.invitationToken)history.replaceState(null,'','/fulfillment/invite');
+if(state.invitationToken){state.authMode='register';history.replaceState(null,'','/fulfillment/invite');}
 bootstrap();
 })();
