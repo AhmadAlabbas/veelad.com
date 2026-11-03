@@ -102,7 +102,7 @@ function mount(api){
  case 'route':{const allocations=[...f.querySelectorAll('[data-fma-route-line]')].map(x=>({line_id:x.dataset.fmaRouteLine,supplier_id:x.value}));if(allocations.some(x=>!x.supplier_id)||new Set(allocations.map(x=>x.supplier_id)).size<2)throw Error('Assign every purchased product line across at least two active suppliers.');if(!confirm('Permanently split order manufacturing between these companies?'))return;await api('admin-fulfillment-route',{order_id:v.order_id,allocations});break;}
  case 'key':{const r=await api('admin-fulfillment-key',{action:'create',supplier_id:s.supplier,label:v.label,scope:v.scope});s.key=r.token;await load();s.notice='Copy the new integration token now.';paint();return;}
  default:throw Error('Unsupported supplier management action.');
- }await refresh('Changes saved.');});});
+ }const resultMessages={company:'Supplier company saved.',member:'Employee access saved.',assign:'Manufacturing order assigned.',spec:'Printing specifications saved.',packing:'Packaging policy saved.',sla:'Supplier SLA saved.',preflight:'Print preflight approved.'};await refresh(resultMessages[f.dataset.fmaForm]||'Changes saved.');});});
 }
 window.VeeladFulfillmentAdmin=Object.freeze({render,mount});
 })();
