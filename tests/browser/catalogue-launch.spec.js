@@ -14,7 +14,7 @@ test('empty home offers eleven style cards without removing the Arabic lettering
    await expect(page.locator('.design-style-card[href*="arabic-lettering"]')).toHaveCount(0);
    await expect(page.locator('.home-product-types .category-card')).toHaveCount(7);
    await expect(page.locator('.product-card')).toHaveCount(0);
-   await expect(page.locator('.home-everyday-edit')).toBeVisible();
+   await expect(page.locator('.home-creative-section')).toBeVisible();
    await expect(page.locator('.home-questions details')).toHaveCount(4);
    expect(await page.locator('main').evaluate(el=>el.scrollHeight)).toBeGreaterThan(2800);
    const methodImages=page.locator('.footer-payments img');await expect(methodImages).toHaveCount(5);
