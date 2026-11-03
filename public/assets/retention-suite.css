@@ -50,6 +50,19 @@
 .retention-entry-meta strong{font-size:13px;color:#302b35}
 .retention-update,.retention-status-list>div{display:flex;align-items:center;gap:15px;flex-wrap:wrap;padding:16px 8px;border-bottom:1px solid #ebe6ef;font-size:13px}
 .retention-update span{color:#726c78;font-size:11px;margin-inline-start:auto}
+/* Member-only participation timeline: readable across English, Arabic and Chinese. */
+.retention-activity-list{display:grid;gap:0;border-top:1px solid #ece8f1}
+.retention-activity{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:18px 0;border-bottom:1px solid #ece8f1}
+.retention-activity>div:first-child{display:grid;gap:6px;min-width:0;max-width:100%;overflow-wrap:anywhere}
+.retention-activity strong{font-size:14px;font-weight:650;color:#25202d}
+.retention-activity small{color:#77707f;font-size:11px}
+.retention-activity-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.retention-activity-status{font-size:11px;padding:6px 10px;border:1px solid #e0d9ec;border-radius:999px;color:#574a6b;background:#faf8ff}
+.retention-activity-replies,.retention-activity-closed{font-size:11px;color:#71687d}
+.retention-activity-actions .text-link{font-size:12px}
+.retention-updates>.retention-actions{justify-content:flex-end;margin:0 0 4px}
+@media(max-width:520px){.retention-activity{align-items:flex-start;flex-direction:column;gap:10px}.retention-activity-actions{width:100%}}
+
 .retention-feature-link{display:flex;align-items:center;justify-content:space-between;padding:24px;min-height:92px;border:1px solid #e6e0ec;border-radius:13px;text-decoration:none;color:#2f2935;font-size:16px;font-weight:650;background:#faf8ff}
 .retention-feature-link:hover{border-color:#b79ddd}
 .retention-auth{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
