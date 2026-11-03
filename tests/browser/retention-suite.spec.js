@@ -40,6 +40,8 @@ test('saved collections persist across refresh and only authenticated owner can 
   await page.locator('[data-retention-collect]').click();
   await expect(page.locator('#modal [data-retention-action=add-to-collection]')).toBeVisible();
   await page.locator('#modal [data-retention-action=add-to-collection]').click();
+  // Wait for the successful mutation and modal dismissal before a full page navigation.
+  await expect(page.locator('#modal')).not.toBeVisible();
   await page.goto(f.origin+'/'+lang+'/collections');
   await expect(page.locator('.retention-collection .retention-item')).toHaveCount(1);
   await page.reload();await expect(page.locator('.retention-collection .retention-item')).toHaveCount(1);
