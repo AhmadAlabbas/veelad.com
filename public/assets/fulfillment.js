@@ -14,9 +14,14 @@ const views=[
  {id:'messages',label:'Messages',icon:'✉',title:'Order communication',subtitle:'Private conversations between Veelad and suppliers.'},
  {id:'bulk',label:'Bulk operations',icon:'☷',title:'Batch operations',subtitle:'Accept assigned jobs and export picking lists.'},
  {id:'notifications',label:'Alerts',icon:'◉',title:'Operations alerts',subtitle:'Assignments, deadlines, issues and shipping updates.'},
+ {id:'split',label:'Split production',icon:'◈',title:'Multi-supplier production',subtitle:'Each manufacturing partner sees only its own product lines.'},
+ {id:'analytics',label:'Performance',icon:'▥',title:'Supplier performance',subtitle:'On-time performance, quality issues and production throughput.'},
+ {id:'invoices',label:'Manufacturing invoices',icon:'▣',title:'Supplier manufacturing invoices',subtitle:'Separate factory-cost records with approval and external settlement tracking.'},
+ {id:'routing',label:'Route by product',icon:'↗',title:'Assign products to suppliers',subtitle:'Assign every purchased product line to one verified manufacturing supplier.',admin:true},
+ {id:'integrations',label:'Integration API',icon:'⌘',title:'Supplier API credentials',subtitle:'Create expiring read-only or limited-update credentials for external systems.',admin:true},
  {id:'suppliers',label:'Suppliers',icon:'♙',title:'Supplier management',subtitle:'Manage company access and assign approved orders.',admin:true}
 ];
-const state={session:null,activeSupplier:null,jobs:[],pool:[],selected:null,view:'overview',filter:'all',search:'',busy:false,phase1:null,adminSetup:{invites:[],specs:[]},inviteLink:'',phase2:null,ops:{jobs:[]},alerts:{notifications:[],unread:0},adminOps:{id:null,rules:[],policy:null},invitationToken:new URLSearchParams(location.hash.replace(/^#/, '')).get('token')||new URLSearchParams(location.search).get('token')||null};
+const state={session:null,activeSupplier:null,jobs:[],pool:[],selected:null,view:'overview',filter:'all',search:'',busy:false,phase1:null,adminSetup:{invites:[],specs:[]},inviteLink:'',phase2:null,ops:{jobs:[]},alerts:{notifications:[],unread:0},adminOps:{id:null,rules:[],policy:null},phase3:{jobs:[],candidates:{orders:[],suppliers:[]},analytics:[],invoices:[],keys:[],selected:null,routeOrder:null,invoice:null,lastToken:null},invitationToken:new URLSearchParams(location.hash.replace(/^#/, '')).get('token')||new URLSearchParams(location.search).get('token')||null};
 const urlFor=(route,params={})=>{
  const url=new URL('/api.php',location.origin);url.searchParams.set('route',route);
  Object.entries(params).forEach(([key,value])=>{if(value!==null&&value!==undefined&&value!=='')url.searchParams.set(key,String(value));});
@@ -57,7 +62,7 @@ async function reload({preserveDetail=false}={}){
   try{state.selected=(await api('fulfillment-order',{params:{order_id:state.selected.job.id}}));await Promise.all([loadPhase1(state.selected.job.id),loadPhase2(state.selected.job.id)]);}
   catch{state.selected=null;state.phase1=null;}
  }
- await loadOperations();
+ await Promise.all([loadOperations(),loadPhase3()]);
  if(state.session?.admin)await Promise.all([loadAdminSetup(),loadAdminOperations()]);
  render();
 }
@@ -293,8 +298,9 @@ function render(){
  if(!state.session.admin&&state.session.suppliers.length===0){heading('Supplier access required','Your account needs to be approved by Veelad.');$('content').innerHTML='<section class="card">'+empty('No supplier permissions','Ask the Veelad administrator to invite your registered account to your company. No order data is available until access is granted.')+'</section>';return;}
  const section=views.find(v=>v.id===state.view)||views[0];
  heading(state.selected?'Production order '+state.selected.job.id:section.title,state.selected?'Review artwork, quality and shipping status.':section.subtitle, state.session.admin?'VEELAD · OPERATIONS ADMIN':'SUPPLIER WORKSPACE');
+ if(state.phase3.selected){heading('Product line '+state.phase3.selected.job.line_id,'Restricted manufacturing workspace · '+state.phase3.selected.product.title);$('content').innerHTML=splitDetailView();return;}
  if(state.selected){$('content').innerHTML=detailView();return;}
- $('content').innerHTML=state.view==='overview'?dashboard():state.view==='suppliers'&&state.session.admin?suppliersView():state.view==='packaging'?packagingDesk():state.view==='messages'?messagesView():state.view==='notifications'?notificationsView():state.view==='bulk'?bulkView():ordersView(state.view);
+ $('content').innerHTML=state.view==='overview'?dashboard():state.view==='suppliers'&&state.session.admin?suppliersView():state.view==='packaging'?packagingDesk():state.view==='messages'?messagesView():state.view==='notifications'?notificationsView():state.view==='bulk'?bulkView():state.view==='split'?splitJobsView():state.view==='routing'?splitRoutingView():state.view==='analytics'?splitAnalyticsView():state.view==='invoices'?splitInvoicesView():state.view==='integrations'?splitIntegrationView():ordersView(state.view);
 }
 async function openOrder(id){state.selected=await api('fulfillment-order',{params:{order_id:id}});await Promise.all([loadPhase1(id),loadPhase2(id)]);render();window.scrollTo({top:0,behavior:'smooth'});}
 async function progress(action,extra={}){
@@ -382,7 +388,7 @@ async function bootstrap(){
   state.session=await api('fulfillment-session');state.activeSupplier=state.session.admin?state.activeSupplier:(state.session.suppliers[0]?.id||null);
   if(state.session.admin&&state.activeSupplier&&!state.session.suppliers.some(s=>s.id===state.activeSupplier))state.activeSupplier=null;
   $('environment').textContent=location.hostname.startsWith('staging.')?'STAGING':'';
-  state.selected=null;await reload();
+  state.selected=null;state.phase3.selected=null;await reload();
  }catch(error){
   if(error.message==='Please sign in to continue.'){state.session=null;render();return;}
   notice(error.message,'error');state.session=null;render();
@@ -390,10 +396,10 @@ async function bootstrap(){
 }
 $('navigation').addEventListener('click',event=>{
  const button=event.target.closest('[data-view]');if(!button)return;
- state.view=button.dataset.view;state.selected=null;state.filter='all';state.search='';render();
+ state.view=button.dataset.view;state.selected=null;state.phase3.selected=null;state.filter='all';state.search='';render();
 });
 $('supplier-picker').addEventListener('change',async event=>{
- state.activeSupplier=event.target.value||null;state.selected=null;
+ state.activeSupplier=event.target.value||null;state.selected=null;state.phase3.selected=null;
  try{await reload();notice('');}catch(error){notice(error.message,'error');}
 });
 $('refresh').addEventListener('click',async()=>{try{await bootstrap();notice('Workspace refreshed.');}catch(error){notice(error.message,'error');}});
@@ -401,7 +407,7 @@ $('content').addEventListener('click',async event=>{
  const b=event.target.closest('button');if(!b)return;
  try{
   b.disabled=true;
-  if(b.dataset.view){state.view=b.dataset.view;state.selected=null;render();}
+  if(b.dataset.view){state.view=b.dataset.view;state.selected=null;state.phase3.selected=null;render();}
   else if(b.dataset.open)await openOrder(b.dataset.open);
   else if(b.dataset.progress)await progress(b.dataset.progress);
   else if(b.dataset.supplierStatus){
