@@ -97,10 +97,25 @@ function productEverydayEditorial() {
 function productQuestions(p) {
  return `<section class="section product-questions" aria-labelledby="product-questions-title"><div><span class="eyebrow">${t('Before you make it yours')}</span><h2 id="product-questions-title">${t('A few useful things to know.')}</h2>${link(t('Ask about this product ')+icon('arrow'),'help','text-link',{product:p.id})}</div><div><details open><summary>${t('How do I choose a size or option?')}</summary><p>${t('Use the size or option guide beside the product choices. If measurements are not available yet, ask us before ordering.')}</p><a href="#product-options" data-action="product-jump" class="text-link">${t('View product details')}</a></details><details><summary>${t('What will the finished product look like?')}</summary><p>${t('The gallery helps you explore the artwork and its placement. Mockups are previews; print colours, scale and finish need to be confirmed against the final production specifications.')}</p></details><details><summary>${t('Can I ask a question about this design?')}</summary><p>${t('Send us your question with this product attached so we can help with the right details.')}</p>${link(t('Ask about this product ')+icon('arrow'),'help','text-link',{product:p.id})}</details></div></section>`;
 }
+// Related items are content-based, not paid placement or tracking-based ads.
+// Rankings only use public/approved catalogue metadata. Never infer attributes
+// from photos and never promote archived or otherwise hidden products.
+function rankRelatedProducts(seed,catalog,excluded=new Set(),limit=8){
+ const tags=new Set([...(seed.tags||[]),...(seed.tags_ar||[]),...(seed.tags_zh||[])].map(searchText).filter(Boolean));
+ const styles=new Set(seed.design_styles||[]);
+ const related=catalog.filter(other=>other.status==='active'&&other.id!==seed.id&&!excluded.has(other.id)).map((other,index)=>{
+  const otherTags=new Set([...(other.tags||[]),...(other.tags_ar||[]),...(other.tags_zh||[])].map(searchText).filter(Boolean));
+  const commonTags=[...otherTags].filter(tag=>tags.has(tag)).length;
+  const commonStyles=(other.design_styles||[]).filter(style=>styles.has(style)).length;
+  const commonAttributes=['color','fit','material','occasion'].filter(key=>seed.discovery_attributes?.[key]&&seed.discovery_attributes[key]===other.discovery_attributes?.[key]).length;
+  const score=(other.category===seed.category?10:0)+(other.artist_id===seed.artist_id?4:0)+Math.min(3,commonTags)*6+Math.min(2,commonStyles)*12+commonAttributes*2+(other.stock>0?1:0);
+  return {other,index,score};
+ }).sort((a,b)=>b.score-a.score||a.index-b.index);
+ return related.slice(0,Math.max(0,Math.min(24,limit))).map(item=>item.other);
+}
 function productDiscovery(p) {
- const tags=new Set((p.tags||[]).map(tag=>String(tag).toLowerCase()));
  const familyIds=new Set(productDesignFamily(p).map(other=>other.id));
- const related=products.filter(other=>other.id!==p.id&&!familyIds.has(other.id)).map((other,index)=>({other,index,score:(other.category===p.category?4:0)+(other.tags||[]).filter(tag=>tags.has(String(tag).toLowerCase())).length})).sort((a,b)=>b.score-a.score||a.index-b.index).slice(0,8).map(item=>item.other);
+ const related=rankRelatedProducts(p,products,familyIds,8);
  const localTags=currentLanguage()==='ar'&&Array.isArray(p.tags_ar)&&p.tags_ar.length?p.tags_ar:p.tags||[];
  return `<section class="section product-discover" id="product-discover" tabindex="-1" aria-labelledby="product-discover-title"><div class="product-section-heading"><div><span class="eyebrow">${t('Find your next favourite')}</span><h2 id="product-discover-title">${t('Explore a little further.')}</h2><p>${t('More artwork and products with a similar mood.')}</p></div>${link(esc(t('Browse {category}',{category:t(p.category)}))+' '+icon('arrow'),'shop','text-link',{category:p.category})}</div>${related.length?grid(related):`<p>${t('Explore something new from our independent artists.')}</p>`}${localTags.length?`<div class="product-discovery-tags"><h3>${t('Explore similar ideas')}</h3><div>${localTags.slice(0,12).map(tag=>link(esc(tag),'shop','product-tag',{q:tag})).join('')}</div></div>`:''}</section>`;
 }
