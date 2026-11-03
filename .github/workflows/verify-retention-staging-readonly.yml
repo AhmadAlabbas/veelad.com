@@ -1,0 +1,55 @@
+name: Verify published Veelad community and collection endpoints
+on:
+  push:
+    branches: [qa/retention-staging-readonly-20261103]
+permissions:
+  contents: read
+jobs:
+  public-staging-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - name: Verify staging routes and privacy read-only
+        env:
+          EXPECTED_SHA: 24d4d7e47c1261f86d9f7c791bf5a063a1986e40
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          const base='https://staging.veelad.com';
+          async function request(path,headers={}) {
+            const response=await fetch(base+path,{headers,redirect:'error',signal:AbortSignal.timeout(20000)});
+            return response;
+          }
+          async function json(path,headers={}) {
+            const response=await request(path,headers);
+            assert.equal(response.status,200,path+' must return HTTP 200, got '+response.status);
+            return response.json();
+          }
+          const health=await json('/api.php?route=health');
+          assert.equal(health.ok,true);
+          assert.equal(health.environment,'staging');
+          assert.equal(health.revision,process.env.EXPECTED_SHA,'must be exact tested staging release');
+          const boot=await json('/api.php?route=bootstrap',{'X-Veelad-Catalogue':'deferred'});
+          assert.equal(boot.retention?.enabled,true,'retention feature enabled on staging');
+          assert.equal(boot.comments?.enabled,true,'product comments enabled on staging');
+          const discovery=await json('/api.php?route=retention-discover');
+          assert.ok(Array.isArray(discovery.recent_product_ids));
+          assert.ok(Array.isArray(discovery.followed_product_ids));
+          const challenges=await json('/api.php?route=challenge-list');
+          assert.ok(Array.isArray(challenges.challenges));
+          if(discovery.recent_product_ids.length) {
+            const productId=encodeURIComponent(discovery.recent_product_ids[0]);
+            const comments=await json('/api.php?route=product-comments&product_id='+productId+'&page=0');
+            assert.ok(Array.isArray(comments.comments));
+            assert.equal(typeof comments.total,'number');
+          }
+          const privateSpace=await request('/api.php?route=retention-space');
+          assert.ok([401,403].includes(privateSpace.status),'member space must reject signed-out access');
+          for(const path of ['/en/discover','/ar/community','/zh-CN/challenges','/en/collections','/en/my-space']) {
+            const response=await request(path);
+            assert.equal(response.status,200,path+' must be an available app route');
+            const html=await response.text();
+            assert.ok(html.includes('/assets/retention-suite.js'),path+' must include the new interface');
+          }
+          console.log('PASS: staging SHA, feature flags, live community routes, comment API, private access');
+          NODE
