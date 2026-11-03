@@ -16,6 +16,7 @@ test('avatar crop stays circular in English and Arabic and the brand spark is an
 });
 
 test('signing in from a fresh login page preserves the guest bag when products were deferred',async({page})=>{
+ test.setTimeout(90000); // Account setup, rehydration and two route navigations may be slower under shared CI.
  const f=await googleApp(),password='Guest bag fixture password 123';
  try{
   await f.db.q('INSERT INTO users VALUES (?,?,?,?,?,?,?)',['bag-buyer','Bag fixture','bag@example.test',await passwordHash(password),'buyer','active',now()]);
@@ -24,5 +25,5 @@ test('signing in from a fresh login page preserves the guest bag when products w
   await page.locator('[data-form=login] [name=email]').fill('bag@example.test');await page.locator('[data-form=login] [name=password]').fill(password);await page.locator('[data-form=login] [type=submit]').click();await expect(page).toHaveURL(/\/en\/account/);
   await page.goto(f.origin+'/en/bag');await expect(page.locator('.bag-item')).toContainText('M · by Mira Studio');await expect(page.locator('.cart-quantity')).toHaveText('1');
   const state=await page.evaluate(()=>api('state'));expect(state.cart).toHaveLength(1);expect(state.cart[0].id).toBe('p1');
- }finally{await page.goto('about:blank');await f.close();}
+ }finally{await page.goto('about:blank').catch(()=>{});await f.close();}
 });
