@@ -13,14 +13,14 @@ test('private fulfillment Phase 1 issues one-use supplier invitation and isolate
   await f.db.q('INSERT INTO fulfillment_suppliers (id,name,status,created_at) VALUES (?,?,?,?)',['supplier-merchlist','Merchlist','active',now()]);
   await page.goto(f.origin+'/en/login');await page.locator('[data-form=login]').waitFor();
   await page.evaluate(credentials=>api('login',credentials),{email:'fulfillment-admin@example.test',password});
-  await page.goto(f.origin+'/fulfillment');
-  await expect(page.getByRole('heading',{name:'Manufacturing dashboard'})).toBeVisible();
-  await page.getByRole('button',{name:/Suppliers/}).click();
-  await expect(page.getByText('Secure supplier invitations')).toBeVisible();
-  await page.locator('[data-form=invite] [name=email]').fill('merchlist-operator@example.test');
-  await page.locator('[data-form=invite] [name=supplier_role]').selectOption('production');
-  await page.locator('[data-form=invite] button[type=submit]').click();
-  const linkField=page.locator('#invite-link');await expect(linkField).toBeVisible();
+  await page.goto(f.origin+'/en/admin?tab=fulfillment');
+  await expect(page.getByRole('heading',{name:'Supplier & fulfillment management'})).toBeVisible();
+  await page.locator('[data-fma-tab=suppliers]').click();
+  await expect(page.getByRole('heading',{name:'Invite supplier employees'})).toBeVisible();
+  await page.locator('[data-fma-form=invite] [name=email]').fill('merchlist-operator@example.test');
+  await page.locator('[data-fma-form=invite] [name=supplier_role]').selectOption('production');
+  await page.locator('[data-fma-form=invite] button[type=submit]').click();
+  const linkField=page.locator('.fma-secret input');await expect(linkField).toBeVisible();
   const invite=await linkField.inputValue();
   expect(invite).toMatch(/\/fulfillment\/invite#token=[0-9a-f]{64}$/);
 
