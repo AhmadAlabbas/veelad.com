@@ -63,10 +63,10 @@ export function cleanCsvCell(value){
  return '"'+s.replace(/"/g,'""')+'"';
 }
 export function dueWindow(job,deadline,clock=Date.now()){
- if(!deadline||!activeStages.includes(job.status))return {label:'Unscheduled',due_at:null,overdue:false};
+ if(!deadline||!activeStages.includes(job.status))return {label:'Unscheduled',due_at:null,overdue:false,due_soon:false};
  const key=job.status==='assigned'?'accept_by':['packed','dispatch_submitted'].includes(job.status)?'dispatch_by':'production_by';
  const due=iso(deadline[key]);
- return {label:job.status==='on_hold'?'On hold':key==='accept_by'?'Acceptance':key==='production_by'?'Production':'Dispatch',due_at:due,overdue:!!due&&clock>Date.parse(due)};
+ return {label:job.status==='on_hold'?'On hold':key==='accept_by'?'Acceptance':key==='production_by'?'Production':'Dispatch',due_at:due,overdue:!!due&&clock>Date.parse(due),due_soon:!!due&&clock<=Date.parse(due)&&Date.parse(due)-clock<=6*3600000};
 }
 export function validateSla(v){
  const accept=integer(Number(v.accept_hours),1,168,'acceptance hours');
