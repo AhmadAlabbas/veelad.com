@@ -30,7 +30,8 @@ export function safePackagingRule(v){
 }
 export function packagingSnapshot(data,supplier,rules){
  const relevant=(data.items||[]).map(i=>({line_id:i.line_id,category:i.category,variant:i.variant,qty:i.qty,choices:i.purchase_choices||null}));
- const versions=rules.map(r=>({category:r.category,revision:Number(r.revision),container:r.container,instructions:r.instructions,
+ const categories=new Set(relevant.map(item=>item.category));
+ const versions=rules.filter(r=>categories.has(r.category)).map(r=>({category:r.category,revision:Number(r.revision),container:r.container,instructions:r.instructions,
    inserts:typeof r.inserts_json==='string'?JSON.parse(r.inserts_json):r.inserts||[],require_photo:!!r.require_photo})).sort((a,b)=>a.category.localeCompare(b.category));
  return hash(JSON.stringify({supplier,lines:relevant,rules:versions}));
 }
