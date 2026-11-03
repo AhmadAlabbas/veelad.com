@@ -21,18 +21,12 @@ test('signing in from a fresh login page preserves the guest bag when products w
  try{
   await f.db.q('INSERT INTO users VALUES (?,?,?,?,?,?,?)',['bag-buyer','Bag fixture','bag@example.test',await passwordHash(password),'buyer','active',now()]);
   await page.goto(f.origin+'/en/products/p1');await page.getByRole('radio',{name:'M',exact:true}).check();await page.locator('[data-form=add-to-bag] [type=submit]').click();
-  // Read the bootstrap payload before releasing it to the navigation. Reading
-  // response.json() after page.goto can race with Chromium evicting its body.
-  let loginBootstrap;
-  await page.route('**/api.php?route=bootstrap*',async route=>{
-   const referer=route.request().headers()['referer']||'';
-   if(!referer.includes('/en/login'))return route.continue();
-   const response=await route.fetch();
-   loginBootstrap=await response.json();
-   await route.fulfill({response});
-  });
+  // The page-level catalogue flag proves that login bootstrapped without
+  // loading product data. This avoids consuming a response body after a
+  // navigation, which Chromium may discard before Playwright reads it.
   await page.goto(f.origin+'/en/login');
-  await expect.poll(()=>loginBootstrap===undefined?'pending':loginBootstrap.products).toBeNull();
+  await expect(page.locator('[data-form=login]')).toBeVisible();
+  expect(await page.evaluate(()=>catalogueLoaded)).toBe(false);
   await page.locator('[data-form=login] [name=email]').fill('bag@example.test');await page.locator('[data-form=login] [name=password]').fill(password);await page.locator('[data-form=login] [type=submit]').click();await expect(page).toHaveURL(/\/en\/account/);
   await page.goto(f.origin+'/en/bag');await expect(page.locator('.bag-item')).toContainText('M · by Mira Studio');await expect(page.locator('.cart-quantity')).toHaveText('1');
   const state=await page.evaluate(()=>api('state'));expect(state.cart).toHaveLength(1);expect(state.cart[0].id).toBe('p1');
