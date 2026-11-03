@@ -20,7 +20,7 @@ test('Fulfillment Phase 2 administrator configures packaging, supplier deadlines
   await pack.locator('[name=instructions]').fill('Use only Veelad branded mailers, protective tissue, care cards and secure seals.');
   await pack.locator('[name=inserts]').fill('Care card, Thank-you note');
   await pack.locator('button[type=submit]').click();
-  await expect(page.locator('.fma-notice')).toContainText('Changes saved');
+  await expect(page.locator('.fma-notice')).toContainText('Packaging policy saved.');
   const saved=await f.db.one('SELECT category,container,revision,require_photo FROM fulfillment_packaging_rules WHERE supplier_id=?',['phase2-supplier']);
   expect(saved.category).toBe('T-shirts');
   expect(saved.container).toBe('mailer');
@@ -29,8 +29,10 @@ test('Fulfillment Phase 2 administrator configures packaging, supplier deadlines
   await sla.locator('[name=accept_hours]').fill('12');
   await sla.locator('[name=production_hours]').fill('72');
   await sla.locator('[name=dispatch_hours]').fill('120');
+  const slaSaved=page.waitForResponse(resp=>resp.url().includes('route=admin-fulfillment-sla')&&resp.request().method()==='POST'&&resp.status()===200);
   await sla.locator('button[type=submit]').click();
-  await expect(page.locator('.fma-notice')).toContainText('Changes saved');
+  await slaSaved;
+  await expect(page.locator('.fma-notice')).toContainText('Supplier SLA saved.');
   const policy=await f.db.one('SELECT accept_hours,production_hours,dispatch_hours FROM fulfillment_sla_policies WHERE supplier_id=?',['phase2-supplier']);
   expect(Number(policy.accept_hours)).toBe(12);
   expect(Number(policy.production_hours)).toBe(72);
