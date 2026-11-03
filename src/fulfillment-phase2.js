@@ -46,6 +46,17 @@ export function hasPackagingPhotos(items,rules,evidence){
  const byCategory=new Map(rules.map(r=>[r.category,r]));
  return (items||[]).every(i=>!byCategory.get(i.category)?.require_photo||evidence.some(e=>e.line_id===i.line_id&&e.kind==='packaging'&&e.status==='approved'));
 }
+export async function verifyPackingSignoff(db,job,data,conn){
+ const rules=await db.q('SELECT category,container,instructions,inserts_json,require_photo,revision FROM fulfillment_packaging_rules WHERE supplier_id=? ORDER BY category',[job.supplier_id],conn);
+ const missing=requiredPackagingRules(data.items,rules);
+ if(missing.length)fail(409,'Packaging rules are missing for '+missing.join(', ')+'.');
+ const signoff=await db.one('SELECT snapshot_hash,checks_json FROM fulfillment_packaging_signoffs WHERE order_id=?',[job.order_id],conn);
+ if(!signoff||signoff.snapshot_hash!==packagingSnapshot(data,job.supplier_id,rules))fail(409,'Approve the current packing checklist before marking the order packed.');
+ try{validatePackingChecklist(json(signoff.checks_json));}catch{fail(409,'Packaging checklist is incomplete.');}
+ const photos=await db.q("SELECT line_id,kind,status FROM fulfillment_qc_evidence WHERE order_id=? AND kind='packaging'",[job.order_id],conn);
+ if(!hasPackagingPhotos(data.items,rules,photos))fail(409,'Packaging photos need independent approval before packing.');
+ return true;
+}
 export function cleanCsvCell(value){
  let s=String(value??'').replace(/[\r\n\t]+/g,' ').trim().slice(0,300);
  if(/^[=+\-@]/.test(s))s="'"+s;
