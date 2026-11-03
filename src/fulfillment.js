@@ -10,11 +10,12 @@ import {phaseOneRoute,phaseOneRoutes,phaseOneAdminRoutes,supplierRoles,supplierM
 import {prepareSupplierPack} from './fulfillment-pack.js';
 import {phaseTwoRoute,phaseTwoRoutes,phaseTwoAdminRoutes,verifyPackingSignoff,notifyFulfillment,initializeJobDeadlines} from './fulfillment-phase2.js';
 import {artworkPath} from './artwork.js';
+import {phaseThreeRoute,phaseThreeRoutes,phaseThreeAdminRoutes} from './fulfillment-phase3.js';
 import {Readable} from 'node:stream';
 import {pipeline} from 'node:stream/promises';
 
-const adminRoutes=new Set(['admin-fulfillment-suppliers','admin-fulfillment-supplier','admin-fulfillment-member','admin-fulfillment-assign','admin-fulfillment-pool','admin-fulfillment-dispatch',...phaseOneAdminRoutes,...phaseTwoAdminRoutes]);
-const routeNames=new Set(['fulfillment-session','fulfillment-orders','fulfillment-order','fulfillment-artwork','fulfillment-pack','fulfillment-progress',...adminRoutes,...phaseOneRoutes,...phaseTwoRoutes]);
+const adminRoutes=new Set(['admin-fulfillment-suppliers','admin-fulfillment-supplier','admin-fulfillment-member','admin-fulfillment-assign','admin-fulfillment-pool','admin-fulfillment-dispatch',...phaseOneAdminRoutes,...phaseTwoAdminRoutes,...phaseThreeAdminRoutes]);
+const routeNames=new Set(['fulfillment-session','fulfillment-orders','fulfillment-order','fulfillment-artwork','fulfillment-pack','fulfillment-progress',...adminRoutes,...phaseOneRoutes,...phaseTwoRoutes,...phaseThreeRoutes]);
 const stamp=()=>now();
 const cleanId=(v,key='id')=>text(v,key,64);
 const activeAccount=(u)=>u?.status==='active';
@@ -54,6 +55,7 @@ export async function fulfillmentRoute({route,method,v,req,res,db,c,me,role,thro
   };
   if(phaseOneRoutes.has(route))return phaseOneRoute({route,method,v,req,res,db,c,u,admin,one,q,audit,queue,throttle,supplierAccess,jobByOrder,orderById});
   if(phaseTwoRoutes.has(route))return phaseTwoRoute({route,method,v,req,res,db,c,u,admin,one,q,audit,throttle,supplierAccess,jobByOrder,orderById});
+  if(phaseThreeRoutes.has(route))return phaseThreeRoute({route,method,v,req,res,db,c,u,admin,one,q,audit,queue,throttle,supplierAccess,jobByOrder,orderById});
   if(route==='fulfillment-session'&&method==='GET'){
     const linked=await members();
     return res.json({user:{id:u.id,name:u.name,role:u.role},admin,suppliers:admin?await q("SELECT id,name,status FROM fulfillment_suppliers ORDER BY name"):linked,csrf:req.session.csrf});
@@ -93,7 +95,7 @@ export async function fulfillmentRoute({route,method,v,req,res,db,c,me,role,thro
   }
   if(route==='admin-fulfillment-pool'&&method==='GET'){
     const rows=await q("SELECT id,status,data,created_at FROM orders WHERE status='processing' ORDER BY created_at DESC LIMIT 150");
-    const existing=new Set((await q('SELECT order_id FROM fulfillment_jobs')).map(r=>r.order_id));
+    const existing=new Set([...(await q('SELECT order_id FROM fulfillment_jobs')).map(r=>r.order_id),...(await q('SELECT order_id FROM fulfillment_routing')).map(r=>r.order_id)]);
     const orders=[];
     for(const row of rows){
       if(existing.has(row.id))continue;
@@ -116,6 +118,7 @@ export async function fulfillmentRoute({route,method,v,req,res,db,c,me,role,thro
       await supplierAccess(supplierId,conn);
       const existing=await one('SELECT order_id FROM fulfillment_jobs WHERE order_id=? FOR UPDATE',[id],conn);
       if(existing)fail(409,'This order is already assigned; review its supplier job.');
+      if(await one('SELECT order_id FROM fulfillment_routing WHERE order_id=?',[id],conn))fail(409,'This order was already split between suppliers.');
       await q('INSERT INTO fulfillment_jobs (order_id,supplier_id,status,revision,created_at,updated_at) VALUES (?,?,?,0,?,?)',[id,supplierId,'assigned',stamp(),stamp()],conn);
       await initializeJobDeadlines(db,id,supplierId,u.id,conn);
       await audit(u,'fulfillment.assign',id+':'+supplierId,conn);
