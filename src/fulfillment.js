@@ -147,11 +147,12 @@ export async function fulfillmentRoute({route,method,v,req,res,db,c,me,role,thro
   }
   if(route==='fulfillment-order'&&method==='GET'){
     const job=await jobByOrder(cleanId(req.query,'order_id')),order=await orderById(job.order_id),d=json(order.data);
-    const stage=job.status;
-    const shipping=['packed','dispatch_submitted'].includes(stage)&&order.status==='processing'?{
+    const stage=job.status,staffRole=await getRole(job.supplier_id);
+    const shippingAllowed=staffRole==='admin'||['operator','manager'].includes(staffRole);
+    const shipping=shippingAllowed&&['packed','dispatch_submitted'].includes(stage)&&order.status==='processing'?{
       name:d.customer?.name||'',address:d.customer?.address||'',city:d.customer?.city||'',postal:d.customer?.postal||'',country:d.customer?.country||'',phone:d.customer?.phone||''
     }:null;
-    return res.json({job:publicJob({...job,order_status:order.status},d),staff_role:await getRole(job.supplier_id),items:(d.items||[]).map(item=>({
+    return res.json({job:publicJob({...job,order_status:order.status},d),staff_role:staffRole,items:(d.items||[]).map(item=>({
       line_id:item.line_id,title:item.title,category:item.category,variant:item.variant,qty:item.qty,
       choices:item.purchase_choices||null,design_title:item.design_title||'',source_ids:studioSourceIds(item.design_studio,item.upload_id),
       surfaces:item.design_studio?.scene_version===sceneVersion?Object.keys(item.design_studio.scenes?.[printProductFor(item.category)?.id]||{}):[],
