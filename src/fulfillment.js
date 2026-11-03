@@ -144,6 +144,61 @@ export async function fulfillmentRoute({route,method,v,req,res,db,c,me,role,thro
       has_layout:!!item.design_studio
     })),shipping,carrier:job.carrier,tracking:job.tracking,issue:job.issue_note,production_stage:d.production?.stage||'preparing',payment_verified:d.payment_status==='paid',test_order:d.test_payment===true});
   }
+  if(route==='fulfillment-pack'&&method==='GET'){
+    await throttle(req,'fulfillment-pack-download',12,u.id);
+    const job=await jobByOrder(cleanId(req.query,'order_id'));
+    const order=await orderById(job.order_id),d=json(order.data);
+    if(order.status!=='processing')fail(409,'Production order is not active.');
+    ensureFulfillmentReady(d,c.mode);
+    const specs=await q('SELECT category,print_width_mm,print_height_mm,bleed_mm,min_dpi FROM fulfillment_print_specs WHERE supplier_id=? ORDER BY category',[job.supplier_id]);
+    const certificate=await one('SELECT * FROM fulfillment_preflight WHERE order_id=?',[job.order_id]);
+    if(!certificate||certificate.snapshot_hash!==printFingerprint(d,job.supplier_id,specs))fail(409,'A current print preflight must be approved before exporting production files.');
+    await verifyApprovedPrintSources(db,c,certificate.report_json);
+    const approvedReport=json(certificate.report_json);
+    const entries=[],lines=[],safe=v=>String(v||'').replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,70);
+    for(const [index,line] of (d.items||[]).entries()){
+      const folder='lines/'+String(index+1).padStart(2,'0')+'-'+safe(line.line_id)+'/',uploads=studioSourceIds(line.design_studio,line.upload_id);
+      const originals=[],layouts=[];
+      const sources=new Map();
+      for(const id of uploads){
+        const record=await one('SELECT * FROM uploads WHERE id=?',[id]);
+        if(!record)fail(409,'One of the purchased artwork originals is missing.');
+        sources.set(id,record);
+        const name=folder+'original-'+safe(id)+(record.mime==='image/png'?'.png':'.jpg');
+        entries.push({name,path:artworkPath(c.uploadDir,record)});originals.push(name);
+      }
+      if(line.design_studio){
+        const type=printProductFor(line.category);
+        if(!type)fail(409,'No design placement template for this product.');
+        const surfaces=line.design_studio.scene_version===sceneVersion?Object.keys(line.design_studio.scenes?.[type.id]||{}):[sceneSurface(type.id,line.design_studio.placements?.[type.id]?.view)];
+        for(const surface of surfaces){
+          if(!sceneSurfaces(type.id).includes(surface))fail(409,'Unexpected print placement surface.');
+          const primary=line.upload_id?sources.get(line.upload_id):null;
+          const bytes=await renderDesignTexture(primary?await artworkRenderSource(c.uploadDir,primary):null,line.category,line.design_studio,(type.canvas||type.preview)[0],{
+            surface,resolveSource:async id=>{
+              const record=sources.get(id);
+              if(!record)fail(409,'Artwork original no longer matches the approved order.');
+              return artworkRenderSource(c.uploadDir,record);
+            }
+          });
+          const name=folder+'placement-'+safe(surface)+'-provisional.png';
+          entries.push({name,bytes});layouts.push(name);
+        }
+      }
+      lines.push({line_id:line.line_id,title:line.title,category:line.category,variant:line.variant,quantity:line.qty,options:line.purchase_choices||null,originals,layouts,design_studio:line.design_studio||null});
+    }
+    const manifest={schema:'veelad.supplier-production-pack.v2',order_id:job.order_id,supplier_id:job.supplier_id,approved_at:certificate.approved_at,
+      specifications:specs,validation:approvedReport,items:lines,
+      disclaimer:'Artwork positioning and raster layouts remain provisional until checked against the physical printing equipment, material, bleed and approved colour proof. Approved originals must not be altered without reapproval.'};
+    entries.unshift({name:'README-PRODUCTION.json',bytes:Buffer.from(JSON.stringify(manifest,null,2))});
+    const archive=await prepareSupplierPack(entries);
+    try{
+      await audit(u,'fulfillment.production_pack.download',job.order_id);
+      res.attachment('veelad-'+safe(job.order_id)+'-approved-production-pack.zip').type('application/zip').set('X-Content-Type-Options','nosniff');
+      await pipeline(Readable.from(archive.stream),res);
+    }finally{await archive.close();}
+    return;
+  }
   if(route==='fulfillment-artwork'&&method==='GET'){
     await throttle(req,'fulfillment-download',35,u.id);
     const job=await jobByOrder(cleanId(req.query,'order_id'));
