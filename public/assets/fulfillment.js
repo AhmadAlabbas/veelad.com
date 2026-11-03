@@ -12,7 +12,7 @@ const views=[
  {id:'shipping',label:'Shipping',icon:'↗',title:'Shipping desk',subtitle:'Prepare dispatch details and submit them for Veelad review.'},
  {id:'suppliers',label:'Suppliers',icon:'♙',title:'Supplier management',subtitle:'Manage company access and assign approved orders.',admin:true}
 ];
-const state={session:null,activeSupplier:null,jobs:[],pool:[],selected:null,view:'overview',filter:'all',search:'',busy:false,phase1:null,adminSetup:{invites:[],specs:[]},inviteLink:'',invitationToken:new URLSearchParams(location.search).get('token')||null};
+const state={session:null,activeSupplier:null,jobs:[],pool:[],selected:null,view:'overview',filter:'all',search:'',busy:false,phase1:null,adminSetup:{invites:[],specs:[]},inviteLink:'',invitationToken:new URLSearchParams(location.hash.replace(/^#/, '')).get('token')||new URLSearchParams(location.search).get('token')||null};
 const urlFor=(route,params={})=>{
  const url=new URL('/api.php',location.origin);url.searchParams.set('route',route);
  Object.entries(params).forEach(([key,value])=>{if(value!==null&&value!==undefined&&value!=='')url.searchParams.set(key,String(value));});
@@ -221,10 +221,9 @@ async function submit(form){
   const file=form.querySelector('[name=photo]')?.files?.[0];
   if(!file||!['image/png','image/jpeg'].includes(file.type)||file.size>8*1024*1024)throw Error('Choose a PNG or JPEG inspection photo, up to 8 MB.');
   const multipart=new FormData();multipart.set('artwork',file,file.name);
-  const response=await fetch(urlFor('upload'),{method:'POST',body:multipart,credentials:'same-origin',headers:{'X-CSRF-Token':state.session.csrf},cache:'no-store'});
+  const response=await fetch(urlFor('fulfillment-evidence-upload',{order_id:state.selected.job.id,line_id:data.line_id,kind:data.kind}),{method:'POST',body:multipart,credentials:'same-origin',headers:{'X-CSRF-Token':state.session.csrf},cache:'no-store'});
   const result=await response.json().catch(()=>({}));
-  if(!response.ok||!result.upload_id)throw Error(result.error||'Could not upload the inspection photograph.');
-  await api('fulfillment-evidence',{method:'POST',body:{order_id:state.selected.job.id,line_id:data.line_id,kind:data.kind,upload_id:result.upload_id}});
+  if(!response.ok||result.ok!==true)throw Error(result.error||'Could not submit the inspection photograph.');
   await reload({preserveDetail:true});notice('Photograph submitted. A separate quality reviewer must approve it.');return;
  }
  else if(kind==='issue'){
@@ -311,5 +310,6 @@ $('content').addEventListener('submit',async event=>{
 });
 $('content').addEventListener('change',event=>{if(event.target.id==='job-filter'){state.filter=event.target.value;render();}});
 $('content').addEventListener('input',event=>{if(event.target.id==='job-search'){state.search=event.target.value;const pos=event.target.selectionStart;render();const input=$('job-search');input?.focus();input?.setSelectionRange(pos,pos);}});
+if(state.invitationToken)history.replaceState(null,'','/fulfillment/invite');
 bootstrap();
 })();
