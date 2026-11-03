@@ -716,7 +716,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
  app.use(['/api.php','/auth/google/callback'],api);
  journalPages(app,c,db,schema);
  pageRoutes(app,c,db,schema);
- if(c.fulfillmentEnabled) app.get(['/fulfillment','/fulfillment/','/fulfillment/login','/fulfillment/orders','/fulfillment/production','/fulfillment/artwork','/fulfillment/shipping','/fulfillment/suppliers'],(req,res)=>res.set('Cache-Control','private, no-store').set('X-Robots-Tag','noindex, nofollow').sendFile(path.join(publicDir,'fulfillment.html')));
+ if(c.fulfillmentEnabled) app.get(['/fulfillment','/fulfillment/','/fulfillment/login','/fulfillment/orders','/fulfillment/production','/fulfillment/artwork','/fulfillment/shipping','/fulfillment/suppliers','/fulfillment/invite'],(req,res)=>res.set('Cache-Control','private, no-store').set('Referrer-Policy','no-referrer').set('X-Robots-Tag','noindex, nofollow').sendFile(path.join(publicDir,'fulfillment.html')));
  app.use(express.static(publicDir,{dotfiles:'deny',index:'index.html',setHeaders:staticAssetCacheHeaders(publicDir,c.revision)}));
  }
  app.use((req,res)=>res.status(404).json({error:'Not found.'}));
