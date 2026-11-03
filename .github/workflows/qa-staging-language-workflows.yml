@@ -34,6 +34,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: mysql -h127.0.0.1 -uroot -e 'CREATE DATABASE IF NOT EXISTS veelad_test'
+      - run: npm run migrate && npm run local:provision
       - run: npx playwright install --with-deps chromium
       - name: Exercise customer flows across header language controls
         run: >-
