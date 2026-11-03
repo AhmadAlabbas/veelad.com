@@ -7,7 +7,8 @@ test('public shop discovers available T-shirts across English, Arabic and Chines
  const f=await googleApp(),errors=[];page.on('pageerror',error=>errors.push(error.message));
  try{
   await page.goto(f.origin+'/en/shop?view=products');
-  const physical=await page.evaluate(()=>products.filter(item=>item.category==='T-shirts'&&item.status==='active').map(item=>item.id));
+  await expect.poll(()=>page.evaluate(()=>products.filter(item=>item.category==='T-shirts'&&item.status==='active').length)).toBeGreaterThan(0);
+   const physical=await page.evaluate(()=>products.filter(item=>item.category==='T-shirts'&&item.status==='active').map(item=>item.id));
   expect(physical.length).toBeGreaterThan(0);
   for(const query of ['tee shirt','تي شيرت','T恤']){
    await page.goto(f.origin+'/en/shop?'+new URLSearchParams({q:query,view:'products'}));
