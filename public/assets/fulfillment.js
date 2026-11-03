@@ -288,6 +288,130 @@ function adminPhaseTwoPanel(){
  (policy?'<div class="hint">Current policy: '+Number(policy.accept_hours)+'h acceptance · '+Number(policy.production_hours)+'h production · '+Number(policy.dispatch_hours)+'h dispatch</div>':'<div class="hint">No supplier SLA policy is active yet.</div>')+'</section></div>';
 }
 
+
+async function loadPhase3(){
+ const p=state.phase3,supplier=state.activeSupplier,params=supplier?{supplier_id:supplier}:{};
+ if(!state.session.admin&&!supplier){p.jobs=[];p.analytics=[];p.invoices=[];return;}
+ const requests=[
+  api('fulfillment-line-jobs',{params}),
+  api('fulfillment-supplier-analytics',{params}),
+  state.session.admin?api('admin-fulfillment-route-options'):Promise.resolve({orders:[],suppliers:[]}),
+  api('fulfillment-invoices',{params}).catch(error=>({invoices:[],error:error.message})),
+  state.session.admin&&supplier?api('admin-fulfillment-keys',{params:{supplier_id:supplier}}):Promise.resolve({keys:[]})
+ ];
+ const [jobs,analytics,candidates,invoices,keys]=await Promise.all(requests);
+ p.jobs=jobs.jobs||[];p.analytics=analytics.suppliers||[];p.candidates=candidates;
+ p.invoices=invoices.invoices||[];p.keys=keys.keys||[];
+ if(!p.routeOrder||!candidates.orders?.some(x=>x.order_id===p.routeOrder))p.routeOrder=candidates.orders?.[0]?.order_id||null;
+ if(p.selected){try{p.selected=await api('fulfillment-line-job',{params:{line_job_id:p.selected.job.id}});}catch{p.selected=null;}}
+}
+function splitJobsView(){
+ const jobs=state.phase3.jobs;
+ return '<div class="metrics">'+metric('Individual supplier lines',jobs.length,'◈','Each supplier can access its own purchased items')+
+ metric('Awaiting acceptance',jobs.filter(x=>x.status==='assigned').length,'◷')+
+ metric('In manufacture',jobs.filter(x=>['accepted','printing','quality_check'].includes(x.status)).length,'⚙')+
+ metric('Dispatched lines',jobs.filter(x=>x.status==='dispatched').length,'✓')+'</div>'+
+ '<section class="card"><div class="card-title"><div><h2>Assigned product lines</h2><p>Individual product assignments within split customer orders.</p></div></div>'+
+ (jobs.length?'<div class="table-scroll"><table class="data-table"><thead><tr><th>Order / line</th><th>Product</th><th>Supplier</th><th>Stage</th><th></th></tr></thead><tbody>'+
+ jobs.map(j=>'<tr><td><strong>'+escapeHTML(j.order_id)+'</strong><small class="row-subtitle">'+escapeHTML(j.line_id)+'</small></td><td>'+escapeHTML(j.product.title)+'<small class="row-subtitle">'+escapeHTML(j.product.variant)+' × '+Number(j.product.qty)+'</small></td><td>'+escapeHTML(j.supplier_id)+'</td><td>'+status(j.status)+'</td><td><button type="button" class="button secondary" data-line-open="'+escapeHTML(j.id)+'">Open line</button></td></tr>').join('')+'</tbody></table></div>':empty('No split manufacturing jobs','Veelad administrators can assign different purchased product lines to separate suppliers using Route by product.'))+'</section>';
+}
+function splitRoutingView(){
+ if(!state.session.admin)return empty('Admin-only routing','Only Veelad can assign purchased lines to different suppliers.');
+ const p=state.phase3,orders=p.candidates.orders||[],suppliers=p.candidates.suppliers||[],selected=orders.find(x=>x.order_id===p.routeOrder);
+ if(!orders.length)return '<section class="card">'+empty('No orders eligible for split routing','A customer order needs verified payment, approved final proofs, at least two purchased product lines, and no prior supplier assignment.')+'</section>';
+ return '<section class="card"><div class="card-title"><div><h2>Multi-supplier routing</h2><p>Every purchased product line must be assigned exactly once. This cannot overwrite an existing single-supplier job.</p></div></div>'+
+ '<div class="hint">Configure verified printing specifications for the selected categories on each supplier before assigning. Approval and QC are then required separately for every supplier line.</div>'+
+ '<label class="field"><span>Eligible production order</span><select id="route-order-picker">'+orders.map(o=>'<option value="'+escapeHTML(o.order_id)+'" '+(o.order_id===p.routeOrder?'selected':'')+'>'+escapeHTML(o.order_id)+' · '+o.items.length+' product lines</option>').join('')+'</select></label>'+
+ (selected?'<form data-form="split-route"><div class="table-scroll"><table class="data-table"><thead><tr><th>Purchased line</th><th>Product</th><th>Manufacturing supplier</th></tr></thead><tbody>'+
+ selected.items.map(item=>'<tr><td class="mono">'+escapeHTML(item.line_id)+'</td><td>'+escapeHTML(item.title)+' · '+escapeHTML(item.variant)+' × '+Number(item.qty)+'</td><td><select data-route-line="'+escapeHTML(item.line_id)+'" required><option value="">Choose supplier</option>'+suppliers.map(x=>'<option value="'+escapeHTML(x.id)+'">'+escapeHTML(x.name)+'</option>').join('')+'</select></td></tr>').join('')+'</tbody></table></div>'+
+ '<button type="submit" class="button accent" '+(suppliers.length<2?'disabled':'')+'>Assign lines to manufacturing suppliers</button></form>':'')+'</section>';
+}
+function splitAnalyticsView(){
+ const stats=state.phase3.analytics;
+ return '<section class="card"><div class="card-title"><div><h2>Supplier performance scorecards</h2><p>Operational metrics only — no customer prices, royalty data or factory settlements.</p></div></div>'+
+ (stats.length?'<div class="table-scroll"><table class="data-table"><thead><tr><th>Supplier</th><th>Jobs</th><th>Completion</th><th>On-time*</th><th>Defect-affected lines</th><th>Avg. hours</th></tr></thead><tbody>'+
+ stats.map(x=>'<tr><td><strong>'+escapeHTML(x.name)+'</strong></td><td>'+Number(x.total_jobs)+'</td><td>'+Number(x.completion_rate)+'%</td><td>'+Number(x.on_time_rate)+'% <small>('+Number(x.measured_shipments)+' measured)</small></td><td>'+Number(x.defect_affected_lines)+' / '+Number(x.split_lines)+'</td><td>'+(x.average_production_hours===null?'—':Number(x.average_production_hours))+'</td></tr>').join('')+'</tbody></table></div>':empty('No supplier production data yet','Assigned and completed jobs will appear in the analytics once orders enter manufacturing.'))+
+ '<p class="form-help">*On-time shipping is calculated only when an order has a stored dispatch deadline. No deadline is assumed. Direct legacy jobs are counted, but detailed time measurements are available for split product lines.</p></section>'+
+ (state.session.admin?'<section class="card"><div class="card-title"><h2>Deadline monitoring</h2></div><p>Run a bounded, idempotent check for deadlines approaching within six hours or already overdue. Hostinger cron can later run the same checker automatically.</p><button type="button" class="button secondary" data-sla-sweep="1">Check supplier deadlines now</button></section>':'');
+}
+function splitInvoicesView(){
+ const p=state.phase3,invoice=p.invoice,available=p.jobs.filter(j=>j.status==='dispatched');
+ const supplier=p.invoiceSupplier||state.activeSupplier||state.session.suppliers?.find(x=>x.status==='active')?.id||null;
+ const options=(state.session.suppliers||[]).filter(x=>x.status==='active').map(x=>'<option value="'+escapeHTML(x.id)+'" '+(x.id===supplier?'selected':'')+'>'+escapeHTML(x.name)+'</option>').join('');
+ const rows=available.filter(x=>x.supplier_id===supplier);
+ const invoiceList='<section class="card"><div class="card-title"><div><h2>Manufacturing invoices</h2><p>Manufacturing charges are separate from customer retail payments and artist earnings.</p></div></div>'+
+ (p.invoices.length?'<div class="table-scroll"><table class="data-table"><thead><tr><th>Invoice</th><th>Supplier</th><th>Status</th><th>Currency</th><th></th></tr></thead><tbody>'+
+ p.invoices.map(x=>'<tr><td>'+escapeHTML(x.invoice_number)+'</td><td>'+escapeHTML(x.supplier_id)+'</td><td>'+status(x.status)+'</td><td>'+escapeHTML(x.currency)+'</td><td><button type="button" class="button secondary" data-invoice-open="'+escapeHTML(x.id)+'">Details</button></td></tr>').join('')+'</tbody></table></div>':empty('No manufacturing invoices','Veelad can create a factory-cost invoice after manufacturing lines have been dispatched.'))+'</section>';
+ const details=invoice?'<section class="card"><div class="card-title"><h2>'+escapeHTML(invoice.invoice_number)+'</h2>'+status(invoice.status)+'</div>'+
+ '<p>Currency: '+escapeHTML(invoice.currency)+' · Supplier: '+escapeHTML(invoice.supplier_id)+'</p>'+
+ '<div class="table-scroll"><table class="data-table"><thead><tr><th>Line job</th><th>Units</th><th>Cost / unit (minor)</th><th>Tax (minor)</th></tr></thead><tbody>'+invoice.lines.map(x=>'<tr><td>'+escapeHTML(x.line_job_id)+'</td><td>'+Number(x.quantity)+'</td><td>'+Number(x.unit_cost_minor)+'</td><td>'+Number(x.tax_minor)+'</td></tr>').join('')+'</tbody></table></div>'+
+ '<p class="form-help">Manufacturing total: <strong>'+Number(invoice.total_minor)+' '+escapeHTML(invoice.currency)+' minor units</strong> (subtotal '+Number(invoice.subtotal_minor)+', tax '+Number(invoice.tax_minor)+').</p>'+
+ '<div class="actions">'+(invoice.status==='draft'?'<button type="button" class="button accent" data-invoice-action="submit">Submit invoice for review</button>':'')+
+ (state.session.admin&&invoice.status==='submitted'?'<button type="button" class="button accent" data-invoice-action="approve">Approve manufacturing invoice</button>':'')+
+ (state.session.admin&&invoice.status==='approved'?'<button type="button" class="button secondary" data-invoice-action="record_paid">Record externally verified bank settlement</button>':'')+'</div><p class="form-help">This portal never transfers money or initiates bank payments. Settlement status is only recorded after an external payment reference is supplied.</p></section>':'';
+ const create=state.session.admin?'<section class="card"><div class="card-title"><h2>Create factory-cost invoice</h2></div><form data-form="split-invoice"><label class="field"><span>Supplier</span><select id="invoice-supplier-picker" name="supplier_id">'+options+'</select></label><label class="field"><span>Invoice number</span><input name="invoice_number" maxlength="80" placeholder="ML-2026-0001" required></label><label class="field"><span>Currency</span><select name="currency">'+['SAR','AED','BHD','KWD','OMR','QAR','EUR','USD','GBP'].map(x=>'<option value="'+x+'">'+x+'</option>').join('')+'</select></label><label class="field"><span>Internal note (optional)</span><textarea name="note" maxlength="1000"></textarea></label>'+
+ (rows.length?'<div class="table-scroll"><table class="data-table"><thead><tr><th>Include</th><th>Line / units</th><th>Unit cost (minor units)</th><th>Tax (minor units)</th></tr></thead><tbody>'+
+ rows.map(x=>'<tr><td><input type="checkbox" data-invoice-line="'+escapeHTML(x.id)+'"></td><td>'+escapeHTML(x.product.title)+' · '+Number(x.product.qty)+'</td><td><input type="number" data-invoice-cost="'+escapeHTML(x.id)+'" min="1" max="100000000" value="100" style="width:120px"></td><td><input type="number" data-invoice-tax="'+escapeHTML(x.id)+'" min="0" max="100000000" value="0" style="width:120px"></td></tr>').join('')+'</tbody></table></div>':'<div class="hint">No completed split product lines are available for this supplier.</div>')+
+ '<button type="submit" class="button accent" '+(!rows.length?'disabled':'')+'>Create draft invoice</button></form></section>':'';
+ return invoiceList+details+create;
+}
+function splitIntegrationView(){
+ if(!state.session.admin)return empty('Administrator access required','Only Veelad may create supplier API credentials.');
+ const p=state.phase3,supplier=state.activeSupplier||state.session.suppliers?.find(x=>x.status==='active')?.id;
+ if(!supplier)return '<section class="card">'+empty('Choose a supplier','Select an active supplier company to manage API credentials.')+'</section>';
+ return '<section class="card"><div class="card-title"><h2>Partner integration credentials</h2><span class="pill-note">90-day expiry</span></div><p class="section-subtitle">API access is limited to the selected supplier. No API token can download private artwork, customer addresses, invoices or artist earnings.</p>'+
+ '<form data-form="split-api-key"><input type="hidden" name="supplier_id" value="'+escapeHTML(supplier)+'"><label class="field"><span>Integration description</span><input name="label" maxlength="100" required placeholder="Merchlist staging order intake"></label>'+
+ '<label class="field"><span>Permissions</span><select name="scope"><option value="read">Read assigned production lines</option><option value="status">Read and submit limited production status updates</option></select></label><button class="button accent" type="submit">Create 90-day API credential</button></form>'+
+ (p.lastToken?'<div class="hint"><p><strong>New credential — copy this once</strong></p><code class="api-token">'+escapeHTML(p.lastToken)+'</code><div class="actions"><button type="button" class="button secondary" data-copy-api-token="1">Copy secret</button><button type="button" class="button secondary" data-dismiss-api-token="1">Hide secret</button></div></div>':'')+
+ (p.keys.length?'<div class="table-scroll"><table class="data-table"><thead><tr><th>Label</th><th>Access</th><th>Expires</th><th>Status</th><th></th></tr></thead><tbody>'+
+ p.keys.map(k=>'<tr><td>'+escapeHTML(k.label)+'</td><td>'+escapeHTML(k.scope)+'</td><td>'+fmt(k.expires_at)+'</td><td>'+status(k.revoked_at?'suspended':Date.parse(k.expires_at)<Date.now()?'expired':'active')+'</td><td>'+(!k.revoked_at?'<button type="button" class="button secondary" data-api-key-revoke="'+escapeHTML(k.id)+'">Revoke</button>':'')+'</td></tr>').join('')+'</tbody></table></div>':'<p class="form-help">No active external integrations have been authorized.</p>')+'</section>'+
+ '<section class="card"><div class="card-title"><h2>Supplier API v1</h2></div><p>Authentication: <code>Authorization: Bearer YOUR_TOKEN</code> (never in URLs). Methods:</p><pre class="api-example">GET /api/fulfillment/v1/jobs\nGET /api/fulfillment/v1/jobs/{line_job_id}\nPOST /api/fulfillment/v1/jobs/{line_job_id}/status\n{"revision": 0, "action": "accepted"}</pre><p class="form-help">Every mutation requires the latest revision; available API actions are acceptance, printing and quality-check only. Packing, photos, dispatch, invoices and external payment operations remain human-authorized.</p></section>';
+}
+function splitDetailView(){
+ const p=state.phase3.selected;if(!p)return '';
+ const j=p.job,x=p.product,role=state.session.admin?'admin':state.session.suppliers.find(s=>s.id===j.supplier_id)?.supplier_role||'';
+ const canOperate=state.session.admin||role==='manager'||role==='production',canQuality=state.session.admin||role==='manager'||role==='quality';
+ const next={assigned:['accepted','Accept production line'],accepted:['printing','Begin printing'],printing:['quality_check','Move to quality inspection'],quality_check:['packed','Confirm packed & QC complete']}[j.status];
+ const files=p.preflight.approved?'<a class="button secondary" download href="'+escapeHTML(urlFor('fulfillment-line-files',{line_job_id:j.id}))+'">↓ Download certified-source production pack</a>':'<p class="hint">Production files are locked until Veelad approves a current per-line print report.</p>';
+ return '<div class="actions" style="margin-bottom:18px"><button type="button" class="button secondary" data-view="split">← Assigned product lines</button><span class="pill-note">'+escapeHTML(j.order_id)+' / '+escapeHTML(j.line_id)+'</span>'+status(j.status)+'</div>'+
+ '<div class="metrics">'+metric('Product',escapeHTML(x.title),'▧')+metric('Units',Number(x.qty),'◫')+metric('Supplier',escapeHTML(j.supplier_id),'◈')+metric('Revision',Number(j.revision),'↻')+'</div>'+
+ '<div class="two-col"><div>'+
+ '<section class="card"><div class="card-title"><h2>Production progression</h2>'+status(j.status)+'</div>'+
+ (next&&(canOperate&&next[0]!=='packed'||canQuality&&next[0]==='packed')?'<button type="button" class="button accent" data-line-progress="'+next[0]+'">'+next[1]+'</button>':'')+
+ (j.status==='on_hold'?'<p class="hint">Resolve all open manufacturing issues, then resume the previous stage.</p><button type="button" class="button secondary" data-line-progress="resume">Resume production</button>':'')+
+ (['assigned','accepted','printing','quality_check','packed'].includes(j.status)&&canOperate?'<details class="detail-expander"><summary>Report a production hold</summary><form data-form="line-issue"><label class="field"><span>Reason and corrective action required</span><textarea name="note" minlength="10" maxlength="1000" required></textarea></label><button class="button secondary" type="submit">Place line on hold</button></form></details>':'')+
+ (j.status==='packed'&&canOperate?'<form data-form="line-dispatch"><label class="field"><span>Carrier</span><input name="carrier" maxlength="100" required></label><label class="field"><span>Tracking number</span><input name="tracking" maxlength="120" required></label><button type="submit" class="button accent">Submit line dispatch for Veelad approval</button></form>':'')+
+ (j.status==='dispatch_submitted'&&state.session.admin?'<button type="button" class="button accent" data-line-dispatch="'+escapeHTML(j.id)+'">Approve supplier dispatch</button>':'')+
+ (j.status==='dispatched'?'<p class="good-copy">Veelad approved the dispatch of this purchased product line.</p>':'')+'</section>'+
+ '<section class="card"><div class="card-title"><h2>Per-line print certification</h2>'+status(p.preflight.approved?'approved':p.preflight.report.blocks.length?'on_hold':'awaiting_approval')+'</div>'+
+ (p.preflight.report.blocks.length?'<ul class="audit-list">'+p.preflight.report.blocks.map(b=>'<li class="critical-item">'+escapeHTML(b)+'</li>').join('')+'</ul>':'<p class="good-copy">No automatic print metadata blockers.</p>')+
+ (p.preflight.report.warnings||[]).map(w=>'<p class="form-help">'+escapeHTML(w)+'</p>').join('')+
+ (state.session.admin&&!p.preflight.approved&&['assigned','accepted'].includes(j.status)&&!p.preflight.report.blocks.length?'<form data-form="line-preflight"><label class="field"><span>Document equipment, colour, placement and physical proof review</span><textarea name="review_note" minlength="15" maxlength="1000" required></textarea></label><label class="checkline"><input type="checkbox" name="confirm" required> I verified the factory print template and approved proof</label><button type="submit" class="button accent">Approve line print specifications</button></form>':'')+files+'</section>'+
+ '<section class="card"><div class="card-title"><h2>Inspection photographs</h2></div>'+
+ (['printing','quality_check','on_hold'].includes(j.status)?'<form data-form="line-photo"><label class="field"><span>Inspection photo category</span><select name="kind"><option value="final_print">Final print</option><option value="packaging">Finished packaging</option></select></label><label class="field"><span>PNG or JPEG (max 8 MB)</span><input type="file" name="photo" accept="image/png,image/jpeg" required></label><button type="submit" class="button secondary">Submit inspection photograph</button></form>':'')+
+ (p.evidence.length?'<div class="ops-list">'+p.evidence.map(e=>'<div class="ops-alert"><div><strong>'+escapeHTML(e.kind.replaceAll('_',' '))+'</strong><p>'+escapeHTML(e.status)+' · '+fmt(e.created_at)+'</p><a target="_blank" rel="noopener noreferrer" href="'+escapeHTML(urlFor('fulfillment-line-evidence-file',{line_job_id:j.id,evidence_id:e.id}))+'">View private photograph</a></div>'+
+ (e.status==='pending'&&canQuality?'<div class="actions"><button class="button secondary" type="button" data-line-review="'+escapeHTML(e.id)+'" data-line-decision="approved">Approve</button><button type="button" class="button secondary" data-line-review="'+escapeHTML(e.id)+'" data-line-decision="rejected">Reject</button></div>':'')+'</div>').join('')+'</div>':'<p class="form-help">Inspection evidence is private and requires independent quality review.</p>')+'</section>'+
+ '<section class="card"><div class="card-title"><h2>Manufacturing issues</h2></div>'+
+ (p.issues.length?'<div class="ops-list">'+p.issues.map(i=>'<div class="ops-alert"><div><strong>'+escapeHTML(i.status)+'</strong><p>'+escapeHTML(i.note)+'</p>'+(i.resolution?'<p>Resolved: '+escapeHTML(i.resolution)+'</p>':'')+'</div>'+
+ (i.status==='open'&&canQuality?'<button type="button" class="button secondary" data-line-resolve="'+escapeHTML(i.id)+'">Resolve</button>':'')+'</div>').join('')+'</div>':'<p class="good-copy">No open manufacturing issues reported.</p>')+'</section>'+
+ '</div><div>'+
+ '<section class="card"><div class="card-title"><h2>Supplier packaging</h2>'+status(p.packing.approved?'approved':'awaiting_approval')+'</div>'+
+ (p.packing.rule?'<p><strong>'+escapeHTML(p.packing.rule.container)+'</strong> · '+escapeHTML(p.packing.rule.category)+'</p><p>'+escapeHTML(p.packing.rule.instructions)+'</p><p class="form-help">Inserts: '+escapeHTML(p.packing.rule.inserts.join(', ')||'None')+' · '+(p.packing.rule.require_photo?'QC-approved package photograph required':'Photo optional')+'</p>':'<p class="hint">Veelad has not configured the supplier packaging rule for this product.</p>')+
+ (j.status==='quality_check'&&!p.packing.approved&&canQuality&&p.packing.rule?'<form data-form="line-packing">'+[['garments','Garment and size match order'],['artwork','Print and placement approved'],['branding','Veelad-only branding'],['insert','Required inserts present'],['address','Shipping address checked'],['sealed','Package securely sealed']].map(([key,label])=>'<label class="checkline"><input type="checkbox" name="'+key+'" required> '+label+'</label>').join('')+'<button type="submit" class="button accent">Approve line packaging</button></form>':'')+'</section>'+
+ '<section class="card"><div class="card-title"><h2>Delivery handoff</h2></div>'+
+ (p.shipping?'<dl>'+Object.entries(p.shipping).filter(([,v])=>v).map(([key,value])=>'<div class="value-block"><dt>'+escapeHTML(key)+'</dt><dd>'+escapeHTML(value)+'</dd></div>').join('')+'</dl>':'<div class="hint">Customer delivery details remain restricted until this supplier’s product is packed.</div>')+
+ (j.tracking?'<p><strong>'+escapeHTML(j.carrier)+'</strong> · '+escapeHTML(j.tracking)+'</p>':'')+
+ (p.deadlines?'<div class="value-block"><dt>Production deadline</dt><dd>'+fmt(p.deadlines.production_by)+'</dd></div><div class="value-block"><dt>Dispatch deadline</dt><dd>'+fmt(p.deadlines.dispatch_by)+'</dd></div>':'')+'</section>'+
+ '<section class="card"><div class="card-title"><h2>Product-line conversation</h2></div>'+
+ '<div class="message-thread">'+(p.messages.length?p.messages.map(m=>'<div class="message-bubble '+(m.author_id===p.self_id?'mine':'')+'"><strong>'+(m.author_id===p.self_id?'You':'Supplier team')+'</strong><p>'+escapeHTML(m.body)+'</p><small>'+fmt(m.created_at)+'</small></div>').join(''):empty('No messages','Messages in split orders are isolated by supplier and product line.'))+'</div>'+
+ '<form data-form="line-message"><label class="field"><span>Private production message</span><textarea name="body" minlength="2" maxlength="2000" required></textarea></label><button class="button secondary" type="submit">Send private message</button></form></section>'+
+ '</div></div>';
+}
+async function openSplitLine(id){
+ state.selected=null;state.phase3.selected=await api('fulfillment-line-job',{params:{line_job_id:id}});
+ render();window.scrollTo({top:0,behavior:'smooth'});
+}
+
 function render(){
  if(!state.session){heading('Secure fulfillment workspace','Sign in with your approved Veelad account.');$('content').innerHTML='<section class="card">'+empty(state.invitationToken?'Sign in to accept your invitation':'Sign in required',state.invitationToken?'Sign in using the exact email address on the invitation, then return to this link.':'This workspace is private to Veelad administrators and authorized manufacturing partners.')+'<div class="actions" style="justify-content:center"><a class="button accent" href="/en/login">Sign in to Veelad</a></div></section>';return;}
  syncNavigation();
