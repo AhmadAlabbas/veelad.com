@@ -207,8 +207,9 @@ async function loadAdminOperations(){
 }
 function overviewOps(){
  const overdue=(state.ops.jobs||[]).filter(x=>x.deadline?.overdue);
+ const approaching=(state.ops.jobs||[]).filter(x=>x.deadline?.due_soon);
  const count=state.alerts.unread||0;
- return '<div class="metrics" style="margin-top:20px">'+metric('Overdue milestones',overdue.length,'◷','Based on configured supplier deadlines')+metric('Unread operations alerts',count,'◉','Private alerts for your account')+'</div>'+
+ return '<div class="metrics" style="margin-top:20px">'+metric('Overdue milestones',overdue.length,'◷','Based on configured supplier deadlines')+metric('Due within 6 hours',approaching.length,'◴','Upcoming supplier deadlines')+metric('Unread operations alerts',count,'◉','Private alerts for your account')+'</div>'+
  (overdue.length?'<section class="card"><div class="card-title"><h2>Milestones needing attention</h2><button type="button" class="text-link" data-view="bulk">Manage queue →</button></div><div class="ops-list">'+overdue.slice(0,8).map(x=>'<button type="button" class="ops-row" data-open="'+escapeHTML(x.order_id)+'"><strong>'+escapeHTML(x.order_id)+'</strong><span>'+escapeHTML(x.deadline.label)+'</span><span class="due-over">Overdue · '+fmt(x.deadline.due_at)+'</span></button>').join('')+'</div></section>':'');
 }
 function packagingDesk(){
@@ -237,7 +238,7 @@ function deadlinePanel(){
  if(!j)return '';
  const d=ops?.deadline;
  return '<section class="card"><div class="card-title"><h2>Operational deadlines</h2>'+(d?.overdue?'<span class="status on_hold">Overdue</span>':'')+'</div>'+
- (ops?.accept_by?'<dl><div class="value-block"><dt>Accept by</dt><dd>'+fmt(ops.accept_by)+'</dd></div><div class="value-block"><dt>Production by</dt><dd>'+fmt(ops.production_by)+'</dd></div><div class="value-block"><dt>Dispatch by</dt><dd>'+fmt(ops.dispatch_by)+'</dd></div></dl>':'<div class="hint">No supplier SLA has been set for this order. Vielad will not invent production deadlines.</div>')+
+ (ops?.accept_by?'<dl><div class="value-block"><dt>Accept by</dt><dd>'+fmt(ops.accept_by)+'</dd></div><div class="value-block"><dt>Production by</dt><dd>'+fmt(ops.production_by)+'</dd></div><div class="value-block"><dt>Dispatch by</dt><dd>'+fmt(ops.dispatch_by)+'</dd></div></dl>':'<div class="hint">No supplier SLA has been set for this order. Veelad will not invent production deadlines.</div>')+
  (state.session.admin?'<details class="detail-expander"><summary>Adjust this order’s deadlines</summary><form data-form="deadline"><div class="field"><label for="deadline-accept">Acceptance deadline (local)</label><input id="deadline-accept" name="accept_by" type="datetime-local" required></div><div class="field"><label for="deadline-production">Production deadline (local)</label><input id="deadline-production" name="production_by" type="datetime-local" required></div><div class="field"><label for="deadline-dispatch">Dispatch deadline (local)</label><input id="deadline-dispatch" name="dispatch_by" type="datetime-local" required></div><button class="button accent" type="submit">Save deadlines</button></form></details>':'')+'</section>';
 }
 function packingPanel(){
@@ -335,11 +336,11 @@ async function submit(form){
  }
  else if(kind==='packaging-policy'){
   await api('admin-fulfillment-packaging',{method:'POST',body:{supplier_id:data.supplier_id,category:data.category,container:data.container,instructions:data.instructions,inserts:String(data.inserts||'').split(',').map(s=>s.trim()).filter(Boolean),require_photo:!!data.require_photo}});
-  await loadAdminOperations();render();notice('Packaging policy saved. Existing signoffs with old specifications are invalidated.');return;
+  state.activeSupplier=data.supplier_id;await reload();notice('Packaging policy saved. Existing signoffs with old specifications are invalidated.');return;
  }
  else if(kind==='sla'){
   await api('admin-fulfillment-sla',{method:'POST',body:{supplier_id:data.supplier_id,accept_hours:Number(data.accept_hours),production_hours:Number(data.production_hours),dispatch_hours:Number(data.dispatch_hours)}});
-  await loadAdminOperations();render();notice('Supplier SLA policy saved for future assignments.');return;
+  state.activeSupplier=data.supplier_id;await reload();notice('Supplier SLA policy saved for future assignments.');return;
  }
  else if(kind==='deadline'){
   const converted={order_id:state.selected.job.id};
