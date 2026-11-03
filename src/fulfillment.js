@@ -9,9 +9,10 @@ import {syncPartnerOrder} from './partners-finance.js';
 import {verifiedEmail} from './email-verification.js';
 import {validStaffRole,demandPermission} from './fulfillment-phase1-core.js';
 import {phase1Route,phase1Routes,requireApprovedPack,requireQualityEvidence,openIssueCount} from './fulfillment-phase1.js';
+import {mfaState,demandMfa,enrollMfa,verifyMfa} from './fulfillment-mfa.js';
 
 const adminRoutes=new Set(['admin-fulfillment-suppliers','admin-fulfillment-supplier','admin-fulfillment-member','admin-fulfillment-assign','admin-fulfillment-pool','admin-fulfillment-dispatch',...[...phase1Routes].filter(x=>x.startsWith('admin-'))]);
-const routeNames=new Set(['fulfillment-session','fulfillment-orders','fulfillment-order','fulfillment-artwork','fulfillment-progress',...adminRoutes,...phase1Routes]);
+const routeNames=new Set(['fulfillment-session','fulfillment-mfa-enroll','fulfillment-mfa-verify','fulfillment-orders','fulfillment-order','fulfillment-artwork','fulfillment-progress',...adminRoutes,...phase1Routes]);
 const stamp=()=>now();
 const cleanId=(v,key='id')=>text(v,key,64);
 const activeAccount=(u)=>u?.status==='active';
@@ -23,6 +24,16 @@ export async function fulfillmentRoute({route,method,v,req,res,db,c,me,role,thro
   if(adminRoutes.has(route)&&!admin)fail(403,'Only Veelad administrators can manage suppliers.');
   res.set('Cache-Control','private, no-store').set('Referrer-Policy','no-referrer');
   if(method==='POST')await throttle(req,'fulfillment-write',80,u.id);
+  if(route==='fulfillment-mfa-enroll'&&method==='POST'){
+    await throttle(req,'fulfillment-mfa-setup',5,u.id);
+    return res.json(await enrollMfa({db,c,req,u}));
+  }
+  if(route==='fulfillment-mfa-verify'&&method==='POST'){
+    await throttle(req,'fulfillment-mfa-codes',8,u.id);
+    return res.json(await verifyMfa({db,c,req,u,code:v.code}));
+  }
+  const mfa=await mfaState(db,req,u);
+  if(route!=='fulfillment-session')await demandMfa(db,req,u);
   const one=(sql,args=[],conn)=>db.one(sql,args,conn);
   const q=(sql,args=[],conn)=>db.q(sql,args,conn);
   const supplierAccess=async(id,conn)=>{
@@ -52,8 +63,9 @@ export async function fulfillmentRoute({route,method,v,req,res,db,c,me,role,thro
   };
   if(phase1Routes.has(route))return phase1Route({route,method,v,req,res,db,c,u,admin,one,q,supplierAccess,jobByOrder,orderById,getRole,audit,queue});
   if(route==='fulfillment-session'&&method==='GET'){
+    if(!mfa.verified)return res.json({user:{id:u.id,name:u.name,role:u.role},admin,mfa,csrf:req.session.csrf,suppliers:[]});
     const linked=await members();
-    return res.json({user:{id:u.id,name:u.name,role:u.role},admin,suppliers:admin?await q("SELECT id,name,status FROM fulfillment_suppliers ORDER BY name"):linked,csrf:req.session.csrf});
+    return res.json({user:{id:u.id,name:u.name,role:u.role},admin,mfa,suppliers:admin?await q("SELECT id,name,status FROM fulfillment_suppliers ORDER BY name"):linked,csrf:req.session.csrf});
   }
   if(route==='admin-fulfillment-suppliers'&&method==='GET'){
     const suppliers=await q('SELECT id,name,status,created_at FROM fulfillment_suppliers ORDER BY name');
