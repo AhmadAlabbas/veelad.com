@@ -37,7 +37,13 @@ jobs:
       - run: npm run migrate && npm run local:provision
       - run: npx playwright install --with-deps chromium
       - name: Exercise customer flows across header language controls
-        run: >-
+        run: |
+          npm start > /tmp/veelad-qa.log 2>&1 &
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent 'http://127.0.0.1:3000/api.php?route=health' >/dev/null; then break; fi
+            sleep 1
+          done
+          curl --fail --silent 'http://127.0.0.1:3000/api.php?route=health' >/dev/null
           npx playwright test
           tests/browser/customer-categories.spec.js
           tests/browser/customer-library.spec.js
