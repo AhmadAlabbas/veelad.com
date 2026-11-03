@@ -219,6 +219,6 @@ async function change(element,context){
 }
 window.VeeladFulfillmentPhase1={
  configure(values){sdk=values;},
- bootstrap,loadJob,supplierPanel,orderPanel,inviteBanner,click,submit,change,can:allowed
+ bootstrap,loadJob,supplierPanel,orderPanel,inviteBanner,click,submit,change,can:allowed,isPackApproved:()=>!!memory.extras?.pack?.approved
 };
 })();
