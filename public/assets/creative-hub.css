@@ -80,7 +80,7 @@ body[data-route="creative"] .global-categories > .container { min-height: 92px; 
 html[lang="ar"] .creative-home h1 { font-size: clamp(38px, 3.8vw, 54px); line-height: 1.35; letter-spacing: 0; }
 html[lang="ar"] .creative-home .creative-experience-card h3, html[lang="ar"] .creative-home h2 { line-height: 1.5; letter-spacing: 0; }
 @media (min-width: 1101px) {
-  .creative-home .creative-navigation { display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); overflow: visible; }
+  .creative-home .creative-navigation { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); overflow: visible; }
   .creative-home .creative-navigation a { min-width: 0; padding-inline: 3px; font-size: 11px; }
   .creative-home .creative-navigation .icon { width: 16px; height: 16px; }
 }
@@ -166,7 +166,7 @@ html[lang="ar"] .creative-home .creative-experience-card h3, html[lang="ar"] .cr
   .creative-navigation,
   .creative-home .creative-navigation {
     display: grid;
-    grid-template-columns: repeat(9, minmax(0, 1fr));
+    grid-template-columns: repeat(10, minmax(0, 1fr));
     align-items: center;
     gap: 4px;
     min-height: 62px;
@@ -189,4 +189,12 @@ html[lang="ar"] .creative-home .creative-experience-card h3, html[lang="ar"] .cr
     height: 17px;
     flex: 0 0 17px;
   }
+}
+
+/* Ten live creative destinations: each stays in the desktop navigation row. */
+@media (min-width: 1101px) and (max-width: 1440px) {
+  .creative-home .creative-hero { padding-block: 20px 28px; }
+  .creative-home .creative-hero-copy > .creative-kicker { margin-bottom: 12px; }
+  .creative-home .creative-hero-description { margin-top: 16px; }
+  .creative-home .creative-hero .creative-actions { margin-block: 18px 14px; }
 }
