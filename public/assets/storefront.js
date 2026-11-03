@@ -161,6 +161,21 @@ document.addEventListener('click',async event=>{
  if(control.dataset.action==='all-design-styles'){event.preventDefault();event.stopImmediatePropagation();openModal(t('Browse designs'),`<nav class="all-style-menu">${designStyles.map(style=>link(navigationArt(style.id)+`<span>${esc(localField(style,'title'))}</span>`,'shop','',{style:style.id})).join('')}</nav>`);}
  if(control.dataset.action==='remove-search-scope'){event.preventDefault();event.stopImmediatePropagation();const form=control.closest('form');form.elements.category?.remove();control.remove();form.elements.q.focus();updateSearchSuggestions(form.elements.q);}
 });
+/* Carry only validated option references into the private design journey.
+ * No artwork or customer information is written to browser storage. */
+document.addEventListener('click',event=>{
+ const shortcut=event.target.closest('.product-customize-shortcut a');
+ if(!shortcut)return;
+ const form=document.querySelector('.product-page [data-form=add-to-bag]'),
+       p=productById(form?.elements.id?.value);
+ if(!p||!p.customer_customizable||!form)return;
+ try{
+  const selected=choicesFromForm(form);
+  clientPurchaseChoices(p,selected);
+  purchaseSelections.set(p.id,selected);
+  sessionStorage.setItem('veelad-create-choices',JSON.stringify({product:p.id,choices:selected,at:Date.now()}));
+ }catch{try{sessionStorage.removeItem('veelad-create-choices');}catch{}}
+},true);
 document.addEventListener('change',event=>{
  if(event.target.matches('#artwork-file,[data-form=admin-product] [name=category]')){const confirmed=event.target.form?.elements.purchase_options_confirmed;if(confirmed)confirmed.checked=false;}
  if(event.target.matches('#checkout-form select[name=country]')){const code=event.target.selectedOptions[0]?.dataset.code;if(code){write('delivery-destination',code);const control=document.querySelector('.global-nav .destination-control');if(control)control.outerHTML=destinationControl();}}
