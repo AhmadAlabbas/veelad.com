@@ -13,6 +13,7 @@ const publicDir=fileURLToPath(new URL('../public',import.meta.url));
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const publicPaths=['/','/shop','/artists','/sell','/help','/policies','/partners','/partners/terms','/partners/privacy'];
 const appPaths=[...publicPaths,'/my-designs','/create','/saved','/bag','/checkout','/confirmation','/login','/register','/account','/forgot','/verify-email','/reset','/admin','/studio','/track','/partners/apply','/partners/dashboard','/partners/products','/partners/campaigns','/partners/links','/partners/payouts','/partners/store','/partners/settings','/partners/referral'];
+appPaths.push('/discover','/my-space','/collections','/community','/challenges','/challenges/:id');
 appPaths.push(...['creative','creative/originals','creative/story','creative/gifts','creative/taste','creative/wishes','creative/templates','creative/stories','creative/rooms','creative/sample-room','creative/workspace','creative/wishes/:id','creative/stories/:id','creative/rooms/:id'].map(route=>'/'+route));
 const languages=languageCodes;
 const languageFor=req=>req.path.match(/^\/(en|ar|zh-CN)(?:\/|$)/)?.[1]||'en';
@@ -57,7 +58,7 @@ export function pageRoutes(app,c,db,schema) {
   res.status(status).set('Cache-Control','no-cache').set('X-Robots-Tag',robots).type('html').send(source);
  }
  app.get('/robots.txt',(req,res)=>{
-  const blocked=['my-designs','create','admin','studio','account','track','verify-email','reset','checkout','confirmation','login','register','forgot','bag','saved'];
+  const blocked=['my-designs','create','admin','studio','account','track','verify-email','reset','checkout','confirmation','login','register','forgot','bag','saved','my-space','collections'];
   res.set('Cache-Control','public, max-age=300').type('text/plain').send(c.mode==='staging'?'User-agent: *\nDisallow: /\n':`User-agent: *\nAllow: /\nDisallow: /api.php\n${['',...languages].flatMap(language=>blocked.map(page=>'Disallow: /'+(language?language+'/':'')+page)).join('\n')}\nSitemap: ${c.origin}/sitemap.xml\n`);
  });
  app.get(['/sitemap.xml',...languages.map(code=>'/sitemap-'+code+'.xml')],async(req,res)=>{

@@ -26,6 +26,8 @@ export function config(env = process.env) {
     fulfillmentEnabled:env.FULFILLMENT_ENABLED==='true'||(mode==='staging'&&env.FULFILLMENT_ENABLED!=='false'),
     artistProfilesEnabled:env.ARTIST_PROFILES_ENABLED==='true'||(mode!=='production'&&env.ARTIST_PROFILES_ENABLED!=='false'),
     shoppingEnabled:env.SHOP_ENHANCEMENTS_ENABLED==='true'||(mode!=='production'&&env.SHOP_ENHANCEMENTS_ENABLED!=='false'),
+    commentsEnabled:env.PRODUCT_COMMENTS_ENABLED==='true'||(mode!=='production'&&env.PRODUCT_COMMENTS_ENABLED!=='false'),
+    retentionEnabled:env.RETENTION_SUITE_ENABLED==='true'||(mode!=='production'&&env.RETENTION_SUITE_ENABLED!=='false'),
     creativeEnabled:env.CREATIVE_EXPERIENCES_ENABLED==='true'||(mode!=='production'&&env.CREATIVE_EXPERIENCES_ENABLED!=='false'),
     partners:{enabled:env.PARTNERS_ENABLED==='true'||(mode==='staging'&&env.PARTNERS_ENABLED===undefined),payoutKey,financeAdmins,payoutChangeHoldHours:168},
     google:{enabled:env.GOOGLE_AUTH_ENABLED==='true',clientId:env.GOOGLE_CLIENT_ID?.trim(),clientSecret:env.GOOGLE_CLIENT_SECRET?.trim()},

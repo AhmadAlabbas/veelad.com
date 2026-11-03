@@ -73,7 +73,7 @@ function productFormatLinks(p) {
 function productEditorialNavigation(p) {
  const hasStory=String(localField(p,'story')||localField(p,'description')||'').trim().length>0;
  const hasOtherFormat=productDesignFamily(p).some(other=>other.id!==p.id);
- return `<nav class="product-section-nav" aria-label="${esc(t('Design story navigation'))}">${hasStory?`<a href="#product-story" data-action="product-jump">${t('The design story')}</a>`:''}${hasOtherFormat?`<a href="#same-design" data-action="product-jump">${t('Same design')}</a>`:''}<a href="#product-artist" data-action="product-jump">${t('The artist')}</a><a href="#product-discover" data-action="product-jump">${t('You might also like')}</a></nav>`;
+ return `<nav class="product-section-nav" aria-label="${esc(t('Design story navigation'))}">${hasStory?`<a href="#product-story" data-action="product-jump">${t('The design story')}</a>`:''}${hasOtherFormat?`<a href="#same-design" data-action="product-jump">${t('Same design')}</a>`:''}<a href="#product-artist" data-action="product-jump">${t('The artist')}</a>${(typeof productCommentsEnabled!=='undefined'&&productCommentsEnabled&&route!=='preview')?'<a href="#product-conversation" data-action="product-jump">'+(currentLanguage()==='ar'?'التعليقات والأسئلة':'Comments & questions')+'</a>':''}<a href="#product-discover" data-action="product-jump">${t('You might also like')}</a></nav>`;
 }
 function productDesignStory(p) {
  const story=String(localField(p,'story')||localField(p,'description')||'').trim();
