@@ -94,7 +94,7 @@ export async function fulfillmentRoute({route,method,v,req,res,db,c,me,role,thro
     const target=await one('SELECT id,role,status FROM users WHERE email=?',[email]);
     if(!target||target.status!=='active'||target.role==='admin')fail(422,'Choose an active non-administrator Veelad account.');
     const full=await one('SELECT * FROM users WHERE id=?',[target.id]);
-    if(!await verifiedEmail(db,full))fail(403,'The employee must verify their Veelad account email before direct access can be granted.');
+    if(v.access==='active'&&!await verifiedEmail(db,full))fail(403,'The employee must verify their Veelad account email before access can be granted.');
     const memberRole=validStaffRole(v.role||'operator');
     await db.tx(async conn=>{
       await q('INSERT INTO fulfillment_members (supplier_id,user_id,access,created_at) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE access=VALUES(access)',[supplierId,target.id,v.access,stamp()],conn);
