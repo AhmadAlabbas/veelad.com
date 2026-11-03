@@ -1,0 +1,36 @@
+/* Conversations complement the product story without competing with shopping controls. */
+.product-conversation{padding-block:52px 70px;border-top:1px solid #ece8f1;scroll-margin-top:110px}
+.conversation-heading{max-width:750px;margin-bottom:26px}
+.conversation-heading h2{font-size:clamp(25px,3vw,38px);letter-spacing:-.025em;margin:12px 0 10px}
+.conversation-heading p{font-size:14px;color:#625d68;line-height:1.8}
+.conversation-grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(260px,.8fr);gap:28px;align-items:start}
+.conversation-threads,.conversation-compose{min-width:0}
+.conversation-thread{padding:22px 0;border-bottom:1px solid #e8e5ed}
+.conversation-thread:first-child{padding-top:0}
+.conversation-entry{padding:0 0 12px;overflow-wrap:anywhere}
+.conversation-entry.is-reply{margin:12px 0 5px clamp(14px,3.5vw,38px);padding:16px 18px;border-inline-start:2px solid #d5c7f6;border-radius:0 10px 10px 0;background:#faf9fc}
+.conversation-meta{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:12px}
+.conversation-name{font-weight:700;color:#202026}
+.conversation-meta time{margin-inline-start:auto;color:#77717e;font-size:11px}
+.conversation-badge{display:inline-flex;align-items:center;border:1px solid #e5e0ed;border-radius:99px;padding:3px 9px;background:#fff;color:#55505b;font-size:10px;font-weight:600}
+.conversation-badge.conversation-artist{border-color:#cfc2f1;background:#f2edfd;color:#62439f}
+.conversation-badge.conversation-team{background:#16151a;color:#fff;border-color:#16151a}
+.conversation-body{font-size:14px;line-height:1.85;color:#35313a;white-space:pre-wrap;margin:12px 0}
+.conversation-actions{display:flex;align-items:center;gap:15px;flex-wrap:wrap}
+.conversation-actions button{font-size:12px;cursor:pointer}
+.conversation-compose{padding:24px;border:1px solid #e4dfec;border-radius:16px;background:#fcfbfe;position:sticky;top:110px}
+.conversation-form label,.conversation-report label,.conversation-moderation-note{display:block;font-size:12px;font-weight:600;color:#3b3543;line-height:1.7}
+.conversation-form textarea,.conversation-report select,.conversation-moderation-note textarea{display:block;margin-top:10px;width:100%;border:1px solid #dcd6e4;border-radius:10px;padding:13px 14px;background:#fff;color:#1b1b1d;font:inherit;font-size:13px;resize:vertical}
+.conversation-form textarea:focus,.conversation-report select:focus,.conversation-moderation-note textarea:focus{outline:2px solid #9B81EF;outline-offset:2px;border-color:#9B81EF}
+.conversation-form-actions{display:flex;gap:9px;margin-top:13px;flex-wrap:wrap}
+.conversation-notice:not(:empty){padding:11px 14px;background:#f6f1ff;border:1px solid #dcd0f5;border-radius:9px;color:#56368d;font-size:13px;margin:0 0 18px}
+.conversation-notice.error{background:#fff1f1;border-color:#f3caca;color:#9b3434}
+.conversation-report{display:flex;gap:10px;align-items:end;flex-wrap:wrap;padding:14px;margin-top:10px;background:#f7f5fa;border-radius:10px}
+.conversation-report select{margin-top:6px}
+.product-comment-admin .conversation-admin-list{display:grid;gap:14px;margin-top:20px}
+.conversation-admin-item{padding:20px;border:1px solid #e8e2ee;border-radius:12px;background:#fff}
+.conversation-admin-item>p{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.8}
+.conversation-admin-item .conversation-moderation-note{max-width:680px}
+.conversation-admin-item .conversation-actions{margin-top:14px}
+@media(max-width:780px){.conversation-grid{grid-template-columns:1fr}.conversation-compose{position:static;order:-1}.product-conversation{padding-block:34px}.conversation-heading{margin-bottom:20px}.conversation-entry.is-reply{padding:14px 12px}.conversation-meta time{margin-inline-start:0}}
+@media(prefers-reduced-motion:reduce){.product-conversation *{scroll-behavior:auto!important}}
