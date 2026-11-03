@@ -6,9 +6,12 @@ import {readArtwork,artworkRenderSource} from './artwork.js';
 import {renderDesignTexture} from './mockup-renderer.js';
 import {orderMessage} from './order-mail.js';
 import {syncPartnerOrder} from './partners-finance.js';
+import {verifiedEmail} from './email-verification.js';
+import {validStaffRole,demandPermission} from './fulfillment-phase1-core.js';
+import {phase1Route,phase1Routes,requireApprovedPack,requireQualityEvidence,openIssueCount} from './fulfillment-phase1.js';
 
-const adminRoutes=new Set(['admin-fulfillment-suppliers','admin-fulfillment-supplier','admin-fulfillment-member','admin-fulfillment-assign','admin-fulfillment-pool','admin-fulfillment-dispatch']);
-const routeNames=new Set(['fulfillment-session','fulfillment-orders','fulfillment-order','fulfillment-artwork','fulfillment-progress',...adminRoutes]);
+const adminRoutes=new Set(['admin-fulfillment-suppliers','admin-fulfillment-supplier','admin-fulfillment-member','admin-fulfillment-assign','admin-fulfillment-pool','admin-fulfillment-dispatch',...[...phase1Routes].filter(x=>x.startsWith('admin-'))]);
+const routeNames=new Set(['fulfillment-session','fulfillment-orders','fulfillment-order','fulfillment-artwork','fulfillment-progress',...adminRoutes,...phase1Routes]);
 const stamp=()=>now();
 const cleanId=(v,key='id')=>text(v,key,64);
 const activeAccount=(u)=>u?.status==='active';
@@ -31,7 +34,8 @@ export async function fulfillmentRoute({route,method,v,req,res,db,c,me,role,thro
     }
     return supplier;
   };
-  const members=async()=>admin?[]:await q("SELECT s.id,s.name FROM fulfillment_members m JOIN fulfillment_suppliers s ON m.supplier_id=s.id WHERE m.user_id=? AND m.access='active' AND s.status='active' ORDER BY s.name",[u.id]);
+  const members=async()=>admin?[]:await q("SELECT s.id,s.name,COALESCE(r.role,'operator') AS role FROM fulfillment_members m JOIN fulfillment_suppliers s ON m.supplier_id=s.id LEFT JOIN fulfillment_member_roles r ON r.supplier_id=m.supplier_id AND r.user_id=m.user_id WHERE m.user_id=? AND m.access='active' AND s.status='active' ORDER BY s.name",[u.id]);
+  const getRole=async(id,conn)=>admin?'admin':(await one('SELECT role FROM fulfillment_member_roles WHERE supplier_id=? AND user_id=?',[id,u.id],conn))?.role||'operator';
   const jobByOrder=async(id,conn,lock=false)=>{
     const job=await one('SELECT * FROM fulfillment_jobs WHERE order_id=?'+(lock?' FOR UPDATE':''),[id],conn);
     if(!job)fail(404,'Production job not found.');
@@ -46,6 +50,7 @@ export async function fulfillmentRoute({route,method,v,req,res,db,c,me,role,thro
     if(!row)fail(404,'Production job not found.');
     return row;
   };
+  if(phase1Routes.has(route))return phase1Route({route,method,v,req,res,db,c,u,admin,one,q,supplierAccess,jobByOrder,orderById,getRole,audit,queue});
   if(route==='fulfillment-session'&&method==='GET'){
     const linked=await members();
     return res.json({user:{id:u.id,name:u.name,role:u.role},admin,suppliers:admin?await q("SELECT id,name,status FROM fulfillment_suppliers ORDER BY name"):linked,csrf:req.session.csrf});
@@ -76,8 +81,12 @@ export async function fulfillmentRoute({route,method,v,req,res,db,c,me,role,thro
     if(!['active','suspended'].includes(v.access))fail(422,'Choose an access state.');
     const target=await one('SELECT id,role,status FROM users WHERE email=?',[email]);
     if(!target||target.status!=='active'||target.role==='admin')fail(422,'Choose an active non-administrator Veelad account.');
+    const full=await one('SELECT * FROM users WHERE id=?',[target.id]);
+    if(!await verifiedEmail(db,full))fail(403,'The employee must verify their Veelad account email before direct access can be granted.');
+    const memberRole=validStaffRole(v.role||'operator');
     await db.tx(async conn=>{
       await q('INSERT INTO fulfillment_members (supplier_id,user_id,access,created_at) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE access=VALUES(access)',[supplierId,target.id,v.access,stamp()],conn);
+      await q('INSERT INTO fulfillment_member_roles (supplier_id,user_id,role,updated_at) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE role=VALUES(role),updated_at=VALUES(updated_at)',[supplierId,target.id,memberRole,stamp()],conn);
       await audit(u,'fulfillment.member.'+v.access,supplierId+':'+target.id,conn);
     });
     return res.json({ok:true});
@@ -130,7 +139,7 @@ export async function fulfillmentRoute({route,method,v,req,res,db,c,me,role,thro
     const shipping=['packed','dispatch_submitted'].includes(stage)&&order.status==='processing'?{
       name:d.customer?.name||'',address:d.customer?.address||'',city:d.customer?.city||'',postal:d.customer?.postal||'',country:d.customer?.country||'',phone:d.customer?.phone||''
     }:null;
-    return res.json({job:publicJob({...job,order_status:order.status},d),items:(d.items||[]).map(item=>({
+    return res.json({job:publicJob({...job,order_status:order.status},d),staff_role:await getRole(job.supplier_id),items:(d.items||[]).map(item=>({
       line_id:item.line_id,title:item.title,category:item.category,variant:item.variant,qty:item.qty,
       choices:item.purchase_choices||null,design_title:item.design_title||'',source_ids:studioSourceIds(item.design_studio,item.upload_id),
       surfaces:item.design_studio?.scene_version===sceneVersion?Object.keys(item.design_studio.scenes?.[printProductFor(item.category)?.id]||{}):[],
@@ -140,6 +149,7 @@ export async function fulfillmentRoute({route,method,v,req,res,db,c,me,role,thro
   if(route==='fulfillment-artwork'&&method==='GET'){
     await throttle(req,'fulfillment-download',35,u.id);
     const job=await jobByOrder(cleanId(req.query,'order_id'));
+    demandPermission(await getRole(job.supplier_id),'file');
     const order=await orderById(job.order_id),d=json(order.data);
     if(order.status!=='processing')fail(409,'This order is no longer in production.');
     ensureFulfillmentReady(d,c.mode);
@@ -195,7 +205,13 @@ export async function fulfillmentRoute({route,method,v,req,res,db,c,me,role,thro
       if(order.status!=='processing')fail(409,'Order is no longer in production.');
       ensureFulfillmentReady(d,c.mode);
       if(!Number.isSafeInteger(v.revision)||v.revision!==job.revision)fail(409,'Production job changed. Refresh before updating.');
+      const permissions={accepted:'accept',printing:'printing',quality_check:'quality_check',packed:'packed',dispatch_submitted:'dispatch',hold:'hold',resume:'hold'};
+      demandPermission(await getRole(job.supplier_id,conn),permissions[action]||'forbidden');
       const next=nextFulfillmentStep(job.status,action);
+      if(action==='printing')await requireApprovedPack({db,c,order,job});
+      if(['quality_check','packed','dispatch_submitted'].includes(action))await requireQualityEvidence({db,order,job});
+      if(action==='resume'&&await openIssueCount(db,id))fail(409,'Resolve all open issues before resuming production.');
+      if(['packed','dispatch_submitted'].includes(action)&&await openIssueCount(db,id))fail(409,'Resolve open issues before progressing production.');
       let prior=job.prior_status,issue=job.issue_note,carrier=job.carrier,tracking=job.tracking;
       if(action==='hold'){issue=text(v,'note',1000);prior=job.status;}
       if(action==='resume'){if(!prior)fail(409,'The previous job state is missing.');}
@@ -228,6 +244,7 @@ export async function fulfillmentRoute({route,method,v,req,res,db,c,me,role,thro
       if(order.status!=='processing'||job.status!=='dispatch_submitted'||!job.carrier||!job.tracking)fail(409,'Supplier dispatch is not ready for approval.');
       ensureFulfillmentReady(d,c.mode);
       if(d.production?.stage!=='packed')fail(409,'Quality control and packaging must be complete.');
+      await requireQualityEvidence({db,order,job});
       d.tracking=job.tracking;d.carrier=job.carrier;d.shipped_at=stamp();
       await q("UPDATE orders SET status='shipped',data=? WHERE id=?",[JSON.stringify(d),id],conn);
       await audit(u,'fulfillment.dispatch.approved',id,conn);
