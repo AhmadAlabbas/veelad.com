@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import {chooseHeaderPreference} from '../helpers/header-preferences.js';
 import sharp from "sharp";
 import { config } from "../../src/config.js";
 import { database } from "../../src/db.js";
