@@ -436,6 +436,61 @@ async function progress(action,extra={}){
 }
 async function submit(form){
  const data=Object.fromEntries(new FormData(form)),kind=form.dataset.form;
+ if(kind==='split-route'){
+  const selectors=[...form.querySelectorAll('[data-route-line]')];
+  const allocations=selectors.map(sel=>({line_id:sel.dataset.routeLine,supplier_id:sel.value}));
+  if(allocations.some(x=>!x.supplier_id)||new Set(allocations.map(x=>x.supplier_id)).size<2)throw Error('Assign every purchased line and choose at least two different suppliers.');
+  if(!confirm('Create permanent separate manufacturing jobs for these product lines?'))return;
+  await api('admin-fulfillment-route',{method:'POST',body:{order_id:state.phase3.routeOrder,allocations}});
+  state.view='split';await reload();notice('Purchased product lines were assigned to distinct suppliers.');return;
+ }
+ if(kind==='line-preflight'){
+  const job=state.phase3.selected.job;
+  await api('admin-fulfillment-line-preflight',{method:'POST',body:{line_job_id:job.id,review_note:data.review_note,confirm:data.confirm==='on'}});
+  await reload();notice('Supplier line print specification approved.');return;
+ }
+ if(kind==='line-photo'){
+  const job=state.phase3.selected.job,file=form.querySelector('[name=photo]')?.files?.[0];
+  if(!file||!['image/png','image/jpeg'].includes(file.type)||file.size>8*1024*1024)throw Error('Select a JPEG/PNG inspection photo of up to 8 MB.');
+  const multipart=new FormData();multipart.set('artwork',file,file.name);
+  const response=await fetch(urlFor('fulfillment-line-evidence-upload',{line_job_id:job.id,kind:data.kind}),{method:'POST',credentials:'same-origin',headers:{'X-CSRF-Token':state.session.csrf},body:multipart,cache:'no-store'});
+  const result=await response.json().catch(()=>({}));
+  if(!response.ok||!result.ok)throw Error(result.error||'Supplier inspection upload failed.');
+  await reload();notice('Photo submitted for independent QC review.');return;
+ }
+ if(kind==='line-issue'){
+  await api('fulfillment-line-issues',{method:'POST',body:{line_job_id:state.phase3.selected.job.id,note:data.note}});
+  await reload();notice('Manufacturing line placed on hold.');return;
+ }
+ if(kind==='line-packing'){
+  const checks={};for(const key of ['garments','artwork','branding','insert','address','sealed'])checks[key]=data[key]==='on';
+  await api('fulfillment-line-packaging',{method:'POST',body:{line_job_id:state.phase3.selected.job.id,checks}});
+  await reload();notice('Packaging sign-off recorded for this supplier product line.');return;
+ }
+ if(kind==='line-dispatch'){
+  const j=state.phase3.selected.job;
+  await api('fulfillment-line-progress',{method:'POST',body:{line_job_id:j.id,revision:j.revision,action:'dispatch_submitted',carrier:data.carrier,tracking:data.tracking}});
+  await reload();notice('Supplier tracking submitted for Veelad administrator approval.');return;
+ }
+ if(kind==='line-message'){
+  await api('fulfillment-line-messages',{method:'POST',body:{line_job_id:state.phase3.selected.job.id,body:data.body}});
+  await reload();notice('Message sent in the private product-line conversation.');return;
+ }
+ if(kind==='split-invoice'){
+  const selected=[...form.querySelectorAll('[data-invoice-line]:checked')];
+  if(!selected.length)throw Error('Choose a completed manufacturing product line.');
+  const lines=selected.map(box=>({line_job_id:box.dataset.invoiceLine,
+   unit_cost_minor:Number(form.querySelector('[data-invoice-cost="'+box.dataset.invoiceLine+'"]').value),
+   tax_minor:Number(form.querySelector('[data-invoice-tax="'+box.dataset.invoiceLine+'"]').value)}));
+  const result=await api('admin-fulfillment-invoice',{method:'POST',body:{supplier_id:data.supplier_id,invoice_number:data.invoice_number,currency:data.currency,note:data.note,lines}});
+  state.phase3.invoice=(await api('fulfillment-invoice',{params:{invoice_id:result.id}})).invoice;
+  await reload();notice('Draft manufacturing invoice created. No payment was initiated.');return;
+ }
+ if(kind==='split-api-key'){
+  const issued=await api('admin-fulfillment-key',{method:'POST',body:{action:'create',supplier_id:data.supplier_id,label:data.label,scope:data.scope}});
+  state.phase3.lastToken=issued.token;
+  await reload();notice('90-day credential created. Copy it now; it cannot be retrieved again.');return;
+ }
  if(kind==='supplier')await api('admin-fulfillment-supplier',{method:'POST',body:{name:data.name,status:'active'}});
  else if(kind==='member')await api('admin-fulfillment-member',{method:'POST',body:data});
  else if(kind==='assign')await api('admin-fulfillment-assign',{method:'POST',body:data});
