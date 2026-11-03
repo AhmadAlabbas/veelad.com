@@ -1,0 +1,40 @@
+name: Test Veelad retention and conversation browser workflows
+on:
+  push:
+    branches: [qa/retention-staging-readonly-20261103]
+permissions:
+  contents: read
+jobs:
+  isolated-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      mysql:
+        image: mysql:8.4@sha256:24989179f58856db763f418010c1169fecc944e3ec1ea7e921572d83eb070f70
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+          MYSQL_DATABASE: veelad_local
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1"
+          --health-interval=5s --health-timeout=5s --health-retries=30
+    env:
+      APP_ENV: local
+      APP_ORIGIN: http://127.0.0.1:3000
+      DB_HOST: 127.0.0.1
+      DB_PORT: '3306'
+      DB_NAME: veelad_local
+      DB_USER: root
+      SESSION_SECRET: isolated-retention-ci-only-test-secret-never-real
+      MANUAL_TEST_PAYMENTS: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: mysql -h127.0.0.1 -uroot -e 'CREATE DATABASE IF NOT EXISTS veelad_test'
+      - run: npx playwright install --with-deps chromium
+      - name: Isolated desktop and mobile creative journeys
+        run: npx playwright test tests/browser/product-comments.spec.js tests/browser/retention-suite.spec.js --project=desktop --project=mobile --reporter=line
