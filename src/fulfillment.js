@@ -8,12 +8,13 @@ import {orderMessage} from './order-mail.js';
 import {syncPartnerOrder} from './partners-finance.js';
 import {phaseOneRoute,phaseOneRoutes,phaseOneAdminRoutes,supplierRoles,supplierMay,printFingerprint,evidenceReady,verifyApprovedPrintSources} from './fulfillment-phase1.js';
 import {prepareSupplierPack} from './fulfillment-pack.js';
+import {phaseTwoRoute,phaseTwoRoutes,phaseTwoAdminRoutes,verifyPackingSignoff,notifyFulfillment,initializeJobDeadlines} from './fulfillment-phase2.js';
 import {artworkPath} from './artwork.js';
 import {Readable} from 'node:stream';
 import {pipeline} from 'node:stream/promises';
 
-const adminRoutes=new Set(['admin-fulfillment-suppliers','admin-fulfillment-supplier','admin-fulfillment-member','admin-fulfillment-assign','admin-fulfillment-pool','admin-fulfillment-dispatch',...phaseOneAdminRoutes]);
-const routeNames=new Set(['fulfillment-session','fulfillment-orders','fulfillment-order','fulfillment-artwork','fulfillment-pack','fulfillment-progress',...adminRoutes,...phaseOneRoutes]);
+const adminRoutes=new Set(['admin-fulfillment-suppliers','admin-fulfillment-supplier','admin-fulfillment-member','admin-fulfillment-assign','admin-fulfillment-pool','admin-fulfillment-dispatch',...phaseOneAdminRoutes,...phaseTwoAdminRoutes]);
+const routeNames=new Set(['fulfillment-session','fulfillment-orders','fulfillment-order','fulfillment-artwork','fulfillment-pack','fulfillment-progress',...adminRoutes,...phaseOneRoutes,...phaseTwoRoutes]);
 const stamp=()=>now();
 const cleanId=(v,key='id')=>text(v,key,64);
 const activeAccount=(u)=>u?.status==='active';
@@ -52,6 +53,7 @@ export async function fulfillmentRoute({route,method,v,req,res,db,c,me,role,thro
     return row;
   };
   if(phaseOneRoutes.has(route))return phaseOneRoute({route,method,v,req,res,db,c,u,admin,one,q,audit,queue,throttle,supplierAccess,jobByOrder,orderById});
+  if(phaseTwoRoutes.has(route))return phaseTwoRoute({route,method,v,req,res,db,c,u,admin,one,q,audit,throttle,supplierAccess,jobByOrder,orderById});
   if(route==='fulfillment-session'&&method==='GET'){
     const linked=await members();
     return res.json({user:{id:u.id,name:u.name,role:u.role},admin,suppliers:admin?await q("SELECT id,name,status FROM fulfillment_suppliers ORDER BY name"):linked,csrf:req.session.csrf});
@@ -115,7 +117,9 @@ export async function fulfillmentRoute({route,method,v,req,res,db,c,me,role,thro
       const existing=await one('SELECT order_id FROM fulfillment_jobs WHERE order_id=? FOR UPDATE',[id],conn);
       if(existing)fail(409,'This order is already assigned; review its supplier job.');
       await q('INSERT INTO fulfillment_jobs (order_id,supplier_id,status,revision,created_at,updated_at) VALUES (?,?,?,0,?,?)',[id,supplierId,'assigned',stamp(),stamp()],conn);
+      await initializeJobDeadlines(db,id,supplierId,u.id,conn);
       await audit(u,'fulfillment.assign',id+':'+supplierId,conn);
+      await notifyFulfillment(db,supplierId,id,'assigned','Veelad assigned a new production order.',conn);
     });
     return res.json({ok:true});
   }
@@ -273,6 +277,7 @@ export async function fulfillmentRoute({route,method,v,req,res,db,c,me,role,thro
         const evidence=await q("SELECT line_id,kind,status FROM fulfillment_qc_evidence WHERE order_id=?",[id],conn);
         if(!evidenceReady(d.items||[],evidence))fail(409,'Each order line requires a separately approved final-print photograph.');
       }
+      if(['packed','dispatch_submitted'].includes(action))await verifyPackingSignoff(db,job,d,conn);
       const next=nextFulfillmentStep(job.status,action);
       let prior=job.prior_status,issue=job.issue_note,carrier=job.carrier,tracking=job.tracking;
       if(action==='hold'){
@@ -300,6 +305,7 @@ export async function fulfillmentRoute({route,method,v,req,res,db,c,me,role,thro
       await q('UPDATE fulfillment_jobs SET status=?,revision=revision+1,prior_status=?,issue_note=?,carrier=?,tracking=?,updated_at=? WHERE order_id=?',
         [updated,action==='resume'?null:prior,issue,carrier,tracking,stamp(),id],conn);
       await audit(u,'fulfillment.'+action,id,conn);
+      await notifyFulfillment(db,job.supplier_id,id,action,'Supplier updated the job to '+action.replaceAll('_',' ')+'.',conn);
     });
     return res.json({ok:true});
   }
@@ -317,12 +323,14 @@ export async function fulfillmentRoute({route,method,v,req,res,db,c,me,role,thro
       const openIssues=await one("SELECT COUNT(*) AS count FROM fulfillment_issues WHERE order_id=? AND status='open'",[id],conn);
       const evidence=await q("SELECT line_id,kind,status FROM fulfillment_qc_evidence WHERE order_id=?",[id],conn);
       if(Number(openIssues?.count||0)||!evidenceReady(d.items||[],evidence))fail(409,'Resolve inspection issues and approve final-print evidence before dispatch.');
+      await verifyPackingSignoff(db,job,d,conn);
       d.tracking=job.tracking;d.carrier=job.carrier;d.shipped_at=stamp();
       await q("UPDATE orders SET status='shipped',data=? WHERE id=?",[JSON.stringify(d),id],conn);
       await audit(u,'fulfillment.dispatch.approved',id,conn);
       const message=orderMessage(c,{...d,id,status:'shipped'},trackingToken(order.request_key,c.secret),{update:true});
       await queue(order.email,message.subject,message.body,conn);
       await syncPartnerOrder(db,c,id,conn);
+      await notifyFulfillment(db,job.supplier_id,id,'shipped','Veelad approved dispatch and marked the customer order shipped.',conn);
     });
     return res.json({ok:true});
   }
