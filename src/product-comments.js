@@ -4,13 +4,14 @@ import {fail,uid,now,text} from './security.js';
 const PAGE_SIZE=15;
 const allowedReportReasons=new Set(['spam','abuse','copyright','other']);
 const idField=(value,key)=>text({[key]:value},key,64);
+const shortName=(name,kind)=>{if(kind==='admin')return 'Veelad';const parts=String(name||'').trim().split(/\s+/u).filter(Boolean);return parts.length>1?parts[0]+' '+Array.from(parts.at(-1))[0]+'.':parts[0]||'Member';};
 const display=(row,viewerId=null)=>({
  id:row.id,
  parent_id:row.parent_id||null,
  body:row.body,
  own:viewerId!==null&&viewerId===row.user_id,
  created_at:row.created_at,
- author:{name:row.author_name,kind:row.author_role==='admin'?'team':row.user_id===row.product_artist_id&&row.author_role==='artist'?'artist':'customer'},
+ author:{name:shortName(row.author_name,row.author_role),kind:row.author_role==='admin'?'team':row.user_id===row.product_artist_id&&row.author_role==='artist'?'artist':'customer'},
 });
 async function activeProduct(db,value,conn){
  const id=idField(value,'product_id');
