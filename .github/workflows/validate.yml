@@ -1,7 +1,7 @@
 name: Validate and promote staging
 on:
   push:
-    branches: [main]
+    branches: [main, staging]
   pull_request:
   workflow_dispatch:
 permissions:
@@ -59,21 +59,19 @@ jobs:
           path: test-results/
   staging:
     needs: validate
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.HOSTINGER_STAGING_DEPLOY_READY == 'true'
+    # A release is explicitly merged into staging; never overwrite or
+    # auto-promote it from the diverged main branch.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/staging' && vars.HOSTINGER_STAGING_DEPLOY_READY == 'true'
     runs-on: ubuntu-latest
     environment: staging
     permissions:
-      contents: write
+      contents: read
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Advance staging branch after validation
-        run: git push origin HEAD:refs/heads/staging
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - name: Confirm Hostinger deployed this commit
+      - name: Confirm Hostinger deployed this exact staging commit
         env:
           EXPECTED_COMMIT: ${{ github.sha }}
         run: node scripts/verify-deployment.js staging
