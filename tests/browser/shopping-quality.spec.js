@@ -66,7 +66,7 @@ test('catalogue modes and content review use existing products and opt-in measur
   await page.evaluate(()=>window.VeeladShop.flush());await page.locator('[data-shop-action=privacy]').click();await page.locator('[data-shop-action=measurement-off]').click();await page.locator('#modal [data-action=close-modal]').click();
   const before=Number((await f.db.one('SELECT COALESCE(SUM(count),0) AS n FROM shopping_metrics')).n);await page.reload();await expect(page.locator('.shop-buying-facts')).toBeVisible();await page.waitForTimeout(1000);
   expect(Number((await f.db.one('SELECT COALESCE(SUM(count),0) AS n FROM shopping_metrics')).n)).toBe(before);
-  await login(page,f,'shop-ui-admin',lang);await page.goto(f.origin+'/'+lang+'/admin?tab=shop-quality');await expect(page.locator('.shop-quality-item')).toHaveCount(Number((await f.db.one('SELECT COUNT(*) AS n FROM products')).n));await fits(page);
+  await login(page,f,'shop-ui-admin',lang);await page.goto(f.origin+'/'+lang+'/admin?tab=shop-quality');await expect(page.locator('.shop-quality-item')).toHaveCount(Number((await f.db.one('SELECT COUNT(*) AS n FROM products')).n));await expect(page.locator('.shop-preflight-summary')).toBeVisible();await expect(page.locator('.shop-preflight')).toHaveCount(Number((await f.db.one('SELECT COUNT(*) AS n FROM products')).n));await expect(page.locator('.shop-preflight').first()).toContainText(lang==='ar'?'اعتماد المورّد':'Supplier');await fits(page);
   await page.goto(f.origin+'/'+lang+'/admin?tab=shop-insights');await expect(page.locator('.shop-funnel')).toBeVisible();await fits(page);
   await page.screenshot({path:info.outputPath('shop-insights-'+lang+'.png'),fullPage:true});
  }finally{await page.goto('about:blank').catch(()=>{});await f.close();}
