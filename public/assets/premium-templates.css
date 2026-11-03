@@ -1,0 +1,41 @@
+/* Priority 8 / Veelad Template Atelier.
+   Bound to existing private Studio layout panel; does not change shop or checkout. */
+.cw-premium-templates{margin:0 0 24px;padding:0 0 24px;border-bottom:1px solid #e7e2ec;color:#1e1b27}
+.cw-premium-head{padding:20px 17px 17px;border:1px solid #e8e3ef;background:linear-gradient(145deg,#faf8ff,#fff 68%);border-radius:15px;margin-bottom:15px}
+.cw-premium-kicker{display:block;font-size:9px;letter-spacing:.16em;font-weight:800;color:#6e51a7;margin-bottom:11px}
+.cw-premium-head h5{font-size:23px;letter-spacing:-.04em;line-height:1.15;margin:0 0 9px;color:#18171c}
+.cw-premium-head p{font-size:12px;line-height:1.7;color:#68616e;margin:0}
+.cw-premium-controls{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin:0 0 12px}
+.cw-premium-controls label{display:flex;flex-direction:column;gap:6px;min-width:0;color:#57515f;font-size:10px;font-weight:700}
+.cw-premium-controls label:first-child{grid-column:1/-1}
+.cw-premium-controls input,.cw-premium-controls select{font:inherit;font-size:12px;width:100%;min-width:0;height:42px;padding:9px 11px;border:1px solid #d9d4e1;background:#fff;color:#1f1b29;border-radius:9px;outline:none}
+.cw-premium-controls input:focus-visible,.cw-premium-controls select:focus-visible{border-color:#9b81ef;outline:3px solid #9b81ef44}
+.cw-premium-count{font-size:11px;color:#756f7f;text-align:end;margin:0 0 9px;font-variant-numeric:tabular-nums}
+.cw-premium-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.cw-premium-card{display:flex;flex-direction:column;align-items:stretch;gap:8px;min-width:0;padding:8px;background:#fff;border:1px solid #e7e3eb;border-radius:12px;color:#211e28;cursor:pointer;text-align:start;transition:border-color .14s,box-shadow .14s}
+.cw-premium-card:hover{border-color:#baa5ef;box-shadow:0 7px 24px #2c1f4213}
+.cw-premium-card:focus-visible{outline:3px solid #9b81ef;outline-offset:2px}
+.cw-premium-miniature{display:block;position:relative;width:100%;aspect-ratio:1/1;overflow:hidden;border-radius:7px;background:#f6f3f1;isolation:isolate;direction:ltr}
+.cw-premium-miniature-art{position:absolute;display:flex;align-items:center;justify-content:center;transform:translate(-50%,-50%)}
+.cw-premium-miniature-art svg{width:100%;height:100%;display:block;object-fit:contain;max-width:100%;max-height:100%}
+.cw-premium-miniature-heading,.cw-premium-miniature-detail{position:absolute;transform:translate(-50%,-50%);display:block;max-width:75%;width:70%;white-space:normal;overflow-wrap:anywhere;text-align:center;font-family:Manrope,'DM Sans',sans-serif;color:#2f2936;line-height:1.05}
+.cw-premium-miniature-heading{font-size:clamp(8px,.75vw,11px);font-weight:800;letter-spacing:-.025em}
+.cw-premium-miniature-detail{font-size:8px;font-weight:650;opacity:.73;line-height:1.15}
+.cw-premium-left .cw-premium-miniature-heading,.cw-premium-right .cw-premium-miniature-heading{width:39%;font-size:9px}
+.cw-premium-left .cw-premium-miniature-detail,.cw-premium-right .cw-premium-miniature-detail{width:37%;font-size:7px}
+.cw-premium-seal .cw-premium-miniature-heading{letter-spacing:.09em}
+.cw-premium-minimal .cw-premium-miniature-heading{font-size:10px}
+.cw-premium-card-title{font-size:11px;font-weight:740;line-height:1.35;overflow-wrap:anywhere}
+.cw-premium-card-tag{font-size:9px;color:#77717f;line-height:1.4}
+.cw-premium-more{width:100%;min-height:44px;margin:15px 0 0;padding:10px 14px;background:#fff;border:1px solid #d4c8e6;border-radius:10px;color:#5b408d;font-size:12px;font-weight:740;cursor:pointer}
+.cw-premium-more:hover{background:#f4efff}
+.cw-premium-more:focus-visible{outline:3px solid #9b81ef;outline-offset:3px}
+.cw-premium-guidance{margin:13px 0 0;font-size:10px;color:#706b77;line-height:1.7}
+@media(max-width:410px){
+ .cw-premium-controls{grid-template-columns:1fr}
+ .cw-premium-controls label:first-child{grid-column:1}
+ .cw-premium-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .cw-premium-card{padding:6px}
+ .cw-premium-miniature-heading{font-size:9px}
+}
+@media(prefers-reduced-motion:reduce){.cw-premium-card{transition:none}}
