@@ -41,17 +41,18 @@ function context(route,method='GET',reqQuery={}){
  const user={id:'staff-2',name:'Supplier Staff',role:'buyer',status:'active'};
  const output={};
  const db={
-  one:async(sql)=>sql.includes('fulfillment_suppliers')?{id:'sup-one',name:'Company One',status:'active'}:null,
+  one:async(sql)=>sql.includes('fulfillment_mfa')?{enabled:1}:sql.includes('fulfillment_suppliers')?{id:'sup-one',name:'Company One',status:'active'}:null,
   q:async(sql)=>sql.includes('fulfillment_members')?[]:[],
  };
  const res={set(){return this;},json(body){output.body=body;return this;}};
- return {output,context:{route,method,v:{},req:{query:reqQuery,session:{csrf:'csrf-test'}},res,db,c:{mode:'staging'},me:async()=>user,role:async()=>user,throttle:async()=>{},audit:async()=>{},queue:async()=>{}}};
+ return {output,context:{route,method,v:{},req:{query:reqQuery,session:{csrf:'csrf-test',fulfillment_mfa_user:user.id,fulfillment_mfa_at:Date.now()}},res,db,c:{mode:'staging'},me:async()=>user,role:async()=>user,throttle:async()=>{},audit:async()=>{},queue:async()=>{}}};
 }
 test('supplier without a membership sees no supplier dashboard or orders',async()=>{
  const {context:c,output}=context('fulfillment-session');
  assert.ok(await fulfillmentRoute(c));
  assert.deepEqual(output.body.suppliers,[]);
  assert.equal(output.body.admin,false);
+ assert.equal(output.body.mfa.verified,true);
  const unauthorized=context('fulfillment-orders','GET',{supplier_id:'sup-one'});
  await assert.rejects(fulfillmentRoute(unauthorized.context),/Supplier unavailable/);
 });
