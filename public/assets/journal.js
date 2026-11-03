@@ -44,11 +44,25 @@ window.VeeladJournal=(()=>{
   });
  }
  function updateJournalReading(){
-  const bar=document.querySelector('[data-journal-progress] span');if(!bar)return;
-  const root=document.documentElement,remaining=Math.max(1,root.scrollHeight-innerHeight);
-  bar.style.transform='scaleX('+Math.max(0,Math.min(1,scrollY/remaining))+')';
+  const main=document.querySelector('.journal-article'),article=main?.querySelector('#journal-story-content'),
+    bar=main?.querySelector('[data-journal-progress] span');
+  if(!article||!bar)return;
+  // The progress bar tracks the STORY, not the footer, suggested products or
+  // other page sections; reading progress should reach 100% at the last paragraph.
+  const rect=article.getBoundingClientRect(),top=window.scrollY+rect.top,
+    start=top-innerHeight*.28,end=top+rect.height-innerHeight*.72,
+    fraction=Math.min(1,Math.max(0,(window.scrollY-start)/Math.max(1,end-start)));
+  bar.style.transform='scaleX('+fraction+')';
+  const links=main.querySelectorAll('[data-journal-toc] a');
+  let active=null;const threshold=Math.min(210,innerHeight*.28);
+  for(const link of links){
+   const target=document.getElementById(link.hash.slice(1));
+   if(target&&target.getBoundingClientRect().top<=threshold)active=link;
+  }
+  links.forEach(link=>{if(link===active)link.setAttribute('aria-current','location');else link.removeAttribute('aria-current');});
  }
  window.addEventListener('scroll',updateJournalReading,{passive:true});
+ window.addEventListener('resize',updateJournalReading,{passive:true});
 
  const adminUrl=values=>normalUrl('admin',{tab:'journal',...values});
  const statusName=s=>({draft:say('Draft','مسودة'),published:say('Published','منشور'),scheduled:say('Scheduled','مجدول')})[s]||s;
