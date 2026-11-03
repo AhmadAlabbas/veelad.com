@@ -33,3 +33,21 @@
 .status.rejected,.status.revoked,.status.expired{background:#fff0f0;color:#b83b46}
 @media(max-width:630px){.evidence-grid{grid-template-columns:1fr 1fr}.evidence-card img{height:125px}.issue-item .status-line{flex-wrap:wrap}}
 @media(max-width:420px){.evidence-grid{grid-template-columns:1fr}.evidence-card img{height:180px}}
+
+/* Fulfillment Phase 2: supplier operations, private messaging and packing controls */
+.side-nav{overflow-y:auto;min-height:0;scrollbar-width:thin;scrollbar-color:#4b405d transparent}
+.ops-list{display:grid;gap:10px;margin-top:13px}
+.ops-row,.ops-alert{display:flex;align-items:center;justify-content:space-between;gap:14px;background:#faf9fc;border:1px solid var(--line);padding:14px;border-radius:11px;text-align:left;width:100%;font-size:12px}
+.ops-row{cursor:pointer;color:var(--ink)}.ops-row:hover{border-color:#ccb9f7;background:#f7f2ff}.ops-row strong,.ops-alert strong{font-weight:800}
+.ops-alert p{color:#585364;font-size:12px;margin:8px 0}.ops-alert small{color:var(--muted)}.ops-alert.unread{border-color:#d8c5ff;background:#f9f5ff}.ops-alert .actions{flex-shrink:0}
+.due-over{color:#a63b4c;font-weight:700}.packing-rules{margin:15px 0}.packing-rules p{font-size:12px;color:#55505e;line-height:1.65}.packing-checklist{display:grid;gap:14px;margin:20px 0}
+.checkline{display:flex;align-items:center;gap:10px;font-size:12px;font-weight:600;line-height:1.5;padding:5px 0}
+.checkline input{min-height:16px;width:16px;flex-shrink:0;accent-color:#8160d1}
+.message-thread{max-height:430px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;border-radius:13px;background:#fbfafc;border:1px solid var(--line);padding:14px;margin-bottom:18px}
+.message-bubble{padding:14px;background:white;border:1px solid var(--line);border-radius:12px;width:fit-content;max-width:93%;overflow-wrap:anywhere}
+.message-bubble.mine{margin-left:auto;background:#f3edff;border-color:#e0d4fd}
+.message-bubble strong{font-size:11px}.message-bubble p{font-size:12px;white-space:pre-wrap;margin:8px 0;line-height:1.6}
+.message-bubble small{display:block;color:var(--muted);font-size:10px;margin-top:8px}
+.message-bubble a{color:#7552be;text-decoration:underline;font-size:11px}
+.message-form{display:grid;gap:12px}.packing-rules .item-card:last-child{margin-bottom:0}
+@media(max-width:720px){.ops-row,.ops-alert{align-items:flex-start;flex-direction:column}.ops-alert .actions{width:100%}.message-bubble{max-width:100%}}
