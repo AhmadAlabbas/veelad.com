@@ -269,6 +269,34 @@ $('content').addEventListener('click',async event=>{
     notice('Supplier access updated.');await bootstrap();
    }
   }
+  else if(b.dataset.acceptInvite){
+   await api('fulfillment-invite',{method:'POST',body:{token:state.invitationToken}});
+   state.invitationToken=null;history.replaceState(null,'','/fulfillment');await bootstrap();notice('Invitation accepted. You can now access your supplier workspace.');
+  }
+  else if(b.dataset.copyInvite){
+   if(!state.inviteLink)throw Error('No invitation link to copy.');
+   await navigator.clipboard.writeText(state.inviteLink);notice('Invitation link copied. Send it privately to the verified employee.');
+  }
+  else if(b.dataset.revokeInvite){
+   if(confirm('Revoke this invitation? The link will immediately become invalid.')){
+    await api('admin-fulfillment-invite-revoke',{method:'POST',body:{id:b.dataset.revokeInvite}});
+    await loadAdminSetup();render();notice('Invitation revoked.');
+   }
+  }
+  else if(b.dataset.review){
+   const approved=b.dataset.decision==='approved';
+   const note=approved?'Reviewed the physical print against the approved sample and specifications.':prompt('Why was this inspection photo rejected? Explain the required correction:');
+   if(!approved&&(!note||note.trim().length<10))throw Error('Explain the reason for rejecting this photograph.');
+   if(approved&&!confirm('Approve this inspection photograph after personally checking it?'))return;
+   await api('fulfillment-evidence-review',{method:'POST',body:{order_id:state.selected.job.id,evidence_id:b.dataset.review,decision:b.dataset.decision,note:note||''}});
+   await reload({preserveDetail:true});notice(approved?'Inspection photograph approved.':'Photograph rejected, issue created and production paused.');
+  }
+  else if(b.dataset.resolve){
+   const resolution=prompt('Describe the reprint, correction or other issue resolution:');
+   if(!resolution||resolution.trim().length<10)throw Error('Explain the resolution in at least ten characters.');
+   await api('fulfillment-issue-resolve',{method:'POST',body:{order_id:state.selected.job.id,issue_id:b.dataset.resolve,resolution}});
+   await reload({preserveDetail:true});notice('Issue marked resolved. Production can resume after all issues are closed.');
+  }
   else if(b.dataset.approveDispatch){
    if(confirm('Approve carrier tracking and mark this order shipped?')){
     await api('admin-fulfillment-dispatch',{method:'POST',body:{order_id:state.selected.job.id}});notice('Dispatch approved. Customer order marked as shipped.');state.selected=null;await reload();
