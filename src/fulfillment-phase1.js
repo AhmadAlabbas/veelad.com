@@ -49,7 +49,7 @@ export async function verifyApprovedPrintSources(db,c,reportJson){
 export async function phaseOneRoute({route,method,v,req,res,db,c,u,admin,one,q,audit,queue,throttle,supplierAccess,jobByOrder,orderById}){
  if(!phaseOneRoutes.has(route))return false;
  if(phaseOneAdminRoutes.has(route)&&!admin)fail(403,'Only Veelad administrators can perform this action.');
- const rid=()=>cleanId(method==='GET'?req.query:v);
+ const rid=()=>cleanId(method==='GET'||route==='fulfillment-evidence-upload'?req.query:v);
  const roleFor=async(job,conn)=>{
   if(admin)return 'admin';
   const member=await one("SELECT m.supplier_role FROM fulfillment_members m JOIN fulfillment_suppliers s ON s.id=m.supplier_id AND s.status='active' WHERE m.supplier_id=? AND m.user_id=? AND m.access='active'",[job.supplier_id,u.id],conn);
