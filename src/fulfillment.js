@@ -165,6 +165,7 @@ export async function fulfillmentRoute({route,method,v,req,res,db,c,me,role,thro
     const order=await orderById(job.order_id),d=json(order.data);
     if(order.status!=='processing')fail(409,'This order is no longer in production.');
     ensureFulfillmentReady(d,c.mode);
+    if(!admin)await requireApprovedPack({db,c,order,job});
     const lineId=text(req.query,'line_id',100);
     const line=(d.items||[]).find(item=>item.line_id===lineId);
     if(!line)fail(404,'Order line not found.');
