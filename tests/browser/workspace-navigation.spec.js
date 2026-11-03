@@ -20,11 +20,13 @@ test('workspace navigation stays reachable at short heights and gives each desti
    await page.goto(fixture.origin+'/'+language+'/admin?tab=partners');
    const menu=page.locator('.sidebar-links'),items=menu.locator('a.nav-item');
    await expect(page.locator('.partner-admin')).toBeVisible();
-   await expect(items).toHaveCount(19);
+   await expect(items).toHaveCount(20);
+   await expect(menu.locator('a.nav-item svg[data-symbol=factory]')).toHaveCount(1);
+   await expect(menu.locator('a.nav-item svg[data-symbol=printer]')).toHaveCount(1);
    await expect(menu.locator('[aria-current=page]')).toContainText(language==='ar'?'شركاء فيلاد':'Veelad Partners');
    await expect.poll(()=>menu.evaluate(element=>{const box=element.getBoundingClientRect(),active=element.querySelector('[aria-current=page]').getBoundingClientRect();return active.top>=box.top-1&&active.bottom<=box.bottom+1&&active.left>=box.left-1&&active.right<=box.right+1;})).toBe(true);
    const glyphs=await items.locator('svg').evaluateAll(elements=>elements.map(element=>element.innerHTML));
-   expect(new Set(glyphs).size).toBe(19);
+   expect(new Set(glyphs).size).toBe(20);
    await expect(items.locator('svg[data-symbol=settings] circle')).toHaveAttribute('r','3.2');
    const exit=page.locator('.sidebar .back-store');
    if(size.width>760){
