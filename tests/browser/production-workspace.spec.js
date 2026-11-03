@@ -2,6 +2,7 @@ import { test, expect } from "@playwright/test";
 import fs from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
+import { chooseHeaderPreference } from "../helpers/header-preferences.js";
 import { config } from "../../src/config.js";
 import { database } from "../../src/db.js";
 try {
@@ -173,7 +174,8 @@ test("customers review private proofs and administrators prepare production with
     await expect(page.locator(".proof-version").last()).toContainText(
       "Proof approved",
     );
-    await page.locator('[data-international-language]').first().selectOption(await page.locator('html').getAttribute('lang')==='ar'?'en':'ar');
+    // The desktop header exposes a custom visible menu, while mobile keeps a native select.
+    await chooseHeaderPreference(page, "language", "ar");
     await expect(page).toHaveURL(/\/ar\/track/);
     await expect(page.locator(".customer-production")).toContainText(
       "تمت الموافقة على المعاينة",
