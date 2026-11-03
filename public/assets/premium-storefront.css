@@ -123,3 +123,43 @@
  .premium-feature,.premium-spotlight-tile,.product-card .product-photo,.global-categories .illustrated-navigation{transition:none!important;transform:none!important}
 }
 html[dir=rtl] .premium-feature-arrow .icon,html[dir=rtl] .premium-tile-arrow .icon,html[dir=rtl] .premium-all-link .icon{transform:scaleX(-1)}
+
+
+/* Spotlight image aspect-ratio repair (2026-11-03).
+   photo() renders a square .product-photo DIV, not an <img> element:
+   object-fit never corrected its previous height:100% grid stretching.
+   Give each wrapper and visual their own true square dimensions instead. */
+.premium-spotlight-image{
+  width:100%;
+  height:auto;
+  min-height:0;
+  aspect-ratio:1 / 1;
+  align-self:center;
+  justify-self:stretch;
+}
+.premium-spotlight-image > .product-photo{
+  display:block;
+  width:100%;
+  height:auto;
+  min-height:0;
+  aspect-ratio:1 / 1;
+}
+.premium-feature-image > .product-photo{
+  display:block;
+  width:min(68%,480px);
+  height:auto;
+  min-height:0;
+  max-height:none;
+  aspect-ratio:1 / 1;
+}
+/* Contain actual uploaded print mockups inside their frame, not crop
+   the garment/poster or force a portrait photo into a stretched div. */
+.premium-spotlight-image .product-photo.custom.mockup img,
+.premium-feature-image .product-photo.custom.mockup img{
+  object-fit:contain;
+}
+/* Earlier mobile rules use aspect-ratio:1.2 for the tile visual. The
+   images themselves are square, so keep the frame square at every width. */
+@media(max-width:760px){
+  .premium-spotlight-image{aspect-ratio:1 / 1}
+}
