@@ -201,8 +201,14 @@ export async function phase1Route(ctx){
    if(!record)fail(409,'An original is unavailable.');
    records.push({record,name:'originals/'+id+(record.mime==='image/png'?'.png':'.jpg')});
   }
+  const productionLines=(report.orderData.items||[]).map(item=>({
+   line_id:item.line_id,title:item.title,category:item.category,variant:item.variant,quantity:item.qty,
+   purchase_choices:item.purchase_choices||null,design_title:item.design_title||'',
+   saved_layout:item.design_studio||null,source_ids:studioSourceIds(item.design_studio,item.upload_id)
+  }));
   const manifest={schema:'veelad.print-pack.v2',order_id:job.order_id,supplier_id:job.supplier_id,approved_at:report.approval.approved_at,approval_digest:report.digest,
-   lines:report.lines,packaging_brand:'Veelad',note:'Approve actual garment colour, physical placement and printer settings before starting any batch. Payment and proofs verified. Customer and financial data deliberately excluded.'};
+   lines:report.lines,production_lines:productionLines,packaging_brand:'Veelad',
+   note:'The immutable purchased layout and original bytes are included. The physical supplier must still verify garment colour, scale, placement, print method, bleed and a sample before starting a batch. Customer and financial data are deliberately excluded.'};
   const archive=await createSupplierPackArchive(c.uploadDir,records,[{name:'print-job.json',bytes:Buffer.from(JSON.stringify(manifest,null,2))}]);
   await audit(u,'fulfillment.pack.download',job.order_id);
   res.attachment('veelad-'+job.order_id.replace(/[^a-zA-Z0-9_-]/g,'_')+'-approved-pack.zip').type('application/zip');
