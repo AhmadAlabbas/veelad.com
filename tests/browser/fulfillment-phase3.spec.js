@@ -18,10 +18,10 @@ test('Phase 3 administrator reviews supplier scorecards and creates a revocable 
   await expect(page.getByRole('heading',{name:'Assign products to suppliers'})).toBeVisible();
   await expect(page.getByText('No orders eligible for split routing')).toBeVisible();
   await page.getByRole('button',{name:'Performance',exact:true}).click();
-  await expect(page.getByRole('heading',{name:'Supplier performance'})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Supplier performance',exact:true})).toBeVisible();
   await expect(page.getByText('Merchlist')).toBeVisible();
   await page.getByRole('button',{name:'Integration API',exact:true}).click();
-  await expect(page.getByRole('heading',{name:'Supplier API credentials'})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Supplier API credentials',exact:true})).toBeVisible();
   const chosen=page.locator('#supplier-picker');
   await chosen.selectOption('p3-merchlist');
   await expect(page.locator('[data-form=split-api-key]')).toBeVisible();
@@ -43,7 +43,7 @@ test('Phase 3 administrator reviews supplier scorecards and creates a revocable 
   const revoked=await page.request.get(f.origin+'/api/fulfillment/v1/jobs',{headers:{authorization:'Bearer '+raw}});
   expect(revoked.status()).toBe(401);
   await page.getByRole('button',{name:'Manufacturing invoices',exact:true}).click();
-  await expect(page.getByRole('heading',{name:'Supplier manufacturing invoices'})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Supplier manufacturing invoices',exact:true})).toBeVisible();
   await expect(page.getByText('No manufacturing invoices')).toBeVisible();
  }finally{await page.goto('about:blank').catch(()=>{});await f.close();}
 });
