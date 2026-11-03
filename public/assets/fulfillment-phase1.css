@@ -1,0 +1,22 @@
+/* Phase 1 production review — consistent with the existing Veelad workspace */
+.p1-check{display:flex;gap:12px;align-items:flex-start;margin:13px 0;padding:12px 13px;border:1px solid var(--line,#e9e7ed);border-radius:11px;font-size:12px;line-height:1.5;background:#fcfbff;cursor:pointer}
+.p1-check input[type="checkbox"]{width:17px;height:17px;min-height:17px;flex:0 0 17px;margin:1px 0;accent-color:#9b81ef}
+.p1-warning{font-size:12px;line-height:1.5;color:#a55b1c;background:#fff6e8;padding:11px;border-radius:10px;margin:10px 0 0}
+.p1-invite-banner{border-color:#d9cafe;background:linear-gradient(110deg,#ffffff,#f6f0ff)}
+.p1-photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(125px,1fr));gap:14px;margin:16px 0}
+.p1-photo{margin:0;overflow:hidden;background:#faf9fc;border:1px solid #e9e7ed;border-radius:12px}
+.p1-photo img{display:block;width:100%;aspect-ratio:1/1;object-fit:cover;background:#f3eef9}
+.p1-photo figcaption{font-size:10px;color:#6f6c78;padding:10px;line-height:1.5;overflow-wrap:anywhere}
+.p1-mfa{max-width:680px;margin:0 auto 20px}
+.p1-mfa-intro{line-height:1.7;color:#777280;font-size:13px}
+.p1-mfa-qr{width:220px;height:220px;margin:0 auto;display:block;background:#fff;padding:10px;border:1px solid var(--line,#e9e7ed);border-radius:14px}
+.p1-secret{font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:2px;font-size:16px;font-weight:700;overflow-wrap:anywhere;text-align:center;padding:14px;border:1px dashed #aa91f0;background:#f6f2ff;border-radius:10px}
+.p1-mfa form{max-width:290px;margin:20px auto 10px}
+.p1-mfa label{display:block;font-size:12px;font-weight:700;margin:10px 0 7px}
+.p1-mfa input[name=code]{text-align:center;font-family:ui-monospace,monospace;font-size:22px;letter-spacing:6px}
+.p1-mfa .button{width:100%;margin-top:10px}
+.p1-panel-divider{border:0;border-top:1px solid #efedf3;margin:22px 0}
+.p1-pill{background:#f2edff;color:#795cbd;border-radius:8px;padding:6px 10px;font-size:10px;font-weight:800}
+.p1-role-help{font-size:11px;line-height:1.6;color:#807b8b}
+.p1-mfa-note{font-size:12px;color:#68578d;background:#f7f2ff;border-radius:10px;padding:12px}
+@media(max-width:600px){.p1-photos{grid-template-columns:repeat(2,minmax(0,1fr))}.p1-mfa-qr{width:190px;height:190px}.p1-secret{font-size:13px;letter-spacing:1px}}
