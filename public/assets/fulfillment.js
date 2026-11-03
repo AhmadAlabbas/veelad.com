@@ -115,7 +115,7 @@ function suppliersView(){
  return '<div class="metrics">'+metric('Supplier companies',(state.session?.suppliers||[]).length,'♙')+metric('Assigned jobs',state.jobs.length,'▤')+metric('Ready for assignment',state.pool.length,'◷')+metric('On hold',state.jobs.filter(j=>j.status==='on_hold').length,'!')+'</div>'+
  '<div class="two-col"><section class="card"><div class="card-title"><div><h2>Supplier companies</h2><p>Separate access boundaries for each manufacturing partner.</p></div></div>'+
  '<form data-form="supplier"><div class="field"><label for="new-supplier">Company name</label><input id="new-supplier" name="name" maxlength="120" placeholder="e.g. Merchlist" required></div><button class="button accent" type="submit">Add supplier</button></form>'+
- '<div class="table-scroll" style="margin-top:17px"><table class="data-table"><thead><tr><th>Company</th><th>Status</th></tr></thead><tbody>'+(state.session?.suppliers||[]).map(s=>'<tr><td>'+escapeHTML(s.name)+'</td><td>'+status(s.status)+'</td></tr>').join('')+'</tbody></table></div></section>'+
+ '<div class="table-scroll" style="margin-top:17px"><table class="data-table"><thead><tr><th>Company</th><th>Status</th></tr></thead><tbody>'+(state.session?.suppliers||[]).map(s=>'<tr><td>'+escapeHTML(s.name)+'</td><td>'+status(s.status)+' <button type="button" class="text-link" data-supplier-status="'+escapeHTML(s.id)+'">'+(s.status==='active'?'Suspend':'Reactivate')+'</button></td></tr>').join('')+'</tbody></table></div></section>'+
  '<section class="card"><div class="card-title"><div><h2>Grant employee access</h2><p>Suppliers use existing Veelad accounts, with explicit approval.</p></div></div><form data-form="member"><div class="field"><label for="member-supplier">Supplier</label><select id="member-supplier" name="supplier_id" required>'+supplierOptions+'</select></div><div class="field"><label for="member-email">Existing account email</label><input id="member-email" name="email" type="email" autocomplete="off" placeholder="team@example.com" required></div><div class="field"><label for="member-access">Access</label><select id="member-access" name="access"><option value="active">Grant access</option><option value="suspended">Suspend access</option></select></div><button class="button accent" type="submit" '+(!supplierOptions?'disabled':'')+'>Update employee access</button></form><p class="form-help" style="margin-top:12px">Never share account passwords. Grant each employee their own role. Suspending a membership blocks its supplier access immediately.</p></section></div>'+
  '<section class="card"><div class="card-title"><div><h2>Assign an approved order</h2><p>Only paid processing orders with approved proofs appear here.</p></div></div>'+
  (state.pool.length?'<form data-form="assign"><div class="form-row"><div class="field"><label for="assign-order">Approved order</label><select name="order_id" id="assign-order" required>'+state.pool.map(o=>'<option value="'+escapeHTML(o.id)+'">'+escapeHTML(o.id)+' · '+o.items.length+' item lines</option>').join('')+'</select></div><div class="field"><label for="assign-supplier">Fulfillment company</label><select name="supplier_id" id="assign-supplier" required>'+supplierOptions+'</select></div></div><button class="button accent" '+(!supplierOptions?'disabled':'')+' type="submit">Assign selected order</button></form>':empty('No orders ready to assign','Complete a test checkout, record the staging payment and approve each order proof before releasing a job.'))+'</section>';
@@ -173,6 +173,13 @@ $('content').addEventListener('click',async event=>{
   if(b.dataset.view){state.view=b.dataset.view;state.selected=null;render();}
   else if(b.dataset.open)await openOrder(b.dataset.open);
   else if(b.dataset.progress)await progress(b.dataset.progress);
+  else if(b.dataset.supplierStatus){
+   const supplier=state.session.suppliers.find(x=>x.id===b.dataset.supplierStatus);
+   if(supplier&&confirm((supplier.status==='active'?'Suspend':'Reactivate')+' supplier '+supplier.name+'?')){
+    await api('admin-fulfillment-supplier',{method:'POST',body:{id:supplier.id,name:supplier.name,status:supplier.status==='active'?'suspended':'active'}});
+    notice('Supplier access updated.');await bootstrap();
+   }
+  }
   else if(b.dataset.approveDispatch){
    if(confirm('Approve carrier tracking and mark this order shipped?')){
     await api('admin-fulfillment-dispatch',{method:'POST',body:{order_id:state.selected.job.id}});notice('Dispatch approved. Customer order marked as shipped.');state.selected=null;await reload();
