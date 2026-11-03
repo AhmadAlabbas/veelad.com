@@ -1,0 +1,5 @@
+[
+  "CREATE TABLE IF NOT EXISTS fulfillment_suppliers (id VARCHAR(64) PRIMARY KEY, name VARCHAR(120) NOT NULL, status VARCHAR(20) NOT NULL DEFAULT 'active', created_at VARCHAR(40) NOT NULL, INDEX (status))",
+  "CREATE TABLE IF NOT EXISTS fulfillment_members (supplier_id VARCHAR(64) NOT NULL, user_id VARCHAR(64) NOT NULL, access VARCHAR(20) NOT NULL DEFAULT 'active', created_at VARCHAR(40) NOT NULL, PRIMARY KEY (supplier_id,user_id), INDEX (user_id,access))",
+  "CREATE TABLE IF NOT EXISTS fulfillment_jobs (order_id VARCHAR(64) PRIMARY KEY, supplier_id VARCHAR(64) NOT NULL, status VARCHAR(30) NOT NULL DEFAULT 'assigned', revision INT UNSIGNED NOT NULL DEFAULT 0, prior_status VARCHAR(30) NULL, issue_note VARCHAR(1000) NOT NULL DEFAULT '', carrier VARCHAR(100) NOT NULL DEFAULT '', tracking VARCHAR(120) NOT NULL DEFAULT '', created_at VARCHAR(40) NOT NULL, updated_at VARCHAR(40) NOT NULL, INDEX (supplier_id,status,updated_at))"
+]
