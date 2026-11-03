@@ -22,7 +22,7 @@ test('private fulfillment Phase 1 issues one-use supplier invitation and isolate
   await page.locator('[data-form=invite] button[type=submit]').click();
   const linkField=page.locator('#invite-link');await expect(linkField).toBeVisible();
   const invite=await linkField.inputValue();
-  expect(invite).toMatch(/\/fulfillment\/invite\?token=[0-9a-f]{64}$/);
+  expect(invite).toMatch(/\/fulfillment\/invite#token=[0-9a-f]{64}$/);
 
   ctx=await browser.newContext();
   const staff=await ctx.newPage();
