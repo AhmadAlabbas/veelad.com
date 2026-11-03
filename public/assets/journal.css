@@ -93,3 +93,17 @@
  .journal-article>.journal-cover[src^="/assets/journal-demo/"]{aspect-ratio:3/2}
 }
 @media(prefers-reduced-motion:reduce){.journal-read-jump{transition:none}.journal-card-image .journal-cover{transition:none}}
+
+
+/* Published-only inspiration tags and card alignment on the Journal home. */
+.journal-tag-discovery{display:flex;align-items:center;gap:22px;padding:16px 0 23px;margin:0 0 20px;border-bottom:1px solid #e8e5e8;min-width:0}
+.journal-tag-discovery>span{font-size:10px;letter-spacing:.09em;text-transform:uppercase;font-weight:800;color:#6b5789;flex:0 0 auto}
+.journal-tag-discovery>div{min-width:0;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.journal-tag-discovery a{display:inline-flex;align-items:center;justify-content:center;min-height:36px;border:1px solid #e3dee7;border-radius:100px;padding:8px 13px;font-size:11px;font-weight:640;background:#fff;color:#4b4653;text-decoration:none}
+.journal-tag-discovery a:hover{border-color:#b19ad7;background:#f8f4fe;text-decoration:none}
+.journal-grid .journal-card{display:flex;flex-direction:column;min-width:0}
+.journal-grid .journal-card-copy{display:flex;flex-direction:column;align-items:flex-start;flex:1}
+.journal-grid .journal-card-copy .journal-card-save{margin-top:auto}
+.journal-grid .journal-card-copy>p:not(.journal-kicker){flex:0 0 auto}
+@media(max-width:800px){.journal-tag-discovery{align-items:flex-start;flex-direction:column;gap:11px}}
+@media(max-width:520px){.journal-tag-discovery>div{max-width:100%;flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;padding:2px 2px 7px;scrollbar-width:thin}.journal-tag-discovery a{flex:0 0 auto;min-height:40px}}
