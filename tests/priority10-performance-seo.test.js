@@ -15,14 +15,16 @@ async function host(app,callback){
  try{return await callback('http://127.0.0.1:'+server.address().port);}
  finally{await new Promise(resolve=>server.close(resolve));}
 }
-test('all 68 classic scripts execute in defined order after parsing, without blocking the HTML parser',async()=>{
+test('all classic scripts execute in defined order after parsing, without blocking the HTML parser',async()=>{
  const html=await fs.readFile(path.join(base,'index.html'),'utf8');
  const scripts=[...html.matchAll(/<script\b([^>]*)src="(\/assets\/[^"]+)"[^>]*><\/script>/g)];
- assert.equal(scripts.length,68);
- assert.equal(scripts.filter(match=>/\bdefer\b/.test(match[1])).length,68);
+ assert.ok(scripts.length>=68,'New optional modules may extend the existing 68-script baseline.');
+ assert.equal(scripts.filter(match=>/\bdefer\b/.test(match[1])).length,scripts.length);
  assert.equal(scripts.filter(match=>/\basync\b/.test(match[1])).length,0);
  assert.ok(scripts.findIndex(x=>x[2].includes('flags-art-4.js'))<scripts.findIndex(x=>x[2].includes('elements-mega.js')));
  assert.ok(scripts.findIndex(x=>x[2].includes('international.js'))<scripts.findIndex(x=>x[2].includes('app.js')));
+ assert.ok(scripts.findIndex(x=>x[2].includes('product-comments.js'))<scripts.findIndex(x=>x[2].includes('app.js')));
+ assert.ok(scripts.findIndex(x=>x[2].includes('retention-suite.js'))<scripts.findIndex(x=>x[2].includes('app.js')));
  assert.ok(html.includes('rel="preconnect" href="https://fonts.gstatic.com" crossorigin'));
 });
 

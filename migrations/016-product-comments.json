@@ -1,0 +1,4 @@
+[
+ "CREATE TABLE IF NOT EXISTS product_comments (id VARCHAR(64) PRIMARY KEY,product_id VARCHAR(64) NOT NULL,user_id VARCHAR(64) NOT NULL,parent_id VARCHAR(64) NULL,body TEXT NOT NULL,status VARCHAR(20) NOT NULL,moderation_note VARCHAR(500) NOT NULL DEFAULT '',moderated_by VARCHAR(64) NULL,moderated_at VARCHAR(40) NULL,created_at VARCHAR(40) NOT NULL,updated_at VARCHAR(40) NOT NULL,INDEX product_comment_public(product_id,status,parent_id,created_at),INDEX product_comment_parent(parent_id,status,created_at),INDEX product_comment_moderation(status,created_at),INDEX product_comment_owner(user_id,created_at))",
+ "CREATE TABLE IF NOT EXISTS product_comment_reports (comment_id VARCHAR(64) NOT NULL,user_id VARCHAR(64) NOT NULL,reason VARCHAR(30) NOT NULL,created_at VARCHAR(40) NOT NULL,resolved_at VARCHAR(40) NULL,resolved_by VARCHAR(64) NULL,PRIMARY KEY(comment_id,user_id),INDEX product_comment_report_time(created_at))"
+]
