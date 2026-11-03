@@ -51,6 +51,9 @@ jobs:
             if curl --fail --silent 'http://127.0.0.1:3000/api.php?route=health' >/dev/null; then break; fi
             sleep 1
           done
+          # Fail quickly on the previously failing guest-bag/login regression
+          # before running the longer desktop/mobile browser suite.
+          npx playwright test tests/browser/prelaunch-hardening.spec.js --project=desktop --project=mobile --reporter=line
           npm run test:ui -- --reporter=list,github
       - uses: actions/upload-artifact@v4
         if: failure()
