@@ -175,7 +175,7 @@ document.addEventListener('click',event=>{
   purchaseSelections.set(p.id,selected);
   sessionStorage.setItem('veelad-create-choices',JSON.stringify({product:p.id,choices:selected,at:Date.now()}));
  }catch{try{sessionStorage.removeItem('veelad-create-choices');}catch{}}
-});
+},true);
 document.addEventListener('change',event=>{
  if(event.target.matches('#artwork-file,[data-form=admin-product] [name=category]')){const confirmed=event.target.form?.elements.purchase_options_confirmed;if(confirmed)confirmed.checked=false;}
  if(event.target.matches('#checkout-form select[name=country]')){const code=event.target.selectedOptions[0]?.dataset.code;if(code){write('delivery-destination',code);const control=document.querySelector('.global-nav .destination-control');if(control)control.outerHTML=destinationControl();}}
