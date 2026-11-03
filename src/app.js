@@ -112,16 +112,17 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
  });
  api.use(express.json({limit:'256kb',inflate:false}));
  const upload=multer({storage:multer.memoryStorage(),limits:{fileSize:artworkLimits.bytes,files:1,fields:0}});
+ const supplierEvidenceUpload=multer({storage:multer.memoryStorage(),limits:{fileSize:8*1024*1024,files:1,fields:0,parts:1}});
  let parsingUploads=0;
  api.use(async(req,res,next)=>{
-  if(req.method!=='POST'||!['upload','admin-artwork-restore'].includes(req.query.route))return next();
+  if(req.method!=='POST'||!['upload','admin-artwork-restore','fulfillment-evidence-upload'].includes(req.query.route))return next();
   try {
    const u=req.query.route==='admin-artwork-restore'?await role(req,'admin'):await me(req,true);
    await throttle(req,'upload-admission',40);await throttle(req,'upload-account',40,u.id);
    if(parsingUploads>=4)return next(new ApiError(429,'Uploads are busy. Please try again shortly.'));
    parsingUploads++;let released=false;const release=()=>{if(!released){released=true;parsingUploads--;}};
    res.once('close',release);res.once('finish',release);req.once('aborted',release);
-   upload.single('artwork')(req,res,error=>{if(error)release();next(error);});
+   (req.query.route==='fulfillment-evidence-upload'?supplierEvidenceUpload:upload).single('artwork')(req,res,error=>{if(error)release();next(error);});
   }catch(error){next(error);}
  });
  const q=db.q, one=db.one;
