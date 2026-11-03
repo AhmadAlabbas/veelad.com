@@ -46,7 +46,8 @@ translations.ar=Object.freeze({...translations.ar,
  'The artist':'صاحب التصميم',
  'You might also like':'قد يعجبك أيضًا',
  'Current product':'المنتج الحالي',
- 'Published products':'المنتجات المتاحة'
+ 'Published products':'المنتجات المتاحة',
+ 'Comments':'التعليقات'
  ,'Size: {option}':'المقاس: {option}'
  ,'Option: {option}':'اختيارك: {option}'
  ,'Edit options':'عدّل اختيارك'
@@ -73,7 +74,7 @@ function productFormatLinks(p) {
 function productEditorialNavigation(p) {
  const hasStory=String(localField(p,'story')||localField(p,'description')||'').trim().length>0;
  const hasOtherFormat=productDesignFamily(p).some(other=>other.id!==p.id);
- return `<nav class="product-section-nav" aria-label="${esc(t('Design story navigation'))}">${hasStory?`<a href="#product-story" data-action="product-jump">${t('The design story')}</a>`:''}${hasOtherFormat?`<a href="#same-design" data-action="product-jump">${t('Same design')}</a>`:''}<a href="#product-artist" data-action="product-jump">${t('The artist')}</a><a href="#product-discover" data-action="product-jump">${t('You might also like')}</a></nav>`;
+ return `<nav class="product-section-nav" aria-label="${esc(t('Design story navigation'))}">${hasStory?`<a href="#product-story" data-action="product-jump">${t('The design story')}</a>`:''}${hasOtherFormat?`<a href="#same-design" data-action="product-jump">${t('Same design')}</a>`:''}<a href="#product-artist" data-action="product-jump">${t('The artist')}</a>${(typeof productCommentsEnabled!=='undefined'&&productCommentsEnabled&&route!=='preview')?'<a href="#product-conversation" data-action="product-jump">'+t('Comments')+'</a>':''}<a href="#product-discover" data-action="product-jump">${t('You might also like')}</a></nav>`;
 }
 function productDesignStory(p) {
  const story=String(localField(p,'story')||localField(p,'description')||'').trim();
