@@ -18,7 +18,7 @@ window.VeeladComments=(()=>{
   return '<article class="conversation-entry'+(reply?' is-reply':'')+'" data-comment-id="'+id+'"><div class="conversation-meta">'+label(comment)+'<time datetime="'+escape(comment.created_at)+'">'+escape(time(comment.created_at))+'</time></div><p class="conversation-body" dir="auto">'+escape(comment.body)+'</p>'+
    '<div class="conversation-actions">'+(!reply&&user?'<button type="button" class="text-link" data-comment-reply="'+id+'">'+escape(l('reply'))+'</button>':'')+
    (user?'<button type="button" class="text-link" data-comment-report-open="'+id+'">'+escape(l('report'))+'</button>':'')+
-   (user&&comment.author.name===user.name?'<button type="button" class="text-link" data-comment-delete="'+id+'">'+escape(l('delete'))+'</button>':'')+
+   (user&&comment.own===true?'<button type="button" class="text-link" data-comment-delete="'+id+'">'+escape(l('delete'))+'</button>':'')+
    '</div><div data-comment-inline></div></article>';
  }
  // The user cannot delete someone else's comment even with a spoofed UI; server owns authorization.
@@ -35,7 +35,7 @@ window.VeeladComments=(()=>{
    const result=await api('product-comments',null,{product_id:productId,page:String(page)});
    if(!root.isConnected||root.dataset.page!==String(page))return;
    content.innerHTML='<div class="conversation-grid"><div class="conversation-threads">'+(result.comments.length?result.comments.map(item=>'<div class="conversation-thread">'+entry(item)+repliesFor(item)+'</div>').join(''):'<p class="small muted">'+escape(l('empty'))+'</p>')+
-    (result.has_more?'<button type="button" class="btn outline sm" data-comment-page="'+String(page+1)+'">'+escape(l('older'))+'</button>':'')+'</div><div class="conversation-compose">'+(user?composer(productId):'<a class="btn outline" href="'+escape(url('login'))+'">'+escape(l('signin'))+'</a>')+'</div></div>';
+    (result.has_more?'<button type="button" class="btn outline sm" data-comment-page="'+String(page+1)+'">'+escape(l('older'))+'</button>':'')+'</div><div class="conversation-compose">'+(user?composer(productId):'<a class="btn outline" href="'+escape(url('login',{next:'product',id:productId}))+'">'+escape(l('signin'))+'</a>')+'</div></div>';
   }catch(error){if(root.isConnected)content.textContent=l('loadError');}
  }
  const adminPage=()=>'<section class="panel product-comment-admin"><h1>'+escape(l('adminHeading'))+'</h1><p>'+escape(l('adminIntro'))+'</p><p data-comment-notice role="status" aria-live="polite"></p><div class="conversation-admin-list">'+escape(l('loading'))+'</div></section>';
