@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import {chooseHeaderPreference} from '../helpers/header-preferences.js';
 import sharp from "sharp";
 import { config } from "../../src/config.js";
 import { database } from "../../src/db.js";
@@ -120,7 +121,7 @@ test("starter layouts stay editable, protect existing artwork and text, autosave
     await page.reload();
     await expect(studio().locator(".design-studio")).toHaveAttribute("data-ready", "true");
     expect((await state()).scenes).toEqual(edited.scenes);
-    await page.locator('[data-international-language]').first().selectOption(await page.locator('html').getAttribute('lang')==='ar'?'en':'ar');
+    await chooseHeaderPreference(page,'language',(await page.locator('html').getAttribute('lang'))==='ar'?'en':'ar');
     await expect(page).toHaveURL(/\/ar\/create/);
     await expect(studio().locator(".design-studio")).toHaveAttribute("data-ready", "true");
     expect((await state()).scenes).toEqual(edited.scenes);

@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import {chooseHeaderPreference} from '../helpers/header-preferences.js';
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -170,9 +171,10 @@ test("layered workspace keeps multiple originals and independent sides through e
     await expect.poll(async () => (await scene("front")).layers.find(l => l.id === selectedImage.id).width).toBeGreaterThan(sideBefore.width);
     expect((await scene("front")).layers.find(l => l.id === selectedImage.id).height).toBeCloseTo(sideBefore.height);
 
-    // Precision tools keep the same selected layer after an undo and respect
-    // constrained drag. These checks run on desktop and the emulated phone.
-    await shell.locator(`[data-ws-select="${selectedImage.id}"]`).click();
+    // The mobile layer inspector can be closed after a canvas gesture. Do not
+    // click its hidden layer-list button; selection must persist independently.
+    // Verify the actual canvas selection before testing keyboard precision.
+    await expect(shell).toHaveAttribute("data-selected-layer", selectedImage.id);
     const selectedArtboard = shell.locator("[data-ws-artboard]");
     await selectedArtboard.focus();
     const beforeKey = (await scene("front")).layers.find(l => l.id === selectedImage.id);
@@ -270,7 +272,7 @@ test("layered workspace keeps multiple originals and independent sides through e
     expect(await scene("back")).toMatchObject(back);
     await shell.locator("[data-ws-surface=front]").click();
     await expect(shell.locator("[data-ws-layer]")).toHaveCount(4);
-    await page.locator('[data-international-language]').first().selectOption(await page.locator('html').getAttribute('lang')==='ar'?'en':'ar');
+    await chooseHeaderPreference(page,'language',(await page.locator('html').getAttribute('lang'))==='ar'?'en':'ar');
     await expect(page).toHaveURL(/\/ar\/create/);
     await expect(form.locator(".design-studio")).toHaveAttribute("data-ready", "true");
     await expect(page.locator("html")).toHaveAttribute("dir", "rtl");

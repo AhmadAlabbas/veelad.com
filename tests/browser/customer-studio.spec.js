@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import {chooseHeaderPreference} from '../helpers/header-preferences.js';
 import fs from "node:fs/promises";
 import sharp from "sharp";
 import { config } from "../../src/config.js";
@@ -137,7 +138,7 @@ test("customers customize two products with one private original, switch languag
     await selectImageLayer(form, "shirt");
     await form.locator("[data-ws-prop=rotation]").fill("13");
     await form.locator("[data-ws-prop=rotation]").dispatchEvent("input");
-    await page.locator('[data-international-language]').first().selectOption(await page.locator('html').getAttribute('lang')==='ar'?'en':'ar');
+    await chooseHeaderPreference(page,'language',(await page.locator('html').getAttribute('lang'))==='ar'?'en':'ar');
     await expect(page).toHaveURL(/\/ar\/create/);
     await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
     await expect(form.locator(".customer-workspace")).toBeVisible();
@@ -161,7 +162,7 @@ test("customers customize two products with one private original, switch languag
       path: info.outputPath("customer-studio-ar.png"),
       fullPage: true,
     });
-    await page.locator('[data-international-language]').first().selectOption(await page.locator('html').getAttribute('lang')==='ar'?'en':'ar');
+    await chooseHeaderPreference(page,'language',(await page.locator('html').getAttribute('lang'))==='ar'?'en':'ar');
     await expect(page).toHaveURL(/\/en\/create/);
     await expect(form.locator(".design-studio")).toHaveAttribute(
       "data-ready",

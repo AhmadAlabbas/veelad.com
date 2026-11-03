@@ -61,7 +61,7 @@
 .journal-contents a:hover{background:#f8f5fc;border-inline-start-color:#9b81ef;color:#382653}
 .journal-contents a[aria-current=location]{background:#f5f0fc;border-inline-start-color:#7957b8;color:#3e2863;font-weight:750}
 .journal-prose{max-width:760px}
-.journal-prose h2[id],.journal-prose h3[id],#journal-story-content{scroll-margin-top:38px}
+.journal-prose h2[id],.journal-prose h3[id],#journal-story-content{scroll-margin-top:clamp(72px,9vw,112px)}
 .journal-back-to-top{display:inline-flex;align-items:center;min-height:44px;margin:15px 0 8px;color:#5d4388;font-size:13px;text-decoration:underline;text-underline-offset:4px}
 .journal-prose figure{border-radius:9px;overflow:hidden}
 .journal-prose figure img{max-width:100%;height:auto;object-fit:contain}
