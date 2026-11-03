@@ -198,9 +198,28 @@ export async function fulfillmentRoute({route,method,v,req,res,db,c,me,role,thro
       if(order.status!=='processing')fail(409,'Order is no longer in production.');
       ensureFulfillmentReady(d,c.mode);
       if(!Number.isSafeInteger(v.revision)||v.revision!==job.revision)fail(409,'Production job changed. Refresh before updating.');
+      const membership=admin?null:await one("SELECT m.supplier_role FROM fulfillment_members m JOIN fulfillment_suppliers s ON s.id=m.supplier_id AND s.status='active' WHERE m.supplier_id=? AND m.user_id=? AND m.access='active'",[job.supplier_id,u.id],conn);
+      const supplierRole=admin?'admin':membership?.supplier_role;
+      if(!supplierMay(supplierRole,action))fail(403,'Your supplier role cannot perform this production action.');
+      const openIssues=await one("SELECT COUNT(*) AS count FROM fulfillment_issues WHERE order_id=? AND status='open'",[id],conn);
+      if(['resume','printing','quality_check','packed','dispatch_submitted'].includes(action)&&Number(openIssues?.count||0))fail(409,'Resolve all open production issues before continuing.');
+      if(action==='printing'){
+        const specs=await q('SELECT category,print_width_mm,print_height_mm,bleed_mm,min_dpi FROM fulfillment_print_specs WHERE supplier_id=? ORDER BY category',[job.supplier_id],conn);
+        const fingerprint=printFingerprint(d,job.supplier_id,specs);
+        const approval=await one('SELECT snapshot_hash FROM fulfillment_preflight WHERE order_id=?',[id],conn);
+        if(!approval||approval.snapshot_hash!==fingerprint)fail(409,'Veelad must approve a current print-preflight report before printing.');
+      }
+      if(['quality_check','packed'].includes(action)){
+        const evidence=await q("SELECT line_id,kind,status FROM fulfillment_qc_evidence WHERE order_id=?",[id],conn);
+        if(!evidenceReady(d.items||[],evidence))fail(409,'Each order line requires a separately approved final-print photograph.');
+      }
       const next=nextFulfillmentStep(job.status,action);
       let prior=job.prior_status,issue=job.issue_note,carrier=job.carrier,tracking=job.tracking;
-      if(action==='hold'){issue=text(v,'note',1000);prior=job.status;}
+      if(action==='hold'){
+        issue=text(v,'note',1000);if(issue.length<10)fail(422,'Explain the hold in at least ten characters.');
+        prior=job.status;
+        await q('INSERT INTO fulfillment_issues (id,order_id,category,severity,status,note,created_by,created_at) VALUES (?,?,?,?,?,?,?,?)',[uid('fissue-'),id,'other','medium','open',issue,u.id,stamp()],conn);
+      }
       if(action==='resume'){if(!prior)fail(409,'The previous job state is missing.');}
       if(action==='dispatch_submitted'){
         carrier=text(v,'carrier',100);tracking=text(v,'tracking',120);
@@ -231,6 +250,9 @@ export async function fulfillmentRoute({route,method,v,req,res,db,c,me,role,thro
       if(order.status!=='processing'||job.status!=='dispatch_submitted'||!job.carrier||!job.tracking)fail(409,'Supplier dispatch is not ready for approval.');
       ensureFulfillmentReady(d,c.mode);
       if(d.production?.stage!=='packed')fail(409,'Quality control and packaging must be complete.');
+      const openIssues=await one("SELECT COUNT(*) AS count FROM fulfillment_issues WHERE order_id=? AND status='open'",[id],conn);
+      const evidence=await q("SELECT line_id,kind,status FROM fulfillment_qc_evidence WHERE order_id=?",[id],conn);
+      if(Number(openIssues?.count||0)||!evidenceReady(d.items||[],evidence))fail(409,'Resolve inspection issues and approve final-print evidence before dispatch.');
       d.tracking=job.tracking;d.carrier=job.carrier;d.shipped_at=stamp();
       await q("UPDATE orders SET status='shipped',data=? WHERE id=?",[JSON.stringify(d),id],conn);
       await audit(u,'fulfillment.dispatch.approved',id,conn);
