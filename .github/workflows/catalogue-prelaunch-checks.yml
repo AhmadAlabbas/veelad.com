@@ -1,0 +1,65 @@
+name: Catalogue prelaunch data audit checks
+on:
+  pull_request:
+    branches: [staging]
+    paths:
+      - 'src/catalogue-readiness.js'
+      - 'src/shopping-quality.js'
+      - 'public/assets/shopping-quality.js'
+      - 'public/assets/shopping-quality.css'
+      - 'tests/shopping-quality.test.js'
+      - 'tests/browser/shopping-quality.spec.js'
+      - '.github/workflows/catalogue-prelaunch-checks.yml'
+permissions:
+  contents: read
+concurrency:
+  group: catalogue-prelaunch-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    services:
+      mysql:
+        image: mysql:8.4@sha256:24989179f58856db763f418010c1169fecc944e3ec1ea7e921572d83eb070f70
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+          MYSQL_DATABASE: veelad_local
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1"
+          --health-interval=5s --health-timeout=5s --health-retries=30
+    env:
+      APP_ENV: local
+      APP_ORIGIN: http://127.0.0.1:3000
+      DB_HOST: 127.0.0.1
+      DB_PORT: '3306'
+      DB_NAME: veelad_local
+      DB_USER: root
+      SESSION_SECRET: ci-only-session-secret-with-no-production-access
+      MANUAL_TEST_PAYMENTS: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run check && npm run build
+      - run: npm run migrate && npm run local:provision
+      - name: Backend data-preflight regression
+        run: node --test --test-concurrency=1 tests/shopping-quality.test.js
+      - run: npx playwright install --with-deps chromium
+      - name: Catalogue Admin desktop/mobile regression
+        run: |
+          npm start > /tmp/veelad-server.log 2>&1 &
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent 'http://127.0.0.1:3000/api.php?route=health' >/dev/null; then break; fi
+            sleep 1
+          done
+          npx playwright test tests/browser/shopping-quality.spec.js --project=desktop --project=mobile --reporter=list,github
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: catalogue-preflight-results
+          path: test-results/
