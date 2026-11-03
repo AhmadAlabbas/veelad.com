@@ -51,6 +51,9 @@ export function pageRoutes(app,c,db,schema) {
   let source=await fs.readFile(path.join(publicDir,'index.html'),'utf8');
   source=source.replace(/<html\b[^>]*>/,`<html lang="${language}" dir="${language==='ar'?'rtl':'ltr'}" data-numerals="${c.numberingSystem||'latn'}">`).replace(/<title>.*?<\/title>/,`<title>${esc(title)}</title>`).replace(/<meta name="description" content="[^"]*">/,`<meta name="description" content="${esc(description.slice(0,180))}">`).replace('</head>',metadata+(structured?`<script type="application/ld+json" data-page-schema>${JSON.stringify(structured).replace(/</g,'\\u003c')}</script>`:'')+'</head>').replace('<div id="app"></div>',`<div id="app"><div class="store-loading" aria-busy="true" role="status"><span class="wordmark" dir="ltr">veelad</span><span class="store-loading-spinner" aria-hidden="true"></span><span class="sr-only">${esc(pageText(language,'storeLoading'))}</span></div></div><noscript><style>.store-loading{display:none}</style>${body.replace('<main>','<main id="main" class="container section">')}</noscript>`);
   if(c.revision)source=source.replace(/(href|src)="(\/assets\/[^"?]+)(?:\?[^\"]*)?"/g,(_,attribute,asset)=>`${attribute}="${asset}?v=${encodeURIComponent(c.revision)}"`);
+  // Preload only the actual first-visit LCP image. Its URL matches the
+  // storefront slideshow byte-for-byte, avoiding duplicate network fetches.
+  if(canonical==='/'&&status===200)source=source.replace('</head>','<link rel="preload" as="image" href="/assets/lifestyle/homepage-editorial.webp?v=veelad-neutral-2" fetchpriority="high"></head>');
   res.status(status).set('Cache-Control','no-cache').set('X-Robots-Tag',robots).type('html').send(source);
  }
  app.get('/robots.txt',(req,res)=>{
