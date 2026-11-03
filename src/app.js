@@ -49,6 +49,7 @@ import {creativePersonalisationRoute,validateCreativePersonalisation} from './cr
 import {partnerRoute,partnerReferral,resolvePartnerAttribution} from './partners.js';
 import {partnerPayoutRoute} from './partners-payouts.js';
 import {fulfillmentRoute} from './fulfillment.js';
+import {maybeAutoAssignMerchlist} from './fulfillment-auto-assign.js';
 import {fulfillmentIntegrationHandler} from './fulfillment-phase3-integration.js';
 import {capturePartnerOrder,syncPartnerOrder} from './partners-finance.js';
 const publicDir=fileURLToPath(new URL('../public',import.meta.url));
@@ -679,7 +680,7 @@ export function createApp(c,db,schema={status:'ready'},mailCheck=checkMail,googl
      if(route==='admin-record-payment') {
       if(!['awaiting_payment','new'].includes(o.status)) fail(409,'Only an unpaid open order can be confirmed.');
       Object.assign(d,{payment_status:'paid',payment_method:'manual_external',payment_reference:text(v,'reference',150),paid_at:now(),test_payment:true});
-      await q('UPDATE orders SET status=?,data=? WHERE id=?',['processing',JSON.stringify(d),o.id],conn);await audit(u,'payment.test_recorded',o.id,conn);
+      await q('UPDATE orders SET status=?,data=? WHERE id=?',['processing',JSON.stringify(d),o.id],conn);await maybeAutoAssignMerchlist(db,c,o.id,conn);await audit(u,'payment.test_recorded',o.id,conn);
       await queue(o.email,'Veelad test payment recorded: '+o.id,'A simulated external payment was recorded for this staging order. No charge or transfer was made. Reference: '+d.payment_reference,conn);
      }else {
       const next=text(v,'status',30),allowed={awaiting_payment:['cancelled'],new:['cancelled'],processing:['shipped','cancelled'],shipped:['delivered'],delivered:[],cancelled:[]};

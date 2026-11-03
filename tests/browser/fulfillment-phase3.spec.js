@@ -13,7 +13,7 @@ test('Phase 3 administrator reviews supplier scorecards and creates a revocable 
   await page.goto(f.origin+'/en/login');await page.locator('[data-form=login]').waitFor();
   await page.evaluate(credentials=>api('login',credentials),{email:'p3-admin@example.test',password});
   await page.goto(f.origin+'/fulfillment');
-  await expect(page.getByRole('heading',{name:'Fulfillment overview'})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Manufacturing dashboard'})).toBeVisible();
   await page.getByRole('button',{name:'Route by product',exact:true}).click();
   await expect(page.getByRole('heading',{name:'Assign products to suppliers'})).toBeVisible();
   await expect(page.getByText('No orders eligible for split routing')).toBeVisible();

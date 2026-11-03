@@ -14,7 +14,7 @@ test('private fulfillment Phase 1 issues one-use supplier invitation and isolate
   await page.goto(f.origin+'/en/login');await page.locator('[data-form=login]').waitFor();
   await page.evaluate(credentials=>api('login',credentials),{email:'fulfillment-admin@example.test',password});
   await page.goto(f.origin+'/fulfillment');
-  await expect(page.getByRole('heading',{name:'Fulfillment overview'})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Manufacturing dashboard'})).toBeVisible();
   await page.getByRole('button',{name:/Suppliers/}).click();
   await expect(page.getByText('Secure supplier invitations')).toBeVisible();
   await page.locator('[data-form=invite] [name=email]').fill('merchlist-operator@example.test');
@@ -31,7 +31,7 @@ test('private fulfillment Phase 1 issues one-use supplier invitation and isolate
   await staff.goto(invite);
   await expect(staff.getByRole('heading',{name:'Join your supplier workspace'})).toBeVisible();
   await staff.getByRole('button',{name:'Accept supplier invitation'}).click();
-  await expect(staff.getByRole('heading',{name:'Fulfillment overview'})).toBeVisible();
+  await expect(staff.getByRole('heading',{name:'Manufacturing dashboard'})).toBeVisible();
   await expect(staff.locator('#supplier-picker')).toContainText('Merchlist');
   await expect(staff.getByRole('button',{name:/Suppliers/})).toHaveCount(0);
   const saved=await f.db.one("SELECT supplier_role,access FROM fulfillment_members WHERE supplier_id=? AND user_id=?",['supplier-merchlist','fulfillment-staff']);

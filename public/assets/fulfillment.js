@@ -5,23 +5,24 @@ const escapeHTML=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','
 const fmt=value=>value?new Date(value).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—';
 const status=value=>'<span class="status '+escapeHTML(value)+'">'+escapeHTML(String(value||'').replaceAll('_',' '))+'</span>';
 const views=[
- {id:'overview',label:'Overview',icon:'◫',title:'Fulfillment overview',subtitle:'Track the production flow from a single workspace.'},
- {id:'orders',label:'Orders',icon:'▤',title:'Assigned orders',subtitle:'Every approved job, with its original order details.'},
- {id:'production',label:'Production',icon:'⚙',title:'Production pipeline',subtitle:'Move approved work through each manufacturing milestone.'},
- {id:'artwork',label:'Artwork & files',icon:'▧',title:'Artwork centre',subtitle:'Original design files and provisional placement instructions.'},
- {id:'shipping',label:'Shipping',icon:'↗',title:'Shipping desk',subtitle:'Manage carrier handoff, tracking and delivery exceptions.'},
- {id:'packaging',label:'Packaging',icon:'▣',title:'Packaging centre',subtitle:'Supplier packaging instructions and checklists.'},
- {id:'messages',label:'Messages',icon:'✉',title:'Order communication',subtitle:'Private conversations between Veelad and suppliers.'},
+ {id:'overview',label:'Dashboard',icon:'◫',title:'Manufacturing dashboard',subtitle:'Merchlist production, quality checks and dispatch in one secure workspace.'},
+ {id:'orders',label:'Orders',icon:'▤',title:'Manufacturing orders',subtitle:'Paid orders with approved artwork assigned to your company.'},
+ {id:'production',label:'Printing',icon:'⚙',title:'Print queue',subtitle:'Accepted orders currently in production.'},
+ {id:'quality',label:'Quality control',icon:'✓',title:'Quality review',subtitle:'Inspect finished prints and submit approval evidence.'},
+ {id:'artwork',label:'Print files',icon:'▧',title:'Approved artwork',subtitle:'Download original files and approved production packs.'},
+ {id:'shipping',label:'Shipping',icon:'↗',title:'Dispatch and shipping',subtitle:'Pack orders, record carrier tracking and request dispatch approval.'},
+ {id:'packaging',label:'Packing',icon:'▣',title:'Packing desk',subtitle:'Check Veelad-branded packaging rules and sign off approved orders.'},
+ {id:'messages',label:'Messages',icon:'✉',title:'Order communication',subtitle:'Private conversations between Veelad and your production team.'},
  {id:'bulk',label:'Bulk operations',icon:'☷',title:'Batch operations',subtitle:'Accept assigned jobs and export picking lists.'},
  {id:'notifications',label:'Alerts',icon:'◉',title:'Operations alerts',subtitle:'Assignments, deadlines, issues and shipping updates.'},
- {id:'split',label:'Split production',icon:'◈',title:'Multi-supplier production',subtitle:'Each manufacturing partner sees only its own product lines.'},
+ {id:'split',label:'Product lines',icon:'◈',title:'Individual product jobs',subtitle:'Every supplier sees only the purchased product lines assigned to its own company.'},
  {id:'analytics',label:'Performance',icon:'▥',title:'Supplier performance',subtitle:'On-time performance, quality issues and production throughput.'},
  {id:'invoices',label:'Manufacturing invoices',icon:'▣',title:'Supplier manufacturing invoices',subtitle:'Separate factory-cost records with approval and external settlement tracking.'},
  {id:'routing',label:'Route by product',icon:'↗',title:'Assign products to suppliers',subtitle:'Assign every purchased product line to one verified manufacturing supplier.',admin:true},
  {id:'integrations',label:'Integration API',icon:'⌘',title:'Supplier API credentials',subtitle:'Create expiring read-only or limited-update credentials for external systems.',admin:true},
  {id:'suppliers',label:'Suppliers',icon:'♙',title:'Supplier management',subtitle:'Manage company access and assign approved orders.',admin:true}
 ];
-const state={session:null,activeSupplier:null,jobs:[],pool:[],selected:null,view:'overview',filter:'all',search:'',busy:false,phase1:null,adminSetup:{invites:[],specs:[]},inviteLink:'',phase2:null,ops:{jobs:[]},alerts:{notifications:[],unread:0},adminOps:{id:null,rules:[],policy:null},phase3:{jobs:[],candidates:{orders:[],suppliers:[]},analytics:[],invoices:[],keys:[],selected:null,routeOrder:null,invoice:null,lastToken:null},invitationToken:new URLSearchParams(location.hash.replace(/^#/, '')).get('token')||new URLSearchParams(location.search).get('token')||null};
+const state={session:null,authCsrf:null,authMode:'login',activeSupplier:null,jobs:[],pool:[],selected:null,view:'overview',filter:'all',search:'',busy:false,phase1:null,adminSetup:{invites:[],specs:[]},inviteLink:'',phase2:null,ops:{jobs:[]},alerts:{notifications:[],unread:0},adminOps:{id:null,rules:[],policy:null},phase3:{jobs:[],candidates:{orders:[],suppliers:[]},analytics:[],invoices:[],keys:[],selected:null,routeOrder:null,invoice:null,lastToken:null},invitationToken:new URLSearchParams(location.hash.replace(/^#/, '')).get('token')||new URLSearchParams(location.search).get('token')||null};
 const urlFor=(route,params={})=>{
  const url=new URL('/api.php',location.origin);url.searchParams.set('route',route);
  Object.entries(params).forEach(([key,value])=>{if(value!==null&&value!==undefined&&value!=='')url.searchParams.set(key,String(value));});
@@ -29,7 +30,8 @@ const urlFor=(route,params={})=>{
 };
 async function api(route,{method='GET',body=null,params={}}={}){
  const headers={'Accept':'application/json'};
- if(method!=='GET'){headers['Content-Type']='application/json';headers['X-CSRF-Token']=state.session?.csrf||'';}
+ if(route==='bootstrap')headers['X-veelad-catalogue']='deferred';
+ if(method!=='GET'){headers['Content-Type']='application/json';headers['X-CSRF-Token']=state.session?.csrf||state.authCsrf||'';}
  let response;
  try{response=await fetch(urlFor(route,params),{method,credentials:'same-origin',headers,body:body?JSON.stringify(body):undefined,cache:'no-store'});}
  catch{throw Error('Cannot reach Veelad. Check your connection and retry.');}
@@ -41,13 +43,18 @@ const notice=(message,kind='info')=>{const el=$('notice');el.hidden=!message;el.
 const empty=(heading,description)=>'<div class="empty"><div class="empty-icon">▦</div><h3>'+escapeHTML(heading)+'</h3><p>'+escapeHTML(description)+'</p></div>';
 const heading=(title,subtitle,label='SUPPLIER WORKSPACE')=>{$('page-title').textContent=title;$('page-subtitle').textContent=subtitle;$('section-label').textContent=label;$('breadcrumb').textContent=title;};
 function syncNavigation(){
- $('navigation').innerHTML=views.filter(x=>!x.admin||state.session?.admin).map(v=>'<button type="button" class="nav-button" data-view="'+v.id+'" aria-current="'+(v.id===state.view?'page':'false')+'"><span class="nav-icon" aria-hidden="true">'+v.icon+'</span>'+escapeHTML(v.label)+'</button>').join('');
+ const supplierSections=new Set(['overview','orders','production','quality','packaging','shipping','artwork','messages','notifications','split','analytics']);
+ $('navigation').innerHTML=views.filter(x=>state.session?.admin||supplierSections.has(x.id)).map(v=>'<button type="button" class="nav-button" data-view="'+v.id+'" aria-current="'+(v.id===state.view?'page':'false')+'"><span class="nav-icon" aria-hidden="true">'+v.icon+'</span>'+escapeHTML(v.label)+'</button>').join('');
  const options=state.session?.suppliers||[],picker=$('supplier-picker');
  picker.hidden=options.length===0;
  picker.innerHTML=state.session?.admin?'<option value="">All suppliers</option>':'';
  picker.innerHTML+=options.filter(s=>s.status!=='suspended').map(s=>'<option value="'+escapeHTML(s.id)+'">'+escapeHTML(s.name)+'</option>').join('');
  picker.value=state.activeSupplier||'';
  $('profile').textContent=state.session?.user?.name||'Account';
+ $('environment').textContent=location.hostname.startsWith('staging.')?'STAGING':'';
+ const company=state.session?.admin?'Veelad operations':state.session?.suppliers?.[0]?.name||'Supplier';
+ const marker=document.querySelector('.workspace-label');if(marker)marker.innerHTML='<span class="pulse"></span> '+escapeHTML(company)+' <span class="version">PRODUCTION</span>';
+ $('sign-out').hidden=false;
  $('avatar').textContent=(state.session?.user?.name||'V').slice(0,1).toUpperCase();
 }
 async function reload({preserveDetail=false}={}){
@@ -80,10 +87,11 @@ function dashboard(){
  '<section class="card"><div class="card-title"><h2>How the workflow works</h2></div><div class="stepper"><div class="step done">01 · Approval</div><div class="step">02 · Printing</div><div class="step">03 · Quality check</div><div class="step">04 · Dispatch</div></div><p class="section-subtitle">Veelad verifies payment and approves the final artwork before a supplier can download production files. Supplier updates remain auditable. Shipping requires a final Veelad administrator approval.</p><div class="hint">Only orders assigned to your company are visible. Artwork, customer delivery details and operational data must stay inside the authorized team.</div></section></div>'+overviewOps();
 }
 function ordersView(scope='all'){
- const jobs=state.jobs.filter(j=>scope==='all'||(scope==='artwork'?true:scope==='shipping'?['packed','dispatch_submitted'].includes(j.status):['assigned','accepted','printing','quality_check','on_hold'].includes(j.status)));
+ const statusFor={shipping:['packed','dispatch_submitted'],production:['accepted','printing','on_hold'],quality:['quality_check'],packing:['quality_check','packed']};
+ const jobs=state.jobs.filter(j=>!statusFor[scope]||statusFor[scope].includes(j.status));
  const filtered=jobs.filter(j=>(state.filter==='all'||j.status===state.filter)&&(!state.search||[j.id,...j.items.map(i=>i.title)].join(' ').toLowerCase().includes(state.search.toLowerCase())));
  const filters=Array.from(new Set(jobs.map(j=>j.status))).sort();
- return '<section class="card"><div class="card-title"><div><h2>'+escapeHTML(scope==='artwork'?'Order artwork files':scope==='shipping'?'Dispatch-ready orders':'Order queue')+'</h2><p>'+filtered.length+' matching jobs</p></div></div><div class="toolbar"><label class="sr-only" for="job-search">Search jobs</label><input id="job-search" placeholder="Search order or product…" value="'+escapeHTML(state.search)+'"><label class="sr-only" for="job-filter">Production status</label><select id="job-filter"><option value="all">All statuses</option>'+filters.map(s=>'<option value="'+escapeHTML(s)+'" '+(s===state.filter?'selected':'')+'>'+escapeHTML(s.replaceAll('_',' '))+'</option>').join('')+'</select></div>'+jobTable(filtered)+'</section>';
+ return '<section class="card"><div class="card-title"><div><h2>'+escapeHTML({artwork:'Approved artwork and production files',shipping:'Ready for carrier handoff',production:'Printing work queue',quality:'Awaiting quality approval',packing:'Ready for packing'}[scope]||'All supplier orders')+'</h2><p>'+filtered.length+' matching jobs</p></div></div><div class="toolbar"><label class="sr-only" for="job-search">Search jobs</label><input id="job-search" placeholder="Search order or product…" value="'+escapeHTML(state.search)+'"><label class="sr-only" for="job-filter">Production status</label><select id="job-filter"><option value="all">All statuses</option>'+filters.map(s=>'<option value="'+escapeHTML(s)+'" '+(s===state.filter?'selected':'')+'>'+escapeHTML(s.replaceAll('_',' '))+'</option>').join('')+'</select></div>'+jobTable(filtered)+'</section>';
 }
 const steps=['assigned','accepted','printing','quality_check','packed','dispatch_submitted'];
 const stageNames=['Assigned','Accepted','Printing','Quality check','Packed','Dispatch submitted'];
@@ -129,7 +137,7 @@ function suppliersView(){
  '<div class="table-scroll" style="margin-top:17px"><table class="data-table"><thead><tr><th>Company</th><th>Status</th></tr></thead><tbody>'+(state.session?.suppliers||[]).map(s=>'<tr><td>'+escapeHTML(s.name)+'</td><td>'+status(s.status)+' <button type="button" class="text-link" data-supplier-status="'+escapeHTML(s.id)+'">'+(s.status==='active'?'Suspend':'Reactivate')+'</button></td></tr>').join('')+'</tbody></table></div></section>'+
  '<section class="card"><div class="card-title"><div><h2>Grant employee access</h2><p>Suppliers use existing Veelad accounts, with explicit approval.</p></div></div><form data-form="member"><div class="field"><label for="member-supplier">Supplier</label><select id="member-supplier" name="supplier_id" required>'+supplierOptions+'</select></div><div class="field"><label for="member-email">Existing account email</label><input id="member-email" name="email" type="email" autocomplete="off" placeholder="team@example.com" required></div><div class="field"><label for="member-role">Supplier permissions</label><select id="member-role" name="supplier_role"><option value="production">Production operator</option><option value="quality">Quality reviewer</option><option value="manager">Supplier manager</option></select></div><div class="field"><label for="member-access">Access</label><select id="member-access" name="access"><option value="active">Grant access</option><option value="suspended">Suspend access</option></select></div><button class="button accent" type="submit" '+(!supplierOptions?'disabled':'')+'>Update employee access</button></form><p class="form-help" style="margin-top:12px">Never share account passwords. Grant each employee their own role. Suspending a membership blocks its supplier access immediately.</p></section></div>'+
  '<section class="card"><div class="card-title"><div><h2>Assign an approved order</h2><p>Only paid processing orders with approved proofs appear here.</p></div></div>'+
- (state.pool.length?'<form data-form="assign"><div class="form-row"><div class="field"><label for="assign-order">Approved order</label><select name="order_id" id="assign-order" required>'+state.pool.map(o=>'<option value="'+escapeHTML(o.id)+'">'+escapeHTML(o.id)+' · '+o.items.length+' item lines</option>').join('')+'</select></div><div class="field"><label for="assign-supplier">Fulfillment company</label><select name="supplier_id" id="assign-supplier" required>'+supplierOptions+'</select></div></div><button class="button accent" '+(!supplierOptions?'disabled':'')+' type="submit">Assign selected order</button></form>':empty('No orders ready to assign','Complete a test checkout, record the staging payment and approve each order proof before releasing a job.'))+'</section>'+adminPhaseOnePanel()+adminPhaseTwoPanel();
+ (state.pool.length?'<div class="hint">Approved orders are assignable here. An order already marked Printing requires explicit confirmation before linking it, to prevent duplicate manufacturing.</div><form data-form="assign"><div class="form-row"><div class="field"><label for="assign-order">Approved order</label><select name="order_id" id="assign-order" required>'+state.pool.map(o=>'<option value="'+escapeHTML(o.id)+'">'+escapeHTML(o.id)+' · '+o.items.length+' item lines'+(o.needs_reconciliation?' · ALREADY PRINTING — REVIEW':'')+'</option>').join('')+'</select></div><div class="field"><label for="assign-supplier">Fulfillment company</label><select name="supplier_id" id="assign-supplier" required>'+supplierOptions+'</select></div></div><button class="button accent" '+(!supplierOptions?'disabled':'')+' type="submit">Assign selected order</button></form>':empty('No orders ready to assign','Complete a test checkout, record the staging payment and approve each order proof before releasing a job.'))+'</section>'+adminPhaseOnePanel()+adminPhaseTwoPanel();
 }
 
 async function loadPhase1(id){
@@ -413,7 +421,14 @@ async function openSplitLine(id){
 }
 
 function render(){
- if(!state.session){heading('Secure fulfillment workspace','Sign in with your approved Veelad account.');$('content').innerHTML='<section class="card">'+empty(state.invitationToken?'Sign in to accept your invitation':'Sign in required',state.invitationToken?'Sign in using the exact email address on the invitation, then return to this link.':'This workspace is private to Veelad administrators and authorized manufacturing partners.')+'<div class="actions" style="justify-content:center"><a class="button accent" href="/en/login">Sign in to Veelad</a></div></section>';return;}
+ if(!state.session){
+  heading('Merchlist production portal','Private manufacturing access · powered by Veelad','PARTNER FULFILLMENT');
+  $('sign-out').hidden=true;
+  const register=state.invitationToken&&state.authMode==='register';
+  const action=register?'supplier-register':'supplier-login';
+  $('content').innerHTML='<section class="card supplier-auth"><div class="supplier-auth-intro"><span class="supplier-auth-mark">v.</span><p class="eyebrow">SECURE PARTNER ACCESS</p><h2>Print. Pack. Dispatch.</h2><p>Manage approved orders, print files, quality control and shipping in one workspace. Only assigned supplier jobs are visible.</p><div class="supplier-auth-steps"><span>01 · Orders</span><span>02 · Printing</span><span>03 · QC & packing</span><span>04 · Shipping</span></div></div><div class="supplier-auth-form"><h2>'+(register?'Create your supplier account':'Welcome back')+'</h2><p class="section-subtitle">'+(register?'Your invite is required to activate supplier access.':'Sign in using your own Veelad partner credentials.')+'</p><form data-form="'+action+'">'+(register?'<label class="field"><span>Full name</span><input name="name" autocomplete="name" maxlength="100" required></label>':'')+'<label class="field"><span>Work email</span><input type="email" name="email" autocomplete="email" required></label><label class="field"><span>Password</span><input type="password" name="password" autocomplete="'+(register?'new-password':'current-password')+'" minlength="'+(register?'12':'1')+'" maxlength="128" required></label><button type="submit" class="button accent">'+(register?'Create account and join':'Sign in to production portal')+'</button></form>'+(state.invitationToken?'<p class="form-help">'+(register?'Already have a Veelad account?':'New to this supplier workspace?')+' <button type="button" class="auth-switch" data-auth-mode="'+(register?'login':'register')+'">'+(register?'Sign in instead':'Create account with invitation')+'</button></p>':'<p class="form-help">Supplier access is by invitation from Veelad only. Ask your company manager for an invitation if needed.</p>')+'</div></section>';
+  return;
+ }
  syncNavigation();
  if(state.invitationToken){
   heading('Join your supplier workspace','Your invitation is one-time and restricted to your approved Veelad email account.');
@@ -424,7 +439,7 @@ function render(){
  heading(state.selected?'Production order '+state.selected.job.id:section.title,state.selected?'Review artwork, quality and shipping status.':section.subtitle, state.session.admin?'VEELAD · OPERATIONS ADMIN':'SUPPLIER WORKSPACE');
  if(state.phase3.selected){heading('Product line '+state.phase3.selected.job.line_id,'Restricted manufacturing workspace · '+state.phase3.selected.product.title);$('content').innerHTML=splitDetailView();return;}
  if(state.selected){$('content').innerHTML=detailView();return;}
- $('content').innerHTML=state.view==='overview'?dashboard():state.view==='suppliers'&&state.session.admin?suppliersView():state.view==='packaging'?packagingDesk():state.view==='messages'?messagesView():state.view==='notifications'?notificationsView():state.view==='bulk'?bulkView():state.view==='split'?splitJobsView():state.view==='routing'?splitRoutingView():state.view==='analytics'?splitAnalyticsView():state.view==='invoices'?splitInvoicesView():state.view==='integrations'?splitIntegrationView():ordersView(state.view);
+ $('content').innerHTML=state.view==='overview'?dashboard():state.view==='suppliers'&&state.session.admin?suppliersView():state.view==='packaging'?ordersView('packing')+packagingDesk():state.view==='messages'?messagesView():state.view==='notifications'?notificationsView():state.view==='bulk'?bulkView():state.view==='split'?splitJobsView():state.view==='routing'?splitRoutingView():state.view==='analytics'?splitAnalyticsView():state.view==='invoices'?splitInvoicesView():state.view==='integrations'?splitIntegrationView():ordersView(state.view);
 }
 async function openOrder(id){state.selected=await api('fulfillment-order',{params:{order_id:id}});await Promise.all([loadPhase1(id),loadPhase2(id)]);render();window.scrollTo({top:0,behavior:'smooth'});}
 async function progress(action,extra={}){
@@ -436,6 +451,16 @@ async function progress(action,extra={}){
 }
 async function submit(form){
  const data=Object.fromEntries(new FormData(form)),kind=form.dataset.form;
+ if(kind==='supplier-login'||kind==='supplier-register'){
+  if(!state.authCsrf)throw Error('Secure session not ready. Refresh and try again.');
+  const route=kind==='supplier-register'?'register':'login';
+  await api(route,{method:'POST',body:route==='register'?{name:data.name,email:data.email,password:data.password,role:'buyer'}:{email:data.email,password:data.password}});
+  if(state.invitationToken){
+   await api('fulfillment-invite',{method:'POST',body:{token:state.invitationToken}});
+   state.invitationToken=null;history.replaceState(null,'','/fulfillment');
+  }
+  state.authCsrf=null;state.authMode='login';await bootstrap();notice('Signed in to your secure manufacturing workspace.');return;
+ }
  if(kind==='split-route'){
   const selectors=[...form.querySelectorAll('[data-route-line]')];
   const allocations=selectors.map(sel=>({line_id:sel.dataset.routeLine,supplier_id:sel.value}));
@@ -493,7 +518,14 @@ async function submit(form){
  }
  if(kind==='supplier')await api('admin-fulfillment-supplier',{method:'POST',body:{name:data.name,status:'active'}});
  else if(kind==='member')await api('admin-fulfillment-member',{method:'POST',body:data});
- else if(kind==='assign')await api('admin-fulfillment-assign',{method:'POST',body:data});
+ else if(kind==='assign'){
+  const entry=state.pool.find(o=>o.id===data.order_id);
+  if(entry?.needs_reconciliation){
+   if(!confirm('This order was already marked PRINTING in Veelad. Only link it to Merchlist if printing has NOT already been dispatched to a manufacturer. Continue without creating a duplicate job?'))return;
+   data.confirm_existing_printing=true;
+  }
+  await api('admin-fulfillment-assign',{method:'POST',body:data});
+ }
  else if(kind==='invite'){
   const issued=await api('admin-fulfillment-invites',{method:'POST',body:data});
   state.inviteLink=issued.invitation_url;await loadAdminSetup();render();notice('Invitation created. Copy the secure link now and share it privately with the named employee.');return;
@@ -569,7 +601,7 @@ async function bootstrap(){
   $('environment').textContent=location.hostname.startsWith('staging.')?'STAGING':'';
   state.selected=null;state.phase3.selected=null;await reload();
  }catch(error){
-  if(error.message==='Please sign in to continue.'){state.session=null;render();return;}
+  if(error.message==='Please sign in to continue.'){state.session=null;try{state.authCsrf=(await api('bootstrap')).csrf;}catch{notice('Unable to establish a secure sign-in session. Refresh the page.','error');}render();return;}
   notice(error.message,'error');state.session=null;render();
  }
 }
@@ -582,11 +614,13 @@ $('supplier-picker').addEventListener('change',async event=>{
  try{await reload();notice('');}catch(error){notice(error.message,'error');}
 });
 $('refresh').addEventListener('click',async()=>{try{await bootstrap();notice('Workspace refreshed.');}catch(error){notice(error.message,'error');}});
+$('sign-out').addEventListener('click',async()=>{try{await api('logout',{method:'POST',body:{}});state.session=null;state.authCsrf=null;state.activeSupplier=null;state.selected=null;state.phase3.selected=null;await bootstrap();notice('You have signed out.');}catch(error){notice(error.message,'error');}});
 $('content').addEventListener('click',async event=>{
  const b=event.target.closest('button');if(!b)return;
  try{
   b.disabled=true;
-  if(b.dataset.view){state.view=b.dataset.view;state.selected=null;state.phase3.selected=null;render();}
+  if(b.dataset.authMode){state.authMode=b.dataset.authMode;notice('');render();}
+  else if(b.dataset.view){state.view=b.dataset.view;state.selected=null;state.phase3.selected=null;render();}
   else if(b.dataset.lineOpen)await openSplitLine(b.dataset.lineOpen);
   else if(b.dataset.lineProgress){
    const j=state.phase3.selected.job,action=b.dataset.lineProgress;
@@ -707,6 +741,6 @@ $('content').addEventListener('submit',async event=>{
 });
 $('content').addEventListener('change',async event=>{if(event.target.id==='job-filter'){state.filter=event.target.value;render();}if(event.target.id==='bulk-all'){for(const input of document.querySelectorAll('[data-bulk-job]'))input.checked=event.target.checked;}if(event.target.id==='route-order-picker'){state.phase3.routeOrder=event.target.value;render();}if(event.target.id==='invoice-supplier-picker'){state.phase3.invoiceSupplier=event.target.value;state.activeSupplier=event.target.value;try{await reload();}catch(error){notice(error.message,'error');}}});
 $('content').addEventListener('input',event=>{if(event.target.id==='job-search'){state.search=event.target.value;const pos=event.target.selectionStart;render();const input=$('job-search');input?.focus();input?.setSelectionRange(pos,pos);}});
-if(state.invitationToken)history.replaceState(null,'','/fulfillment/invite');
+if(state.invitationToken){state.authMode='register';history.replaceState(null,'','/fulfillment/invite');}
 bootstrap();
 })();
