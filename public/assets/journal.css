@@ -43,3 +43,53 @@
 .journal-saved-list{list-style:none;padding:0;margin:10px 0;display:grid;gap:14px}
 .journal-saved-list li{border-bottom:1px solid #ddd;padding-bottom:12px}
 .journal-saved-list a{color:inherit;text-decoration:underline;text-underline-offset:4px}
+
+
+/* Priority 9 — Journal reading experience. Original article covers and
+   real-media permissions are unchanged; the demo artwork retains its shape. */
+.journal-read-jump{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:44px;margin-top:18px;padding:10px 19px;border:1px solid #29262b;border-radius:100px;background:#19171c;color:#fff!important;font-size:12px;font-weight:750;text-decoration:none!important;transition:background-color .16s}
+.journal-read-jump:hover{background:#59417d}
+.journal-reading-layout{grid-template-columns:minmax(170px,222px) minmax(0,760px);gap:clamp(28px,4vw,55px);max-width:1100px}
+.journal-share{min-width:0;width:100%;align-items:stretch;gap:13px}
+.journal-share>span{font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:#66616f;font-weight:750;margin-top:5px}
+.journal-contents{border-bottom:1px solid #e7e4e9;padding:0 0 23px;margin-bottom:9px;max-width:100%;min-width:0}
+.journal-contents h2{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;margin:0 0 16px;color:#65507c}
+.journal-contents ol{list-style:none;margin:0;padding:0;display:grid;gap:7px;max-width:100%}
+.journal-contents li{margin:0;padding:0;min-width:0;max-width:100%}
+.journal-contents a{display:block;padding:8px 10px;border-inline-start:2px solid #dfd8e9;border-radius:0 6px 6px 0;color:#595563;font-size:12px;line-height:1.5;font-weight:560;text-decoration:none!important;overflow-wrap:anywhere}
+.journal-contents .journal-contents-level-3 a{padding-inline-start:21px;font-size:11px;color:#706b76}
+.journal-contents a:hover{background:#f8f5fc;border-inline-start-color:#9b81ef;color:#382653}
+.journal-contents a[aria-current=location]{background:#f5f0fc;border-inline-start-color:#7957b8;color:#3e2863;font-weight:750}
+.journal-prose{max-width:760px}
+.journal-prose h2[id],.journal-prose h3[id],#journal-story-content{scroll-margin-top:38px}
+.journal-back-to-top{display:inline-flex;align-items:center;min-height:44px;margin:15px 0 8px;color:#5d4388;font-size:13px;text-decoration:underline;text-underline-offset:4px}
+.journal-prose figure{border-radius:9px;overflow:hidden}
+.journal-prose figure img{max-width:100%;height:auto;object-fit:contain}
+.journal-prose figcaption{padding-inline:2px;font-size:12px}
+/* Actual commissioned photography may be art-directed in a 16:9 hero. Sample
+   SVG covers instead remain entirely visible and are never stretched/cropped. */
+.journal-article>.journal-cover[src^="/assets/journal-demo/"]{object-fit:contain;background:#f4f1f5}
+.journal-card:not(.journal-feature) .journal-card-image{aspect-ratio:3/2}
+.journal-card:not(.journal-feature) .journal-card-image .journal-cover{height:100%;object-fit:cover}
+.journal-card .journal-cover[src^="/assets/journal-demo/"]{object-fit:contain;background:#f5f1f6}
+.journal-feature .journal-card-image{background:#f5f1f6}
+@media(max-width:800px){
+ .journal-reading-layout{grid-template-columns:minmax(0,1fr);gap:22px}
+ .journal-share{position:static;display:flex;flex-wrap:wrap;flex-direction:row;align-items:center;gap:9px 16px;border-bottom:1px solid #e7e4e9;padding-bottom:18px}
+ .journal-share>span{width:100%;margin:0}
+ .journal-contents{flex:1 0 100%;order:-1;border-bottom:1px solid #e7e4e9;padding-bottom:15px;margin-bottom:6px}
+ .journal-contents ol{display:flex;flex-wrap:wrap;gap:7px}
+ .journal-contents a,.journal-contents .journal-contents-level-3 a{border:1px solid #e3dce9;border-radius:999px;padding:9px 13px;font-size:11px;min-height:40px}
+ .journal-contents a[aria-current=location]{border-color:#9b81ef}
+ .journal-contents h2{margin-bottom:10px}
+}
+@media(max-width:520px){
+ .journal-read-jump{width:100%}
+ .journal-contents ol{flex-direction:column;align-items:stretch}
+ .journal-contents a,.journal-contents .journal-contents-level-3 a{border-radius:8px;min-height:41px}
+ .journal-prose{font-size:16px;line-height:1.83}
+ .journal-prose h2{font-size:27px}
+ .journal-prose h3{font-size:22px}
+ .journal-article>.journal-cover[src^="/assets/journal-demo/"]{aspect-ratio:3/2}
+}
+@media(prefers-reduced-motion:reduce){.journal-read-jump{transition:none}.journal-card-image .journal-cover{transition:none}}
