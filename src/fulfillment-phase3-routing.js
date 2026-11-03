@@ -18,7 +18,7 @@ import {syncPartnerOrder} from './partners-finance.js';
 import {lineStates,requireLineAction,planLineRouting,lineData,safeAssignedLine,lineFingerprint,evidenceSatisfied,linePackageFingerprint,supplierStagePermissions} from './fulfillment-phase3-core.js';
 
 export const splitAdminRoutes=new Set(['admin-fulfillment-route-options','admin-fulfillment-route','admin-fulfillment-line-preflight','admin-fulfillment-line-dispatch']);
-export const splitRoutes=new Set([...splitAdminRoutes,'fulfillment-line-jobs','fulfillment-line-job','fulfillment-line-preflight','fulfillment-line-progress','fulfillment-line-files','fulfillment-line-evidence-upload','fulfillment-line-evidence','fulfillment-line-evidence-file','fulfillment-line-evidence-review','fulfillment-line-packaging','fulfillment-line-issues','fulfillment-line-messages']);
+export const splitRoutes=new Set([...splitAdminRoutes,'fulfillment-line-jobs','fulfillment-line-job','fulfillment-line-preflight','fulfillment-line-progress','fulfillment-line-files','fulfillment-line-evidence-upload','fulfillment-line-evidence','fulfillment-line-evidence-file','fulfillment-line-evidence-review','fulfillment-line-packaging','fulfillment-line-issues','fulfillment-line-issue-resolve','fulfillment-line-messages']);
 const stamp=()=>now();
 const clean=(v,key='line_job_id')=>text(v,key,64);
 const read=(db,sql,args,conn)=>db.one(sql,args,conn);
@@ -340,6 +340,21 @@ export async function phaseThreeRoutingRoute({route,method,v,req,res,db,c,u,admi
    if(current.status!=='on_hold')await q("UPDATE fulfillment_line_jobs SET status='on_hold',previous_status=?,revision=revision+1,hold_note=?,updated_at=? WHERE id=?",[current.status,note,stamp(),id],conn);
    await audit(u,'fulfillment.split.issue',id,conn);
    await notifyFulfillment(db,current.supplier_id,current.order_id,'split_issue','Line '+current.line_id+' was placed on hold.',conn);
+  });
+  return res.json({ok:true});
+ }
+ if(route==='fulfillment-line-issue-resolve'&&method==='POST'){
+  const id=clean(v),issue_id=clean(v,'issue_id'),resolution=text(v,'resolution',1000);
+  if(resolution.length<10)fail(422,'Describe the verified correction in at least ten characters.');
+  const job=await splitLineJob(db,id,actor),role=await member(job);
+  if(!supplierStagePermissions(role,'resolve'))fail(403,'Quality reviewer or supplier manager permission required.');
+  await db.tx(async conn=>{
+   const current=await splitLineJob(db,id,actor,conn,true);
+   const issue=await one("SELECT * FROM fulfillment_line_issues WHERE id=? AND line_job_id=? FOR UPDATE",[issue_id,id],conn);
+   if(!issue||issue.status!=='open')fail(409,'Production issue is no longer open.');
+   await q("UPDATE fulfillment_line_issues SET status='resolved',resolution=?,resolved_by=?,resolved_at=? WHERE id=?",[resolution,u.id,stamp(),issue_id],conn);
+   await audit(u,'fulfillment.split.issue.resolved',id+':'+issue_id,conn);
+   await notifyFulfillment(db,current.supplier_id,current.order_id,'split_issue_resolved','A manufacturing issue was resolved for line '+current.line_id+'.',conn);
   });
   return res.json({ok:true});
  }
