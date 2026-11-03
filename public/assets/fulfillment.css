@@ -86,3 +86,19 @@
 .auth-switch{border:0;background:transparent;color:#6b4ba6;font-weight:800;text-decoration:underline;padding:0}
 @media(max-width:960px){.supplier-auth{grid-template-columns:1fr;max-width:620px}.supplier-auth-intro{padding:32px;min-height:290px}.supplier-auth-intro .eyebrow{margin-top:20px}.supplier-auth-intro h2{font-size:29px}.supplier-auth-form{padding:36px 32px}}
 @media(max-width:540px){.supplier-auth{margin-top:0;border-radius:12px}.supplier-auth-intro{min-height:250px;padding:25px}.supplier-auth-steps span{font-size:10px;padding:6px 8px}.supplier-auth-form{padding:26px 22px}.portal-sign-out{font-size:11px;padding:7px}}
+
+
+/* Veelad brand lockup: uses the actual user-supplied wordmark and lavender eight-ray asterisk. */
+.sidebar .brand{display:flex;flex-direction:column;align-items:flex-start;gap:0;min-width:0;padding:2px 8px 32px;letter-spacing:normal}
+.brand-wordmark{display:block;width:200px;max-width:100%;height:auto;object-fit:contain}
+.brand-descriptor{display:block;margin:3px 0 0 4px;color:#bcb7c6;font-family:'DM Sans',sans-serif;font-weight:700;font-size:10px;letter-spacing:3.1px;line-height:1.2}
+.supplier-auth-logo{display:block;width:min(215px,100%);height:auto;object-fit:contain;flex-shrink:0}
+.mobile-wordmark{display:inline-block;width:104px;height:auto;vertical-align:middle}
+@media(max-width:1200px){.brand-wordmark{width:176px}}
+@media(max-width:870px){
+ .sidebar .brand{padding:3px 0 15px;gap:0}
+ .brand-wordmark{width:155px}
+ .brand-descriptor{font-size:8px;letter-spacing:2.5px;margin-top:0}
+ .mobile-brand{align-items:center;gap:8px}
+ .mobile-wordmark{width:102px}
+}
