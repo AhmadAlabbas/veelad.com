@@ -5,13 +5,14 @@ const escapeHTML=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','
 const fmt=value=>value?new Date(value).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—';
 const status=value=>'<span class="status '+escapeHTML(value)+'">'+escapeHTML(String(value||'').replaceAll('_',' '))+'</span>';
 const views=[
- {id:'overview',label:'Overview',icon:'◫',title:'Fulfillment overview',subtitle:'Track the production flow from a single workspace.'},
- {id:'orders',label:'Orders',icon:'▤',title:'Assigned orders',subtitle:'Every approved job, with its original order details.'},
- {id:'production',label:'Production',icon:'⚙',title:'Production pipeline',subtitle:'Move approved work through each manufacturing milestone.'},
- {id:'artwork',label:'Artwork & files',icon:'▧',title:'Artwork centre',subtitle:'Original design files and provisional placement instructions.'},
- {id:'shipping',label:'Shipping',icon:'↗',title:'Shipping desk',subtitle:'Manage carrier handoff, tracking and delivery exceptions.'},
- {id:'packaging',label:'Packaging',icon:'▣',title:'Packaging centre',subtitle:'Supplier packaging instructions and checklists.'},
- {id:'messages',label:'Messages',icon:'✉',title:'Order communication',subtitle:'Private conversations between Veelad and suppliers.'},
+ {id:'overview',label:'Dashboard',icon:'◫',title:'Manufacturing dashboard',subtitle:'Merchlist production, quality checks and dispatch in one secure workspace.'},
+ {id:'orders',label:'Orders',icon:'▤',title:'Manufacturing orders',subtitle:'Paid orders with approved artwork assigned to your company.'},
+ {id:'production',label:'Printing',icon:'⚙',title:'Print queue',subtitle:'Accepted orders currently in production.'},
+ {id:'quality',label:'Quality control',icon:'✓',title:'Quality review',subtitle:'Inspect finished prints and submit approval evidence.'},
+ {id:'artwork',label:'Print files',icon:'▧',title:'Approved artwork',subtitle:'Download original files and approved production packs.'},
+ {id:'shipping',label:'Shipping',icon:'↗',title:'Dispatch and shipping',subtitle:'Pack orders, record carrier tracking and request dispatch approval.'},
+ {id:'packaging',label:'Packing',icon:'▣',title:'Packing desk',subtitle:'Check Veelad-branded packaging rules and sign off approved orders.'},
+ {id:'messages',label:'Messages',icon:'✉',title:'Order communication',subtitle:'Private conversations between Veelad and your production team.'},
  {id:'bulk',label:'Bulk operations',icon:'☷',title:'Batch operations',subtitle:'Accept assigned jobs and export picking lists.'},
  {id:'notifications',label:'Alerts',icon:'◉',title:'Operations alerts',subtitle:'Assignments, deadlines, issues and shipping updates.'},
  {id:'split',label:'Split production',icon:'◈',title:'Multi-supplier production',subtitle:'Each manufacturing partner sees only its own product lines.'},
@@ -21,7 +22,7 @@ const views=[
  {id:'integrations',label:'Integration API',icon:'⌘',title:'Supplier API credentials',subtitle:'Create expiring read-only or limited-update credentials for external systems.',admin:true},
  {id:'suppliers',label:'Suppliers',icon:'♙',title:'Supplier management',subtitle:'Manage company access and assign approved orders.',admin:true}
 ];
-const state={session:null,activeSupplier:null,jobs:[],pool:[],selected:null,view:'overview',filter:'all',search:'',busy:false,phase1:null,adminSetup:{invites:[],specs:[]},inviteLink:'',phase2:null,ops:{jobs:[]},alerts:{notifications:[],unread:0},adminOps:{id:null,rules:[],policy:null},phase3:{jobs:[],candidates:{orders:[],suppliers:[]},analytics:[],invoices:[],keys:[],selected:null,routeOrder:null,invoice:null,lastToken:null},invitationToken:new URLSearchParams(location.hash.replace(/^#/, '')).get('token')||new URLSearchParams(location.search).get('token')||null};
+const state={session:null,authCsrf:null,authMode:'login',activeSupplier:null,jobs:[],pool:[],selected:null,view:'overview',filter:'all',search:'',busy:false,phase1:null,adminSetup:{invites:[],specs:[]},inviteLink:'',phase2:null,ops:{jobs:[]},alerts:{notifications:[],unread:0},adminOps:{id:null,rules:[],policy:null},phase3:{jobs:[],candidates:{orders:[],suppliers:[]},analytics:[],invoices:[],keys:[],selected:null,routeOrder:null,invoice:null,lastToken:null},invitationToken:new URLSearchParams(location.hash.replace(/^#/, '')).get('token')||new URLSearchParams(location.search).get('token')||null};
 const urlFor=(route,params={})=>{
  const url=new URL('/api.php',location.origin);url.searchParams.set('route',route);
  Object.entries(params).forEach(([key,value])=>{if(value!==null&&value!==undefined&&value!=='')url.searchParams.set(key,String(value));});
@@ -29,7 +30,8 @@ const urlFor=(route,params={})=>{
 };
 async function api(route,{method='GET',body=null,params={}}={}){
  const headers={'Accept':'application/json'};
- if(method!=='GET'){headers['Content-Type']='application/json';headers['X-CSRF-Token']=state.session?.csrf||'';}
+ if(route==='bootstrap')headers['X-veelad-catalogue']='deferred';
+ if(method!=='GET'){headers['Content-Type']='application/json';headers['X-CSRF-Token']=state.session?.csrf||state.authCsrf||'';}
  let response;
  try{response=await fetch(urlFor(route,params),{method,credentials:'same-origin',headers,body:body?JSON.stringify(body):undefined,cache:'no-store'});}
  catch{throw Error('Cannot reach Veelad. Check your connection and retry.');}
@@ -48,6 +50,10 @@ function syncNavigation(){
  picker.innerHTML+=options.filter(s=>s.status!=='suspended').map(s=>'<option value="'+escapeHTML(s.id)+'">'+escapeHTML(s.name)+'</option>').join('');
  picker.value=state.activeSupplier||'';
  $('profile').textContent=state.session?.user?.name||'Account';
+ $('environment').textContent=location.hostname.startsWith('staging.')?'STAGING':'';
+ const company=state.session?.admin?'Veelad operations':state.session?.suppliers?.[0]?.name||'Supplier';
+ const marker=document.querySelector('.workspace-label');if(marker)marker.innerHTML='<span class="pulse"></span> '+escapeHTML(company)+' <span class="version">PRODUCTION</span>';
+ $('sign-out').hidden=false;
  $('avatar').textContent=(state.session?.user?.name||'V').slice(0,1).toUpperCase();
 }
 async function reload({preserveDetail=false}={}){
