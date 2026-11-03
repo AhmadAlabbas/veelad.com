@@ -11,6 +11,9 @@ test('Merchlist staff create email/password access inside fulfillment and see on
   await f.db.q('INSERT INTO users VALUES (?,?,?,?,?,?,?)',['merchlist-portal-admin','Veelad Fulfillment Admin','merchlist-portal-admin@example.test',await passwordHash(adminPassword),'admin','active',now()]);
   await f.db.q('INSERT INTO fulfillment_suppliers (id,name,status,created_at) VALUES (?,?,?,?)',['merchant-merchlist','Merchlist','active',now()]);
   await page.goto(f.origin+'/fulfillment');
+  await expect(page.locator('.brand-wordmark')).toHaveAttribute('src','/assets/veelad-wordmark-on-dark.svg');
+  await expect(page.locator('.supplier-auth-logo')).toHaveAttribute('src','/assets/veelad-wordmark-on-dark.svg');
+  await expect(page.locator('.brand .brand-mark')).toHaveCount(0);
   await expect(page.getByRole('heading',{name:'Merchlist production portal'})).toBeVisible();
   await page.locator('[data-form=supplier-login] [name=email]').fill('merchlist-portal-admin@example.test');
   await page.locator('[data-form=supplier-login] [name=password]').fill(adminPassword);
