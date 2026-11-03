@@ -119,7 +119,7 @@ function orderPanel(d){
  const photoForm=canUpload?'<form data-form="p1-photo" enctype="multipart/form-data"><div class="field"><label for="p1-line">Order line</label><select name="line_id" id="p1-line">'+d.items.map(l=>'<option value="'+esc(l.line_id)+'">'+esc(l.title)+' · '+esc(l.line_id)+'</option>').join('')+'</select></div>'+
  '<div class="field"><label for="p1-photo-file">Photo of the actual printed item (PNG/JPEG, max 8 MB)</label><input id="p1-photo-file" type="file" accept="image/png,image/jpeg" name="photo" required></div>'+
  '<div class="field"><label for="p1-photo-note">Inspection notes</label><input name="note" maxlength="500" placeholder="Print placement, colour and any visible defects"></div><button type="submit" class="button accent">Upload private QC photo</button></form>':'';
- const reviewForm=d.job.status==='printing'&&allowed(role,'qc-review')?'<form data-form="p1-qc-review">'+
+ const reviewForm=['printing','quality_check'].includes(d.job.status)&&allowed(role,'qc-review')?'<form data-form="p1-qc-review">'+
  '<label class="p1-check"><input type="checkbox" name="placement" required> All placement and alignment checks passed</label>'+
  '<label class="p1-check"><input type="checkbox" name="colour" required> All printed colours match the approved artwork</label>'+
  '<label class="p1-check"><input type="checkbox" name="finish" required> Finish, defects and final garment condition verified</label>'+
