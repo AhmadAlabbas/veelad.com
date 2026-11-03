@@ -35,6 +35,7 @@ test('published discussions require moderation, distinguish artist replies and r
   await page.locator('.conversation-compose textarea').fill('Could you tell us more about the original illustration?');
   await page.locator('.conversation-compose button[type=submit]').click();
   await expect(page.locator('[data-comment-notice]')).toContainText(lang==='ar'?'بانتظار المراجعة':'awaiting review');
+  await expect.poll(async()=>Number((await f.db.one("SELECT COUNT(*) AS n FROM product_comments WHERE user_id='comments-buyer'")).n)).toBe(1);
   const pending=await f.db.one("SELECT * FROM product_comments WHERE user_id='comments-buyer'");
   expect(pending.status).toBe('pending');expect(pending.parent_id).toBeNull();
   guest=await browser.newContext();const visitor=await guest.newPage();await visit(visitor,f,lang);
@@ -51,6 +52,7 @@ test('published discussions require moderation, distinguish artist replies and r
   await artistPage.locator('[data-comment-reply]').first().click();
   await artistPage.locator('[data-veelad-comment-form][data-parent-id] textarea').fill('The design was inspired by our daily sketches.');
   await artistPage.locator('[data-veelad-comment-form][data-parent-id] button[type=submit]').click();
+  await expect.poll(async()=>Number((await f.db.one("SELECT COUNT(*) AS n FROM product_comments WHERE user_id='artist-1'")).n)).toBe(1);
   const reply=await f.db.one("SELECT * FROM product_comments WHERE user_id='artist-1'");
   expect(reply.parent_id).toBe(pending.id);expect(reply.status).toBe('pending');
   await adminPage.reload();await expect(adminPage.locator('.conversation-admin-item')).toHaveCount(1);
@@ -60,6 +62,7 @@ test('published discussions require moderation, distinguish artist replies and r
   await expect(visitor.locator('.conversation-entry.is-reply .conversation-badge')).toHaveText(lang==='ar'?'الفنان':'Artist');
   await page.reload();await page.locator('[data-comment-report-open="'+reply.id+'"]').click();
   await page.locator('[data-comment-inline] [data-comment-report-do="'+reply.id+'"]').click();
+  await expect.poll(async()=>Number((await f.db.one('SELECT COUNT(*) AS n FROM product_comment_reports WHERE comment_id=?',[reply.id])).n)).toBe(1);
   const report=await f.db.one('SELECT * FROM product_comment_reports WHERE comment_id=?',[reply.id]);
   expect(report.reason).toBe('spam');expect(report.resolved_at).toBeNull();
   await adminPage.reload();await expect(adminPage.locator('.conversation-admin-item')).toHaveCount(1);
