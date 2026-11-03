@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import {chooseHeaderPreference} from '../helpers/header-preferences.js';
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
