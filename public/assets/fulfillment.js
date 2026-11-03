@@ -293,7 +293,7 @@ function render(){
  const section=views.find(v=>v.id===state.view)||views[0];
  heading(state.selected?'Production order '+state.selected.job.id:section.title,state.selected?'Review artwork, quality and shipping status.':section.subtitle, state.session.admin?'VEELAD · OPERATIONS ADMIN':'SUPPLIER WORKSPACE');
  if(state.selected){$('content').innerHTML=detailView();return;}
- $('content').innerHTML=state.view==='overview'?dashboard():state.view==='suppliers'&&state.session.admin?suppliersView():ordersView(state.view);
+ $('content').innerHTML=state.view==='overview'?dashboard():state.view==='suppliers'&&state.session.admin?suppliersView():state.view==='packaging'?packagingDesk():state.view==='messages'?messagesView():state.view==='notifications'?notificationsView():state.view==='bulk'?bulkView():ordersView(state.view);
 }
 async function openOrder(id){state.selected=await api('fulfillment-order',{params:{order_id:id}});await Promise.all([loadPhase1(id),loadPhase2(id)]);render();window.scrollTo({top:0,behavior:'smooth'});}
 async function progress(action,extra={}){
@@ -332,6 +332,45 @@ async function submit(form){
  else if(kind==='issue'){
   await api('fulfillment-issues',{method:'POST',body:{order_id:state.selected.job.id,category:data.category,severity:data.severity,note:data.note}});
   await reload({preserveDetail:true});notice('Production issue recorded. Work is paused until it is resolved.');return;
+ }
+ else if(kind==='packaging-policy'){
+  await api('admin-fulfillment-packaging',{method:'POST',body:{supplier_id:data.supplier_id,category:data.category,container:data.container,instructions:data.instructions,inserts:String(data.inserts||'').split(',').map(s=>s.trim()).filter(Boolean),require_photo:!!data.require_photo}});
+  await loadAdminOperations();render();notice('Packaging policy saved. Existing signoffs with old specifications are invalidated.');return;
+ }
+ else if(kind==='sla'){
+  await api('admin-fulfillment-sla',{method:'POST',body:{supplier_id:data.supplier_id,accept_hours:Number(data.accept_hours),production_hours:Number(data.production_hours),dispatch_hours:Number(data.dispatch_hours)}});
+  await loadAdminOperations();render();notice('Supplier SLA policy saved for future assignments.');return;
+ }
+ else if(kind==='deadline'){
+  const converted={order_id:state.selected.job.id};
+  for(const name of ['accept_by','production_by','dispatch_by']){
+   const date=new Date(data[name]);
+   if(!Number.isFinite(date.getTime()))throw Error('Choose all deadline dates and times.');
+   converted[name]=date.toISOString();
+  }
+  await api('admin-fulfillment-deadline',{method:'POST',body:converted});
+  await reload({preserveDetail:true});notice('Order deadlines updated.');return;
+ }
+ else if(kind==='packing-signoff'){
+  const checks={};
+  for(const key of ['garments','artwork','branding','insert','address','sealed'])checks[key]=data[key]==='on';
+  await api('fulfillment-packaging-signoff',{method:'POST',body:{order_id:state.selected.job.id,checks}});
+  await reload({preserveDetail:true});notice('Packaging checklist approved.');return;
+ }
+ else if(kind==='message'){
+  const order_id=state.selected.job.id,file=form.querySelector('[name=photo]')?.files?.[0];
+  if(file){
+   if(!['image/png','image/jpeg'].includes(file.type)||file.size>8*1024*1024)throw Error('Attach a JPEG or PNG photo of at most 8 MB.');
+   const multipart=new FormData();multipart.set('message',data.message);multipart.set('artwork',file,file.name);
+   const response=await fetch(urlFor('fulfillment-message-upload',{order_id}),{method:'POST',credentials:'same-origin',body:multipart,headers:{'X-CSRF-Token':state.session.csrf},cache:'no-store'});
+   const body=await response.json().catch(()=>({}));
+   if(!response.ok||body.ok!==true)throw Error(body.error||'Could not send message attachment.');
+  }else await api('fulfillment-messages',{method:'POST',body:{order_id,message:data.message}});
+  await reload({preserveDetail:true});notice('Private order message sent.');return;
+ }
+ else if(kind==='shipping-event'){
+  await api('fulfillment-shipping-events',{method:'POST',body:{order_id:state.selected.job.id,event_type:data.event_type,notes:data.notes}});
+  await reload({preserveDetail:true});notice('Carrier event saved to the private shipment log.');return;
  }
  else if(kind==='hold')return progress('hold',{note:data.note});
  else if(kind==='dispatch')return progress('dispatch_submitted',{carrier:data.carrier,tracking:data.tracking});
