@@ -53,7 +53,7 @@ test('My Space renders own conversation statuses and challenge participation in 
  for(const [lang,expected] of [['en','Your product conversations'],['ar','محادثاتك حول المنتجات'],['zh-CN','你的商品讨论']]){
   const context={
    window:{},document:{addEventListener(){}},
-   currentLanguage:()=>lang,esc:value=>String(value??''),url:()=>'/en/products/product-1',
+   currentLanguage:()=>lang,esc:value=>String(value??''),url:(route,args={})=>'/'+route+'?'+new URLSearchParams(args),
    user:{id:'member-123'},mode:'server',
    products:[{id:'product-1',title:'Rain Garden',status:'active'}],artists:[],
    api:async route=>route==='retention-space'?data:{collections:[]},
