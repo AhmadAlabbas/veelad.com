@@ -24,6 +24,8 @@ export function config(env = process.env) {
   try {revision ||= JSON.parse(fs.readFileSync(new URL('../.release.json',import.meta.url),'utf8')).revision;} catch {}
   return {mode, origin, secret, secure, trustProxy, revision, numberingSystem, marketplaceEnabled:mode!=='production'||env.PRODUCTION_MARKETPLACE_ENABLED==='true',
     fulfillmentEnabled:env.FULFILLMENT_ENABLED==='true'||(mode==='staging'&&env.FULFILLMENT_ENABLED!=='false'),
+    fulfillmentAutoAssignEnabled:env.FULFILLMENT_AUTO_ASSIGN_ENABLED==='true'||(mode==='staging'&&env.FULFILLMENT_AUTO_ASSIGN_ENABLED!=='false'),
+    fulfillmentDefaultSupplierId:env.FULFILLMENT_DEFAULT_SUPPLIER_ID?.trim()||null,
     artistProfilesEnabled:env.ARTIST_PROFILES_ENABLED==='true'||(mode!=='production'&&env.ARTIST_PROFILES_ENABLED!=='false'),
     shoppingEnabled:env.SHOP_ENHANCEMENTS_ENABLED==='true'||(mode!=='production'&&env.SHOP_ENHANCEMENTS_ENABLED!=='false'),
     commentsEnabled:env.PRODUCT_COMMENTS_ENABLED==='true'||(mode!=='production'&&env.PRODUCT_COMMENTS_ENABLED!=='false'),
