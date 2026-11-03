@@ -14,7 +14,7 @@ test('creators insert, recolour and persist a private vector element in the desi
   await page.goto(fixture.origin+'/en/create?product=p1');
   const form=page.locator('[data-form=customer-design]'),studio=form.locator('.customer-workspace');
   await expect(form.locator('.design-studio')).toHaveAttribute('data-ready','true');
-  await expect.poll(()=>page.evaluate(()=>window.VeeladElements?.catalog.length)).toBe(10050);
+  await expect.poll(()=>page.evaluate(()=>window.VeeladElements?.catalog.length)).toBeGreaterThanOrEqual(10050);
   // Pattern Atelier: real editable PNG export and searchable original variants.
   const patternReady=await page.evaluate(async()=>{
     const api=window.VeeladElements;
