@@ -33,7 +33,7 @@ body[data-route="home"] .global-nav .header-region .international-selectors sele
 .v27-hero .v27-hero-text{padding:24px clamp(18px,2.4vw,42px);display:flex;flex-direction:column;justify-content:center;align-items:flex-start;min-width:0;position:relative;z-index:1}
 .v27-kicker{font:850 clamp(9px,.81vw,13px)/1.4 system-ui,Arial,sans-serif;letter-spacing:.2em;text-transform:uppercase;display:flex;align-items:center;gap:18px;margin-bottom:19px}
 .v27-kicker::after{content:"";width:73px;height:1px;background:#292929}
-.v27-hero h1{margin:0!important;font-family:Arial,Helvetica,system-ui,sans-serif;font-weight:1000;font-size:clamp(67px,8.15vw,135px);line-height:.84;letter-spacing:-.094em;white-space:nowrap;color:#060606}
+.v27-hero h1{margin:0!important;font-family:Arial,Helvetica,system-ui,sans-serif;font-weight:1000;font-size:clamp(60px,7.7vw,125px);line-height:.84;letter-spacing:-.094em;white-space:nowrap;color:#060606}
 .v27-hero-description{font-family:Georgia,"Times New Roman",serif;font-size:clamp(15px,1.38vw,22px);line-height:1.25;max-width:none;color:#222;margin:18px 0 0!important}
 .v27-hero-actions{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin-top:30px}
 .v27-cta{display:inline-flex!important;align-items:center;justify-content:center;gap:20px;min-height:50px;border-radius:8px;padding:10px 28px;font-weight:750;font-size:14px;line-height:1.2;transition:background .2s ease,transform .2s ease}
@@ -91,7 +91,7 @@ body[data-route="home"] .global-nav .header-region .international-selectors sele
  .v27-benefit .v27-icon{min-width:30px;width:30px;height:30px}
  .v27-products .product-card{flex-basis:calc((100% - 45px)/4)}
 }
-@media(max-width:760px){
+@media(max-width:900px){
  .v27-hero{display:flex;flex-direction:column;min-height:0}
  .v27-hero .v27-hero-text{padding:33px 20px 28px;min-height:280px}
  .v27-hero h1{font-size:clamp(57px,12.3vw,95px);line-height:.86;white-space:normal}
