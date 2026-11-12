@@ -8,8 +8,8 @@ test('ordered deferred assets keep storefront, discovery and localization functi
  page.on('pageerror',error=>errors.push(error.message));
  try{
   await page.goto(fixture.origin+'/en');
-  await expect(page.locator('.home-editorial')).toBeVisible();
-  await expect(page.locator('.home-featured .product-card').first()).toBeVisible();
+  await expect(page.locator('.v26-home')).toBeVisible();
+  await expect(page.locator('.v26-catalogue .product-card').first()).toBeVisible();
   const scripts=page.locator('script[defer][src^="/assets/"]');
   expect(await scripts.count()).toBeGreaterThanOrEqual(68);
   const srcs=await scripts.evaluateAll(items=>items.map(item=>item.getAttribute('src')));expect(new Set(srcs).size).toBe(srcs.length);
@@ -19,7 +19,7 @@ test('ordered deferred assets keep storefront, discovery and localization functi
   const preload=page.locator('head link[rel="preload"][as="image"]');
   await expect(preload).toHaveCount(1);
   await expect(preload).toHaveAttribute('href','/assets/lifestyle/homepage-editorial.webp?v=veelad-neutral-2');
-  const image=page.locator('.home-hero-visual img').first();
+  const image=page.locator('.v26-photo img').first();
   await expect(image).toBeVisible();
   await expect(image).toHaveAttribute('src','/assets/lifestyle/homepage-editorial.webp?v=veelad-neutral-2');
   await expect(page.locator('meta[name="twitter:title"]')).toHaveAttribute('content',await page.title());
@@ -28,7 +28,7 @@ test('ordered deferred assets keep storefront, discovery and localization functi
   for(const [lang,dir]of [['ar','rtl'],['zh-CN','ltr']]){
    await page.goto(fixture.origin+'/'+lang);
    await expect(page.locator('html')).toHaveAttribute('dir',dir);
-   await expect(page.locator('.home-editorial')).toBeVisible();
+   await expect(page.locator('.v26-home')).toBeVisible();
   }
   await page.goto(fixture.origin+'/en/shop');
   await expect(page.locator('.discovery-page')).toBeVisible();

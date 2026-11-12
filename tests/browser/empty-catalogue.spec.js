@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import {googleApp} from '../helpers/google-app.js';
 try{process.loadEnvFile('.env');}catch(error){if(error.code!=='ENOENT')throw error;}
 
-test('an initialized empty store has no sample listings and all homepage slides work in both languages',async({page},info)=>{
+test('an initialized empty store has no sample listings and editorial homepage works in both languages',async({page},info)=>{
  test.setTimeout(90000);
  const fixture=await googleApp(),errors=[];
  page.on('pageerror',error=>errors.push(error.message));
@@ -27,13 +27,15 @@ test('an initialized empty store has no sample listings and all homepage slides 
    await expect(page.locator('html')).toHaveAttribute('dir',language==='ar'?'rtl':'ltr');
    await expect(page.locator('.product-card')).toHaveCount(0);
    await expect(page.locator('.curated-collection-card')).toHaveCount(0);
-   for(const index of [0,1,2]){
-    await page.locator('[data-action=slide][data-index="'+index+'"]').click();
-    const image=page.locator('.home-hero-visual img');
-    await expect(image).toHaveCount(1);
-    await expect(image).not.toHaveAttribute('src',/undefined/);
-    await expect.poll(()=>image.evaluate(element=>element.complete&&element.naturalWidth>0)).toBe(true);
-   }
+   await expect(page.locator('.v26-home')).toBeVisible();
+   await expect(page.locator('.v26-category')).toHaveCount(6);
+   await expect(page.locator('.v26-catalogue .product-card')).toHaveCount(0);
+   await expect(page.locator('.v26-empty')).toBeVisible();
+   await expect(page.locator('.v26-home a[href*="/create"]').first()).toBeVisible();
+   const image=page.locator('.v26-photo img');
+   await expect(image).toHaveCount(1);
+   await expect(image).toHaveAttribute('src','/assets/lifestyle/homepage-editorial.webp?v=veelad-neutral-2');
+   await expect.poll(()=>image.evaluate(element=>element.complete&&element.naturalWidth>0)).toBe(true);
    await page.screenshot({path:info.outputPath('empty-home-'+language+'.png'),fullPage:true});
    await page.goto(fixture.origin+'/'+language+'/shop');
    await expect(page.locator('main')).toBeVisible();

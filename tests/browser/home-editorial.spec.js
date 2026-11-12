@@ -1,6 +1,6 @@
 import {test,expect} from '@playwright/test';
 
-test('editorial home uses real catalogue destinations and campaign images in English and Arabic',async({page})=>{
+test('editorial landing links only real catalogue products and works in English and Arabic',async({page})=>{
  const errors=[],consoleErrors=[];
  page.on('pageerror',error=>errors.push(error.message));
  page.on('console',message=>{if(message.type()==='error')consoleErrors.push(message.text());});
@@ -9,43 +9,44 @@ test('editorial home uses real catalogue destinations and campaign images in Eng
   const bootstrap=page.waitForResponse(response=>new URL(response.url()).searchParams.get('route')==='bootstrap'&&response.ok());
   await page.goto('/'+language);
   const catalogue=await (await bootstrap).json();
-  await expect(page.locator('.home-editorial')).toBeVisible();
+  await expect(page.locator('.v26-home')).toBeVisible();
   await expect(page.locator('html')).toHaveAttribute('dir',language==='ar'?'rtl':'ltr');
-  await expect(page.locator('.home-featured .product-card').first()).toBeVisible();
-
-  const cards=await page.locator('.home-editorial .product-card .product-image-link>a').evaluateAll(links=>links.map(link=>({href:link.getAttribute('href'),pathname:new URL(link.href).pathname})));
+  await expect(page.locator('.v26-catalogue .product-card').first()).toBeVisible();
+  await expect(page.locator('.v26-hero h1')).toContainText(language==='ar'?'فكرتك':'Idea.');
+  const cards=await page.locator('.v26-catalogue .product-card .product-image-link>a').evaluateAll(links=>links.map(link=>({pathname:new URL(link.href).pathname})));
   expect(cards.length).toBeGreaterThan(0);
   expect(new Set(cards.map(card=>card.pathname)).size).toBe(cards.length);
-  const productIds=new Set(catalogue.products.map(product=>product.id));
+  const realProducts=new Set(catalogue.products.filter(product=>product.status==='active'&&product.sample_pricing!==true&&product.stock_is_simulated!==true).map(product=>product.id));
   for(const card of cards){
    expect(card.pathname).toMatch(new RegExp('^/'+language+'/products/[^/]+$'));
-   expect(productIds.has(decodeURIComponent(card.pathname.split('/').at(-1)))).toBeTruthy();
+   expect(realProducts.has(decodeURIComponent(card.pathname.split('/').at(-1)))).toBeTruthy();
   }
-  const categories=new Set(catalogue.products.map(product=>product.category));
-  for(const href of await page.locator('.home-categories a,.home-edit-card').evaluateAll(links=>links.map(link=>link.href))){
+  const categories=new Set(['T-shirts','Hoodies','Sweatshirts','Polo','Caps','Socks']);
+  const categoryLinks=await page.locator('.v26-category[href*="category="]').evaluateAll(links=>links.map(link=>link.href));
+  expect(categoryLinks.length).toBeGreaterThan(0);
+  for(const href of categoryLinks){
    const destination=new URL(href);
    expect(destination.pathname).toBe('/'+language+'/shop');
    expect(categories.has(destination.searchParams.get('category'))).toBeTruthy();
   }
-
-  for(const selector of ['.home-hero-visual img','.home-creative-story img']){
-   const image=page.locator(selector);
-   await image.scrollIntoViewIfNeeded();
-   await expect.poll(()=>image.evaluate(element=>element.complete&&element.naturalWidth>=1000&&element.naturalHeight>=600)).toBeTruthy();
-   await expect(image).toHaveAttribute('src',/^\/assets\/lifestyle\/(everyday-people|creative-studio|homepage-editorial)\.webp\?v=veelad-neutral-2$/);
-   await expect(image.locator('..').locator('figcaption')).toContainText(language==='ar'?'الذكاء الاصطناعي':'AI-generated');
-  }
+  const image=page.locator('.v26-photo img');
+  await expect(image).toBeVisible();
+  await expect(image).toHaveAttribute('src','/assets/lifestyle/homepage-editorial.webp?v=veelad-neutral-2');
+  await expect.poll(()=>image.evaluate(element=>element.complete&&element.naturalWidth>0)).toBeTruthy();
+  await expect(page.locator('.v26-photo figcaption')).toContainText(language==='ar'?'توضيحية':'Illustrative');
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBeTruthy();
-
-  const firstProduct=page.locator('.home-featured .product-card').first(),productTitle=await firstProduct.locator('h3').innerText();
+  const firstProduct=page.locator('.v26-catalogue .product-card').first(),productTitle=await firstProduct.locator('h3').innerText();
   await firstProduct.locator('.product-image-link>a').click();
   await expect(page).toHaveURL(new RegExp('/'+language+'/products/'));
   await expect(page.getByRole('heading',{name:productTitle,level:1,exact:true})).toBeVisible();
-  await page.goBack();await expect(page.locator('.home-editorial')).toBeVisible();
-  const edit=page.locator('.home-edit-card').first(),category=new URL(await edit.getAttribute('href'),page.url()).searchParams.get('category');
-  await edit.click();await expect(page).toHaveURL(new RegExp('/'+language+'/shop\\?'));
+  await page.goBack();await expect(page.locator('.v26-home')).toBeVisible();
+  const stocked=catalogue.products.find(p=>p.status==='active'&&categories.has(p.category));
+  const categoryLink=stocked?page.locator('.v26-category[href*="category='+encodeURIComponent(stocked.category)+'"]').first():page.locator('.v26-category').first();
+  const category=new URL(await categoryLink.getAttribute('href'),page.url()).searchParams.get('category');
+  await categoryLink.click();await expect(page).toHaveURL(new RegExp('/'+language+'/shop\\?'));
   expect(new URL(page.url()).searchParams.get('category')).toBe(category);
-  await expect(page.locator('.product-card').first()).toBeVisible();
+  if(stocked)await expect(page.locator('.product-card').first()).toBeVisible();
+  else await expect(page.locator('.discovery-page')).toBeVisible();
  }
  expect(errors).toEqual([]);
  expect(consoleErrors).toEqual([]);

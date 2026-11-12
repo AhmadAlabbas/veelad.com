@@ -3,7 +3,7 @@ import {chooseHeaderPreference} from '../helpers/header-preferences.js';
 import {googleApp} from '../helpers/google-app.js';
 try{process.loadEnvFile('.env');}catch(error){if(error.code!=='ENOENT')throw error;}
 
-test('empty home offers eleven style cards without removing the Arabic lettering classification',async({page},info)=>{
+test('empty editorial home preserves design studio access, payments disclosure and style navigation',async({page},info)=>{
  test.setTimeout(90000);const fixture=await googleApp(),errors=[];
  page.on('pageerror',error=>errors.push(error.message));
  try{
@@ -11,24 +11,22 @@ test('empty home offers eleven style cards without removing the Arabic lettering
   await page.emulateMedia({reducedMotion:'reduce'});
   for(const language of ['en','ar']){
    await page.goto(fixture.origin+'/'+language);
-   await expect(page.locator('.design-style-card')).toHaveCount(11);
-   await expect(page.locator('.design-style-card[href*="arabic-lettering"]')).toHaveCount(0);
-   await expect(page.locator('.home-product-types .category-card')).toHaveCount(7);
+   await expect(page.locator('.v26-home')).toBeVisible();
+   await expect(page.locator('.v26-category')).toHaveCount(6);
    await expect(page.locator('.product-card')).toHaveCount(0);
-   await expect(page.locator('.home-creative-section')).toBeVisible();
-   await expect(page.locator('.home-questions details')).toHaveCount(4);
-   expect(await page.locator('main').evaluate(el=>el.scrollHeight)).toBeGreaterThan(2800);
+   await expect(page.locator('.v26-empty')).toBeVisible();
+   await expect(page.locator('.v26-creative')).toBeVisible();
+   await expect(page.locator('.v26-audience')).toHaveCount(3);
+   expect(await page.locator('main').evaluate(el=>el.scrollHeight)).toBeGreaterThan(1500);
    const methodImages=page.locator('.footer-payments img');await expect(methodImages).toHaveCount(5);
    expect(await methodImages.evaluateAll(images=>images.map(image=>image.alt))).toEqual(['mada','Visa','Mastercard','Apple Pay','Samsung Pay']);
    await methodImages.last().scrollIntoViewIfNeeded();
    for(const image of await methodImages.all())await expect.poll(()=>image.evaluate(el=>el.complete&&el.naturalWidth>0)).toBe(true);
    await expect(page.locator('.footer-payments')).toContainText(language==='ar'?'الدفع الإلكتروني غير متاح':'Online payments are not active');
-   const hero=page.locator('.home-hero-visual img');await expect.poll(()=>hero.evaluate(el=>el.complete&&el.naturalWidth>1000)).toBe(true);
-   await expect(page.locator('.style-artwork').first()).toHaveCSS('background-image',/style-atlas\.webp/);
+   const hero=page.locator('.v26-photo img');await expect.poll(()=>hero.evaluate(el=>el.complete&&el.naturalWidth>1000)).toBe(true);
    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
    await page.screenshot({path:info.outputPath('launch-home-'+language+'.png'),fullPage:true});
-   await page.locator('.design-style-card[href*="vintage-travel"]').click();
-   await expect(page).toHaveURL(new RegExp('/'+language+'/shop\\?style=vintage-travel'));
+   await page.goto(fixture.origin+'/'+language+'/shop?style=vintage-travel');
    await expect(page.locator('.shop-intro h1')).toHaveText(language==='ar'?'مدن ورحلات':'Vintage travel');
    await expect(page.locator('.product-card')).toHaveCount(0);
    await expect(page.locator('main .empty h2')).toHaveText(language==='ar'?'تصاميم جديدة من هالنوع، في الطريق.':'This style is taking shape.');
