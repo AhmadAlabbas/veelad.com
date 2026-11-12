@@ -84,7 +84,7 @@
         '</div>',
         '<div class="v26-hero-visual" aria-label="'+safe(w.caption)+'">',
           '<div class="v26-sun"></div><div class="v26-checker" aria-hidden="true"></div>',
-          '<figure class="v26-photo"><img src="/assets/lifestyle/homepage-editorial.webp" width="1200" height="1000" alt="'+safe(w.caption)+'" fetchpriority="high"><figcaption>'+safe(w.caption)+'</figcaption></figure>',
+          '<figure class="v26-photo"><img src="/assets/lifestyle/homepage-editorial.webp?v=veelad-neutral-2" width="1200" height="1000" alt="'+safe(w.caption)+'" fetchpriority="high"><figcaption>'+safe(w.caption)+'</figcaption></figure>',
           '<div class="v26-mountain">'+mountain()+'</div>',
           '<span class="v26-graphic-plus" aria-hidden="true">＋</span><span class="v26-graphic-cross" aria-hidden="true">✳</span>',
         '</div>',
