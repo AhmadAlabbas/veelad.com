@@ -24,7 +24,7 @@ test('assets load in sequence and support mobile',()=>{
  assert.ok(html.indexOf('/assets/editorial-home-2026.js')<html.indexOf('/assets/reference-home-2026.js'));
  assert.ok(html.indexOf('/assets/reference-home-2026.js')<html.indexOf('/assets/app.js'));
  assert.match(css,/grid-template-columns:40\.5% 59\.5%/);
- assert.match(css,/@media\(max-width:760px\)/);
+ assert.match(css,/@media\(max-width:900px\)/);
  assert.ok(svg.startsWith('<svg '));assert.ok(svg.includes('width="1200"'));
 });
 test('home shows approved headline, artwork, working links and section order',()=>{
