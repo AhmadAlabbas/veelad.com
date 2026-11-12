@@ -12,7 +12,7 @@ test('editorial landing links only real catalogue products and works in English 
   await expect(page.locator('.v26-home')).toBeVisible();
   await expect(page.locator('html')).toHaveAttribute('dir',language==='ar'?'rtl':'ltr');
   await expect(page.locator('.v26-catalogue .product-card').first()).toBeVisible();
-  await expect(page.locator('.v26-hero h1')).toContainText(language==='ar'?'فكرتك':'Idea.');
+  await expect(page.locator('.v26-hero h1')).toContainText(language==='ar'?'أفكارك':'Ideas.');
   const cards=await page.locator('.v26-catalogue .product-card .product-image-link>a').evaluateAll(links=>links.map(link=>({pathname:new URL(link.href).pathname})));
   expect(cards.length).toBeGreaterThan(0);
   expect(new Set(cards.map(card=>card.pathname)).size).toBe(cards.length);
@@ -21,7 +21,7 @@ test('editorial landing links only real catalogue products and works in English 
    expect(card.pathname).toMatch(new RegExp('^/'+language+'/products/[^/]+$'));
    expect(realProducts.has(decodeURIComponent(card.pathname.split('/').at(-1)))).toBeTruthy();
   }
-  const categories=new Set(['T-shirts','Hoodies','Sweatshirts','Polo','Caps','Socks']);
+  const categories=new Set(['T-shirts','Hoodies','Sweatshirts','Caps','Socks']);
   const categoryLinks=await page.locator('.v26-category[href*="category="]').evaluateAll(links=>links.map(link=>link.href));
   expect(categoryLinks.length).toBeGreaterThan(0);
   for(const href of categoryLinks){
@@ -31,9 +31,9 @@ test('editorial landing links only real catalogue products and works in English 
   }
   const image=page.locator('.v26-photo img');
   await expect(image).toBeVisible();
-  await expect(image).toHaveAttribute('src','/assets/lifestyle/homepage-editorial.webp?v=veelad-neutral-2');
+  await expect(image).toHaveAttribute('src','/assets/veelad-reference-hero.webp?v=1');
   await expect.poll(()=>image.evaluate(element=>element.complete&&element.naturalWidth>0)).toBeTruthy();
-  await expect(page.locator('.v26-photo figcaption')).toContainText(language==='ar'?'توضيحية':'Illustrative');
+  await expect(image).toHaveAttribute('alt',language==='ar'?/توضيحي/:/Illustrative/);
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBeTruthy();
   const firstProduct=page.locator('.v26-catalogue .product-card').first(),productTitle=await firstProduct.locator('h3').innerText();
   await firstProduct.locator('.product-image-link>a').click();

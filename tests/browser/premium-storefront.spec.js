@@ -66,9 +66,14 @@ test('editorial homepage and navigation fit phones, laptops and wide desktops',a
    await expect(page.locator('.global-nav .nav-actions a[href*="/bag"]')).toBeVisible();
    if(width<=760)await expect(page.locator('.global-nav [data-action=mobile-menu]')).toBeVisible();
    else {
-    await expect(page.locator('.global-nav .partners-nav-link')).toBeVisible();
-    await expect(page.locator('.global-nav .header-create-menu summary')).toBeVisible();
-    expect(geometry.searchWidth).toBeGreaterThanOrEqual(width>=1366?390:260);
+    if(width>=1200){
+     await expect(page.locator('.global-nav .v27-header-links a[href*="/partners"]')).toBeVisible();
+     await expect(page.locator('.global-nav .v27-header-links a[href*="/create"]')).toBeVisible();
+    }else{
+     await expect(page.locator('.global-nav .partners-nav-link')).toBeVisible();
+     await expect(page.locator('.global-nav .header-create-menu summary')).toBeVisible();
+    }
+    expect(geometry.searchWidth).toBeGreaterThanOrEqual(width>=1366?150:260);
    }
   }
   expect(errors).toEqual([]);

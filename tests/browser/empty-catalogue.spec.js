@@ -34,7 +34,7 @@ test('an initialized empty store has no sample listings and editorial homepage w
    await expect(page.locator('.v26-home a[href*="/create"]').first()).toBeVisible();
    const image=page.locator('.v26-photo img');
    await expect(image).toHaveCount(1);
-   await expect(image).toHaveAttribute('src','/assets/lifestyle/homepage-editorial.webp?v=veelad-neutral-2');
+   await expect(image).toHaveAttribute('src','/assets/veelad-reference-hero.webp?v=1');
    await expect.poll(()=>image.evaluate(element=>element.complete&&element.naturalWidth>0)).toBe(true);
    await page.screenshot({path:info.outputPath('empty-home-'+language+'.png'),fullPage:true});
    await page.goto(fixture.origin+'/'+language+'/shop');

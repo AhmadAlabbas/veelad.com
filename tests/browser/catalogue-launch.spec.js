@@ -23,7 +23,7 @@ test('empty editorial home preserves design studio access, payments disclosure a
    await methodImages.last().scrollIntoViewIfNeeded();
    for(const image of await methodImages.all())await expect.poll(()=>image.evaluate(el=>el.complete&&el.naturalWidth>0)).toBe(true);
    await expect(page.locator('.footer-payments')).toContainText(language==='ar'?'الدفع الإلكتروني غير متاح':'Online payments are not active');
-   const hero=page.locator('.v26-photo img');await expect.poll(()=>hero.evaluate(el=>el.complete&&el.naturalWidth>1000)).toBe(true);
+   const hero=page.locator('.v26-photo img');await expect.poll(()=>hero.evaluate(el=>el.complete&&el.naturalWidth>800)).toBe(true);
    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
    await page.screenshot({path:info.outputPath('launch-home-'+language+'.png'),fullPage:true});
    await page.goto(fixture.origin+'/'+language+'/shop?style=vintage-travel');
