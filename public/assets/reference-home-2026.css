@@ -10,8 +10,7 @@ body[data-route="home"] .global-nav .global-search:focus-within{border-color:#79
 body[data-route="home"] .global-nav .header-region{border:0;background:transparent;padding:0;min-height:42px}
 body[data-route="home"] .global-nav .destination-control{display:none}
 body[data-route="home"] .global-nav .header-region .international-selectors{border:0}
-body[data-route="home"] .global-nav .nav-actions .header-create-menu,
-body[data-route="home"] .global-nav .nav-actions .partners-nav-link{display:none!important}
+@media(min-width:1200px){body[data-route="home"] .global-nav .nav-actions .header-create-menu,body[data-route="home"] .global-nav .nav-actions .partners-nav-link{display:none!important}}
 body[data-route="home"] .global-nav .nav-actions{gap:5px}
 body[data-route="home"] .global-nav .nav-actions .heart-nav{display:none}
 body[data-route="home"] .global-nav .header-region .international-selectors select{border:0;color:#111;background:transparent;font-weight:750}
