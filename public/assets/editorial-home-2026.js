@@ -61,12 +61,8 @@
     var lang=ctx.currentLanguage(),w=words[lang]||words.en;
     var active=ctx.distinctDesigns(ctx.products.filter(function(p){return p.status==='active'&&p.sample_pricing!==true&&p.stock_is_simulated!==true;}));
     var categories=['T-shirts','Hoodies','Sweatshirts','Polo','Caps','Socks'];
-    var actual=[...new Set(active.map(function(p){return p.category;}).filter(Boolean))];
-    var list=categories.filter(function(c){return actual.includes(c);});
-    actual.forEach(function(c){if(list.length<6&&!list.includes(c))list.push(c);});
-    if(list.length<4)categories.forEach(function(c){if(list.length<6&&!list.includes(c))list.push(c);});
-    var categoryGrid=list.slice(0,6).map(function(c){
-      var exists=actual.includes(c),href=ctx.url('shop',exists?{category:c}:{});
+    var categoryGrid=categories.map(function(c){
+      var href=ctx.url('shop',{category:c});
       return '<a class="v26-category" href="'+safe(href)+'"><div class="v26-category-picture">'+silhouette(c)+'</div><span>'+safe(ctx.t(c))+'</span></a>';
     }).join('');
     var featured=active.slice(0,5);
