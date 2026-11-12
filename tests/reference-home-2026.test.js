@@ -26,11 +26,13 @@ test('assets load in sequence and support mobile',()=>{
  assert.match(css,/grid-template-columns:40\.5% 59\.5%/);
  assert.match(css,/@media\(max-width:900px\)/);
  assert.ok(svg.startsWith('<svg '));assert.ok(svg.includes('width="1200"'));
+ assert.ok(fs.statSync(new URL('public/assets/veelad-reference-hero.webp',root)).size>15000);
+ for(const file of ['tshirt','hoodie','sweatshirt','cap','socks'])assert.ok(fs.statSync(new URL('public/assets/mockup-category-'+file+'.webp',root)).size>300);
 });
 test('home shows approved headline, artwork, working links and section order',()=>{
  const output=home();
  assert.match(output,/Wear<br>Your Ideas\./);
- assert.ok(output.includes('/assets/veelad-reference-hero.svg?v=1'));
+ assert.ok(output.includes('/assets/veelad-reference-hero.webp?v=1'));
  assert.equal((output.match(/<main\b/g)||[]).length,1);
  assert.equal((output.match(/<\/main>/g)||[]).length,1);
  assert.equal((output.match(/class="v26-category v27-tile"/g)||[]).length,5);
