@@ -31,7 +31,7 @@ test('editorial landing links only real catalogue products and works in English 
   }
   const image=page.locator('.v26-photo img');
   await expect(image).toBeVisible();
-  await expect(image).toHaveAttribute('src','/assets/veelad-reference-hero.svg?v=1');
+  await expect(image).toHaveAttribute('src','/assets/veelad-reference-hero.webp?v=1');
   await expect.poll(()=>image.evaluate(element=>element.complete&&element.naturalWidth>0)).toBeTruthy();
   await expect(image).toHaveAttribute('alt',language==='ar'?/توضيحي/:/Illustrative/);
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBeTruthy();
