@@ -18,6 +18,8 @@ const graphics={
 };
 const ico=name=>'<svg viewBox="0 0 24 24" class="v27-icon" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+graphics[name]+'</svg>';
 function apparel(type){
+ const filenames={'T-shirts':'tshirt','Hoodies':'hoodie','Sweatshirts':'sweatshirt','Caps':'cap','Socks':'socks'};
+ if(filenames[type])return '<img class="v27-apparel" src="/assets/mockup-category-'+filenames[type]+'.webp?v=1" alt="" width="220" height="119" loading="eager" decoding="async">';
  const defs='<defs><linearGradient id="cloth" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fffefa"/><stop offset=".47" stop-color="#e5e0d9"/><stop offset=".95" stop-color="#b5b1ab"/></linearGradient><linearGradient id="dark" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#4c4c4c"/><stop offset=".48" stop-color="#171717"/><stop offset="1" stop-color="#050505"/></linearGradient><linearGradient id="grey" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f2f2f2"/><stop offset=".54" stop-color="#c6c6c6"/><stop offset="1" stop-color="#999"/></linearGradient><filter id="shadow"><feGaussianBlur stdDeviation="3"/></filter></defs><ellipse cx="88" cy="146" rx="62" ry="7" fill="#5b5245" opacity=".11" filter="url(#shadow)"/>';
  const shapes={
  'T-shirts':'<path d="M50 29 69 17h38l19 12 37 25-19 31-24-15v76H56V70L32 85 13 54Z" fill="url(#cloth)" stroke="#beb9b0" stroke-width="1.6"/><path d="M69 17q18 25 38 0" fill="none" stroke="#aaa59f" stroke-width="2"/><path d="M50 29q22 21 29 31M126 29q-18 21-26 31" stroke="#f8f5ed" opacity=".8" stroke-width="3"/>',
@@ -47,7 +49,7 @@ function render(ctx){
     +'<p class="v27-hero-description">'+w.desc+'</p>'
     +'<div class="v27-hero-actions">'+ctx.link(w.shop+' <span aria-hidden="true">→</span>','shop','v27-cta v27-cta-primary')+ctx.link(w.create,'create','v27-cta v27-cta-secondary')+'</div>'
    +'</div>'
-   +'<div class="v26-photo v27-hero-art"><img src="/assets/veelad-reference-hero.svg?v=1" width="914" height="465" fetchpriority="high" alt="'+esc(w.photo)+'"></div>'
+   +'<div class="v26-photo v27-hero-art"><img src="/assets/veelad-reference-hero.webp?v=1" width="914" height="465" fetchpriority="high" alt="'+esc(w.photo)+'"></div>'
   +'</section>'
   +'<nav class="v27-category-strip" aria-label="'+esc(w.all)+'">'
    +'<a href="'+esc(ctx.url('shop'))+'" class="v27-category-title"><span>'+w.categories+'</span><span class="v27-category-corner" aria-hidden="true">↗</span></a>'
