@@ -76,7 +76,6 @@ function heroMarkup(){
 }
 function artistCard(a,i){return link(`<div class="artist-cover c${i%4}">${a.cover_upload_id?`<img src="/api.php?route=image&amp;id=${encodeURIComponent(a.cover_upload_id)}" alt="" loading="lazy">`:""}</div><div class="avatar" style="background:${/^#[a-f0-9]{6}$/i.test(a.color)?a.color:'#ded5fb'}">${a.avatar_upload_id?`<img src="/api.php?route=image&amp;id=${encodeURIComponent(a.avatar_upload_id)}" alt="" loading="lazy">`:esc(a.initials)}</div><h3>${esc(localField(a,'name'))}</h3><p>${esc(localField(a,'location')||t('Independent artist'))}</p><span class="text-link">${t("Meet the artist ↗")}</span>`,'artist','artist-card',{id:a.id});}
 function home(){
-  if(window.VeeladEditorial2026?.render) return window.VeeladEditorial2026.render({products,artists,link,icon,photo,grid,t,esc,distinctDesigns,currentLanguage,localField,url,creativeEnabled});
  const featured=distinctDesigns(products).slice(0,8),featuredIds=new Set(featured.map(p=>p.id));
  const featuredDesigns=new Set(featured.map(p=>p.artist_id+'|'+(p.upload_id||p.design_group||p.id)));
  const discoveries=distinctDesigns(products).filter(p=>!featuredDesigns.has(p.artist_id+'|'+(p.upload_id||p.design_group||p.id))).sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||''))).slice(0,8);

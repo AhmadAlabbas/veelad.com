@@ -54,7 +54,7 @@ export function pageRoutes(app,c,db,schema) {
   if(c.revision)source=source.replace(/(href|src)="(\/assets\/[^"?]+)(?:\?[^\"]*)?"/g,(_,attribute,asset)=>`${attribute}="${asset}?v=${encodeURIComponent(c.revision)}"`);
   // Preload only the actual first-visit LCP image. Its URL matches the
   // storefront slideshow byte-for-byte, avoiding duplicate network fetches.
-  if(canonical==='/'&&status===200)source=source.replace('</head>','<link rel="preload" as="image" href="/assets/veelad-reference-hero.webp?v=1" fetchpriority="high"></head>');
+  if(canonical==='/'&&status===200)source=source.replace('</head>','<link rel="preload" as="image" href="/assets/lifestyle/homepage-editorial.webp?v=veelad-neutral-2" fetchpriority="high"></head>');
   res.status(status).set('Cache-Control','no-cache').set('X-Robots-Tag',robots).type('html').send(source);
  }
  app.get('/robots.txt',(req,res)=>{

@@ -69,7 +69,7 @@ test('public language pages include canonical, real hreflang, social previews, c
    assert.match(html,/meta name="twitter:description"/);
    assert.match(html,/meta name="twitter:image"/);
    assert.match(html,/meta property="og:image:alt"/);
-   assert.match(html,/rel="preload" as="image" href="\/assets\/veelad-reference-hero.webp\?v=1" fetchpriority="high"/);
+   assert.match(html,/rel="preload" as="image" href="\/assets\/lifestyle\/homepage-editorial.webp\?v=veelad-neutral-2" fetchpriority="high"/);
    assert.match(html,/<noscript>[\s\S]*<h1/);
   }
   const other=await (await fetch(origin+'/en/help')).text();
