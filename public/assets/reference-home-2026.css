@@ -84,7 +84,7 @@ body[data-route="home"] .global-nav .header-region .international-selectors sele
 @media(max-width:1199px){
  .v27-hero{height:auto;min-height:390px}
  .v27-hero .v27-hero-text{padding:32px clamp(19px,3vw,40px)}
- .v27-hero h1{font-size:clamp(59px,8.1vw,95px)}
+ .v27-hero h1{font-size:clamp(60px,6.6vw,79px)}
  .v27-category-title{padding:15px;font-size:clamp(21px,2.4vw,29px)}
  .v27-category-corner{inset-inline-end:11px;font-size:30px}
  .v27-benefit{gap:10px;padding:10px 12px}
