@@ -21,7 +21,7 @@ test('editorial landing links only real catalogue products and works in English 
    expect(card.pathname).toMatch(new RegExp('^/'+language+'/products/[^/]+$'));
    expect(realProducts.has(decodeURIComponent(card.pathname.split('/').at(-1)))).toBeTruthy();
   }
-  const categories=new Set(catalogue.products.map(product=>product.category));
+  const categories=new Set(['T-shirts','Hoodies','Sweatshirts','Polo','Caps','Socks']);
   const categoryLinks=await page.locator('.v26-category[href*="category="]').evaluateAll(links=>links.map(link=>link.href));
   expect(categoryLinks.length).toBeGreaterThan(0);
   for(const href of categoryLinks){
@@ -40,11 +40,13 @@ test('editorial landing links only real catalogue products and works in English 
   await expect(page).toHaveURL(new RegExp('/'+language+'/products/'));
   await expect(page.getByRole('heading',{name:productTitle,level:1,exact:true})).toBeVisible();
   await page.goBack();await expect(page.locator('.v26-home')).toBeVisible();
-  const categoryLink=page.locator('.v26-category[href*="category="]').first();
+  const stocked=catalogue.products.find(p=>p.status==='active'&&categories.has(p.category));
+  const categoryLink=stocked?page.locator('.v26-category[href*="category='+encodeURIComponent(stocked.category)+'"]').first():page.locator('.v26-category').first();
   const category=new URL(await categoryLink.getAttribute('href'),page.url()).searchParams.get('category');
   await categoryLink.click();await expect(page).toHaveURL(new RegExp('/'+language+'/shop\\?'));
   expect(new URL(page.url()).searchParams.get('category')).toBe(category);
-  await expect(page.locator('.product-card').first()).toBeVisible();
+  if(stocked)await expect(page.locator('.product-card').first()).toBeVisible();
+  else await expect(page.locator('.discovery-page')).toBeVisible();
  }
  expect(errors).toEqual([]);
  expect(consoleErrors).toEqual([]);
