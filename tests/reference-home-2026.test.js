@@ -36,11 +36,13 @@ test('home shows approved headline, artwork, working links and section order',()
  assert.equal((output.match(/<main\b/g)||[]).length,1);
  assert.equal((output.match(/<\/main>/g)||[]).length,1);
  assert.equal((output.match(/class="v26-category v27-tile"/g)||[]).length,5);
- for(const href of ['/en/shop','/en/create','/en/partners'])assert.ok(output.includes('href="'+href+'"'),href);
+ for(const href of ['/en/shop','/en/create'])assert.ok(output.includes('href="'+href+'"'),href);
  for(const type of ['T-shirts','Hoodies','Sweatshirts','Caps','Socks'])assert.ok(output.includes('category='+encodeURIComponent(type)),type);
  assert.ok(output.indexOf('v27-category-strip')<output.indexOf('v27-benefits'));
  assert.ok(output.indexOf('v27-benefits')<output.indexOf('v27-trending'));
  assert.ok(output.includes('v26-studio-preview'));
+ const header=fs.readFileSync(new URL('public/assets/storefront.js',root),'utf8');
+ assert.ok(header.includes("'partners'"));
 });
 test('Arabic and Chinese copy and navigation are retained',()=>{
  assert.ok(home('ar').includes('ارتدِ<br>أفكارك.'));
