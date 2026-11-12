@@ -51,7 +51,7 @@ body[data-route="home"] .global-nav .header-region .international-selectors sele
 .v27-category-strip .v27-tile{background:#fdfaf5;flex-direction:column;align-items:center;justify-content:space-between;padding:10px 4px 14px;gap:3px;color:#101010!important;font-weight:770;font-size:13px;line-height:1.25;transition:background .15s}
 .v27-category-strip .v27-tile:hover{background:#eae4dc}
 .v27-tile-art{flex:1;min-height:0;width:100%;display:flex;justify-content:center;align-items:center}
-.v27-apparel{width:100%;max-height:123px;height:100%;filter:drop-shadow(2px 3px 2px #7773);transition:transform .2s}
+.v27-apparel{width:100%;max-height:123px;height:100%;object-fit:contain;filter:drop-shadow(2px 3px 2px #7773);transition:transform .2s}
 .v27-tile:hover .v27-apparel{transform:translateY(-3px) scale(1.035)}
 .v27-category-strip .v27-tile-all{justify-content:center;gap:19px}
 .v27-tile-all .v27-icon{width:39px;height:39px;stroke-width:2}
