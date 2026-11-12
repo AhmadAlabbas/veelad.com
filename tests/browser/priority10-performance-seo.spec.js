@@ -18,10 +18,10 @@ test('ordered deferred assets keep storefront, discovery and localization functi
   expect(await page.evaluate(()=>window.VeeladElements?.stats?.total||0)).toBeGreaterThan(1000);
   const preload=page.locator('head link[rel="preload"][as="image"]');
   await expect(preload).toHaveCount(1);
-  await expect(preload).toHaveAttribute('href','/assets/lifestyle/homepage-editorial.webp?v=veelad-neutral-2');
+  await expect(preload).toHaveAttribute('href','/assets/veelad-reference-hero.svg?v=1');
   const image=page.locator('.v26-photo img').first();
   await expect(image).toBeVisible();
-  await expect(image).toHaveAttribute('src','/assets/lifestyle/homepage-editorial.webp?v=veelad-neutral-2');
+  await expect(image).toHaveAttribute('src','/assets/veelad-reference-hero.svg?v=1');
   await expect(page.locator('meta[name="twitter:title"]')).toHaveAttribute('content',await page.title());
   await expect(page.locator('meta[name="twitter:description"]')).toHaveAttribute('content',await page.locator('meta[name="description"]').getAttribute('content'));
   await expect(page.locator('meta[property="og:image:alt"]')).toHaveAttribute('content',await page.title());
