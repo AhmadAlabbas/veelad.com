@@ -61,9 +61,10 @@ test('catalogue cards use active, non-placeholder catalogue products',()=>{
   assert.ok(output.includes('/en/shop?category=T-shirts'));
 });
 
-test('escapes untrusted category text and does not add a fake listing',()=>{
+test('does not interpolate untrusted categories into the six wearable tiles',()=>{
   const output=render('en',[{id:'1',title:'Clean',category:'<script>alert(1)</script>',status:'active'}]);
   assert.ok(!output.includes('<script>alert(1)</script>'));
-  assert.ok(output.includes('&lt;script&gt;'));
+  assert.ok(!output.includes('&lt;script&gt;'));
+  assert.equal((output.match(/class="v26-category"/g)||[]).length,6);
   assert.ok(output.includes('data-catalogue-count="1"'));
 });
